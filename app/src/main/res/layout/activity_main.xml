@@ -83,14 +83,25 @@
 
                     <EditText
                         android:id="@+id/searchBox"
-                        android:layout_width="match_parent"
+                        android:layout_width="0dp"
                         android:layout_height="match_parent"
                         android:layout_marginStart="12dp"
+                        android:layout_weight="1"
                         android:background="@null"
                         android:hint="Search places..."
                         android:imeOptions="actionSearch"
                         android:inputType="text"
                         android:textSize="15sp" />
+
+                    <ImageView
+                        android:id="@+id/btnVoiceSearch"
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:layout_marginStart="8dp"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:src="@android:drawable/ic_btn_speak_now"
+                        app:tint="@color/primary" />
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 

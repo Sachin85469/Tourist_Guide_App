@@ -6,7 +6,11 @@ import android.os.Bundle;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.viewpager2.widget.ViewPager2;
+import java.util.ArrayList;
+import java.util.List;
 
 public class PlaceDetailsActivity extends AppCompatActivity {
 
@@ -14,13 +18,14 @@ public class PlaceDetailsActivity extends AppCompatActivity {
     private ImageView btnFavorite;
     private double lat;
     private double lng;
+    private ViewPager2 viewPagerGallery;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_place_details);
 
-        ImageView ivImage = findViewById(R.id.detailImage);
+        viewPagerGallery = findViewById(R.id.viewPagerGallery);
         TextView tvName = findViewById(R.id.detailName);
         TextView tvCategory = findViewById(R.id.detailCategory);
         TextView tvDescription = findViewById(R.id.detailDescription);
@@ -63,8 +68,31 @@ public class PlaceDetailsActivity extends AppCompatActivity {
             if (tvFunFact != null) tvFunFact.setText(funFact != null ? funFact : "Did you know? Pune is amazing!");
             if (tvStation != null) tvStation.setText(station != null ? station : "Not specified.");
             
-            if (ivImage != null && imageResId != 0) {
-                ivImage.setImageResource(imageResId);
+            // Show fun fact popup
+            new AlertDialog.Builder(this)
+                .setTitle("Did you know?")
+                .setMessage(funFact != null ? funFact : "Did you know? Pune is amazing!")
+                .setPositiveButton("Cool!", null)
+                .show();
+
+            // Setup Gallery
+            List<Place> allPlaces = DataProvider.getPlaces();
+            List<Integer> galleryImages = new ArrayList<>();
+            for (Place p : allPlaces) {
+                if (p.getId().equals(placeId)) {
+                    galleryImages.addAll(p.getGalleryImages());
+                    break;
+                }
+            }
+
+            // Fallback if gallery is empty or doesn't have the main image
+            if (galleryImages.isEmpty() && imageResId != 0) {
+                galleryImages.add(imageResId);
+            }
+
+            GalleryAdapter galleryAdapter = new GalleryAdapter(galleryImages);
+            if (viewPagerGallery != null) {
+                viewPagerGallery.setAdapter(galleryAdapter);
             }
 
             updateFavoriteIcon();

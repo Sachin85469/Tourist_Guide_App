@@ -11,7 +11,9 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.LinearSnapHelper;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.recyclerview.widget.SnapHelper;
 import java.util.List;
 import java.util.Locale;
 
@@ -115,6 +117,9 @@ public class HomeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         CategoriesViewHolder(View itemView) {
             super(itemView);
             rvCategories = itemView.findViewById(R.id.rvCategories);
+            // Attach SnapHelper only once
+            SnapHelper snapHelper = new LinearSnapHelper();
+            snapHelper.attachToRecyclerView(rvCategories);
         }
         void bind(List<Category> categories, CategoryAdapter.OnCategoryClickListener listener) {
             rvCategories.setLayoutManager(new LinearLayoutManager(itemView.getContext(), LinearLayoutManager.HORIZONTAL, false));
@@ -160,7 +165,7 @@ public class HomeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     }
 
     static class PlaceViewHolder extends RecyclerView.ViewHolder {
-        TextView placeName, placeCategory, placeCity, placeRating;
+        TextView placeName, placeCategory, placeCity, placeRating, placeTag;
         ImageView placeImage, btnFavorite;
 
         PlaceViewHolder(View itemView) {
@@ -169,6 +174,7 @@ public class HomeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             placeCategory = itemView.findViewById(R.id.tvPlaceCategory);
             placeCity = itemView.findViewById(R.id.tvCity);
             placeRating = itemView.findViewById(R.id.tvRating);
+            placeTag = itemView.findViewById(R.id.tvTag);
             placeImage = itemView.findViewById(R.id.ivPlaceImage);
             btnFavorite = itemView.findViewById(R.id.btnFavorite);
         }
@@ -180,6 +186,7 @@ public class HomeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             placeCategory.setText(place.getCategory());
             if (placeCity != null) placeCity.setText(place.getCity());
             if (placeRating != null) placeRating.setText(String.format(Locale.getDefault(), "%.1f ⭐", place.getRating()));
+            if (placeTag != null) placeTag.setText(place.getTag());
             placeImage.setImageResource(place.getImageResId());
             
             boolean isFav = FavoritesManager.isFavorite(context, place.getId());

@@ -1,18 +1,22 @@
 package com.example.touristguideapp;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class DataProvider {
 
     public static List<Place> getPlaces() {
         List<Place> places = new ArrayList<>();
 
-        places.add(new Place(
+        // 1. Shaniwar Wada -> History
+        Place p1 = new Place(
                 "1",
                 "Shaniwar Wada",
                 "Pune",
-                "history",
+                "History",
                 "18th-century Maratha palace fort known for its massive gates and rich history. Built in 1732 by Peshwa Baji Rao I, it was once the seat of the Peshwa empire.",
                 "Low",
                 "High",
@@ -22,14 +26,18 @@ public class DataProvider {
                 R.drawable.shaniwar_wada,
                 "Visit during evening for light show. Avoid weekends.",
                 "The fort is believed to be haunted by the ghost of Narayanrao.",
-                "Pune Station (3 km)"
-        ));
+                "Pune Station (3 km)",
+                "Popular"
+        );
+        p1.setGalleryImages(Arrays.asList(R.drawable.shaniwar_wada, R.drawable.sinhagad, R.drawable.dagadusheth));
+        places.add(p1);
 
-        places.add(new Place(
+        // 2. Dagdusheth Ganpati -> Spiritual
+        Place p2 = new Place(
                 "2",
                 "Dagdusheth Ganpati",
                 "Pune",
-                "spiritual",
+                "Spiritual",
                 "Famous Ganesha temple known for its gold idol and grand Ganesh festival celebrations.",
                 "Low",
                 "Very High",
@@ -39,14 +47,18 @@ public class DataProvider {
                 R.drawable.dagadusheth,
                 "Visit early morning to avoid crowd.",
                 "The idol is adorned with over 40kg gold.",
-                "Pune Station (2.5 km)"
-        ));
+                "Pune Station (2.5 km)",
+                "Popular"
+        );
+        p2.setGalleryImages(Arrays.asList(R.drawable.dagadusheth, R.drawable.shaniwar_wada));
+        places.add(p2);
 
-        places.add(new Place(
+        // 3. Sinhagad Fort -> Adventure
+        Place p3 = new Place(
                 "3",
                 "Sinhagad Fort",
                 "Pune",
-                "adventure",
+                "Adventure",
                 "Historic fort and trekking destination with panoramic views of the city.",
                 "Low",
                 "High",
@@ -56,14 +68,18 @@ public class DataProvider {
                 R.drawable.sinhagad,
                 "Start trek early morning.",
                 "Known for Battle of Sinhagad.",
-                "Pune Station (30 km)"
-        ));
+                "Pune Station (30 km)",
+                "Adventure"
+        );
+        p3.setGalleryImages(Arrays.asList(R.drawable.sinhagad, R.drawable.khadakwasla));
+        places.add(p3);
 
-        places.add(new Place(
+        // 4. Khadakwasla Dam -> Nature
+        Place p4 = new Place(
                 "4",
                 "Khadakwasla Dam",
                 "Pune",
-                "nature",
+                "Nature",
                 "Scenic dam known for sunset views and peaceful environment. Popular picnic spot.",
                 "Low",
                 "High",
@@ -73,14 +89,18 @@ public class DataProvider {
                 R.drawable.khadakwasla,
                 "Best during sunset. Avoid late night.",
                 "Featured in Bollywood movie scenes.",
-                "Shivajinagar (15 km)"
-        ));
+                "Shivajinagar (15 km)",
+                "Couple"
+        );
+        p4.setGalleryImages(Arrays.asList(R.drawable.khadakwasla, R.drawable.sinhagad));
+        places.add(p4);
 
-        places.add(new Place(
+        // 5. F.M. Live -> Entertainment
+        Place p5 = new Place(
                 "5",
                 "F.M. Live (BIG FM Studio)",
                 "Pune",
-                "entertainment",
+                "Entertainment",
                 "Live radio broadcasting studio where shows are recorded and aired.",
                 "Low",
                 "Moderate",
@@ -90,65 +110,18 @@ public class DataProvider {
                 R.drawable.fm_live_koregaon_park,
                 "Visit during live sessions for a better experience.",
                 "Part of BIG FM network, one of India's popular radio stations.",
-                "Koregaon Park (1 km)"
-        ));
+                "Koregaon Park (1 km)",
+                "Modern"
+        );
+        p5.setGalleryImages(Arrays.asList(R.drawable.fm_live_koregaon_park, R.drawable.timezone_pune));
+        places.add(p5);
 
+        // 6. Pune Zoo -> Nature
         places.add(new Place(
                 "6",
-                "Appu Ghar",
-                "Pune",
-                "adventure",
-                "Amusement park with water rides and family entertainment.",
-                "Medium",
-                "High",
-                "Day",
-                18.6298,
-                73.7890,
-                R.drawable.appu_ghar,
-                "Visit on weekdays to avoid rush.",
-                "One of India's oldest amusement brands.",
-                "Pune Junction (8 km)"
-        ));
-
-        places.add(new Place(
-                "7",
-                "Kelkar Museum",
-                "Pune",
-                "history",
-                "Museum with large collection of Indian artifacts and Mastani Mahal.",
-                "Low",
-                "Moderate",
-                "Morning",
-                18.5107,
-                73.8530,
-                R.drawable.raja_dinkar_kelkar_museum,
-                "Hire guide for better understanding.",
-                "Contains over 20000 artifacts.",
-                "Pune Station (2 km)"
-        ));
-
-        places.add(new Place(
-                "8",
-                "Time Zone Mall",
-                "Pune",
-                "entertainment",
-                "Indoor arcade with bowling, VR, and games.",
-                "High",
-                "High",
-                "Evening",
-                18.5610,
-                73.9160,
-                R.drawable.timezone_pune,
-                "Buy combo game cards.",
-                "International gaming brand.",
-                "Pune Station (9 km)"
-        ));
-
-        places.add(new Place(
-                "9",
                 "Pune Zoo",
                 "Pune",
-                "nature",
+                "Nature",
                 "Large zoo with wide variety of animals and snake park.",
                 "Low",
                 "High",
@@ -158,14 +131,35 @@ public class DataProvider {
                 R.drawable.rajiv_gandi_zoological_park,
                 "Visit early when animals are active.",
                 "Known for rare animal species.",
-                "Pune Station (6 km)"
+                "Pune Station (6 km)",
+                "Family"
         ));
 
+        // 7. FC Road -> Food
         places.add(new Place(
-                "10",
+                "7",
+                "FC Road",
+                "Pune",
+                "Food",
+                "Popular street food and shopping destination. Famous for its vibrant atmosphere and various eateries.",
+                "Low",
+                "Very High",
+                "Evening",
+                18.5204,
+                73.8410,
+                R.drawable.fm_live_koregaon_park,
+                "Try Misal Pav and street snacks.",
+                "Heart of Pune's youth culture.",
+                "Shivajinagar (1 km)",
+                "Budget"
+        ));
+
+        // 8. Tulshi Baug -> Shopping
+        places.add(new Place(
+                "8",
                 "Tulshi Baug",
                 "Pune",
-                "shopping",
+                "Shopping",
                 "Famous traditional market for clothes, jewelry, and street shopping.",
                 "Low",
                 "Very High",
@@ -175,9 +169,39 @@ public class DataProvider {
                 R.drawable.tulashi_bag,
                 "Bargain properly while shopping.",
                 "One of the oldest markets in Pune.",
-                "Pune Station (2 km)"
+                "Pune Station (2 km)",
+                "Budget"
         ));
 
+        // Adding more Pune places with corrected categories
+        places.add(new Place("Aga Khan Palace", "Pune", 18.5526, 73.9019, R.drawable.shaniwar_wada, "History", "History"));
+        places.add(new Place("Lal Mahal", "Pune", 18.5195, 73.8553, R.drawable.shaniwar_wada, "History", "History"));
+        places.add(new Place("Parvati Hill", "Pune", 18.4925, 73.8537, R.drawable.sinhagad, "Nature", "Nature"));
+        places.add(new Place("Pashan Lake", "Pune", 18.5416, 73.8027, R.drawable.khadakwasla, "Nature", "Nature"));
+        places.add(new Place("Okayama Friendship Garden", "Pune", 18.5007, 73.8587, R.drawable.khadakwasla, "Nature", "Nature"));
+        places.add(new Place("Phoenix Mall Viman Nagar", "Pune", 18.5679, 73.9143, R.drawable.timezone_pune, "Shopping", "Shopping"));
+        places.add(new Place("Seasons Mall", "Pune", 18.5204, 73.9370, R.drawable.timezone_pune, "Shopping", "Shopping"));
+        places.add(new Place("High Street Baner", "Pune", 18.5590, 73.7868, R.drawable.fm_live_koregaon_park, "Food", "Food"));
+        places.add(new Place("Vaishali Restaurant", "Pune", 18.5204, 73.8410, R.drawable.fm_live_koregaon_park, "Food", "Food"));
+        places.add(new Place("German Bakery Koregaon Park", "Pune", 18.5362, 73.8930, R.drawable.fm_live_koregaon_park, "Food", "Food"));
+        places.add(new Place("Rajiv Gandhi Zoological Park", "Pune", 18.4550, 73.8580, R.drawable.rajiv_gandi_zoological_park, "Nature", "Nature"));
+        places.add(new Place("Empress Garden", "Pune", 18.4966, 73.8728, R.drawable.khadakwasla, "Nature", "Nature"));
+        places.add(new Place("ISKCON Temple", "Pune", 18.5635, 73.9167, R.drawable.dagadusheth, "Spiritual", "Spiritual"));
+        places.add(new Place("Chaturshringi Temple", "Pune", 18.5360, 73.8440, R.drawable.dagadusheth, "Spiritual", "Spiritual"));
+
         return places;
+    }
+
+    public static Map<String, Integer> getCategoryCount(List<Place> places) {
+        Map<String, Integer> map = new HashMap<>();
+
+        for (Place place : places) {
+            String category = place.getCategory();
+            if (category != null) {
+                map.put(category, map.getOrDefault(category, 0) + 1);
+            }
+        }
+
+        return map;
     }
 }

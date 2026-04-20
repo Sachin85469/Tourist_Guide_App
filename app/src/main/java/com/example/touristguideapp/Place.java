@@ -1,6 +1,8 @@
 package com.example.touristguideapp;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Data model for a tourist place.
@@ -19,19 +21,21 @@ public class Place implements Serializable {
     private double longitude;
     private double rating = 4.0; // Default rating
     private int imageResId;     // Local drawable resource ID
+    private List<Integer> galleryImages = new ArrayList<>(); // Additional gallery images
     
     // New Fields
     private String tips = "";
     private String funFact = "";
     private String nearestStation = "";
+    private String tag = "Popular"; // Default tag
 
     /**
-     * New Constructor including all requested fields.
+     * Comprehensive Constructor including all fields.
      */
     public Place(String id, String name, String city, String category, String description, 
                  String budget, String crowdLevel, String bestTime, 
                  double latitude, double longitude, int imageResId,
-                 String tips, String funFact, String nearestStation) {
+                 String tips, String funFact, String nearestStation, String tag) {
         this.id = id;
         this.name = name;
         this.city = city;
@@ -43,13 +47,15 @@ public class Place implements Serializable {
         this.latitude = latitude;
         this.longitude = longitude;
         this.imageResId = imageResId;
+        this.galleryImages.add(imageResId); // Add main image as first in gallery
         this.tips = tips;
         this.funFact = funFact;
         this.nearestStation = nearestStation;
+        this.tag = tag;
     }
 
     /**
-     * Old Constructor to support existing code.
+     * Constructor for existing code support.
      */
     public Place(String id, String name, String city, String category, String description, 
                  String budget, String crowdLevel, String bestTime, 
@@ -65,6 +71,26 @@ public class Place implements Serializable {
         this.latitude = latitude;
         this.longitude = longitude;
         this.imageResId = imageResId;
+        this.galleryImages.add(imageResId);
+    }
+
+    /**
+     * Simplified Constructor for quick additions.
+     */
+    public Place(String name, String city, double latitude, double longitude, int imageResId, String category, String tag) {
+        this.id = String.valueOf(name.hashCode());
+        this.name = name;
+        this.city = city;
+        this.latitude = latitude;
+        this.longitude = longitude;
+        this.imageResId = imageResId;
+        this.galleryImages.add(imageResId);
+        this.category = category;
+        this.tag = tag;
+        this.description = "A beautiful place to visit in " + city;
+        this.budget = "Medium";
+        this.crowdLevel = "Moderate";
+        this.bestTime = "Morning/Evening";
     }
 
     /**
@@ -85,6 +111,7 @@ public class Place implements Serializable {
         this.longitude = longitude;
         this.rating = rating;
         this.imageResId = imageResId;
+        this.galleryImages.add(imageResId);
     }
 
     // Getters
@@ -100,8 +127,9 @@ public class Place implements Serializable {
     public double getLongitude() { return longitude; }
     public double getRating() { return rating; }
     public int getImageResId() { return imageResId; }
+    public String getTag() { return tag; }
     
-    // Alias getters for shorter access
+    // Alias getters
     public double getLat() { return latitude; }
     public double getLng() { return longitude; }
     public int getImage() { return imageResId; }
@@ -110,4 +138,12 @@ public class Place implements Serializable {
     public String getTips() { return tips; }
     public String getFunFact() { return funFact; }
     public String getNearestStation() { return nearestStation; }
+
+    public List<Integer> getGalleryImages() {
+        return galleryImages;
+    }
+
+    public void setGalleryImages(List<Integer> galleryImages) {
+        this.galleryImages = galleryImages;
+    }
 }

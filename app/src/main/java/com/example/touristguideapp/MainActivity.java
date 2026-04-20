@@ -3,6 +3,7 @@ package com.example.touristguideapp;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
+import android.speech.RecognizerIntent;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.MenuItem;
@@ -12,6 +13,7 @@ import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -20,9 +22,11 @@ import com.google.android.material.navigation.NavigationBarView;
 import com.google.android.libraries.places.api.Places;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity {
 
+    private static final int VOICE_SEARCH_REQUEST_CODE = 101;
     private RecyclerView rvHome;
     private HomeAdapter homeAdapter;
     private List<HomeSection> sections;
@@ -35,6 +39,7 @@ public class MainActivity extends AppCompatActivity {
     private ProgressBar progressBar;
     private View emptyStateContainer;
     private EditText searchBox;
+    private ImageView btnVoiceSearch;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,10 +57,12 @@ public class MainActivity extends AppCompatActivity {
         progressBar = findViewById(R.id.mainProgressBar);
         emptyStateContainer = findViewById(R.id.tvEmptyState);
         searchBox = findViewById(R.id.searchBox);
+        btnVoiceSearch = findViewById(R.id.btnVoiceSearch);
 
         initData();
         setupHomeSections();
         setupSearch();
+        setupVoiceSearch();
         
         simulateLoading();
 
@@ -85,19 +92,52 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    private void setupSearch() {
-        searchBox.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+    private void setupVoiceSearch() {
+        if (btnVoiceSearch != null) {
+            btnVoiceSearch.setOnClickListener(v -> {
+                Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
+                intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
+                intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, Locale.getDefault());
+                intent.putExtra(RecognizerIntent.EXTRA_PROMPT, "Speak the place name...");
+                try {
+                    startActivityForResult(intent, VOICE_SEARCH_REQUEST_CODE);
+                } catch (Exception e) {
+                    Toast.makeText(this, "Voice search not supported", Toast.LENGTH_SHORT).show();
+                }
+            });
+        }
+    }
 
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-                filter(s.toString());
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == VOICE_SEARCH_REQUEST_CODE && resultCode == RESULT_OK && data != null) {
+            ArrayList<String> result = data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
+            if (result != null && !result.isEmpty()) {
+                String voiceText = result.get(0);
+                if (searchBox != null) {
+                    searchBox.setText(voiceText);
+                }
+                filter(voiceText);
             }
+        }
+    }
 
-            @Override
-            public void afterTextChanged(Editable s) {}
-        });
+    private void setupSearch() {
+        if (searchBox != null) {
+            searchBox.addTextChangedListener(new TextWatcher() {
+                @Override
+                public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+
+                @Override
+                public void onTextChanged(CharSequence s, int start, int before, int count) {
+                    filter(s.toString());
+                }
+
+                @Override
+                public void afterTextChanged(Editable s) {}
+            });
+        }
     }
 
     private void filter(String text) {
@@ -130,13 +170,13 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void simulateLoading() {
-        progressBar.setVisibility(View.VISIBLE);
-        rvHome.setVisibility(View.GONE);
-        emptyStateContainer.setVisibility(View.GONE);
+        if (progressBar != null) progressBar.setVisibility(View.VISIBLE);
+        if (rvHome != null) rvHome.setVisibility(View.GONE);
+        if (emptyStateContainer != null) emptyStateContainer.setVisibility(View.GONE);
 
         new Handler().postDelayed(() -> {
-            progressBar.setVisibility(View.GONE);
-            rvHome.setVisibility(View.VISIBLE);
+            if (progressBar != null) progressBar.setVisibility(View.GONE);
+            if (rvHome != null) rvHome.setVisibility(View.VISIBLE);
         }, 1200);
     }
 
@@ -150,11 +190,13 @@ public class MainActivity extends AppCompatActivity {
         }
 
         categories = new ArrayList<>();
+        categories.add(new Category("All", android.R.drawable.ic_menu_view));
         categories.add(new Category("Nature", android.R.drawable.ic_menu_gallery));
         categories.add(new Category("History", android.R.drawable.ic_menu_today));
         categories.add(new Category("Food", android.R.drawable.ic_menu_view));
         categories.add(new Category("Adventure", android.R.drawable.ic_menu_compass));
         categories.add(new Category("Spiritual", android.R.drawable.ic_menu_info_details));
+        categories.add(new Category("Shopping", android.R.drawable.ic_menu_agenda));
         categories.add(new Category("Entertainment", android.R.drawable.ic_menu_slideshow));
     }
 
@@ -168,10 +210,16 @@ public class MainActivity extends AppCompatActivity {
             topPicks, 
             place -> openDetails(place),
             category -> {
-                Intent intent = new Intent(this, CategoryPlacesActivity.class);
-                intent.putExtra("category", category.getName());
-                startActivity(intent);
-                overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
+                if (category.getName().equalsIgnoreCase("All")) {
+                    // Just clear search and show all sections
+                    if (searchBox != null) searchBox.setText("");
+                    filter("");
+                } else {
+                    Intent intent = new Intent(this, CategoryPlacesActivity.class);
+                    intent.putExtra("category", category.getName());
+                    startActivity(intent);
+                    overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
+                }
             },
             v -> {
                 startActivity(new Intent(MainActivity.this, PlanTripActivity.class));

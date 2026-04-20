@@ -17,6 +17,7 @@ public class ItineraryActivity extends AppCompatActivity {
 
     private RecyclerView rvItinerary;
     private ItineraryAdapter adapter;
+    private TextView tvTitle;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -26,13 +27,26 @@ public class ItineraryActivity extends AppCompatActivity {
         ImageView btnBack = findViewById(R.id.btnItineraryBack);
         btnBack.setOnClickListener(v -> finish());
 
+        tvTitle = findViewById(R.id.tvItineraryTitle);
         rvItinerary = findViewById(R.id.rvItinerary);
         rvItinerary.setLayoutManager(new LinearLayoutManager(this));
 
-        int days = getIntent().getIntExtra("days", 1);
-        String type = getIntent().getStringExtra("type");
+        boolean isQuickPlan = getIntent().getBooleanExtra("isQuickPlan", false);
+        List<DayPlan> plan;
 
-        List<DayPlan> plan = generatePlan(days, type);
+        if (isQuickPlan) {
+            String customTitle = getIntent().getStringExtra("title");
+            String quickPlanText = getIntent().getStringExtra("quickPlanText");
+            if (tvTitle != null && customTitle != null) tvTitle.setText(customTitle);
+            
+            plan = new ArrayList<>();
+            plan.add(new DayPlan("Your Selection", quickPlanText));
+        } else {
+            int days = getIntent().getIntExtra("days", 1);
+            String type = getIntent().getStringExtra("type");
+            plan = generatePlan(days, type);
+        }
+
         adapter = new ItineraryAdapter(plan);
         rvItinerary.setAdapter(adapter);
     }

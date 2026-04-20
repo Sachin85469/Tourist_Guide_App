@@ -77,14 +77,25 @@
 
                     <EditText
                         android:id="@+id/editTextSearch"
-                        android:layout_width="match_parent"
+                        android:layout_width="0dp"
                         android:layout_height="match_parent"
                         android:layout_marginStart="12dp"
+                        android:layout_weight="1"
                         android:background="@null"
                         android:hint="Search places..."
                         android:imeOptions="actionSearch"
                         android:inputType="text"
                         android:textSize="15sp" />
+
+                    <ImageView
+                        android:id="@+id/btnVoiceSearch"
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:layout_marginStart="8dp"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:src="@android:drawable/ic_btn_speak_now"
+                        app:tint="@color/primary" />
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
@@ -101,11 +112,40 @@
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
+            <!-- New Features Section -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:paddingHorizontal="20dp"
+                android:layout_marginTop="8dp">
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnMood"
+                    style="@style/Widget.MaterialComponents.Button.TextButton"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Mood"
+                    app:icon="@android:drawable/btn_star_big_on"
+                    app:iconGravity="top" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnQuickPlan"
+                    style="@style/Widget.MaterialComponents.Button.TextButton"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Quick Plan"
+                    app:icon="@android:drawable/ic_menu_today"
+                    app:iconGravity="top" />
+            </LinearLayout>
+
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="20dp"
-                android:layout_marginTop="8dp"
+                android:layout_marginTop="16dp"
                 android:text="Categories"
                 android:textColor="@color/black"
                 android:textSize="18sp"
@@ -145,6 +185,7 @@
                             android:paddingVertical="10dp">
 
                             <TextView
+                                android:id="@+id/txtAllCount"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="🌍 All"
@@ -153,67 +194,7 @@
                         </LinearLayout>
                     </com.google.android.material.card.MaterialCardView>
 
-                    <!-- Category: Nature -->
-                    <com.google.android.material.card.MaterialCardView
-                        android:id="@+id/btnNature"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginEnd="12dp"
-                        android:clickable="true"
-                        android:focusable="true"
-                        app:cardBackgroundColor="@color/cat_nature_bg"
-                        app:cardCornerRadius="16dp"
-                        app:cardElevation="2dp"
-                        app:strokeWidth="0dp">
-
-                        <LinearLayout
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:gravity="center"
-                            android:orientation="horizontal"
-                            android:paddingHorizontal="16dp"
-                            android:paddingVertical="10dp">
-
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="🌲 Nature"
-                                android:textColor="@color/indicator_green"
-                                android:textStyle="bold" />
-                        </LinearLayout>
-                    </com.google.android.material.card.MaterialCardView>
-
-                    <!-- Category: Food -->
-                    <com.google.android.material.card.MaterialCardView
-                        android:id="@+id/btnFood"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginEnd="12dp"
-                        android:clickable="true"
-                        android:focusable="true"
-                        app:cardBackgroundColor="@color/cat_food_bg"
-                        app:cardCornerRadius="16dp"
-                        app:cardElevation="2dp"
-                        app:strokeWidth="0dp">
-
-                        <LinearLayout
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:gravity="center"
-                            android:orientation="horizontal"
-                            android:paddingHorizontal="16dp"
-                            android:paddingVertical="10dp">
-
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="🍕 Food"
-                                android:textColor="@color/indicator_red"
-                                android:textStyle="bold" />
-                        </LinearLayout>
-                    </com.google.android.material.card.MaterialCardView>
-
-                    <!-- Category: Historical -->
+                    <!-- Category: History -->
                     <com.google.android.material.card.MaterialCardView
                         android:id="@+id/btnHistorical"
                         android:layout_width="wrap_content"
@@ -235,40 +216,11 @@
                             android:paddingVertical="10dp">
 
                             <TextView
+                                android:id="@+id/txtHistoryCount"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="🏛️ Historical"
+                                android:text="🏛️ History"
                                 android:textColor="#E65100"
-                                android:textStyle="bold" />
-                        </LinearLayout>
-                    </com.google.android.material.card.MaterialCardView>
-
-                    <!-- Category: Adventure -->
-                    <com.google.android.material.card.MaterialCardView
-                        android:id="@+id/btnAdventure"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginEnd="12dp"
-                        android:clickable="true"
-                        android:focusable="true"
-                        app:cardBackgroundColor="@color/cat_adventure_bg"
-                        app:cardCornerRadius="16dp"
-                        app:cardElevation="2dp"
-                        app:strokeWidth="0dp">
-
-                        <LinearLayout
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:gravity="center"
-                            android:orientation="horizontal"
-                            android:paddingHorizontal="16dp"
-                            android:paddingVertical="10dp">
-
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="🎢 Adventure"
-                                android:textColor="@color/primary"
                                 android:textStyle="bold" />
                         </LinearLayout>
                     </com.google.android.material.card.MaterialCardView>
@@ -295,10 +247,135 @@
                             android:paddingVertical="10dp">
 
                             <TextView
+                                android:id="@+id/txtSpiritualCount"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="🙏 Spiritual"
                                 android:textColor="#7B1FA2"
+                                android:textStyle="bold" />
+                        </LinearLayout>
+                    </com.google.android.material.card.MaterialCardView>
+
+                    <!-- Category: Food -->
+                    <com.google.android.material.card.MaterialCardView
+                        android:id="@+id/btnFood"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginEnd="12dp"
+                        android:clickable="true"
+                        android:focusable="true"
+                        app:cardBackgroundColor="@color/cat_food_bg"
+                        app:cardCornerRadius="16dp"
+                        app:cardElevation="2dp"
+                        app:strokeWidth="0dp">
+
+                        <LinearLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:gravity="center"
+                            android:orientation="horizontal"
+                            android:paddingHorizontal="16dp"
+                            android:paddingVertical="10dp">
+
+                            <TextView
+                                android:id="@+id/txtFoodCount"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="🍕 Food"
+                                android:textColor="@color/indicator_red"
+                                android:textStyle="bold" />
+                        </LinearLayout>
+                    </com.google.android.material.card.MaterialCardView>
+
+                    <!-- Category: Shopping -->
+                    <com.google.android.material.card.MaterialCardView
+                        android:id="@+id/shoppingCard"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginEnd="12dp"
+                        android:clickable="true"
+                        android:focusable="true"
+                        app:cardBackgroundColor="#E0F2F1"
+                        app:cardCornerRadius="16dp"
+                        app:cardElevation="2dp"
+                        app:strokeWidth="0dp">
+
+                        <LinearLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:gravity="center"
+                            android:orientation="horizontal"
+                            android:paddingHorizontal="16dp"
+                            android:paddingVertical="10dp">
+
+                            <TextView
+                                android:id="@+id/txtShoppingCount"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="🛍️ Shopping"
+                                android:textColor="#00796B"
+                                android:textStyle="bold" />
+                        </LinearLayout>
+                    </com.google.android.material.card.MaterialCardView>
+
+                    <!-- Category: Nature -->
+                    <com.google.android.material.card.MaterialCardView
+                        android:id="@+id/btnNature"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginEnd="12dp"
+                        android:clickable="true"
+                        android:focusable="true"
+                        app:cardBackgroundColor="@color/cat_nature_bg"
+                        app:cardCornerRadius="16dp"
+                        app:cardElevation="2dp"
+                        app:strokeWidth="0dp">
+
+                        <LinearLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:gravity="center"
+                            android:orientation="horizontal"
+                            android:paddingHorizontal="16dp"
+                            android:paddingVertical="10dp">
+
+                            <TextView
+                                android:id="@+id/txtNatureCount"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="🌲 Nature"
+                                android:textColor="@color/indicator_green"
+                                android:textStyle="bold" />
+                        </LinearLayout>
+                    </com.google.android.material.card.MaterialCardView>
+
+                    <!-- Category: Adventure -->
+                    <com.google.android.material.card.MaterialCardView
+                        android:id="@+id/btnAdventure"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginEnd="12dp"
+                        android:clickable="true"
+                        android:focusable="true"
+                        app:cardBackgroundColor="@color/cat_adventure_bg"
+                        app:cardCornerRadius="16dp"
+                        app:cardElevation="2dp"
+                        app:strokeWidth="0dp">
+
+                        <LinearLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:gravity="center"
+                            android:orientation="horizontal"
+                            android:paddingHorizontal="16dp"
+                            android:paddingVertical="10dp">
+
+                            <TextView
+                                android:id="@+id/txtAdventureCount"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="🎢 Adventure"
+                                android:textColor="@color/primary"
                                 android:textStyle="bold" />
                         </LinearLayout>
                     </com.google.android.material.card.MaterialCardView>
@@ -324,6 +401,7 @@
                             android:paddingVertical="10dp">
 
                             <TextView
+                                android:id="@+id/txtEntertainmentCount"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="🎮 Entertainment"

@@ -11,17 +11,17 @@
         android:layout_height="wrap_content"
         android:orientation="vertical">
 
-        <!-- Image at top -->
+        <!-- ViewPager2 for image gallery at top -->
         <FrameLayout
             android:layout_width="match_parent"
             android:layout_height="300dp">
 
-            <ImageView
-                android:id="@+id/detailImage"
+            <androidx.viewpager2.widget.ViewPager2
+                android:id="@+id/viewPagerGallery"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:scaleType="centerCrop"
-                android:src="@android:drawable/ic_menu_gallery" />
+                android:layout_height="match_parent" />
+
+            <!-- Indicator for dots (optional, can be added later) -->
 
             <!-- Favorite Icon Overlay -->
             <ImageView

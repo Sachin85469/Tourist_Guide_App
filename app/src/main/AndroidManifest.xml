@@ -51,6 +51,12 @@
         <activity
             android:name=".CategoryPlacesActivity"
             android:exported="false" />
+        <activity
+            android:name=".MoodActivity"
+            android:exported="false" />
+        <activity
+            android:name=".QuickPlanActivity"
+            android:exported="false" />
     </application>
 
 </manifest>

@@ -28,6 +28,20 @@
                 android:scaleType="centerCrop"
                 android:src="@android:drawable/ic_menu_gallery" />
 
+            <!-- Tag Overlay -->
+            <TextView
+                android:id="@+id/tvTag"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="12dp"
+                android:background="@drawable/button_gradient"
+                android:paddingHorizontal="10dp"
+                android:paddingVertical="4dp"
+                android:text="Popular"
+                android:textColor="@color/white"
+                android:textSize="11sp"
+                android:textStyle="bold" />
+
             <!-- Gradient Shadow at the bottom of the image for text contrast -->
             <View
                 android:layout_width="match_parent"
