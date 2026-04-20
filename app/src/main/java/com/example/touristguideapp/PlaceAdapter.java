@@ -48,7 +48,7 @@ public class PlaceAdapter extends RecyclerView.Adapter<PlaceAdapter.ViewHolder> 
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        holder.bind(placeList.get(position), position, listener, this);
+        holder.bind(placeList.get(position), position, listener);
         setAnimation(holder.itemView, position);
     }
 
@@ -83,7 +83,7 @@ public class PlaceAdapter extends RecyclerView.Adapter<PlaceAdapter.ViewHolder> 
             btnFavorite = view.findViewById(R.id.btnFavorite);
         }
 
-        public void bind(Place place, int position, OnItemClickListener listener, PlaceAdapter adapter) {
+        public void bind(Place place, int position, OnItemClickListener listener) {
             Context context = itemView.getContext();
             placeName.setText(place.getName());
             placeCategory.setText(place.getCategory());
@@ -92,11 +92,7 @@ public class PlaceAdapter extends RecyclerView.Adapter<PlaceAdapter.ViewHolder> 
             placeImage.setImageResource(place.getImageResId());
             
             // Set icon based on favorite status
-            if (FavoritesManager.isFavorite(context, place.getId())) {
-                btnFavorite.setImageResource(R.drawable.ic_favorite);
-            } else {
-                btnFavorite.setImageResource(R.drawable.ic_favorite_border);
-            }
+            updateFavoriteIcon(context, place.getId());
 
             itemView.setOnClickListener(v -> {
                 if (listener != null) {
@@ -119,17 +115,30 @@ public class PlaceAdapter extends RecyclerView.Adapter<PlaceAdapter.ViewHolder> 
             });
 
             btnFavorite.setOnClickListener(v -> {
-                // Toggle favorite
+                // Toggle favorite state
                 FavoritesManager.toggleFavorite(context, place.getId());
                 
-                // Simple scale animation: 1.3x then back to 1.0x
-                v.animate().scaleX(1.3f).scaleY(1.3f).setDuration(100).withEndAction(() -> {
-                    v.animate().scaleX(1.0f).scaleY(1.0f).setDuration(100).start();
-                }).start();
+                // Immediately update UI
+                updateFavoriteIcon(context, place.getId());
 
-                // Update UI immediately
-                adapter.notifyItemChanged(position);
+                // Add bounce animation
+                btnFavorite.setScaleX(0.7f);
+                btnFavorite.setScaleY(0.7f);
+
+                btnFavorite.animate()
+                    .scaleX(1f)
+                    .scaleY(1f)
+                    .setDuration(200)
+                    .start();
             });
+        }
+
+        private void updateFavoriteIcon(Context context, String placeId) {
+            if (FavoritesManager.isFavorite(context, placeId)) {
+                btnFavorite.setImageResource(R.drawable.ic_favorite);
+            } else {
+                btnFavorite.setImageResource(R.drawable.ic_favorite_border);
+            }
         }
     }
 }

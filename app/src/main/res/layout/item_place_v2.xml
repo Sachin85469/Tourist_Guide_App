@@ -72,7 +72,7 @@
                 android:layout_margin="12dp"
                 android:background="@drawable/bg_favorite_circle"
                 android:padding="10dp"
-                android:src="@android:drawable/btn_star_big_off"
+                android:src="@drawable/ic_favorite_border"
                 app:tint="@color/white" />
 
         </FrameLayout>
