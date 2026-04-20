@@ -1,7 +1,6 @@
 package com.example.touristguideapp;
 
 import android.content.Context;
-import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,6 +12,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 public class PlaceAdapter extends RecyclerView.Adapter<PlaceAdapter.ViewHolder> {
 
@@ -42,7 +42,7 @@ public class PlaceAdapter extends RecyclerView.Adapter<PlaceAdapter.ViewHolder> 
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.item_place, parent, false);
+                .inflate(R.layout.item_place_v2, parent, false);
         return new ViewHolder(view);
     }
 
@@ -66,34 +66,79 @@ public class PlaceAdapter extends RecyclerView.Adapter<PlaceAdapter.ViewHolder> 
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
-        public TextView txtName;
-        public TextView txtCategory;
-        public ImageView imgPlace;
+        public TextView placeName;
+        public TextView placeCategory;
+        public TextView placeCity;
+        public TextView placeRating;
+        public ImageView placeImage;
+        public ImageView btnFavorite;
 
         public ViewHolder(View view) {
             super(view);
-            txtName = view.findViewById(R.id.txtName);
-            txtCategory = view.findViewById(R.id.txtCategory);
-            imgPlace = view.findViewById(R.id.imgPlace);
+            placeName = view.findViewById(R.id.tvPlaceName);
+            placeCategory = view.findViewById(R.id.tvPlaceCategory);
+            placeCity = view.findViewById(R.id.tvCity);
+            placeRating = view.findViewById(R.id.tvRating);
+            placeImage = view.findViewById(R.id.ivPlaceImage);
+            btnFavorite = view.findViewById(R.id.btnFavorite);
         }
 
         public void bind(Place place, int position, OnItemClickListener listener) {
             Context context = itemView.getContext();
-            txtName.setText(place.getName());
-            txtCategory.setText(place.getCategory());
-            imgPlace.setImageResource(place.getImage());
+            placeName.setText(place.getName());
+            placeCategory.setText(place.getCategory());
+            if (placeCity != null) placeCity.setText(place.getCity());
+            if (placeRating != null) placeRating.setText(String.format(Locale.getDefault(), "%.1f ⭐", place.getRating()));
+            placeImage.setImageResource(place.getImageResId());
+            
+            // Set icon based on favorite status
+            updateFavoriteIcon(context, place.getId());
 
             itemView.setOnClickListener(v -> {
                 if (listener != null) {
                     listener.onItemClick(place);
                 } else {
-                    Intent intent = new Intent(context, MapActivity.class);
-                    intent.putExtra("lat", place.getLat());
-                    intent.putExtra("lng", place.getLng());
+                    android.content.Intent intent = new android.content.Intent(context, PlaceDetailsActivity.class);
+                    intent.putExtra("id", place.getId());
                     intent.putExtra("name", place.getName());
+                    intent.putExtra("description", place.getDescription());
+                    intent.putExtra("category", place.getCategory());
+                    intent.putExtra("budget", place.getBudget());
+                    intent.putExtra("crowdLevel", place.getCrowdLevel());
+                    intent.putExtra("bestTime", place.getBestTime());
+                    intent.putExtra("imageResId", place.getImageResId());
+                    intent.putExtra("tips", place.getTips());
+                    intent.putExtra("funFact", place.getFunFact());
+                    intent.putExtra("nearestStation", place.getNearestStation());
                     context.startActivity(intent);
                 }
             });
+
+            btnFavorite.setOnClickListener(v -> {
+                // Toggle favorite state
+                FavoritesManager.toggleFavorite(context, place.getId());
+                
+                // Immediately update UI
+                updateFavoriteIcon(context, place.getId());
+
+                // Add bounce animation
+                btnFavorite.setScaleX(0.7f);
+                btnFavorite.setScaleY(0.7f);
+
+                btnFavorite.animate()
+                    .scaleX(1f)
+                    .scaleY(1f)
+                    .setDuration(200)
+                    .start();
+            });
+        }
+
+        private void updateFavoriteIcon(Context context, String placeId) {
+            if (FavoritesManager.isFavorite(context, placeId)) {
+                btnFavorite.setImageResource(R.drawable.ic_favorite);
+            } else {
+                btnFavorite.setImageResource(R.drawable.ic_favorite_border);
+            }
         }
     }
 }
