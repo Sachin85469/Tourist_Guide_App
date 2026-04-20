@@ -1,5 +1,6 @@
 package com.example.touristguideapp;
 
+import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -91,7 +92,7 @@ public class HomeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         } else if (holder instanceof HeaderViewHolder) {
             ((HeaderViewHolder) holder).bind(section.getTitle());
         } else if (holder instanceof PlaceViewHolder) {
-            ((PlaceViewHolder) holder).bind(section.getSinglePlace(), position, placeClickListener, this);
+            ((PlaceViewHolder) holder).bind(section.getSinglePlace(), position, placeClickListener);
         }
     }
 
@@ -171,20 +172,16 @@ public class HomeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             btnFavorite = itemView.findViewById(R.id.btnFavorite);
         }
 
-        void bind(Place place, int position, OnItemClickListener listener, RecyclerView.Adapter adapter) {
+        void bind(Place place, int position, OnItemClickListener listener) {
             if (place == null) return;
-            android.content.Context context = itemView.getContext();
+            Context context = itemView.getContext();
             placeName.setText(place.getName());
             placeCategory.setText(place.getCategory());
             if (placeCity != null) placeCity.setText(place.getCity());
             if (placeRating != null) placeRating.setText(String.format(Locale.getDefault(), "%.1f ⭐", place.getRating()));
             placeImage.setImageResource(place.getImageResId());
             
-            if (FavoritesManager.isFavorite(context, place.getId())) {
-                btnFavorite.setImageResource(android.R.drawable.btn_star_big_on);
-            } else {
-                btnFavorite.setImageResource(android.R.drawable.btn_star_big_off);
-            }
+            updateFavoriteIcon(context, place.getId());
 
             itemView.setOnClickListener(v -> {
                 if (listener != null) listener.onItemClick(place);
@@ -192,8 +189,28 @@ public class HomeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
             btnFavorite.setOnClickListener(v -> {
                 FavoritesManager.toggleFavorite(context, place.getId());
-                adapter.notifyItemChanged(position);
+                
+                // Update icon immediately
+                updateFavoriteIcon(context, place.getId());
+
+                // Animation (bounce effect)
+                btnFavorite.setScaleX(0.7f);
+                btnFavorite.setScaleY(0.7f);
+
+                btnFavorite.animate()
+                    .scaleX(1f)
+                    .scaleY(1f)
+                    .setDuration(200)
+                    .start();
             });
+        }
+
+        private void updateFavoriteIcon(Context context, String placeId) {
+            if (FavoritesManager.isFavorite(context, placeId)) {
+                btnFavorite.setImageResource(R.drawable.ic_favorite);
+            } else {
+                btnFavorite.setImageResource(R.drawable.ic_favorite_border);
+            }
         }
     }
 }

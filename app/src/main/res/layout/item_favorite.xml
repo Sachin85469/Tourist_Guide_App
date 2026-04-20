@@ -40,9 +40,10 @@
                 android:textStyle="bold" />
 
             <ImageView
+                android:id="@+id/favIcon"
                 android:layout_width="20dp"
                 android:layout_height="20dp"
-                android:src="@android:drawable/btn_star_big_on"
+                android:src="@drawable/ic_favorite"
                 app:tint="@color/primary" />
         </LinearLayout>
     </LinearLayout>
