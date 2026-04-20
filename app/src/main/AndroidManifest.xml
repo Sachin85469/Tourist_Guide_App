@@ -3,6 +3,8 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
 
     <queries>
         <package android:name="com.google.android.apps.maps" />
@@ -17,6 +19,11 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.TouristGuideApp">
+
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="YOUR_API_KEY" />
+
         <activity
             android:name=".MainActivity"
             android:exported="true">
@@ -40,6 +47,9 @@
             android:exported="false" />
         <activity
             android:name=".ItineraryActivity"
+            android:exported="false" />
+        <activity
+            android:name=".CategoryPlacesActivity"
             android:exported="false" />
     </application>
 

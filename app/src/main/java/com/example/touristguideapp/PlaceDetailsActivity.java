@@ -1,9 +1,9 @@
 package com.example.touristguideapp;
 
-import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
-import android.view.View;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
@@ -12,6 +12,8 @@ public class PlaceDetailsActivity extends AppCompatActivity {
 
     private String placeId;
     private ImageView btnFavorite;
+    private double lat;
+    private double lng;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -28,9 +30,7 @@ public class PlaceDetailsActivity extends AppCompatActivity {
         TextView tvTips = findViewById(R.id.detailTips);
         TextView tvFunFact = findViewById(R.id.detailFunFact);
         TextView tvStation = findViewById(R.id.detailStation);
-        
-        // Back button (if you want to add one to the layout or use a separate view)
-        // Here I'll look for a common ID or just rely on system back
+        Button btnDirections = findViewById(R.id.btnDirections);
         
         // Favorite button in details
         btnFavorite = findViewById(R.id.btnFavoriteDetails);
@@ -49,6 +49,8 @@ public class PlaceDetailsActivity extends AppCompatActivity {
             String funFact = intent.getStringExtra("funFact");
             String station = intent.getStringExtra("nearestStation");
             int imageResId = intent.getIntExtra("imageResId", 0);
+            lat = intent.getDoubleExtra("lat", 0);
+            lng = intent.getDoubleExtra("lng", 0);
 
             // Display data
             if (tvName != null) tvName.setText(name);
@@ -69,8 +71,30 @@ public class PlaceDetailsActivity extends AppCompatActivity {
             
             if (btnFavorite != null) {
                 btnFavorite.setOnClickListener(v -> {
+                    v.animate()
+                        .scaleX(1.3f)
+                        .scaleY(1.3f)
+                        .setDuration(150)
+                        .withEndAction(() -> {
+                            v.animate().scaleX(1f).scaleY(1f).setDuration(150);
+                        });
+
                     FavoritesManager.toggleFavorite(this, placeId);
                     updateFavoriteIcon();
+                });
+            }
+
+            if (btnDirections != null) {
+                btnDirections.setOnClickListener(v -> {
+                    Uri uri = Uri.parse("google.navigation:q=" + lat + "," + lng);
+                    Intent mapIntent = new Intent(Intent.ACTION_VIEW, uri);
+                    mapIntent.setPackage("com.google.android.apps.maps");
+                    if (mapIntent.resolveActivity(getPackageManager()) != null) {
+                        startActivity(mapIntent);
+                    } else {
+                        // Fallback to any browser if Maps app is not available
+                        startActivity(new Intent(Intent.ACTION_VIEW, uri));
+                    }
                 });
             }
         }

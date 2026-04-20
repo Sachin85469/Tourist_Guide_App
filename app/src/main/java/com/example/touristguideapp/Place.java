@@ -65,11 +65,10 @@ public class Place implements Serializable {
         this.latitude = latitude;
         this.longitude = longitude;
         this.imageResId = imageResId;
-        // New fields are initialized to empty strings by default
     }
 
     /**
-     * Legacy Constructor including Rating (to ensure compatibility with all previous versions).
+     * Legacy Constructor including Rating.
      */
     public Place(String id, String name, String city, String category, String description, 
                  String budget, String crowdLevel, String bestTime, 
@@ -101,6 +100,11 @@ public class Place implements Serializable {
     public double getLongitude() { return longitude; }
     public double getRating() { return rating; }
     public int getImageResId() { return imageResId; }
+    
+    // Alias getters for shorter access
+    public double getLat() { return latitude; }
+    public double getLng() { return longitude; }
+    public int getImage() { return imageResId; }
     
     // New Getters
     public String getTips() { return tips; }

@@ -17,6 +17,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationBarView;
+import com.google.android.libraries.places.api.Places;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -40,6 +41,11 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        // Initialize Places SDK
+        if (!Places.isInitialized()) {
+            Places.initialize(getApplicationContext(), "YOUR_API_KEY");
+        }
+
         rvHome = findViewById(R.id.rvHome);
         favoritesIcon = findViewById(R.id.favoritesIcon);
         bottomNavigationView = findViewById(R.id.bottom_navigation);
@@ -62,16 +68,21 @@ public class MainActivity extends AppCompatActivity {
                     return true;
                 } else if (id == R.id.nav_favorites) {
                     startActivity(new Intent(MainActivity.this, FavoritesActivity.class));
+                    overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
                     return true;
                 } else if (id == R.id.nav_map) {
                     startActivity(new Intent(MainActivity.this, MapActivity.class));
+                    overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
                     return true;
                 }
                 return false;
             }
         });
 
-        favoritesIcon.setOnClickListener(v -> startActivity(new Intent(MainActivity.this, FavoritesActivity.class)));
+        favoritesIcon.setOnClickListener(v -> {
+            startActivity(new Intent(MainActivity.this, FavoritesActivity.class));
+            overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
+        });
     }
 
     private void setupSearch() {
@@ -143,6 +154,8 @@ public class MainActivity extends AppCompatActivity {
         categories.add(new Category("History", android.R.drawable.ic_menu_today));
         categories.add(new Category("Food", android.R.drawable.ic_menu_view));
         categories.add(new Category("Adventure", android.R.drawable.ic_menu_compass));
+        categories.add(new Category("Spiritual", android.R.drawable.ic_menu_info_details));
+        categories.add(new Category("Entertainment", android.R.drawable.ic_menu_slideshow));
     }
 
     private void setupHomeSections() {
@@ -154,8 +167,16 @@ public class MainActivity extends AppCompatActivity {
             categories, 
             topPicks, 
             place -> openDetails(place),
-            category -> Toast.makeText(this, "Showing " + category.getName(), Toast.LENGTH_SHORT).show(),
-            v -> startActivity(new Intent(MainActivity.this, PlanTripActivity.class))
+            category -> {
+                Intent intent = new Intent(this, CategoryPlacesActivity.class);
+                intent.putExtra("category", category.getName());
+                startActivity(intent);
+                overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
+            },
+            v -> {
+                startActivity(new Intent(MainActivity.this, PlanTripActivity.class));
+                overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
+            }
         );
 
         rvHome.setLayoutManager(new LinearLayoutManager(this));
@@ -174,6 +195,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void openDetails(Place place) {
         Intent intent = new Intent(MainActivity.this, PlaceDetailsActivity.class);
+        intent.putExtra("id", place.getId());
         intent.putExtra("name", place.getName());
         intent.putExtra("description", place.getDescription());
         intent.putExtra("category", place.getCategory());
@@ -184,6 +206,9 @@ public class MainActivity extends AppCompatActivity {
         intent.putExtra("tips", place.getTips());
         intent.putExtra("funFact", place.getFunFact());
         intent.putExtra("nearestStation", place.getNearestStation());
+        intent.putExtra("lat", place.getLatitude());
+        intent.putExtra("lng", place.getLongitude());
         startActivity(intent);
+        overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
     }
 }

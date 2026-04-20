@@ -1,6 +1,7 @@
 package com.example.touristguideapp;
 
 import android.content.Context;
+import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -181,36 +182,45 @@ public class HomeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             if (placeRating != null) placeRating.setText(String.format(Locale.getDefault(), "%.1f ⭐", place.getRating()));
             placeImage.setImageResource(place.getImageResId());
             
-            updateFavoriteIcon(context, place.getId());
+            boolean isFav = FavoritesManager.isFavorite(context, place.getId());
+            btnFavorite.setImageResource(isFav ? R.drawable.ic_favorite : R.drawable.ic_favorite_border);
 
             itemView.setOnClickListener(v -> {
-                if (listener != null) listener.onItemClick(place);
+                if (listener != null) {
+                    listener.onItemClick(place);
+                } else {
+                    Intent intent = new Intent(context, PlaceDetailsActivity.class);
+                    intent.putExtra("id", place.getId());
+                    intent.putExtra("name", place.getName());
+                    intent.putExtra("description", place.getDescription());
+                    intent.putExtra("category", place.getCategory());
+                    intent.putExtra("budget", place.getBudget());
+                    intent.putExtra("crowdLevel", place.getCrowdLevel());
+                    intent.putExtra("bestTime", place.getBestTime());
+                    intent.putExtra("imageResId", place.getImageResId());
+                    intent.putExtra("tips", place.getTips());
+                    intent.putExtra("funFact", place.getFunFact());
+                    intent.putExtra("nearestStation", place.getNearestStation());
+                    intent.putExtra("lat", place.getLatitude());
+                    intent.putExtra("lng", place.getLongitude());
+                    context.startActivity(intent);
+                }
             });
 
             btnFavorite.setOnClickListener(v -> {
                 FavoritesManager.toggleFavorite(context, place.getId());
-                
-                // Update icon immediately
-                updateFavoriteIcon(context, place.getId());
+                boolean updated = FavoritesManager.isFavorite(context, place.getId());
+                btnFavorite.setImageResource(updated ? R.drawable.ic_favorite : R.drawable.ic_favorite_border);
 
-                // Animation (bounce effect)
+                // Animation
                 btnFavorite.setScaleX(0.7f);
                 btnFavorite.setScaleY(0.7f);
 
                 btnFavorite.animate()
                     .scaleX(1f)
                     .scaleY(1f)
-                    .setDuration(200)
-                    .start();
+                    .setDuration(200);
             });
-        }
-
-        private void updateFavoriteIcon(Context context, String placeId) {
-            if (FavoritesManager.isFavorite(context, placeId)) {
-                btnFavorite.setImageResource(R.drawable.ic_favorite);
-            } else {
-                btnFavorite.setImageResource(R.drawable.ic_favorite_border);
-            }
         }
     }
 }

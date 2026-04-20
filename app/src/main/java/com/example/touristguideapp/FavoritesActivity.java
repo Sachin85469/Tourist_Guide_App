@@ -38,6 +38,8 @@ public class FavoritesActivity extends AppCompatActivity {
             intent.putExtra("tips", place.getTips());
             intent.putExtra("funFact", place.getFunFact());
             intent.putExtra("nearestStation", place.getNearestStation());
+            intent.putExtra("lat", place.getLatitude());
+            intent.putExtra("lng", place.getLongitude());
             startActivity(intent);
         });
 

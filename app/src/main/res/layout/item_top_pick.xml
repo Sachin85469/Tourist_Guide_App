@@ -46,6 +46,18 @@
                 android:textColor="@color/white"
                 android:textSize="11sp"
                 android:textStyle="bold" />
+
+            <!-- Favorite Icon Overlay -->
+            <ImageView
+                android:id="@+id/btnFavorite"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:layout_gravity="top|start"
+                android:layout_margin="12dp"
+                android:background="@drawable/bg_favorite_circle"
+                android:padding="8dp"
+                android:src="@drawable/ic_favorite_border"
+                app:tint="@color/white" />
         </RelativeLayout>
 
         <LinearLayout

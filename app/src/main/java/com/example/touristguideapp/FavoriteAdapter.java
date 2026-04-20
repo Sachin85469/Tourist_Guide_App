@@ -1,5 +1,6 @@
 package com.example.touristguideapp;
 
+import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,19 +21,24 @@ public class FavoriteAdapter extends RecyclerView.Adapter<FavoriteAdapter.ViewHo
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
-        public ImageView image;
+        public ImageView image, favoriteIcon;
         public TextView name;
 
         public ViewHolder(View view) {
             super(view);
             image = view.findViewById(R.id.favImage);
             name = view.findViewById(R.id.favName);
+            favoriteIcon = view.findViewById(R.id.favIcon);
         }
 
         public void bind(final Place place, final OnItemClickListener listener) {
+            Context context = itemView.getContext();
             name.setText(place.getName());
             image.setImageResource(place.getImageResId());
             
+            boolean isFav = FavoritesManager.isFavorite(context, place.getId());
+            favoriteIcon.setImageResource(isFav ? R.drawable.ic_favorite : R.drawable.ic_favorite_border);
+
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -40,6 +46,21 @@ public class FavoriteAdapter extends RecyclerView.Adapter<FavoriteAdapter.ViewHo
                         listener.onItemClick(place);
                     }
                 }
+            });
+
+            favoriteIcon.setOnClickListener(v -> {
+                FavoritesManager.toggleFavorite(context, place.getId());
+                boolean updated = FavoritesManager.isFavorite(context, place.getId());
+                favoriteIcon.setImageResource(updated ? R.drawable.ic_favorite : R.drawable.ic_favorite_border);
+
+                // animation
+                favoriteIcon.setScaleX(0.7f);
+                favoriteIcon.setScaleY(0.7f);
+
+                favoriteIcon.animate()
+                    .scaleX(1f)
+                    .scaleY(1f)
+                    .setDuration(200);
             });
         }
     }

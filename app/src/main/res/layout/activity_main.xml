@@ -150,6 +150,9 @@
         android:layout_height="wrap_content"
         android:background="@color/white"
         app:elevation="8dp"
+        app:itemIconSize="26dp"
+        app:itemIconTint="@drawable/nav_item_color_state"
+        app:itemTextColor="@drawable/nav_item_color_state"
         app:layout_constraintBottom_toBottomOf="parent"
         app:menu="@menu/bottom_nav_menu" />
 

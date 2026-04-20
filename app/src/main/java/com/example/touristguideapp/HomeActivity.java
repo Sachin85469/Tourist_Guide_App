@@ -1,10 +1,10 @@
 package com.example.touristguideapp;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.View;
-import android.widget.Button;
 import android.widget.EditText;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -58,23 +58,46 @@ public class HomeActivity extends AppCompatActivity {
     }
 
     private void setupCategoryButtons() {
-        View.OnClickListener listener = new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                int id = v.getId();
-                if (id == R.id.btnAll) selectedCategory = "all";
-                else if (id == R.id.btnNature) selectedCategory = "nature";
-                else if (id == R.id.btnFood) selectedCategory = "food";
-                else if (id == R.id.btnHistorical) selectedCategory = "historical";
+        findViewById(R.id.btnNature).setOnClickListener(v -> {
+            Intent intent = new Intent(this, CategoryPlacesActivity.class);
+            intent.putExtra("category", "nature");
+            startActivity(intent);
+        });
 
-                filter(editTextSearch.getText().toString());
-            }
-        };
+        findViewById(R.id.btnFood).setOnClickListener(v -> {
+            Intent intent = new Intent(this, CategoryPlacesActivity.class);
+            intent.putExtra("category", "food");
+            startActivity(intent);
+        });
 
-        findViewById(R.id.btnAll).setOnClickListener(listener);
-        findViewById(R.id.btnNature).setOnClickListener(listener);
-        findViewById(R.id.btnFood).setOnClickListener(listener);
-        findViewById(R.id.btnHistorical).setOnClickListener(listener);
+        findViewById(R.id.btnHistorical).setOnClickListener(v -> {
+            Intent intent = new Intent(this, CategoryPlacesActivity.class);
+            intent.putExtra("category", "history");
+            startActivity(intent);
+        });
+
+        findViewById(R.id.btnAdventure).setOnClickListener(v -> {
+            Intent intent = new Intent(this, CategoryPlacesActivity.class);
+            intent.putExtra("category", "adventure");
+            startActivity(intent);
+        });
+
+        findViewById(R.id.spiritualCard).setOnClickListener(v -> {
+            Intent intent = new Intent(this, CategoryPlacesActivity.class);
+            intent.putExtra("category", "spiritual");
+            startActivity(intent);
+        });
+
+        findViewById(R.id.entertainmentCard).setOnClickListener(v -> {
+            Intent intent = new Intent(this, CategoryPlacesActivity.class);
+            intent.putExtra("category", "entertainment");
+            startActivity(intent);
+        });
+
+        findViewById(R.id.btnAll).setOnClickListener(v -> {
+            selectedCategory = "all";
+            filter(editTextSearch.getText().toString());
+        });
     }
 
     // Method to filter the list based on search text AND selected category

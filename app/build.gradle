@@ -35,6 +35,9 @@ dependencies {
     implementation libs.constraintlayout
     implementation libs.glide
     implementation libs.play.services.maps
+    implementation libs.play.services.location
+    implementation libs.places
+    implementation libs.volley
     implementation 'androidx.recyclerview:recyclerview:1.3.2'
     implementation 'androidx.cardview:cardview:1.0.0'
     

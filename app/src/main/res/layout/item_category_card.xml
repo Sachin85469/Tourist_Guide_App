@@ -7,22 +7,24 @@
     android:layout_margin="6dp"
     android:clickable="true"
     android:focusable="true"
+    android:foreground="?attr/selectableItemBackground"
+    app:cardBackgroundColor="@android:color/transparent"
     app:cardCornerRadius="20dp"
-    app:cardElevation="2dp"
-    app:rippleColor="#20000000"
+    app:cardElevation="4dp"
     app:strokeWidth="0dp">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:background="@drawable/category_bg"
         android:gravity="center"
         android:orientation="vertical"
-        android:padding="12dp">
+        android:padding="16dp">
 
         <com.google.android.material.card.MaterialCardView
             android:layout_width="48dp"
             android:layout_height="48dp"
-            app:cardBackgroundColor="@color/bg_light"
+            app:cardBackgroundColor="@color/white"
             app:cardCornerRadius="24dp"
             app:cardElevation="0dp"
             app:strokeWidth="0dp">
