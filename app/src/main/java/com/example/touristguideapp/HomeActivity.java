@@ -27,7 +27,7 @@ public class HomeActivity extends AppCompatActivity {
     private List<Place> allPlaces; // Full list to filter from
     private EditText editTextSearch;
     private ImageView btnVoiceSearch;
-    private String selectedCategory = "All";
+    private String selectedCategory = ""; // Default empty, meaning show all in main list if no category selected
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -82,9 +82,6 @@ public class HomeActivity extends AppCompatActivity {
 
     private void updateCategoryCounts() {
         Map<String, Integer> categoryCount = DataProvider.getCategoryCount(allPlaces);
-        
-        TextView txtAll = findViewById(R.id.txtAllCount);
-        if (txtAll != null) txtAll.setText("🌍 All (" + allPlaces.size() + ")");
 
         TextView txtHistory = findViewById(R.id.txtHistoryCount);
         if (txtHistory != null) txtHistory.setText("🏛️ History (" + categoryCount.getOrDefault("History", 0) + ")");
@@ -154,14 +151,6 @@ public class HomeActivity extends AppCompatActivity {
     }
 
     private void setupCategoryButtons() {
-        View btnAll = findViewById(R.id.btnAll);
-        if (btnAll != null) {
-            btnAll.setOnClickListener(v -> {
-                selectedCategory = "All";
-                filter(editTextSearch != null ? editTextSearch.getText().toString() : "");
-            });
-        }
-
         View btnHistory = findViewById(R.id.btnHistorical);
         if (btnHistory != null) {
             btnHistory.setOnClickListener(v -> openCategory("History"));
@@ -216,7 +205,7 @@ public class HomeActivity extends AppCompatActivity {
                     place.getCategory().toLowerCase().contains(lowerCaseQuery) ||
                     place.getCity().toLowerCase().contains(lowerCaseQuery);
 
-            boolean matchesCategory = selectedCategory.equalsIgnoreCase("All") ||
+            boolean matchesCategory = selectedCategory.isEmpty() ||
                     place.getCategory().equalsIgnoreCase(selectedCategory);
 
             if (matchesSearch && matchesCategory) {

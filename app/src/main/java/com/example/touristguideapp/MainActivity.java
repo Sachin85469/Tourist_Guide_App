@@ -190,7 +190,6 @@ public class MainActivity extends AppCompatActivity {
         }
 
         categories = new ArrayList<>();
-        categories.add(new Category("All", android.R.drawable.ic_menu_view));
         categories.add(new Category("Nature", android.R.drawable.ic_menu_gallery));
         categories.add(new Category("History", android.R.drawable.ic_menu_today));
         categories.add(new Category("Food", android.R.drawable.ic_menu_view));
@@ -210,16 +209,10 @@ public class MainActivity extends AppCompatActivity {
             topPicks, 
             place -> openDetails(place),
             category -> {
-                if (category.getName().equalsIgnoreCase("All")) {
-                    // Just clear search and show all sections
-                    if (searchBox != null) searchBox.setText("");
-                    filter("");
-                } else {
-                    Intent intent = new Intent(this, CategoryPlacesActivity.class);
-                    intent.putExtra("category", category.getName());
-                    startActivity(intent);
-                    overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
-                }
+                Intent intent = new Intent(this, CategoryPlacesActivity.class);
+                intent.putExtra("category", category);
+                startActivity(intent);
+                overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
             },
             v -> {
                 startActivity(new Intent(MainActivity.this, PlanTripActivity.class));

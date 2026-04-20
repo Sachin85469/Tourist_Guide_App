@@ -192,6 +192,10 @@ public class DataProvider {
         return places;
     }
 
+    public static List<Place> getAllPlaces() {
+        return getPlaces();
+    }
+
     public static Map<String, Integer> getCategoryCount(List<Place> places) {
         Map<String, Integer> map = new HashMap<>();
 

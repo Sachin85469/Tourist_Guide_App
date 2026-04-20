@@ -15,7 +15,7 @@ public class CategoryAdapter extends RecyclerView.Adapter<CategoryAdapter.ViewHo
     private OnCategoryClickListener listener;
 
     public interface OnCategoryClickListener {
-        void onCategoryClick(Category category);
+        void onCategoryClick(String category);
     }
 
     public CategoryAdapter(List<Category> categories, OnCategoryClickListener listener) {
@@ -39,7 +39,7 @@ public class CategoryAdapter extends RecyclerView.Adapter<CategoryAdapter.ViewHo
         
         holder.itemView.setOnClickListener(v -> {
             if (listener != null) {
-                listener.onCategoryClick(category);
+                listener.onCategoryClick(category.getName());
             }
         });
     }

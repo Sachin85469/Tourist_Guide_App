@@ -38,9 +38,14 @@ public class CategoryPlacesActivity extends AppCompatActivity implements PlaceAd
         // Filter list from DataProvider
         List<Place> allPlaces = DataProvider.getPlaces();
         if (selectedCategory != null) {
-            for (Place place : allPlaces) {
-                if (place.getCategory().equalsIgnoreCase(selectedCategory)) {
-                    filteredList.add(place);
+            if (selectedCategory.equalsIgnoreCase("All")) {
+                // Show everything
+                filteredList.addAll(allPlaces);
+            } else {
+                for (Place place : allPlaces) {
+                    if (place.getCategory() != null && place.getCategory().equalsIgnoreCase(selectedCategory)) {
+                        filteredList.add(place);
+                    }
                 }
             }
         }
