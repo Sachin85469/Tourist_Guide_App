@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Brand Colors -->
+    <color name="primary">#6200EE</color>
+    <color name="primary_dark">#3700B3</color>
+    <color name="accent">#03DAC5</color>
+
+    <!-- UI Colors -->
+    <color name="bg_light">#F8F9FA</color>
+    <color name="white">#FFFFFF</color>
+    <color name="black">#1A1A1A</color>
+    <color name="gray_dark">#666666</color>
+    <color name="gray_light">#E0E0E0</color>
+
+    <!-- Indicators -->
+    <color name="indicator_green">#2E7D32</color>
+    <color name="indicator_red">#C62828</color>
+    <color name="rating_gold">#FFB300</color>
+
+    <!-- Category Backgrounds -->
+    <color name="cat_nature_bg">#E8F5E9</color>
+    <color name="cat_historical_bg">#FFF3E0</color>
+    <color name="cat_food_bg">#FCE4EC</color>
+    <color name="cat_adventure_bg">#E1F5FE</color>
+
+    <!-- Legacy support -->
+    <color name="chip_selected">#6200EE</color>
+    <color name="chip_unselected">#E0E0E0</color>
+</resources>

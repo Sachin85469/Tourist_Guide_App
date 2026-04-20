@@ -3,75 +3,179 @@ package com.example.touristguideapp;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Provides dummy data for the Tourist Guide application.
- */
 public class DataProvider {
 
     public static List<Place> getPlaces() {
         List<Place> places = new ArrayList<>();
 
-        // Historical Places
         places.add(new Place(
-                "p1", "Sinhagad Fort", "Pune", "historical",
-                "A historic hill fortress with a great trekking experience and panoramic views of the city. Famous for its local Pithla-Bhakri food.",
-                "Low", "High", "Monsoon", 18.3663, 73.7559, android.R.drawable.ic_menu_gallery
+                "1",
+                "Shaniwar Wada",
+                "Pune",
+                "historical",
+                "18th-century Maratha palace fort known for its massive gates and rich history. Built in 1732 by Peshwa Baji Rao I, it was once the seat of the Peshwa empire.",
+                "Low",
+                "High",
+                "Evening",
+                18.5196,
+                73.8554,
+                R.drawable.shaniwar_wada,
+                "Visit during evening for light show. Avoid weekends.",
+                "The fort is believed to be haunted by the ghost of Narayanrao.",
+                "Pune Station (3 km)"
         ));
 
         places.add(new Place(
-                "p2", "Shaniwar Wada", "Pune", "historical",
-                "The 18th-century seat of the Peshwas. A symbol of Maratha heritage with a beautiful garden and a sound-and-light show.",
-                "Low", "Moderate", "Winter", 18.5194, 73.8553, android.R.drawable.ic_menu_gallery
+                "2",
+                "Dagadusheth Halwai Ganapati Temple",
+                "Pune",
+                "spiritual",
+                "Famous Ganesha temple known for its gold idol and grand Ganesh festival celebrations.",
+                "Low",
+                "Very High",
+                "Morning",
+                18.5163,
+                73.8538,
+                R.drawable.dagadusheth,
+                "Visit early morning to avoid crowd.",
+                "The idol is adorned with over 40kg gold.",
+                "Pune Station (2.5 km)"
         ));
 
         places.add(new Place(
-                "p3", "Aga Khan Palace", "Pune", "historical",
-                "Built in 1892, this palace is a majestic building with Italian arches. It is a memorial to Mahatma Gandhi and Kasturba Gandhi.",
-                "Medium", "Low", "Post-Monsoon", 18.5523, 73.9015, android.R.drawable.ic_menu_gallery
+                "3",
+                "Khadakwasla Dam",
+                "Pune",
+                "nature",
+                "Scenic dam known for sunset views and peaceful environment. Popular picnic spot.",
+                "Low",
+                "High",
+                "Evening",
+                18.4239,
+                73.7615,
+                R.drawable.khadakwasla,
+                "Best during sunset. Avoid late night.",
+                "Featured in Bollywood movie scenes.",
+                "Shivajinagar (15 km)"
         ));
 
         places.add(new Place(
-                "p4", "Pataleshwar Caves", "Pune", "historical",
-                "An 8th-century rock-cut cave temple dedicated to Lord Shiva. It is carved out of a single enormous basalt rock.",
-                "Low", "Low", "All year", 18.5276, 73.8504, android.R.drawable.ic_menu_gallery
-        ));
-
-        // Nature Places
-        places.add(new Place(
-                "p5", "Mulshi Dam", "Pune", "nature",
-                "A serene lake surrounded by lush green Sahyadri mountains. An ideal spot for day trips, camping, and monsoon photography.",
-                "Low", "Moderate", "Monsoon", 18.5034, 73.5123, android.R.drawable.ic_menu_gallery
-        ));
-
-        places.add(new Place(
-                "p6", "Vetal Tekdi", "Pune", "nature",
-                "The highest point in Pune city. Popular among locals for morning walks, bird watching, and stunning sunset views.",
-                "Low", "Moderate", "All year", 18.5283, 73.8247, android.R.drawable.ic_menu_gallery
-        ));
-
-        places.add(new Place(
-                "p7", "Pashan Lake", "Pune", "nature",
-                "A calm man-made lake that attracts several migratory birds during winter. Perfect for nature lovers and photographers.",
-                "Low", "Low", "Winter", 18.5367, 73.7844, android.R.drawable.ic_menu_gallery
+                "4",
+                "Tulshi Baug",
+                "Pune",
+                "shopping",
+                "Famous traditional market for clothes, jewelry, and street shopping.",
+                "Low",
+                "Very High",
+                "Afternoon",
+                18.5147,
+                73.8551,
+                R.drawable.tulashi_bag,
+                "Bargain properly while shopping.",
+                "One of the oldest markets in Pune.",
+                "Pune Station (2 km)"
         ));
 
         places.add(new Place(
-                "p8", "Saras Baug", "Pune", "nature",
-                "A historic park featuring a beautiful pond and a famous Ganpati temple. Great for family outings in the evening.",
-                "Low", "High", "All year", 18.4998, 73.8473, android.R.drawable.ic_menu_gallery
+                "5",
+                "Sinhagad Fort",
+                "Pune",
+                "adventure",
+                "Historic fort and trekking destination with panoramic views of the city.",
+                "Low",
+                "High",
+                "Morning",
+                18.3659,
+                73.7467,
+                R.drawable.sinhagad,
+                "Start trek early morning.",
+                "Known for Battle of Sinhagad.",
+                "Pune Station (30 km)"
         ));
 
-        // Food Places
         places.add(new Place(
-                "p9", "Vaishali Restaurant", "Pune", "food",
-                "Located on the iconic FC Road, it is legendary for its South Indian breakfast, specifically Mysore Masala Dosa and Filter Coffee.",
-                "Medium", "High", "Morning", 18.5255, 73.8415, android.R.drawable.ic_menu_gallery
+                "6",
+                "Appu Ghar",
+                "Pune",
+                "entertainment",
+                "Amusement park with water rides and family entertainment.",
+                "Medium",
+                "High",
+                "Day",
+                18.5355,
+                73.8907,
+                R.drawable.appu_ghar,
+                "Visit on weekdays to avoid rush.",
+                "One of India's oldest amusement brands.",
+                "Pune Junction (8 km)"
         ));
 
         places.add(new Place(
-                "p10", "Kayani Bakery", "Pune", "food",
-                "Oldest and most famous Parsi bakery in Pune. Renowned for its world-famous Shrewsbury biscuits and milk bread.",
-                "Low", "High", "All year", 18.5196, 73.8767, android.R.drawable.ic_menu_gallery
+                "7",
+                "Raja Dinkar Kelkar Museum",
+                "Pune",
+                "cultural",
+                "Museum with large collection of Indian artifacts and Mastani Mahal.",
+                "Low",
+                "Moderate",
+                "Morning",
+                18.5136,
+                73.8492,
+                R.drawable.raja_dinkar_kelkar_museum,
+                "Hire guide for better understanding.",
+                "Contains over 20000 artifacts.",
+                "Pune Station (2 km)"
+        ));
+
+        places.add(new Place(
+                "8",
+                "Timezone Phoenix Mall",
+                "Pune",
+                "gaming",
+                "Indoor arcade with bowling, VR, and games.",
+                "High",
+                "High",
+                "Evening",
+                18.5622,
+                73.9006,
+                R.drawable.timezone_pune,
+                "Buy combo game cards.",
+                "International gaming brand.",
+                "Pune Station (9 km)"
+        ));
+
+        places.add(new Place(
+                "9",
+                "F.M. Live Koregaon Park",
+                "Pune",
+                "entertainment",
+                "Popular nightlife spot with karaoke, comedy, and live music.",
+                "High",
+                "Very High",
+                "Night",
+                18.5362,
+                73.8868,
+                R.drawable.fm_live_koregaon_park,
+                "Book in advance for weekends.",
+                "Hosts live performances.",
+                "Pune Station (4.5 km)"
+        ));
+
+        places.add(new Place(
+                "10",
+                "Rajiv Gandhi Zoological Park",
+                "Pune",
+                "nature",
+                "Large zoo with wide variety of animals and snake park.",
+                "Low",
+                "High",
+                "Morning",
+                18.5098,
+                73.8534,
+                R.drawable.rajiv_gandi_zoological_park,
+                "Visit early when animals are active.",
+                "Known for rare animal species.",
+                "Pune Station (6 km)"
         ));
 
         return places;
