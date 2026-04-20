@@ -181,7 +181,8 @@ public class HomeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             if (placeRating != null) placeRating.setText(String.format(Locale.getDefault(), "%.1f ⭐", place.getRating()));
             placeImage.setImageResource(place.getImageResId());
             
-            updateFavoriteIcon(context, place.getId());
+            boolean isFav = FavoritesManager.isFavorite(context, place.getId());
+            btnFavorite.setImageResource(isFav ? R.drawable.ic_favorite : R.drawable.ic_favorite_border);
 
             itemView.setOnClickListener(v -> {
                 if (listener != null) listener.onItemClick(place);
@@ -189,28 +190,18 @@ public class HomeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
             btnFavorite.setOnClickListener(v -> {
                 FavoritesManager.toggleFavorite(context, place.getId());
-                
-                // Update icon immediately
-                updateFavoriteIcon(context, place.getId());
+                boolean updated = FavoritesManager.isFavorite(context, place.getId());
+                btnFavorite.setImageResource(updated ? R.drawable.ic_favorite : R.drawable.ic_favorite_border);
 
-                // Animation (bounce effect)
+                // Animation
                 btnFavorite.setScaleX(0.7f);
                 btnFavorite.setScaleY(0.7f);
 
                 btnFavorite.animate()
                     .scaleX(1f)
                     .scaleY(1f)
-                    .setDuration(200)
-                    .start();
+                    .setDuration(200);
             });
-        }
-
-        private void updateFavoriteIcon(Context context, String placeId) {
-            if (FavoritesManager.isFavorite(context, placeId)) {
-                btnFavorite.setImageResource(R.drawable.ic_favorite);
-            } else {
-                btnFavorite.setImageResource(R.drawable.ic_favorite_border);
-            }
         }
     }
 }

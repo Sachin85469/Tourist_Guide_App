@@ -1,5 +1,6 @@
 package com.example.touristguideapp;
 
+import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,7 +21,7 @@ public class TopPickAdapter extends RecyclerView.Adapter<TopPickAdapter.ViewHold
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
-        public ImageView image;
+        public ImageView image, favoriteIcon;
         public TextView name, rating, budget;
 
         public ViewHolder(View view) {
@@ -29,14 +30,19 @@ public class TopPickAdapter extends RecyclerView.Adapter<TopPickAdapter.ViewHold
             name = view.findViewById(R.id.topPickName);
             rating = view.findViewById(R.id.topPickRating);
             budget = view.findViewById(R.id.topPickBudget);
+            favoriteIcon = view.findViewById(R.id.btnFavorite);
         }
 
         public void bind(final Place place, final OnItemClickListener listener) {
+            Context context = itemView.getContext();
             name.setText(place.getName());
             rating.setText(place.getRating() + " ⭐");
             budget.setText(place.getBudget());
             image.setImageResource(place.getImageResId());
             
+            boolean isFav = FavoritesManager.isFavorite(context, place.getId());
+            favoriteIcon.setImageResource(isFav ? R.drawable.ic_favorite : R.drawable.ic_favorite_border);
+
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -44,6 +50,21 @@ public class TopPickAdapter extends RecyclerView.Adapter<TopPickAdapter.ViewHold
                         listener.onItemClick(place);
                     }
                 }
+            });
+
+            favoriteIcon.setOnClickListener(v -> {
+                FavoritesManager.toggleFavorite(context, place.getId());
+                boolean updated = FavoritesManager.isFavorite(context, place.getId());
+                favoriteIcon.setImageResource(updated ? R.drawable.ic_favorite : R.drawable.ic_favorite_border);
+
+                // animation
+                favoriteIcon.setScaleX(0.7f);
+                favoriteIcon.setScaleY(0.7f);
+
+                favoriteIcon.animate()
+                    .scaleX(1f)
+                    .scaleY(1f)
+                    .setDuration(200);
             });
         }
     }

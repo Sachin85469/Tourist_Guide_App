@@ -71,7 +71,7 @@ public class PlaceAdapter extends RecyclerView.Adapter<PlaceAdapter.ViewHolder> 
         public TextView placeCity;
         public TextView placeRating;
         public ImageView placeImage;
-        public ImageView btnFavorite;
+        public ImageView favoriteIcon;
 
         public ViewHolder(View view) {
             super(view);
@@ -80,7 +80,7 @@ public class PlaceAdapter extends RecyclerView.Adapter<PlaceAdapter.ViewHolder> 
             placeCity = view.findViewById(R.id.tvCity);
             placeRating = view.findViewById(R.id.tvRating);
             placeImage = view.findViewById(R.id.ivPlaceImage);
-            btnFavorite = view.findViewById(R.id.btnFavorite);
+            favoriteIcon = view.findViewById(R.id.btnFavorite);
         }
 
         public void bind(Place place, int position, OnItemClickListener listener) {
@@ -91,8 +91,8 @@ public class PlaceAdapter extends RecyclerView.Adapter<PlaceAdapter.ViewHolder> 
             if (placeRating != null) placeRating.setText(String.format(Locale.getDefault(), "%.1f ⭐", place.getRating()));
             placeImage.setImageResource(place.getImageResId());
             
-            // Set icon based on favorite status
-            updateFavoriteIcon(context, place.getId());
+            boolean isFav = FavoritesManager.isFavorite(context, place.getId());
+            favoriteIcon.setImageResource(isFav ? R.drawable.ic_favorite : R.drawable.ic_favorite_border);
 
             itemView.setOnClickListener(v -> {
                 if (listener != null) {
@@ -114,31 +114,20 @@ public class PlaceAdapter extends RecyclerView.Adapter<PlaceAdapter.ViewHolder> 
                 }
             });
 
-            btnFavorite.setOnClickListener(v -> {
-                // Toggle favorite state
+            favoriteIcon.setOnClickListener(v -> {
                 FavoritesManager.toggleFavorite(context, place.getId());
-                
-                // Immediately update UI
-                updateFavoriteIcon(context, place.getId());
+                boolean updated = FavoritesManager.isFavorite(context, place.getId());
+                favoriteIcon.setImageResource(updated ? R.drawable.ic_favorite : R.drawable.ic_favorite_border);
 
-                // Add bounce animation
-                btnFavorite.setScaleX(0.7f);
-                btnFavorite.setScaleY(0.7f);
+                // Animation
+                favoriteIcon.setScaleX(0.7f);
+                favoriteIcon.setScaleY(0.7f);
 
-                btnFavorite.animate()
+                favoriteIcon.animate()
                     .scaleX(1f)
                     .scaleY(1f)
-                    .setDuration(200)
-                    .start();
+                    .setDuration(200);
             });
-        }
-
-        private void updateFavoriteIcon(Context context, String placeId) {
-            if (FavoritesManager.isFavorite(context, placeId)) {
-                btnFavorite.setImageResource(R.drawable.ic_favorite);
-            } else {
-                btnFavorite.setImageResource(R.drawable.ic_favorite_border);
-            }
         }
     }
 }
