@@ -98,7 +98,7 @@ public class DataProvider {
         // 5. F.M. Live -> Entertainment
         Place p5 = new Place(
                 "5",
-                "F.M. Live (BIG FM Studio)",
+                "F.M. Live",
                 "Pune",
                 "Entertainment",
                 "Live radio broadcasting studio where shows are recorded and aired.",
@@ -111,7 +111,7 @@ public class DataProvider {
                 "Visit during live sessions for a better experience.",
                 "Part of BIG FM network, one of India's popular radio stations.",
                 "Koregaon Park (1 km)",
-                "Modern"
+                "Popular"
         );
         p5.setGalleryImages(Arrays.asList(R.drawable.fm_live_koregaon_park, R.drawable.timezone_pune));
         places.add(p5);
@@ -147,7 +147,7 @@ public class DataProvider {
                 "Evening",
                 18.5204,
                 73.8410,
-                R.drawable.fm_live_koregaon_park,
+                R.drawable.fc_road,
                 "Try Misal Pav and street snacks.",
                 "Heart of Pune's youth culture.",
                 "Shivajinagar (1 km)",
@@ -173,21 +173,18 @@ public class DataProvider {
                 "Budget"
         ));
 
-        // Adding more Pune places with corrected categories
-        places.add(new Place("Aga Khan Palace", "Pune", 18.5526, 73.9019, R.drawable.shaniwar_wada, "History", "History"));
-        places.add(new Place("Lal Mahal", "Pune", 18.5195, 73.8553, R.drawable.shaniwar_wada, "History", "History"));
-        places.add(new Place("Parvati Hill", "Pune", 18.4925, 73.8537, R.drawable.sinhagad, "Nature", "Nature"));
-        places.add(new Place("Pashan Lake", "Pune", 18.5416, 73.8027, R.drawable.khadakwasla, "Nature", "Nature"));
-        places.add(new Place("Okayama Friendship Garden", "Pune", 18.5007, 73.8587, R.drawable.khadakwasla, "Nature", "Nature"));
-        places.add(new Place("Phoenix Mall Viman Nagar", "Pune", 18.5679, 73.9143, R.drawable.timezone_pune, "Shopping", "Shopping"));
-        places.add(new Place("Seasons Mall", "Pune", 18.5204, 73.9370, R.drawable.timezone_pune, "Shopping", "Shopping"));
-        places.add(new Place("High Street Baner", "Pune", 18.5590, 73.7868, R.drawable.fm_live_koregaon_park, "Food", "Food"));
-        places.add(new Place("Vaishali Restaurant", "Pune", 18.5204, 73.8410, R.drawable.fm_live_koregaon_park, "Food", "Food"));
-        places.add(new Place("German Bakery Koregaon Park", "Pune", 18.5362, 73.8930, R.drawable.fm_live_koregaon_park, "Food", "Food"));
-        places.add(new Place("Rajiv Gandhi Zoological Park", "Pune", 18.4550, 73.8580, R.drawable.rajiv_gandi_zoological_park, "Nature", "Nature"));
-        places.add(new Place("Empress Garden", "Pune", 18.4966, 73.8728, R.drawable.khadakwasla, "Nature", "Nature"));
-        places.add(new Place("ISKCON Temple", "Pune", 18.5635, 73.9167, R.drawable.dagadusheth, "Spiritual", "Spiritual"));
-        places.add(new Place("Chaturshringi Temple", "Pune", 18.5360, 73.8440, R.drawable.dagadusheth, "Spiritual", "Spiritual"));
+        // Additional Mappings
+        places.add(new Place("Aga Khan Palace", "Pune", 18.5526, 73.9019, R.drawable.aga_khan_palace, "History", "History"));
+        places.add(new Place("Chaturshringi Temple", "Pune", 18.5360, 73.8440, R.drawable.chaturshringi_temple, "Spiritual", "Spiritual"));
+        places.add(new Place("Empress Garden", "Pune", 18.4966, 73.8728, R.drawable.empress_garden, "Nature", "Nature"));
+        places.add(new Place("German Bakery (Koregaon Park)", "Pune", 18.5362, 73.8930, R.drawable.german_bakery_koregao_park, "Food", "Food"));
+        places.add(new Place("High Street Baner", "Pune", 18.5590, 73.7868, R.drawable.high_street_baner, "Entertainment", "Entertainment"));
+        places.add(new Place("ISKCON Temple", "Pune", 18.5635, 73.9167, R.drawable.iskcon_temple, "Spiritual", "Spiritual"));
+        places.add(new Place("Lal Mahal", "Pune", 18.5195, 73.8553, R.drawable.lal_mahal, "History", "History"));
+        places.add(new Place("Okayama Friendship Garden", "Pune", 18.5007, 73.8587, R.drawable.okyama_friendship_garden, "Nature", "Nature"));
+        places.add(new Place("Parvati Hill", "Pune", 18.4925, 73.8537, R.drawable.parvati_hills, "Nature", "Nature"));
+        places.add(new Place("Pashan Lake", "Pune", 18.5416, 73.8027, R.drawable.pashan_lake, "Nature", "Nature"));
+        places.add(new Place("Phoenix Marketcity (Viman Nagar)", "Pune", 18.5679, 73.9143, R.drawable.phoenix_mall_viman_nagar, "Shopping", "Shopping"));
 
         return places;
     }
