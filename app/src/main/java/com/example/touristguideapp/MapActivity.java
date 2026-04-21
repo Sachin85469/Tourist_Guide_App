@@ -273,6 +273,7 @@ public class MapActivity extends AppCompatActivity {
         marker.setOnMarkerClickListener((m, mapView) -> {
             searchedPoint = (GeoPoint) m.getPosition();
             showPlaceInfo(m.getTitle(), m.getSnippet());
+            map.getController().animateTo(m.getPosition());
             return true;
         });
         
@@ -323,8 +324,8 @@ public class MapActivity extends AppCompatActivity {
     private void animateRoute(ArrayList<GeoPoint> points) {
         map.getOverlays().removeIf(overlay -> overlay instanceof Polyline);
         Polyline line = new Polyline();
-        line.getOutlinePaint().setColor(0xFF0000FF);
-        line.getOutlinePaint().setStrokeWidth(10f);
+        line.getOutlinePaint().setColor(0xFF7B1FA2);
+        line.getOutlinePaint().setStrokeWidth(12f);
         map.getOverlays().add(line);
 
         Handler handler = new Handler(Looper.getMainLooper());
