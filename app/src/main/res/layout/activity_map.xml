@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:osmdroid="http://schemas.android.com/apk/res-auto"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
@@ -12,52 +13,172 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginHorizontal="16dp"
-        android:layout_marginTop="30dp"
-        android:padding="12dp"
-        android:orientation="horizontal"
-        android:gravity="center_vertical"
-        android:background="@drawable/premium_search_bg"
-        android:elevation="12dp">
+        android:orientation="vertical">
 
-        <!-- Search Icon (Acting as searchBtn for logic) -->
-        <ImageButton
-            android:id="@+id/searchBtn"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:src="@android:drawable/ic_menu_search"
-            android:tint="#666666"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:layout_marginEnd="8dp"/>
-
-        <!-- Input -->
-        <EditText
-            android:id="@+id/searchInput"
-            android:layout_width="0dp"
-            android:layout_height="40dp"
-            android:layout_weight="1"
-            android:hint="Search places..."
-            android:textColor="#111111"
-            android:textColorHint="#888888"
-            android:textSize="16sp"
-            android:background="@android:color/transparent"
-            android:padding="4dp"/>
-
-        <!-- Mic Button -->
-        <ImageView
-            android:layout_width="36dp"
-            android:layout_height="36dp"
-            android:background="@drawable/mic_bg"
-            android:padding="8dp"
-            android:src="@android:drawable/ic_btn_speak_now"/>
-
-        <!-- Hidden Go Button (Kept for logic compatibility) -->
-        <Button
-            android:id="@+id/btnDirections"
-            android:layout_width="wrap_content"
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:visibility="gone" />
+            android:layout_marginHorizontal="16dp"
+            android:layout_marginTop="30dp"
+            android:padding="12dp"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:background="@drawable/premium_search_bg"
+            android:elevation="12dp">
+
+            <!-- Search Icon (Acting as searchBtn for logic) -->
+            <ImageButton
+                android:id="@+id/searchBtn"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:src="@android:drawable/ic_menu_search"
+                android:tint="#666666"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:layout_marginEnd="8dp"/>
+
+            <!-- Input -->
+            <EditText
+                android:id="@+id/searchInput"
+                android:layout_width="0dp"
+                android:layout_height="40dp"
+                android:layout_weight="1"
+                android:hint="Search places..."
+                android:textColor="#111111"
+                android:textColorHint="#888888"
+                android:textSize="16sp"
+                android:background="@android:color/transparent"
+                android:padding="4dp"/>
+
+            <!-- Mic Button -->
+            <ImageView
+                android:id="@+id/micBtn"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:background="@drawable/mic_bg"
+                android:padding="8dp"
+                android:src="@android:drawable/ic_btn_speak_now"
+                android:clickable="true"
+                android:focusable="true"/>
+
+            <!-- Hidden Go Button (Kept for logic compatibility) -->
+            <Button
+                android:id="@+id/btnDirections"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:visibility="gone" />
+
+        </LinearLayout>
+
+        <HorizontalScrollView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:scrollbars="none"
+            android:paddingHorizontal="16dp"
+            android:paddingTop="8dp">
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <Button
+                    android:id="@+id/btnAtm"
+                    style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="ATM"
+                    android:layout_marginEnd="8dp"
+                    app:cornerRadius="20dp"
+                    android:backgroundTint="#FFFFFF"/>
+
+                <Button
+                    android:id="@+id/btnCafe"
+                    style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Cafe"
+                    android:layout_marginEnd="8dp"
+                    app:cornerRadius="20dp"
+                    android:backgroundTint="#FFFFFF"/>
+
+                <Button
+                    android:id="@+id/btnRestaurant"
+                    style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Food"
+                    android:layout_marginEnd="8dp"
+                    app:cornerRadius="20dp"
+                    android:backgroundTint="#FFFFFF"/>
+
+                <Button
+                    android:id="@+id/btnBank"
+                    style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Bank"
+                    android:layout_marginEnd="8dp"
+                    app:cornerRadius="20dp"
+                    android:backgroundTint="#FFFFFF"/>
+
+                <Button
+                    android:id="@+id/btnFuel"
+                    style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Fuel"
+                    app:cornerRadius="20dp"
+                    android:backgroundTint="#FFFFFF"/>
+            </LinearLayout>
+        </HorizontalScrollView>
+    </LinearLayout>
+
+    <!-- Bottom Sheet -->
+    <LinearLayout
+        android:id="@+id/bottomSheet"
+        android:layout_width="match_parent"
+        android:layout_height="250dp"
+        android:orientation="vertical"
+        android:background="#FFFFFF"
+        android:padding="20dp"
+        android:elevation="12dp"
+        app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior"
+        app:behavior_hideable="true"
+        app:behavior_peekHeight="0dp">
+
+        <View
+            android:layout_width="40dp"
+            android:layout_height="4dp"
+            android:layout_gravity="center_horizontal"
+            android:background="#DDDDDD"
+            android:layout_marginBottom="16dp"/>
+
+        <TextView
+            android:id="@+id/placeName"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:textColor="#000000"
+            android:text="Place Name"/>
+
+        <TextView
+            android:id="@+id/placeDetails"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:textSize="16sp"
+            android:textColor="#666666"
+            android:text="Details about the place appear here."/>
+
+        <Button
+            android:id="@+id/btnSheetGo"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:text="Get Directions"
+            android:backgroundTint="#7B1FA2"/>
 
     </LinearLayout>
 
-</FrameLayout>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>
