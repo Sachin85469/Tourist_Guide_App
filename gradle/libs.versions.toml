@@ -12,6 +12,7 @@ playServicesMaps = "18.2.0"
 playServicesLocation = "21.0.1"
 places = "3.3.0"
 volley = "1.2.1"
+osmdroid = "6.1.18"
 
 [libraries]
 junit = { group = "junit", name = "junit", version.ref = "junit" }
@@ -26,6 +27,7 @@ play-services-maps = { group = "com.google.android.gms", name = "play-services-m
 play-services-location = { group = "com.google.android.gms", name = "play-services-location", version.ref = "playServicesLocation" }
 places = { group = "com.google.android.libraries.places", name = "places", version.ref = "places" }
 volley = { group = "com.android.volley", name = "volley", version.ref = "volley" }
+osmdroid = { group = "org.osmdroid", name = "osmdroid-android", version.ref = "osmdroid" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
