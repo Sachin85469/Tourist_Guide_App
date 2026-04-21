@@ -12,24 +12,50 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
+        android:layout_margin="16dp"
+        android:layout_marginTop="40dp"
         android:padding="10dp"
-        android:background="#FFFFFF"
-        android:elevation="6dp">
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:background="@drawable/pill_bg"
+        android:elevation="10dp">
 
+        <!-- Search Icon -->
+        <ImageButton
+            android:id="@+id/searchBtn"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:src="@android:drawable/ic_menu_search"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:layout_marginStart="8dp"
+            android:layout_marginEnd="8dp"/>
+
+        <!-- Input -->
         <EditText
             android:id="@+id/searchInput"
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
+            android:layout_height="40dp"
             android:layout_weight="1"
-            android:hint="Search place..." />
+            android:hint="Search places..."
+            android:textColor="#000"
+            android:textSize="15sp"
+            android:background="@android:color/transparent"
+            android:padding="4dp"/>
 
-        <ImageButton
-            android:id="@+id/searchBtn"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:src="@android:drawable/ic_menu_search"
-            android:background="?attr/selectableItemBackgroundBorderless"/>
+        <!-- Mic Icon (Visual only) -->
+        <ImageView
+            android:layout_width="22dp"
+            android:layout_height="22dp"
+            android:src="@android:drawable/ic_btn_speak_now"
+            android:layout_marginEnd="8dp"/>
+
+        <!-- Go Button (Hidden to match modern UI, but kept for logic compatibility) -->
+        <Button
+            android:id="@+id/btnDirections"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:visibility="gone" />
+
     </LinearLayout>
 
 </FrameLayout>

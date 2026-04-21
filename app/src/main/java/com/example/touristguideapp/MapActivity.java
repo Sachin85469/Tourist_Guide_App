@@ -5,6 +5,7 @@ import android.content.pm.PackageManager;
 import android.location.Address;
 import android.location.Geocoder;
 import android.os.Bundle;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.Toast;
@@ -14,15 +15,23 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
+import org.json.JSONArray;
+import org.json.JSONObject;
 import org.osmdroid.api.IMapController;
 import org.osmdroid.config.Configuration;
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory;
 import org.osmdroid.util.GeoPoint;
 import org.osmdroid.views.MapView;
+import org.osmdroid.views.overlay.Polyline;
 import org.osmdroid.views.overlay.mylocation.GpsMyLocationProvider;
 import org.osmdroid.views.overlay.mylocation.MyLocationNewOverlay;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.util.ArrayList;
 import java.util.List;
 
 public class MapActivity extends AppCompatActivity {
@@ -30,6 +39,7 @@ public class MapActivity extends AppCompatActivity {
     private MapView map;
     private EditText searchInput;
     private ImageButton searchBtn;
+    private Button btnDirections;
     private MyLocationNewOverlay locationOverlay;
     private static final int REQUEST_PERMISSIONS_REQUEST_CODE = 1;
     private GeoPoint searchedPoint;
@@ -49,6 +59,7 @@ public class MapActivity extends AppCompatActivity {
         // Initialize UI
         searchInput = findViewById(R.id.searchInput);
         searchBtn = findViewById(R.id.searchBtn);
+        btnDirections = findViewById(R.id.btnDirections);
 
         // Initialize Map
         map = findViewById(R.id.map);
@@ -69,6 +80,21 @@ public class MapActivity extends AppCompatActivity {
             } else {
                 Toast.makeText(this, "Enter a place name", Toast.LENGTH_SHORT).show();
             }
+        });
+
+        btnDirections.setOnClickListener(v -> {
+            if (searchedPoint == null) {
+                Toast.makeText(this, "Search a place first", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            if (locationOverlay == null || locationOverlay.getMyLocation() == null) {
+                Toast.makeText(this, "Location not available", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            GeoPoint start = locationOverlay.getMyLocation();
+            fetchRoute(start, searchedPoint);
         });
 
         // Request permissions and init location
@@ -123,6 +149,73 @@ public class MapActivity extends AppCompatActivity {
 
     }
 
+    private void fetchRoute(GeoPoint start, GeoPoint end) {
+        new Thread(() -> {
+            try {
+                String urlString = "https://router.project-osrm.org/route/v1/driving/"
+                        + start.getLongitude() + "," + start.getLatitude() + ";"
+                        + end.getLongitude() + "," + end.getLatitude()
+                        + "?overview=full&geometries=geojson";
+
+                URL url = new URL(urlString);
+                HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+                conn.setRequestMethod("GET");
+
+                BufferedReader reader = new BufferedReader(
+                        new InputStreamReader(conn.getInputStream())
+                );
+
+                StringBuilder json = new StringBuilder();
+                String line;
+
+                while ((line = reader.readLine()) != null) {
+                    json.append(line);
+                }
+
+                reader.close();
+
+                JSONObject obj = new JSONObject(json.toString());
+                JSONArray routes = obj.getJSONArray("routes");
+
+                if (routes.length() > 0) {
+                    JSONObject geometry = routes.getJSONObject(0)
+                            .getJSONObject("geometry");
+
+                    JSONArray coordinates = geometry.getJSONArray("coordinates");
+
+                    ArrayList<GeoPoint> points = new ArrayList<>();
+
+                    for (int i = 0; i < coordinates.length(); i++) {
+                        JSONArray point = coordinates.getJSONArray(i);
+
+                        double lon = point.getDouble(0);
+                        double lat = point.getDouble(1);
+
+                        points.add(new GeoPoint(lat, lon));
+                    }
+
+                    runOnUiThread(() -> drawRoute(points));
+                }
+
+            } catch (Exception e) {
+                e.printStackTrace();
+                runOnUiThread(() -> Toast.makeText(this, "Routing error", Toast.LENGTH_SHORT).show());
+            }
+        }).start();
+    }
+
+    private void drawRoute(ArrayList<GeoPoint> points) {
+        map.getOverlays().removeIf(overlay -> overlay instanceof Polyline);
+
+        Polyline line = new Polyline();
+        line.setPoints(points);
+        line.getOutlinePaint().setColor(0xFF0000FF); // Blue color
+        line.getOutlinePaint().setStrokeWidth(10f);
+
+        map.getOverlays().add(line);
+        map.invalidate();
+    }
+
     private void initLocationOverlay() {
         locationOverlay = new MyLocationNewOverlay(new GpsMyLocationProvider(this), map);
         locationOverlay.enableMyLocation();
@@ -165,7 +258,7 @@ public class MapActivity extends AppCompatActivity {
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        if (requestCode == REQUEST_PERMISSIONS_REQUEST_CODE) {
+        if (requestCode == requestCode) {
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 initLocationOverlay();
             }
