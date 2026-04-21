@@ -12,22 +12,22 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="16dp"
-        android:layout_marginTop="40dp"
-        android:padding="10dp"
+        android:layout_marginHorizontal="16dp"
+        android:layout_marginTop="30dp"
+        android:padding="12dp"
         android:orientation="horizontal"
         android:gravity="center_vertical"
-        android:background="@drawable/pill_bg"
-        android:elevation="10dp">
+        android:background="@drawable/premium_search_bg"
+        android:elevation="12dp">
 
-        <!-- Search Icon -->
+        <!-- Search Icon (Acting as searchBtn for logic) -->
         <ImageButton
             android:id="@+id/searchBtn"
             android:layout_width="40dp"
             android:layout_height="40dp"
             android:src="@android:drawable/ic_menu_search"
+            android:tint="#666666"
             android:background="?attr/selectableItemBackgroundBorderless"
-            android:layout_marginStart="8dp"
             android:layout_marginEnd="8dp"/>
 
         <!-- Input -->
@@ -37,19 +37,21 @@
             android:layout_height="40dp"
             android:layout_weight="1"
             android:hint="Search places..."
-            android:textColor="#000"
-            android:textSize="15sp"
+            android:textColor="#111111"
+            android:textColorHint="#888888"
+            android:textSize="16sp"
             android:background="@android:color/transparent"
             android:padding="4dp"/>
 
-        <!-- Mic Icon (Visual only) -->
+        <!-- Mic Button -->
         <ImageView
-            android:layout_width="22dp"
-            android:layout_height="22dp"
-            android:src="@android:drawable/ic_btn_speak_now"
-            android:layout_marginEnd="8dp"/>
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:background="@drawable/mic_bg"
+            android:padding="8dp"
+            android:src="@android:drawable/ic_btn_speak_now"/>
 
-        <!-- Go Button (Hidden to match modern UI, but kept for logic compatibility) -->
+        <!-- Hidden Go Button (Kept for logic compatibility) -->
         <Button
             android:id="@+id/btnDirections"
             android:layout_width="wrap_content"

@@ -5,6 +5,7 @@ import android.content.pm.PackageManager;
 import android.location.Address;
 import android.location.Geocoder;
 import android.os.Bundle;
+import android.view.MotionEvent;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -72,6 +73,12 @@ public class MapActivity extends AppCompatActivity {
         GeoPoint startPoint = new GeoPoint(18.5204, 73.8567);
         controller.setCenter(startPoint);
 
+        // Search bar animation
+        searchInput.setOnFocusChangeListener((v, hasFocus) -> {
+            float scale = hasFocus ? 1.03f : 1f;
+            v.animate().scaleX(scale).scaleY(scale).setDuration(180).start();
+        });
+
         searchBtn.setOnClickListener(v -> {
             String query = searchInput.getText().toString().trim();
 
@@ -80,6 +87,20 @@ public class MapActivity extends AppCompatActivity {
             } else {
                 Toast.makeText(this, "Enter a place name", Toast.LENGTH_SHORT).show();
             }
+        });
+
+        // Button click animation
+        btnDirections.setOnTouchListener((v, event) -> {
+            switch (event.getAction()) {
+                case MotionEvent.ACTION_DOWN:
+                    v.animate().scaleX(0.92f).scaleY(0.92f).setDuration(80).start();
+                    break;
+                case MotionEvent.ACTION_UP:
+                case MotionEvent.ACTION_CANCEL:
+                    v.animate().scaleX(1f).scaleY(1f).setDuration(120).start();
+                    break;
+            }
+            return false;
         });
 
         btnDirections.setOnClickListener(v -> {
@@ -124,16 +145,30 @@ public class MapActivity extends AppCompatActivity {
 
                 searchedPoint = new GeoPoint(lat, lon);
 
-                // Move map
+                // Move map smoothly
                 map.getController().setZoom(15.0);
-                map.getController().setCenter(searchedPoint);
+                map.getController().animateTo(searchedPoint);
 
-                // Add marker
+                // Improve Marker
+                map.getOverlays().removeIf(o -> o instanceof org.osmdroid.views.overlay.Marker);
+
                 org.osmdroid.views.overlay.Marker marker =
                         new org.osmdroid.views.overlay.Marker(map);
 
                 marker.setPosition(searchedPoint);
                 marker.setTitle(locationName);
+
+                marker.setAnchor(
+                        org.osmdroid.views.overlay.Marker.ANCHOR_CENTER,
+                        org.osmdroid.views.overlay.Marker.ANCHOR_BOTTOM
+                );
+
+                marker.setIcon(getResources().getDrawable(android.R.drawable.ic_menu_mylocation));
+
+                marker.setOnMarkerClickListener((m, mapView) -> {
+                    Toast.makeText(this, locationName, Toast.LENGTH_SHORT).show();
+                    return true;
+                });
 
                 map.getOverlays().add(marker);
                 map.invalidate();
@@ -258,7 +293,7 @@ public class MapActivity extends AppCompatActivity {
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        if (requestCode == requestCode) {
+        if (requestCode == REQUEST_PERMISSIONS_REQUEST_CODE) {
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 initLocationOverlay();
             }
