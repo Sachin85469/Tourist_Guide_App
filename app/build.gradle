@@ -38,6 +38,7 @@ dependencies {
     implementation libs.play.services.location
     implementation libs.places
     implementation libs.volley
+    implementation libs.osmdroid
     implementation 'androidx.recyclerview:recyclerview:1.3.2'
     implementation 'androidx.cardview:cardview:1.0.0'
     
