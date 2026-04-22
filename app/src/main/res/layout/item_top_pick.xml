@@ -6,8 +6,8 @@
     android:layout_margin="8dp"
     android:clickable="true"
     android:focusable="true"
-    app:cardCornerRadius="20dp"
-    app:cardElevation="3dp"
+    app:cardCornerRadius="16dp"
+    app:cardElevation="6dp"
     app:rippleColor="#20000000"
     app:strokeWidth="0dp">
 
@@ -33,21 +33,7 @@
                 android:layout_alignParentBottom="true"
                 android:background="@drawable/gradient_shadow" />
 
-            <TextView
-                android:id="@+id/topPickBudget"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentEnd="true"
-                android:layout_margin="12dp"
-                android:background="@drawable/bg_category_chip"
-                android:paddingHorizontal="10dp"
-                android:paddingVertical="4dp"
-                android:text="Medium"
-                android:textColor="@color/white"
-                android:textSize="11sp"
-                android:textStyle="bold" />
-
-            <!-- Favorite Icon Overlay -->
+            <!-- Favorite Icon Overlay (Consistent size/margin) -->
             <ImageView
                 android:id="@+id/btnFavorite"
                 android:layout_width="32dp"
@@ -64,7 +50,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:padding="16dp">
+            android:padding="12dp">
 
             <TextView
                 android:id="@+id/topPickName"
@@ -80,7 +66,7 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="6dp"
+                android:layout_marginTop="4dp"
                 android:gravity="center_vertical"
                 android:orientation="horizontal">
 
@@ -89,8 +75,8 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="4.8 ⭐"
-                    android:textColor="@color/black"
-                    android:textSize="13sp"
+                    android:textColor="@color/primary"
+                    android:textSize="12sp"
                     android:textStyle="bold" />
 
                 <View
@@ -100,11 +86,12 @@
                     android:background="@drawable/dot_separator" />
 
                 <TextView
+                    android:id="@+id/topPickBudget"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Recommended"
+                    android:text="Medium"
                     android:textColor="@color/gray_dark"
-                    android:textSize="13sp" />
+                    android:textSize="12sp" />
             </LinearLayout>
         </LinearLayout>
     </LinearLayout>

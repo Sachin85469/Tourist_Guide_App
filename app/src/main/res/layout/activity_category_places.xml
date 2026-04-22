@@ -27,6 +27,13 @@
             android:clipToPadding="false"
             android:padding="8dp" />
 
+        <ProgressBar
+            android:id="@+id/progressBar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:visibility="gone" />
+
         <LinearLayout
             android:id="@+id/emptyLayout"
             android:layout_width="match_parent"
@@ -37,19 +44,28 @@
 
             <ImageView
                 android:id="@+id/imgEmpty"
-                android:layout_width="80dp"
-                android:layout_height="80dp"
-                android:alpha="0.6"
-                android:src="@android:drawable/ic_menu_search" />
+                android:layout_width="100dp"
+                android:layout_height="100dp"
+                android:alpha="0.5"
+                android:src="@android:drawable/ic_menu_search"
+                android:tint="@color/gray_dark" />
 
             <TextView
                 android:id="@+id/txtEmpty"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:paddingTop="8dp"
+                android:layout_marginTop="12dp"
                 android:text="No places found"
-                android:textColor="#888"
-                android:textSize="16sp" />
+                android:textColor="@color/gray_dark"
+                android:textSize="18sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Try selecting another category"
+                android:textColor="@color/gray_dark"
+                android:textSize="14sp" />
         </LinearLayout>
     </FrameLayout>
 

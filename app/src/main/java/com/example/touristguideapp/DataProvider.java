@@ -30,6 +30,7 @@ public class DataProvider {
                 "Popular"
         );
         p1.setGalleryImages(Arrays.asList(R.drawable.shaniwar_wada, R.drawable.sinhagad, R.drawable.dagadusheth));
+        p1.setTopPick(true);
         places.add(p1);
 
         // 2. Dagdusheth Ganpati -> Spiritual
@@ -51,6 +52,7 @@ public class DataProvider {
                 "Popular"
         );
         p2.setGalleryImages(Arrays.asList(R.drawable.dagadusheth, R.drawable.shaniwar_wada));
+        p2.setTopPick(true);
         places.add(p2);
 
         // 3. Sinhagad Fort -> Adventure
@@ -72,6 +74,7 @@ public class DataProvider {
                 "Adventure"
         );
         p3.setGalleryImages(Arrays.asList(R.drawable.sinhagad, R.drawable.khadakwasla));
+        p3.setTopPick(true);
         places.add(p3);
 
         // 4. Khadakwasla Dam -> Nature

@@ -1,11 +1,13 @@
 package com.example.touristguideapp;
 
+import android.app.Activity;
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.view.animation.OvershootInterpolator;
 import android.widget.ImageView;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
@@ -71,6 +73,8 @@ public class PlaceAdapter extends RecyclerView.Adapter<PlaceAdapter.ViewHolder> 
         public TextView placeCity;
         public TextView placeRating;
         public TextView placeTag;
+        public TextView tvDistance;
+        public TextView txtBadge;
         public ImageView placeImage;
         public ImageView btnFavorite;
 
@@ -81,6 +85,8 @@ public class PlaceAdapter extends RecyclerView.Adapter<PlaceAdapter.ViewHolder> 
             placeCity = view.findViewById(R.id.tvCity);
             placeRating = view.findViewById(R.id.tvRating);
             placeTag = view.findViewById(R.id.tvTag);
+            tvDistance = view.findViewById(R.id.tvDistance);
+            txtBadge = view.findViewById(R.id.txtBadge);
             placeImage = view.findViewById(R.id.ivPlaceImage);
             btnFavorite = view.findViewById(R.id.btnFavorite);
         }
@@ -93,6 +99,20 @@ public class PlaceAdapter extends RecyclerView.Adapter<PlaceAdapter.ViewHolder> 
             if (placeRating != null) placeRating.setText(String.format(Locale.getDefault(), "%.1f ⭐", place.getRating()));
             if (placeTag != null) placeTag.setText(place.getTag());
             placeImage.setImageResource(place.getImageResId());
+            
+            // Display Top Pick Badge
+            if (txtBadge != null) {
+                txtBadge.setVisibility(place.isTopPick() ? View.VISIBLE : View.GONE);
+            }
+
+            // Display distance
+            if (tvDistance != null) {
+                if (place.getDistance() >= 0) {
+                    tvDistance.setText(String.format(Locale.getDefault(), "%.1f km away", place.getDistance()));
+                } else {
+                    tvDistance.setText("Distance unavailable");
+                }
+            }
             
             // Set icon based on favorite status
             updateFavoriteIcon(context, place.getId());
@@ -114,6 +134,9 @@ public class PlaceAdapter extends RecyclerView.Adapter<PlaceAdapter.ViewHolder> 
                     intent.putExtra("funFact", place.getFunFact());
                     intent.putExtra("nearestStation", place.getNearestStation());
                     context.startActivity(intent);
+                    if (context instanceof Activity) {
+                        ((Activity) context).overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
+                    }
                 }
             });
 
@@ -124,14 +147,19 @@ public class PlaceAdapter extends RecyclerView.Adapter<PlaceAdapter.ViewHolder> 
                 // Immediately update UI
                 updateFavoriteIcon(context, place.getId());
 
-                // Add bounce animation
-                btnFavorite.setScaleX(0.7f);
-                btnFavorite.setScaleY(0.7f);
-
-                btnFavorite.animate()
-                    .scaleX(1f)
-                    .scaleY(1f)
-                    .setDuration(200)
+                // Smooth heart animation
+                v.animate()
+                    .scaleX(1.3f)
+                    .scaleY(1.3f)
+                    .setDuration(150)
+                    .setInterpolator(new OvershootInterpolator())
+                    .withEndAction(() -> {
+                        v.animate()
+                            .scaleX(1.0f)
+                            .scaleY(1.0f)
+                            .setDuration(150)
+                            .start();
+                    })
                     .start();
             });
         }

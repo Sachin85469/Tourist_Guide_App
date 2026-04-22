@@ -3,8 +3,8 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginHorizontal="16dp"
-    android:layout_marginVertical="10dp"
+    android:layout_marginHorizontal="12dp"
+    android:layout_marginVertical="8dp"
     android:clickable="true"
     android:focusable="true"
     app:cardCornerRadius="16dp"
@@ -19,7 +19,7 @@
 
         <FrameLayout
             android:layout_width="match_parent"
-            android:layout_height="220dp">
+            android:layout_height="180dp">
 
             <ImageView
                 android:id="@+id/ivPlaceImage"
@@ -28,112 +28,102 @@
                 android:scaleType="centerCrop"
                 android:src="@android:drawable/ic_menu_gallery" />
 
-            <!-- Tag Overlay -->
-            <TextView
-                android:id="@+id/tvTag"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_margin="12dp"
-                android:background="@drawable/button_gradient"
-                android:paddingHorizontal="10dp"
-                android:paddingVertical="4dp"
-                android:text="Popular"
-                android:textColor="@color/white"
-                android:textSize="11sp"
-                android:textStyle="bold" />
-
-            <!-- Gradient Shadow at the bottom of the image for text contrast -->
+            <!-- Gradient Overlay (Bottom to Top) -->
             <View
                 android:layout_width="match_parent"
-                android:layout_height="120dp"
+                android:layout_height="80dp"
                 android:layout_gravity="bottom"
                 android:background="@drawable/gradient_shadow" />
 
-            <!-- Text Overlay on Image -->
-            <LinearLayout
+            <!-- Top Pick Badge -->
+            <TextView
+                android:id="@+id/txtBadge"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="top|start"
+                android:layout_margin="12dp"
+                android:background="#FF5722"
+                android:paddingHorizontal="8dp"
+                android:paddingVertical="4dp"
+                android:text="Top Pick"
+                android:textColor="#FFFFFF"
+                android:textSize="10sp"
+                android:textStyle="bold"
+                android:visibility="gone" />
+
+            <!-- Place Name Overlay on Image for better visibility -->
+            <TextView
+                android:id="@+id/tvPlaceName"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_gravity="bottom"
-                android:orientation="vertical"
-                android:padding="16dp">
+                android:padding="12dp"
+                android:ellipsize="end"
+                android:maxLines="1"
+                android:text="Place Name"
+                android:textColor="@color/white"
+                android:textSize="20sp"
+                android:textStyle="bold" />
 
-                <TextView
-                    android:id="@+id/tvPlaceName"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:ellipsize="end"
-                    android:maxLines="1"
-                    android:text="Place Name"
-                    android:textColor="@color/white"
-                    android:textSize="22sp"
-                    android:textStyle="bold" />
-
-                <TextView
-                    android:id="@+id/tvCity"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="City Name"
-                    android:textColor="#D0D0D0"
-                    android:textSize="14sp" />
-            </LinearLayout>
-
-            <!-- Favorite Icon Overlay -->
+            <!-- Favorite Icon Overlay (Top-Right) -->
             <ImageView
                 android:id="@+id/btnFavorite"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
                 android:layout_gravity="top|end"
                 android:layout_margin="12dp"
                 android:background="@drawable/bg_favorite_circle"
-                android:padding="10dp"
+                android:padding="8dp"
                 android:src="@drawable/ic_favorite_border"
                 app:tint="@color/white" />
 
         </FrameLayout>
 
-        <!-- Small info section below image -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center_vertical"
             android:orientation="horizontal"
-            android:padding="16dp">
+            android:paddingHorizontal="12dp"
+            android:paddingVertical="8dp">
 
             <TextView
                 android:id="@+id/tvPlaceCategory"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:background="@drawable/bg_category_chip_light"
-                android:paddingHorizontal="12dp"
-                android:paddingVertical="6dp"
-                android:text="Category"
-                android:textColor="@color/primary"
-                android:textSize="12sp"
-                android:textStyle="bold" />
-
-            <View
                 android:layout_width="0dp"
-                android:layout_height="0dp"
-                android:layout_weight="1" />
-
-            <TextView
-                android:id="@+id/tvBudget"
-                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Budget"
+                android:layout_weight="1"
+                android:text="Category"
                 android:textColor="@color/gray_dark"
                 android:textSize="13sp"
-                android:textStyle="italic" />
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/tvDistance"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Distance"
+                android:textColor="@color/primary"
+                android:textSize="13sp"
+                android:textStyle="bold" />
+
+            <!-- Maintaining IDs for Adapter compatibility (set to gone) -->
+            <TextView
+                android:id="@+id/tvCity"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:visibility="gone" />
 
             <TextView
                 android:id="@+id/tvRating"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="12dp"
-                android:text="4.8 ⭐"
-                android:textColor="@color/black"
-                android:textSize="14sp"
-                android:textStyle="bold" />
+                android:visibility="gone" />
+
+            <TextView
+                android:id="@+id/tvTag"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:visibility="gone" />
 
         </LinearLayout>
     </LinearLayout>

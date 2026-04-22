@@ -14,6 +14,7 @@
     app:strokeWidth="0dp">
 
     <LinearLayout
+        android:id="@+id/categoryContainer"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="@drawable/category_bg"

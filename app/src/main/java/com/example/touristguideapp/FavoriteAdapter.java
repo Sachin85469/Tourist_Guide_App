@@ -12,6 +12,10 @@ import java.util.List;
 
 public class FavoriteAdapter extends RecyclerView.Adapter<FavoriteAdapter.ViewHolder> {
 
+    public interface OnItemClickListener {
+        void onItemClick(Place place);
+    }
+
     private List<Place> favoriteList;
     private OnItemClickListener listener;
 

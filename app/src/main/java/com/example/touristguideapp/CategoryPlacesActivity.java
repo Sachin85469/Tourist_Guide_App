@@ -1,9 +1,12 @@
 package com.example.touristguideapp;
 
 import android.content.Intent;
+import android.location.Location;
 import android.os.Bundle;
+import android.os.Handler;
 import android.view.View;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -17,6 +20,11 @@ public class CategoryPlacesActivity extends AppCompatActivity implements PlaceAd
     private PlaceAdapter adapter;
     private List<Place> filteredList = new ArrayList<>();
     private LinearLayout emptyLayout;
+    private ProgressBar progressBar;
+
+    // Mock User Location (Pune Center)
+    private final double USER_LAT = 18.5204;
+    private final double USER_LNG = 73.8567;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -26,6 +34,7 @@ public class CategoryPlacesActivity extends AppCompatActivity implements PlaceAd
         recyclerView = findViewById(R.id.recyclerViewPlaces);
         TextView txtTitle = findViewById(R.id.txtTitle);
         emptyLayout = findViewById(R.id.emptyLayout);
+        progressBar = findViewById(R.id.progressBar);
         
         // Receive category from intent
         String selectedCategory = getIntent().getStringExtra("category");
@@ -35,11 +44,23 @@ public class CategoryPlacesActivity extends AppCompatActivity implements PlaceAd
             txtTitle.setText(selectedCategory.toUpperCase());
         }
 
+        // Show loading
+        progressBar.setVisibility(View.VISIBLE);
+        recyclerView.setVisibility(View.GONE);
+
+        // Simulate loading with distance calculation
+        new Handler().postDelayed(() -> {
+            loadData(selectedCategory);
+        }, 500);
+    }
+
+    private void loadData(String selectedCategory) {
         // Filter list from DataProvider
         List<Place> allPlaces = DataProvider.getPlaces();
+        filteredList.clear();
+        
         if (selectedCategory != null) {
             if (selectedCategory.equalsIgnoreCase("All")) {
-                // Show everything
                 filteredList.addAll(allPlaces);
             } else {
                 for (Place place : allPlaces) {
@@ -50,30 +71,39 @@ public class CategoryPlacesActivity extends AppCompatActivity implements PlaceAd
             }
         }
 
+        // Calculate distances
+        for (Place place : filteredList) {
+            float[] results = new float[1];
+            Location.distanceBetween(
+                USER_LAT, USER_LNG,
+                place.getLatitude(), place.getLongitude(),
+                results
+            );
+            double distanceKm = results[0] / 1000.0;
+            place.setDistance(distanceKm);
+        }
+
+        // Hide loading
+        progressBar.setVisibility(View.GONE);
+
         if (filteredList.isEmpty()) {
             emptyLayout.setVisibility(View.VISIBLE);
             recyclerView.setVisibility(View.GONE);
             
-            // Fade-in animation for empty state
             emptyLayout.setAlpha(0f);
-            emptyLayout.animate()
-                    .alpha(1f)
-                    .setDuration(300);
+            emptyLayout.animate().alpha(1f).setDuration(300);
         } else {
             emptyLayout.setVisibility(View.GONE);
             recyclerView.setVisibility(View.VISIBLE);
             
-            // Fade-in animation for RecyclerView
             recyclerView.setAlpha(0f);
-            recyclerView.animate()
-                    .alpha(1f)
-                    .setDuration(300);
+            recyclerView.animate().alpha(1f).setDuration(300);
+            
+            // Set adapter
+            adapter = new PlaceAdapter(filteredList, this);
+            recyclerView.setAdapter(adapter);
+            recyclerView.setLayoutManager(new LinearLayoutManager(this));
         }
-
-        // Set adapter
-        adapter = new PlaceAdapter(filteredList, this);
-        recyclerView.setAdapter(adapter);
-        recyclerView.setLayoutManager(new LinearLayoutManager(this));
     }
 
     @Override

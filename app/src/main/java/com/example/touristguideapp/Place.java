@@ -28,6 +28,8 @@ public class Place implements Serializable {
     private String funFact = "";
     private String nearestStation = "";
     private String tag = "Popular"; // Default tag
+    private double distance = -1.0; // Distance from user in km
+    private boolean isTopPick = false;
 
     /**
      * Comprehensive Constructor including all fields.
@@ -145,5 +147,21 @@ public class Place implements Serializable {
 
     public void setGalleryImages(List<Integer> galleryImages) {
         this.galleryImages = galleryImages;
+    }
+
+    public double getDistance() {
+        return distance;
+    }
+
+    public void setDistance(double distance) {
+        this.distance = distance;
+    }
+
+    public boolean isTopPick() {
+        return isTopPick;
+    }
+
+    public void setTopPick(boolean topPick) {
+        isTopPick = topPick;
     }
 }
