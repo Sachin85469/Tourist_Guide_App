@@ -2,14 +2,23 @@ package com.example.touristguideapp;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 public class DataProvider {
 
-    public static List<Place> getPlaces() {
-        List<Place> places = new ArrayList<>();
+    private static List<Place> allPlaces = null;
+
+    /**
+     * Initializes the static data if it hasn't been already.
+     * This mimics a data fetch from a database or API.
+     */
+    private static void initializeData() {
+        if (allPlaces != null) return;
+
+        allPlaces = new ArrayList<>();
 
         // 1. Shaniwar Wada -> History
         Place p1 = new Place(
@@ -31,7 +40,8 @@ public class DataProvider {
         );
         p1.setGalleryImages(Arrays.asList(R.drawable.shaniwar_wada, R.drawable.sinhagad, R.drawable.dagadusheth));
         p1.setTopPick(true);
-        places.add(p1);
+        p1.setDistance(3.0);
+        allPlaces.add(p1);
 
         // 2. Dagdusheth Ganpati -> Spiritual
         Place p2 = new Place(
@@ -53,7 +63,8 @@ public class DataProvider {
         );
         p2.setGalleryImages(Arrays.asList(R.drawable.dagadusheth, R.drawable.shaniwar_wada));
         p2.setTopPick(true);
-        places.add(p2);
+        p2.setDistance(2.5);
+        allPlaces.add(p2);
 
         // 3. Sinhagad Fort -> Adventure
         Place p3 = new Place(
@@ -75,7 +86,8 @@ public class DataProvider {
         );
         p3.setGalleryImages(Arrays.asList(R.drawable.sinhagad, R.drawable.khadakwasla));
         p3.setTopPick(true);
-        places.add(p3);
+        p3.setDistance(30.0);
+        allPlaces.add(p3);
 
         // 4. Khadakwasla Dam -> Nature
         Place p4 = new Place(
@@ -96,7 +108,8 @@ public class DataProvider {
                 "Couple"
         );
         p4.setGalleryImages(Arrays.asList(R.drawable.khadakwasla, R.drawable.sinhagad));
-        places.add(p4);
+        p4.setDistance(15.0);
+        allPlaces.add(p4);
 
         // 5. F.M. Live -> Entertainment
         Place p5 = new Place(
@@ -117,10 +130,11 @@ public class DataProvider {
                 "Popular"
         );
         p5.setGalleryImages(Arrays.asList(R.drawable.fm_live_koregaon_park, R.drawable.timezone_pune));
-        places.add(p5);
+        p5.setDistance(1.0);
+        allPlaces.add(p5);
 
         // 6. Pune Zoo -> Nature
-        places.add(new Place(
+        Place p6 = new Place(
                 "6",
                 "Pune Zoo",
                 "Pune",
@@ -136,10 +150,12 @@ public class DataProvider {
                 "Known for rare animal species.",
                 "Pune Station (6 km)",
                 "Family"
-        ));
+        );
+        p6.setDistance(6.0);
+        allPlaces.add(p6);
 
         // 7. FC Road -> Food
-        places.add(new Place(
+        Place p7 = new Place(
                 "7",
                 "FC Road",
                 "Pune",
@@ -155,10 +171,12 @@ public class DataProvider {
                 "Heart of Pune's youth culture.",
                 "Shivajinagar (1 km)",
                 "Budget"
-        ));
+        );
+        p7.setDistance(1.0);
+        allPlaces.add(p7);
 
         // 8. Tulshi Baug -> Shopping
-        places.add(new Place(
+        Place p8 = new Place(
                 "8",
                 "Tulshi Baug",
                 "Pune",
@@ -174,38 +192,94 @@ public class DataProvider {
                 "One of the oldest markets in Pune.",
                 "Pune Station (2 km)",
                 "Budget"
-        ));
+        );
+        p8.setDistance(2.0);
+        allPlaces.add(p8);
 
         // Additional Mappings
-        places.add(new Place("Aga Khan Palace", "Pune", 18.5526, 73.9019, R.drawable.aga_khan_palace, "History", "History"));
-        places.add(new Place("Chaturshringi Temple", "Pune", 18.5360, 73.8440, R.drawable.chaturshringi_temple, "Spiritual", "Spiritual"));
-        places.add(new Place("Empress Garden", "Pune", 18.4966, 73.8728, R.drawable.empress_garden, "Nature", "Nature"));
-        places.add(new Place("German Bakery (Koregaon Park)", "Pune", 18.5362, 73.8930, R.drawable.german_bakery_koregao_park, "Food", "Food"));
-        places.add(new Place("High Street Baner", "Pune", 18.5590, 73.7868, R.drawable.high_street_baner, "Entertainment", "Entertainment"));
-        places.add(new Place("ISKCON Temple", "Pune", 18.5635, 73.9167, R.drawable.iskcon_temple, "Spiritual", "Spiritual"));
-        places.add(new Place("Lal Mahal", "Pune", 18.5195, 73.8553, R.drawable.lal_mahal, "History", "History"));
-        places.add(new Place("Okayama Friendship Garden", "Pune", 18.5007, 73.8587, R.drawable.okyama_friendship_garden, "Nature", "Nature"));
-        places.add(new Place("Parvati Hill", "Pune", 18.4925, 73.8537, R.drawable.parvati_hills, "Nature", "Nature"));
-        places.add(new Place("Pashan Lake", "Pune", 18.5416, 73.8027, R.drawable.pashan_lake, "Nature", "Nature"));
-        places.add(new Place("Phoenix Marketcity (Viman Nagar)", "Pune", 18.5679, 73.9143, R.drawable.phoenix_mall_viman_nagar, "Shopping", "Shopping"));
+        allPlaces.add(new Place("Aga Khan Palace", "Pune", 18.5526, 73.9019, R.drawable.aga_khan_palace, "History", "History"));
+        allPlaces.add(new Place("Chaturshringi Temple", "Pune", 18.5360, 73.8440, R.drawable.chaturshringi_temple, "Spiritual", "Spiritual"));
+        allPlaces.add(new Place("Empress Garden", "Pune", 18.4966, 73.8728, R.drawable.empress_garden, "Nature", "Nature"));
+        allPlaces.add(new Place("German Bakery (Koregaon Park)", "Pune", 18.5362, 73.8930, R.drawable.german_bakery_koregao_park, "Food", "Food"));
+        allPlaces.add(new Place("High Street Baner", "Pune", 18.5590, 73.7868, R.drawable.high_street_baner, "Entertainment", "Entertainment"));
+        allPlaces.add(new Place("ISKCON Temple", "Pune", 18.5635, 73.9167, R.drawable.iskcon_temple, "Spiritual", "Spiritual"));
+        allPlaces.add(new Place("Lal Mahal", "Pune", 18.5195, 73.8553, R.drawable.lal_mahal, "History", "History"));
+        allPlaces.add(new Place("Okayama Friendship Garden", "Pune", 18.5007, 73.8587, R.drawable.okyama_friendship_garden, "Nature", "Nature"));
+        allPlaces.add(new Place("Parvati Hill", "Pune", 18.4925, 73.8537, R.drawable.parvati_hills, "Nature", "Nature"));
+        allPlaces.add(new Place("Pashan Lake", "Pune", 18.5416, 73.8027, R.drawable.pashan_lake, "Nature", "Nature"));
+        allPlaces.add(new Place("Phoenix Marketcity (Viman Nagar)", "Pune", 18.5679, 73.9143, R.drawable.phoenix_mall_viman_nagar, "Shopping", "Shopping"));
+    }
 
-        return places;
+    public static List<Place> getPlaces() {
+        return getAllPlaces();
     }
 
     public static List<Place> getAllPlaces() {
-        return getPlaces();
+        initializeData();
+        return new ArrayList<>(allPlaces);
+    }
+
+    public static List<Place> getPlacesByCategory(String category) {
+        initializeData();
+        List<Place> filtered = new ArrayList<>();
+        for (Place place : allPlaces) {
+            if (place.getCategory().equalsIgnoreCase(category)) {
+                filtered.add(place);
+            }
+        }
+        return filtered;
+    }
+
+    public static List<Place> getTopPicks() {
+        initializeData();
+        List<Place> topPicks = new ArrayList<>();
+        for (Place place : allPlaces) {
+            if (place.isTopPick()) {
+                topPicks.add(place);
+            }
+        }
+        return topPicks;
+    }
+
+    public static List<Place> getDefaultTopPicks() {
+        return getTopPicks();
+    }
+
+    public static List<Place> searchPlaces(String query) {
+        initializeData();
+        if (query == null || query.trim().isEmpty()) {
+            return getAllPlaces();
+        }
+        String lowerQuery = query.toLowerCase().trim();
+        List<Place> results = new ArrayList<>();
+        for (Place place : allPlaces) {
+            if (place.getName().toLowerCase().contains(lowerQuery) ||
+                place.getCategory().toLowerCase().contains(lowerQuery) ||
+                place.getTag().toLowerCase().contains(lowerQuery)) {
+                results.add(place);
+            }
+        }
+        return results;
+    }
+
+    public static List<Place> sortByDistance(List<Place> places) {
+        places.sort(Comparator.comparingDouble(Place::getDistance));
+        return places;
+    }
+
+    public static List<Place> sortByName(List<Place> places) {
+        places.sort((p1, p2) -> p1.getName().compareToIgnoreCase(p2.getName()));
+        return places;
     }
 
     public static Map<String, Integer> getCategoryCount(List<Place> places) {
         Map<String, Integer> map = new HashMap<>();
-
         for (Place place : places) {
             String category = place.getCategory();
             if (category != null) {
                 map.put(category, map.getOrDefault(category, 0) + 1);
             }
         }
-
         return map;
     }
 }

@@ -1,11 +1,15 @@
 package com.example.touristguideapp;
 
+import android.Manifest;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.location.Location;
 import android.os.Bundle;
 import android.os.Handler;
 import android.speech.RecognizerIntent;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
@@ -15,12 +19,17 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationServices;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationBarView;
 import com.google.android.libraries.places.api.Places;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 
@@ -33,6 +42,9 @@ public class MainActivity extends AppCompatActivity {
     private List<Place> allPlaces;
     private List<Place> topPicks;
     private List<Category> categories;
+    
+    private FusedLocationProviderClient fusedLocationClient;
+    private static final int LOCATION_PERMISSION_REQUEST_CODE = 1001;
     
     private ImageView favoritesIcon;
     private BottomNavigationView bottomNavigationView;
@@ -59,12 +71,18 @@ public class MainActivity extends AppCompatActivity {
         searchBox = findViewById(R.id.searchBox);
         btnVoiceSearch = findViewById(R.id.btnVoiceSearch);
 
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
+
         initData();
         setupHomeSections();
         setupSearch();
         setupVoiceSearch();
         
-        simulateLoading();
+        // Start with ProgressBar visible
+        if (progressBar != null) progressBar.setVisibility(View.VISIBLE);
+        
+        // Fetch location and data
+        checkLocationPermission();
 
         bottomNavigationView.setSelectedItemId(R.id.nav_home);
         bottomNavigationView.setOnItemSelectedListener(new NavigationBarView.OnItemSelectedListener() {
@@ -169,25 +187,11 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void simulateLoading() {
-        if (progressBar != null) progressBar.setVisibility(View.VISIBLE);
-        if (rvHome != null) rvHome.setVisibility(View.GONE);
-        if (emptyStateContainer != null) emptyStateContainer.setVisibility(View.GONE);
-
-        new Handler().postDelayed(() -> {
-            if (progressBar != null) progressBar.setVisibility(View.GONE);
-            if (rvHome != null) rvHome.setVisibility(View.VISIBLE);
-        }, 1200);
-    }
-
     private void initData() {
-        allPlaces = DataProvider.getPlaces();
+        allPlaces = DataProvider.getAllPlaces();
         
-        topPicks = new ArrayList<>();
-        if (allPlaces.size() > 2) {
-            topPicks.add(allPlaces.get(0));
-            topPicks.add(allPlaces.get(1));
-        }
+        // Initial fallback Top Picks to avoid empty screen
+        topPicks = new ArrayList<>(DataProvider.getDefaultTopPicks());
 
         categories = new ArrayList<>();
         categories.add(new Category("Nature", android.R.drawable.ic_menu_gallery));
@@ -197,6 +201,114 @@ public class MainActivity extends AppCompatActivity {
         categories.add(new Category("Spiritual", android.R.drawable.ic_menu_info_details));
         categories.add(new Category("Shopping", android.R.drawable.ic_menu_agenda));
         categories.add(new Category("Entertainment", android.R.drawable.ic_menu_slideshow));
+    }
+
+    private void checkLocationPermission() {
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, LOCATION_PERMISSION_REQUEST_CODE);
+        } else {
+            getLastLocation();
+        }
+    }
+
+    private void getLastLocation() {
+        try {
+            fusedLocationClient.getLastLocation().addOnSuccessListener(this, location -> {
+                if (location != null) {
+                    updateTopPicksWithLocation(location.getLatitude(), location.getLongitude());
+                } else {
+                    Log.w("NearbyDebug", "Location is null, using fallback");
+                    useFallbackTopPicks();
+                }
+                hideLoading();
+            }).addOnFailureListener(e -> {
+                Log.e("NearbyDebug", "Failed to get location", e);
+                useFallbackTopPicks();
+                hideLoading();
+            });
+        } catch (SecurityException e) {
+            Log.e("NearbyDebug", "Security Exception", e);
+            useFallbackTopPicks();
+            hideLoading();
+        }
+    }
+
+    private void hideLoading() {
+        if (progressBar != null) progressBar.setVisibility(View.GONE);
+        if (rvHome != null) rvHome.setVisibility(View.VISIBLE);
+    }
+
+    private void updateTopPicksWithLocation(double userLat, double userLng) {
+        // Calculate distances for all places
+        for (Place place : allPlaces) {
+            if (place.getLat() != 0 && place.getLng() != 0) {
+                float[] results = new float[1];
+                Location.distanceBetween(userLat, userLng, place.getLat(), place.getLng(), results);
+                place.setDistance(results[0] / 1000.0); // Convert to km
+            }
+        }
+
+        // Sort all places by distance
+        Collections.sort(allPlaces, Comparator.comparingDouble(Place::getDistance));
+
+        // Select top 5 nearest places
+        List<Place> nearestPlaces = new ArrayList<>();
+        for (int i = 0; i < Math.min(5, allPlaces.size()); i++) {
+            nearestPlaces.add(allPlaces.get(i));
+        }
+
+        // Debug-safe fallback logic
+        if (nearestPlaces.isEmpty()) {
+            Log.d("NearbyDebug", "Nearest places empty, using default top picks");
+            nearestPlaces = DataProvider.getDefaultTopPicks();
+        }
+
+        Log.d("NearbyDebug", "Nearest places size: " + nearestPlaces.size());
+
+        // Update topPicks list
+        topPicks.clear();
+        topPicks.addAll(nearestPlaces);
+
+        // Refresh sections to update Browse All order and distances
+        if (sections != null) {
+            sections.clear();
+            addDefaultSections();
+        }
+
+        // Update UI
+        if (homeAdapter != null) {
+            homeAdapter.notifyDataSetChanged();
+        }
+    }
+
+    private void useFallbackTopPicks() {
+        topPicks.clear();
+        topPicks.addAll(DataProvider.getDefaultTopPicks());
+        
+        Log.d("NearbyDebug", "Using fallback. Nearest places size: " + topPicks.size());
+
+        if (sections != null) {
+            sections.clear();
+            addDefaultSections();
+        }
+
+        if (homeAdapter != null) {
+            homeAdapter.notifyDataSetChanged();
+        }
+        Toast.makeText(this, "Location unavailable, using default top picks", Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == LOCATION_PERMISSION_REQUEST_CODE) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                getLastLocation();
+            } else {
+                useFallbackTopPicks();
+                hideLoading();
+            }
+        }
     }
 
     private void setupHomeSections() {

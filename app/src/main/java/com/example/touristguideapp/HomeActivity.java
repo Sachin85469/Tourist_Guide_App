@@ -24,10 +24,8 @@ public class HomeActivity extends AppCompatActivity {
     private static final int VOICE_SEARCH_REQUEST_CODE = 101;
     private RecyclerView recyclerViewPlaces;
     private PlaceAdapter placeAdapter;
-    private List<Place> allPlaces; // Full list to filter from
     private EditText editTextSearch;
     private ImageView btnVoiceSearch;
-    private String selectedCategory = ""; // Default empty, meaning show all in main list if no category selected
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,7 +41,7 @@ public class HomeActivity extends AppCompatActivity {
         recyclerViewPlaces.setLayoutManager(new LinearLayoutManager(this));
 
         // 3. Get data from DataProvider
-        allPlaces = DataProvider.getPlaces();
+        List<Place> allPlaces = DataProvider.getAllPlaces();
 
         // 4. Create Adapter and set it to RecyclerView
         placeAdapter = new PlaceAdapter(new ArrayList<>(allPlaces));
@@ -81,7 +79,7 @@ public class HomeActivity extends AppCompatActivity {
     }
 
     private void updateCategoryCounts() {
-        Map<String, Integer> categoryCount = DataProvider.getCategoryCount(allPlaces);
+        Map<String, Integer> categoryCount = DataProvider.getCategoryCount(DataProvider.getAllPlaces());
 
         TextView txtHistory = findViewById(R.id.txtHistoryCount);
         if (txtHistory != null) txtHistory.setText("🏛️ History (" + categoryCount.getOrDefault("History", 0) + ")");
@@ -194,24 +192,9 @@ public class HomeActivity extends AppCompatActivity {
         overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
     }
 
-    // Method to filter the list based on search text AND selected category
+    // Method to filter the list based on search text using DataProvider utility
     private void filter(String query) {
-        List<Place> filteredList = new ArrayList<>();
-        String lowerCaseQuery = query.toLowerCase().trim();
-
-        for (Place place : allPlaces) {
-            boolean matchesSearch = lowerCaseQuery.isEmpty() ||
-                    place.getName().toLowerCase().contains(lowerCaseQuery) ||
-                    place.getCategory().toLowerCase().contains(lowerCaseQuery) ||
-                    place.getCity().toLowerCase().contains(lowerCaseQuery);
-
-            boolean matchesCategory = selectedCategory.isEmpty() ||
-                    place.getCategory().equalsIgnoreCase(selectedCategory);
-
-            if (matchesSearch && matchesCategory) {
-                filteredList.add(place);
-            }
-        }
+        List<Place> filteredList = DataProvider.searchPlaces(query);
 
         // Update the adapter with the filtered list
         if (placeAdapter != null) {

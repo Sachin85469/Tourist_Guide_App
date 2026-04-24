@@ -20,11 +20,16 @@ public class QuickPlanActivity extends AppCompatActivity {
     }
 
     private void generateQuickPlan(int count) {
-        List<Place> allPlaces = DataProvider.getPlaces();
+        // Use Top Picks for better suggestions
+        List<Place> topPicks = DataProvider.getTopPicks();
+        if (topPicks.isEmpty()) {
+            topPicks = DataProvider.getAllPlaces();
+        }
+        
         ArrayList<String> selectedPlaceNames = new ArrayList<>();
         
-        for (int i = 0; i < Math.min(count, allPlaces.size()); i++) {
-            selectedPlaceNames.add(allPlaces.get(i).getName());
+        for (int i = 0; i < Math.min(count, topPicks.size()); i++) {
+            selectedPlaceNames.add(topPicks.get(i).getName());
         }
 
         StringBuilder itineraryText = new StringBuilder();

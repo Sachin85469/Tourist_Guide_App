@@ -55,23 +55,14 @@ public class CategoryPlacesActivity extends AppCompatActivity implements PlaceAd
     }
 
     private void loadData(String selectedCategory) {
-        // Filter list from DataProvider
-        List<Place> allPlaces = DataProvider.getPlaces();
-        filteredList.clear();
-        
-        if (selectedCategory != null) {
-            if (selectedCategory.equalsIgnoreCase("All")) {
-                filteredList.addAll(allPlaces);
-            } else {
-                for (Place place : allPlaces) {
-                    if (place.getCategory() != null && place.getCategory().equalsIgnoreCase(selectedCategory)) {
-                        filteredList.add(place);
-                    }
-                }
-            }
+        // Use refactored DataProvider methods
+        if (selectedCategory != null && selectedCategory.equalsIgnoreCase("All")) {
+            filteredList = DataProvider.getAllPlaces();
+        } else {
+            filteredList = DataProvider.getPlacesByCategory(selectedCategory);
         }
 
-        // Calculate distances
+        // Calculate distances (Keep this here as it depends on current user location)
         for (Place place : filteredList) {
             float[] results = new float[1];
             Location.distanceBetween(
@@ -82,6 +73,9 @@ public class CategoryPlacesActivity extends AppCompatActivity implements PlaceAd
             double distanceKm = results[0] / 1000.0;
             place.setDistance(distanceKm);
         }
+
+        // Sort by distance using utility method
+        DataProvider.sortByDistance(filteredList);
 
         // Hide loading
         progressBar.setVisibility(View.GONE);

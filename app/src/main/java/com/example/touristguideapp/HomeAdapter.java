@@ -165,7 +165,7 @@ public class HomeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     }
 
     static class PlaceViewHolder extends RecyclerView.ViewHolder {
-        TextView placeName, placeCategory, placeCity, placeRating, placeTag;
+        TextView placeName, placeCategory, placeCity, placeRating, placeTag, placeDistance;
         ImageView placeImage, btnFavorite;
 
         PlaceViewHolder(View itemView) {
@@ -175,6 +175,7 @@ public class HomeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             placeCity = itemView.findViewById(R.id.tvCity);
             placeRating = itemView.findViewById(R.id.tvRating);
             placeTag = itemView.findViewById(R.id.tvTag);
+            placeDistance = itemView.findViewById(R.id.tvDistance);
             placeImage = itemView.findViewById(R.id.ivPlaceImage);
             btnFavorite = itemView.findViewById(R.id.btnFavorite);
         }
@@ -187,6 +188,16 @@ public class HomeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             if (placeCity != null) placeCity.setText(place.getCity());
             if (placeRating != null) placeRating.setText(String.format(Locale.getDefault(), "%.1f ⭐", place.getRating()));
             if (placeTag != null) placeTag.setText(place.getTag());
+            
+            if (placeDistance != null) {
+                if (place.getDistance() >= 0) {
+                    placeDistance.setText(String.format(Locale.getDefault(), "%.1f km away", place.getDistance()));
+                    placeDistance.setVisibility(View.VISIBLE);
+                } else {
+                    placeDistance.setVisibility(View.GONE);
+                }
+            }
+
             placeImage.setImageResource(place.getImageResId());
             
             boolean isFav = FavoritesManager.isFavorite(context, place.getId());

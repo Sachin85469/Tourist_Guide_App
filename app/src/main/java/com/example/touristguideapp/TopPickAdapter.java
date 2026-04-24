@@ -22,7 +22,7 @@ public class TopPickAdapter extends RecyclerView.Adapter<TopPickAdapter.ViewHold
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
         public ImageView image, favoriteIcon;
-        public TextView name, rating, budget;
+        public TextView name, rating, budget, distance;
 
         public ViewHolder(View view) {
             super(view);
@@ -30,6 +30,7 @@ public class TopPickAdapter extends RecyclerView.Adapter<TopPickAdapter.ViewHold
             name = view.findViewById(R.id.topPickName);
             rating = view.findViewById(R.id.topPickRating);
             budget = view.findViewById(R.id.topPickBudget);
+            distance = view.findViewById(R.id.topPickDistance);
             favoriteIcon = view.findViewById(R.id.btnFavorite);
         }
 
@@ -39,6 +40,15 @@ public class TopPickAdapter extends RecyclerView.Adapter<TopPickAdapter.ViewHold
             rating.setText(place.getRating() + " ⭐");
             budget.setText(place.getBudget());
             image.setImageResource(place.getImageResId());
+
+            if (distance != null) {
+                if (place.getDistance() >= 0) {
+                    distance.setText(String.format(java.util.Locale.getDefault(), "%.1f km away", place.getDistance()));
+                    distance.setVisibility(View.VISIBLE);
+                } else {
+                    distance.setVisibility(View.GONE);
+                }
+            }
             
             boolean isFav = FavoritesManager.isFavorite(context, place.getId());
             favoriteIcon.setImageResource(isFav ? R.drawable.ic_favorite : R.drawable.ic_favorite_border);
