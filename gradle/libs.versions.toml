@@ -1,5 +1,5 @@
 [versions]
-agp = "9.2.0"
+agp = "9.2.1"
 junit = "4.13.2"
 junitVersion = "1.1.5"
 espressoCore = "3.5.1"
@@ -13,6 +13,8 @@ playServicesLocation = "21.0.1"
 places = "3.3.0"
 volley = "1.2.1"
 osmdroid = "6.1.18"
+firebaseBom = "32.7.0"
+playServicesAuth = "20.7.0"
 
 [libraries]
 junit = { group = "junit", name = "junit", version.ref = "junit" }
@@ -28,6 +30,10 @@ play-services-location = { group = "com.google.android.gms", name = "play-servic
 places = { group = "com.google.android.libraries.places", name = "places", version.ref = "places" }
 volley = { group = "com.android.volley", name = "volley", version.ref = "volley" }
 osmdroid = { group = "org.osmdroid", name = "osmdroid-android", version.ref = "osmdroid" }
+firebase-bom = { group = "com.google.firebase", name = "firebase-bom", version.ref = "firebaseBom" }
+firebase-auth = { group = "com.google.firebase", name = "firebase-auth" }
+play-services-auth = { group = "com.google.android.gms", name = "play-services-auth", version.ref = "playServicesAuth" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
+google-services = { id = "com.google.gms.google-services", version = "4.4.0" }

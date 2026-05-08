@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "1036693283283",
+    "project_id": "tourist-guide-app-4ebdc",
+    "storage_bucket": "tourist-guide-app-4ebdc.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1036693283283:android:16ae71f71d59b03edf8f26",
+        "android_client_info": {
+          "package_name": "com.arriva.touristguideapp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1036693283283-bqnv16tf7g0mu71cbehngpprvq6guf0l.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.arriva.touristguideapp",
+            "certificate_hash": "62b702413defaa66b46c60efe1d3959f3b4ca85a"
+          }
+        },
+        {
+          "client_id": "1036693283283-d27iulpltdho0soflk5a8i95haiu5r58.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB4JEN2BGJbTTM2WJwHnDqBB_bfVTsjb5Q"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1036693283283-d27iulpltdho0soflk5a8i95haiu5r58.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

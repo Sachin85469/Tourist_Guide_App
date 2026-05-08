@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">Tourist Guide App</string>
+    <!-- TODO: Replace with your actual Web Client ID from Firebase Console -->
+    <string name="default_web_client_id">YOUR_WEB_CLIENT_ID.apps.googleusercontent.com</string>
 </resources>

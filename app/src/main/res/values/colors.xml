@@ -1,29 +1,49 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Brand Colors -->
-    <color name="primary">#6200EE</color>
-    <color name="primary_dark">#3700B3</color>
-    <color name="accent">#03DAC5</color>
+    <!-- Premium Brand Colors -->
+    <color name="primary">#7B1FA2</color>
+    <color name="primary_dark">#4A148C</color>
+    <color name="primary_light">#F3E5F5</color>
+    <color name="accent">#00E5FF</color>
 
-    <!-- UI Colors -->
-    <color name="bg_light">#F8F9FA</color>
+    <!-- Glassmorphism & Modern UI -->
+    <color name="glass_white">#BCFFFFFF</color>
+    <color name="glass_border">#33FFFFFF</color>
+    <color name="premium_bg_start">#F8F9FE</color>
+    <color name="premium_bg_end">#EEF1FB</color>
+    <color name="soft_shadow">#1A000000</color>
+    <color name="glow_purple">#4D7B1FA2</color>
+
+    <!-- UI Backgrounds -->
+    <color name="bg_light">#FDFDFD</color>
     <color name="white">#FFFFFF</color>
-    <color name="black">#1A1A1A</color>
-    <color name="gray_dark">#666666</color>
-    <color name="gray_light">#E0E0E0</color>
+    <color name="black">#121212</color>
 
-    <!-- Indicators -->
-    <color name="indicator_green">#2E7D32</color>
-    <color name="indicator_red">#C62828</color>
-    <color name="rating_gold">#FFB300</color>
+    <!-- Text Colors -->
+    <color name="text_primary">#1A1A1A</color>
+    <color name="text_secondary">#757575</color>
+    <color name="text_muted">#9E9E9E</color>
+
+    <!-- Accents & Indicators -->
+    <color name="purple_gradient_start">#7B1FA2</color>
+    <color name="purple_gradient_end">#9C27B0</color>
+    <color name="indicator_red">#FF5252</color>
+    <color name="rating_gold">#FFD600</color>
+
+    <!-- Shadow/Overlay -->
+    <color name="shadow_color">#1A000000</color>
+    <color name="white_translucent">#CCFFFFFF</color>
+
+    <!-- Missing UI Colors -->
+    <color name="gray_light">#EAEAEA</color>
+    <color name="gray_dark">#666666</color>
 
     <!-- Category Backgrounds -->
+    <color name="cat_historical_bg">#F3E5F5</color>
+    <color name="cat_food_bg">#FFF3E0</color>
     <color name="cat_nature_bg">#E8F5E9</color>
-    <color name="cat_historical_bg">#FFF3E0</color>
-    <color name="cat_food_bg">#FCE4EC</color>
-    <color name="cat_adventure_bg">#E1F5FE</color>
+    <color name="cat_adventure_bg">#E3F2FD</color>
 
-    <!-- Legacy support -->
-    <color name="chip_selected">#6200EE</color>
-    <color name="chip_unselected">#E0E0E0</color>
+    <!-- Success/Indicators -->
+    <color name="indicator_green">#4CAF50</color>
 </resources>

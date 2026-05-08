@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:osmdroid="http://schemas.android.com/apk/res-auto"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
@@ -10,211 +9,229 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 
+    <!-- Top Overlay -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:paddingTop="40dp">
 
-        <LinearLayout
+        <!-- Floating Translucent Search Bar -->
+        <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
-            android:layout_height="48dp"
-            android:layout_marginHorizontal="16dp"
-            android:layout_marginTop="30dp"
-            android:paddingHorizontal="12dp"
-            android:orientation="horizontal"
-            android:gravity="center_vertical"
-            android:background="@drawable/premium_search_bg"
-            android:elevation="12dp">
+            android:layout_height="56dp"
+            android:layout_marginHorizontal="20dp"
+            app:cardCornerRadius="28dp"
+            app:cardElevation="8dp"
+            app:cardBackgroundColor="@color/white_translucent"
+            app:strokeWidth="1dp"
+            app:strokeColor="#1F7B1FA2">
 
-            <!-- Search Icon (Acting as searchBtn for logic) -->
-            <ImageButton
-                android:id="@+id/searchBtn"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:src="@android:drawable/ic_menu_search"
-                android:tint="#7B1FA2"
-                android:background="?attr/selectableItemBackgroundBorderless"
-                android:layout_marginEnd="8dp"/>
-
-            <!-- Input -->
-            <EditText
-                android:id="@+id/searchInput"
-                android:layout_width="0dp"
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:hint="Search places..."
-                android:textColor="#111111"
-                android:textColorHint="#888888"
-                android:textSize="16sp"
-                android:background="@android:color/transparent"
-                android:textCursorDrawable="@null"
-                android:padding="4dp"/>
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:paddingHorizontal="16dp">
 
-            <!-- Mic Button -->
-            <ImageView
-                android:id="@+id/micBtn"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:background="@drawable/mic_strong_bg"
-                android:padding="10dp"
-                android:src="@android:drawable/ic_btn_speak_now"
-                android:clickable="true"
-                android:focusable="true"
-                app:tint="#FFFFFF"/>
+                <ImageButton
+                    android:id="@+id/searchBtn"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:src="@android:drawable/ic_menu_search"
+                    app:tint="@color/primary" />
 
-            <!-- Hidden Go Button (Kept for logic compatibility) -->
-            <Button
-                android:id="@+id/btnDirections"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:visibility="gone" />
+                <EditText
+                    android:id="@+id/searchInput"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:background="@android:color/transparent"
+                    android:hint="Discover premium spots..."
+                    android:paddingHorizontal="12dp"
+                    android:textColor="@color/text_primary"
+                    android:textSize="16sp" />
 
-        </LinearLayout>
+                <ImageView
+                    android:id="@+id/micBtn"
+                    android:layout_width="36dp"
+                    android:layout_height="36dp"
+                    android:background="@drawable/bg_premium_gradient"
+                    android:padding="8dp"
+                    android:src="@android:drawable/ic_btn_speak_now"
+                    app:tint="@color/white" />
 
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/btnProfile"
+                    android:layout_width="36dp"
+                    android:layout_height="36dp"
+                    android:layout_marginStart="8dp"
+                    app:cardCornerRadius="18dp"
+                    app:cardElevation="0dp"
+                    app:strokeWidth="1dp"
+                    app:strokeColor="@color/primary_light">
+                    <ImageView
+                        android:id="@+id/ivProfileIcon"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:scaleType="centerCrop"
+                        android:src="@android:drawable/ic_menu_myplaces" />
+                </com.google.android.material.card.MaterialCardView>
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- Horizontal Premium Filters -->
         <HorizontalScrollView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:scrollbars="none"
-            android:paddingHorizontal="16dp"
-            android:paddingVertical="12dp"
-            android:clipToPadding="false">
+            android:layout_marginTop="16dp"
+            android:clipToPadding="false"
+            android:paddingHorizontal="20dp"
+            android:scrollbars="none">
 
             <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal">
+                android:orientation="horizontal"
+                android:paddingBottom="8dp">
 
-                <Button
+                <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnAtm"
+                    style="@style/Widget.MaterialComponents.Button.UnelevatedButton"
                     android:layout_width="wrap_content"
-                    android:layout_height="40dp"
+                    android:layout_height="44dp"
+                    android:layout_marginEnd="10dp"
                     android:text="ATM"
                     android:textAllCaps="false"
-                    android:textSize="14sp"
-                    android:textColor="#FFFFFF"
-                    android:layout_marginEnd="8dp"
-                    android:paddingHorizontal="18dp"
-                    android:background="@drawable/chip_clean_bg"
-                    android:elevation="6dp"
-                    android:shadowColor="#55000000"
-                    android:shadowRadius="2"
-                    android:foreground="?attr/selectableItemBackground"/>
+                    android:textColor="@color/primary"
+                    app:backgroundTint="@color/white"
+                    app:cornerRadius="22dp"
+                    app:rippleColor="@color/primary_light"
+                    app:strokeColor="@color/primary_light"
+                    app:strokeWidth="1dp" />
 
-                <Button
+                <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnCafe"
+                    style="@style/Widget.MaterialComponents.Button.UnelevatedButton"
                     android:layout_width="wrap_content"
-                    android:layout_height="40dp"
+                    android:layout_height="44dp"
+                    android:layout_marginEnd="10dp"
                     android:text="Cafe"
                     android:textAllCaps="false"
-                    android:textSize="14sp"
-                    android:textColor="#FFFFFF"
-                    android:layout_marginEnd="8dp"
-                    android:paddingHorizontal="18dp"
-                    android:background="@drawable/chip_clean_bg"
-                    android:elevation="6dp"
-                    android:shadowColor="#55000000"
-                    android:shadowRadius="2"
-                    android:foreground="?attr/selectableItemBackground"/>
+                    android:textColor="@color/primary"
+                    app:backgroundTint="@color/white"
+                    app:cornerRadius="22dp"
+                    app:strokeColor="@color/primary_light"
+                    app:strokeWidth="1dp" />
 
-                <Button
+                <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnRestaurant"
+                    style="@style/Widget.MaterialComponents.Button.UnelevatedButton"
                     android:layout_width="wrap_content"
-                    android:layout_height="40dp"
+                    android:layout_height="44dp"
+                    android:layout_marginEnd="10dp"
                     android:text="Food"
                     android:textAllCaps="false"
-                    android:textSize="14sp"
-                    android:textColor="#FFFFFF"
-                    android:layout_marginEnd="8dp"
-                    android:paddingHorizontal="18dp"
-                    android:background="@drawable/chip_clean_bg"
-                    android:elevation="6dp"
-                    android:shadowColor="#55000000"
-                    android:shadowRadius="2"
-                    android:foreground="?attr/selectableItemBackground"/>
+                    android:textColor="@color/primary"
+                    app:backgroundTint="@color/white"
+                    app:cornerRadius="22dp"
+                    app:strokeColor="@color/primary_light"
+                    app:strokeWidth="1dp" />
 
-                <Button
+                <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnBank"
+                    style="@style/Widget.MaterialComponents.Button.UnelevatedButton"
                     android:layout_width="wrap_content"
-                    android:layout_height="40dp"
+                    android:layout_height="44dp"
+                    android:layout_marginEnd="10dp"
                     android:text="Bank"
                     android:textAllCaps="false"
-                    android:textSize="14sp"
-                    android:textColor="#FFFFFF"
-                    android:layout_marginEnd="8dp"
-                    android:paddingHorizontal="18dp"
-                    android:background="@drawable/chip_clean_bg"
-                    android:elevation="6dp"
-                    android:shadowColor="#55000000"
-                    android:shadowRadius="2"
-                    android:foreground="?attr/selectableItemBackground"/>
+                    android:textColor="@color/primary"
+                    app:backgroundTint="@color/white"
+                    app:cornerRadius="22dp"
+                    app:strokeColor="@color/primary_light"
+                    app:strokeWidth="1dp" />
 
-                <Button
+                <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnFuel"
+                    style="@style/Widget.MaterialComponents.Button.UnelevatedButton"
                     android:layout_width="wrap_content"
-                    android:layout_height="40dp"
+                    android:layout_height="44dp"
+                    android:layout_marginEnd="10dp"
                     android:text="Fuel"
                     android:textAllCaps="false"
-                    android:textSize="14sp"
-                    android:textColor="#FFFFFF"
-                    android:paddingHorizontal="18dp"
-                    android:background="@drawable/chip_clean_bg"
-                    android:elevation="6dp"
-                    android:shadowColor="#55000000"
-                    android:shadowRadius="2"
-                    android:foreground="?attr/selectableItemBackground"/>
+                    android:textColor="@color/primary"
+                    app:backgroundTint="@color/white"
+                    app:cornerRadius="22dp"
+                    app:strokeColor="@color/primary_light"
+                    app:strokeWidth="1dp" />
             </LinearLayout>
         </HorizontalScrollView>
     </LinearLayout>
 
+    <!-- Hidden Go Button (Kept for logic compatibility) -->
+    <Button
+        android:id="@+id/btnDirections"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone" />
+
     <!-- Bottom Sheet -->
-    <LinearLayout
+    <com.google.android.material.card.MaterialCardView
         android:id="@+id/bottomSheet"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:background="@drawable/bottom_sheet_bg"
-        android:padding="20dp"
-        android:elevation="16dp"
+        app:cardCornerRadius="32dp"
+        app:cardElevation="24dp"
         app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior"
         app:behavior_hideable="true"
-        app:behavior_peekHeight="0dp">
+        app:behavior_peekHeight="0dp"
+        app:strokeWidth="0dp">
 
-        <View
-            android:layout_width="40dp"
-            android:layout_height="4dp"
-            android:layout_gravity="center_horizontal"
-            android:background="#CCCCCC"
-            android:layout_marginBottom="16dp"/>
-
-        <TextView
-            android:id="@+id/placeName"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textSize="22sp"
-            android:textStyle="bold"
-            android:textColor="#000000"
-            android:text="Place Name"/>
+            android:orientation="vertical"
+            android:padding="24dp">
 
-        <TextView
-            android:id="@+id/placeDetails"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:textSize="16sp"
-            android:textColor="#666666"
-            android:text="Details about the place appear here."/>
+            <View
+                android:layout_width="40dp"
+                android:layout_height="4dp"
+                android:layout_gravity="center_horizontal"
+                android:background="#E0E0E0"
+                android:layout_marginBottom="20dp"/>
 
-        <Button
-            android:id="@+id/btnSheetGo"
-            android:layout_width="match_parent"
-            android:layout_height="48dp"
-            android:layout_marginTop="24dp"
-            android:text="Get Directions"
-            android:textColor="#FFFFFF"
-            android:textStyle="bold"
-            android:background="@drawable/btn_gradient"
-            android:foreground="?attr/selectableItemBackground"/>
+            <TextView
+                android:id="@+id/placeName"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textSize="24sp"
+                android:textStyle="bold"
+                android:textColor="@color/text_primary"
+                android:text="Luxury Place"/>
 
-    </LinearLayout>
+            <TextView
+                android:id="@+id/placeDetails"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:textSize="15sp"
+                android:textColor="@color/text_secondary"
+                android:text="Premium details about this location."/>
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnSheetGo"
+                android:layout_width="match_parent"
+                android:layout_height="56dp"
+                android:layout_marginTop="24dp"
+                android:text="Get Premium Directions"
+                android:textAllCaps="false"
+                android:textStyle="bold"
+                app:cornerRadius="16dp"
+                app:backgroundTint="@color/primary" />
+
+        </LinearLayout>
+    </com.google.android.material.card.MaterialCardView>
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
