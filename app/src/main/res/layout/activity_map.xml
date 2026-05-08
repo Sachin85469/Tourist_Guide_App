@@ -2,7 +2,8 @@
 <androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="@color/adaptive_bg">
 
     <org.osmdroid.views.MapView
         android:id="@+id/map"
@@ -23,9 +24,9 @@
             android:layout_marginHorizontal="20dp"
             app:cardCornerRadius="28dp"
             app:cardElevation="8dp"
-            app:cardBackgroundColor="@color/white_translucent"
+            app:cardBackgroundColor="@color/adaptive_glass_surface"
             app:strokeWidth="1dp"
-            app:strokeColor="#1F7B1FA2">
+            app:strokeColor="@color/adaptive_divider">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -50,7 +51,8 @@
                     android:background="@android:color/transparent"
                     android:hint="Discover premium spots..."
                     android:paddingHorizontal="12dp"
-                    android:textColor="@color/text_primary"
+                    android:textColor="@color/adaptive_text_primary"
+                    android:textColorHint="@color/adaptive_text_muted"
                     android:textSize="16sp" />
 
                 <ImageView
@@ -70,7 +72,7 @@
                     app:cardCornerRadius="18dp"
                     app:cardElevation="0dp"
                     app:strokeWidth="1dp"
-                    app:strokeColor="@color/primary_light">
+                    app:strokeColor="@color/adaptive_divider">
                     <ImageView
                         android:id="@+id/ivProfileIcon"
                         android:layout_width="match_parent"
@@ -105,10 +107,10 @@
                     android:text="ATM"
                     android:textAllCaps="false"
                     android:textColor="@color/primary"
-                    app:backgroundTint="@color/white"
+                    app:backgroundTint="@color/adaptive_surface"
                     app:cornerRadius="22dp"
-                    app:rippleColor="@color/primary_light"
-                    app:strokeColor="@color/primary_light"
+                    app:rippleColor="@color/adaptive_primary_light"
+                    app:strokeColor="@color/adaptive_divider"
                     app:strokeWidth="1dp" />
 
                 <com.google.android.material.button.MaterialButton
@@ -120,9 +122,9 @@
                     android:text="Cafe"
                     android:textAllCaps="false"
                     android:textColor="@color/primary"
-                    app:backgroundTint="@color/white"
+                    app:backgroundTint="@color/adaptive_surface"
                     app:cornerRadius="22dp"
-                    app:strokeColor="@color/primary_light"
+                    app:strokeColor="@color/adaptive_divider"
                     app:strokeWidth="1dp" />
 
                 <com.google.android.material.button.MaterialButton
@@ -134,9 +136,9 @@
                     android:text="Food"
                     android:textAllCaps="false"
                     android:textColor="@color/primary"
-                    app:backgroundTint="@color/white"
+                    app:backgroundTint="@color/adaptive_surface"
                     app:cornerRadius="22dp"
-                    app:strokeColor="@color/primary_light"
+                    app:strokeColor="@color/adaptive_divider"
                     app:strokeWidth="1dp" />
 
                 <com.google.android.material.button.MaterialButton
@@ -148,9 +150,9 @@
                     android:text="Bank"
                     android:textAllCaps="false"
                     android:textColor="@color/primary"
-                    app:backgroundTint="@color/white"
+                    app:backgroundTint="@color/adaptive_surface"
                     app:cornerRadius="22dp"
-                    app:strokeColor="@color/primary_light"
+                    app:strokeColor="@color/adaptive_divider"
                     app:strokeWidth="1dp" />
 
                 <com.google.android.material.button.MaterialButton
@@ -162,9 +164,9 @@
                     android:text="Fuel"
                     android:textAllCaps="false"
                     android:textColor="@color/primary"
-                    app:backgroundTint="@color/white"
+                    app:backgroundTint="@color/adaptive_surface"
                     app:cornerRadius="22dp"
-                    app:strokeColor="@color/primary_light"
+                    app:strokeColor="@color/adaptive_divider"
                     app:strokeWidth="1dp" />
             </LinearLayout>
         </HorizontalScrollView>
@@ -184,6 +186,7 @@
         android:layout_height="wrap_content"
         app:cardCornerRadius="32dp"
         app:cardElevation="24dp"
+        app:cardBackgroundColor="@color/adaptive_surface"
         app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior"
         app:behavior_hideable="true"
         app:behavior_peekHeight="0dp"
@@ -199,7 +202,7 @@
                 android:layout_width="40dp"
                 android:layout_height="4dp"
                 android:layout_gravity="center_horizontal"
-                android:background="#E0E0E0"
+                android:background="@color/adaptive_divider"
                 android:layout_marginBottom="20dp"/>
 
             <TextView
@@ -208,7 +211,7 @@
                 android:layout_height="wrap_content"
                 android:textSize="24sp"
                 android:textStyle="bold"
-                android:textColor="@color/text_primary"
+                android:textColor="@color/adaptive_text_primary"
                 android:text="Luxury Place"/>
 
             <TextView
@@ -217,7 +220,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
                 android:textSize="15sp"
-                android:textColor="@color/text_secondary"
+                android:textColor="@color/adaptive_text_secondary"
                 android:text="Premium details about this location."/>
 
             <com.google.android.material.button.MaterialButton

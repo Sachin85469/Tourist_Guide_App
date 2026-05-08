@@ -8,8 +8,10 @@
     android:focusable="true"
     app:cardCornerRadius="16dp"
     app:cardElevation="6dp"
-    app:rippleColor="#20000000"
-    app:strokeWidth="0dp">
+    app:cardBackgroundColor="@color/adaptive_surface_elevated"
+    app:rippleColor="@color/adaptive_shadow"
+    app:strokeWidth="1dp"
+    app:strokeColor="@color/adaptive_divider">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -41,6 +43,7 @@
                 android:layout_gravity="top|start"
                 android:layout_margin="12dp"
                 android:background="@drawable/bg_favorite_circle"
+                android:elevation="4dp"
                 android:padding="8dp"
                 android:src="@drawable/ic_favorite_border"
                 app:tint="@color/white" />
@@ -59,7 +62,7 @@
                 android:ellipsize="end"
                 android:maxLines="1"
                 android:text="Place Name"
-                android:textColor="@color/black"
+                android:textColor="@color/adaptive_text_primary"
                 android:textSize="17sp"
                 android:textStyle="bold" />
 
@@ -90,7 +93,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Medium"
-                    android:textColor="@color/gray_dark"
+                    android:textColor="@color/adaptive_text_secondary"
                     android:textSize="12sp" />
 
                 <View

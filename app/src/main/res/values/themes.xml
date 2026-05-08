@@ -1,17 +1,17 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
     <!-- Base application theme. -->
-    <style name="Base.Theme.TouristGuideApp" parent="Theme.MaterialComponents.Light.NoActionBar">
+    <style name="Base.Theme.TouristGuideApp" parent="Theme.MaterialComponents.DayNight.NoActionBar">
         <!-- Main branding colors. -->
         <item name="colorPrimary">@color/primary</item>
         <item name="colorPrimaryVariant">@color/primary_dark</item>
         <item name="colorAccent">@color/accent</item>
 
         <!-- Status bar color. -->
-        <item name="android:statusBarColor">@color/bg_light</item>
+        <item name="android:statusBarColor">@color/adaptive_bg</item>
         <item name="android:windowLightStatusBar" tools:targetApi="m">true</item>
 
         <!-- View backgrounds -->
-        <item name="android:windowBackground">@color/bg_light</item>
+        <item name="android:windowBackground">@color/adaptive_bg</item>
 
         <!-- Typography -->
         <item name="android:fontFamily">sans-serif-medium</item>
@@ -23,12 +23,16 @@
     <style name="PremiumCard" parent="Widget.MaterialComponents.CardView">
         <item name="cardCornerRadius">24dp</item>
         <item name="cardElevation">4dp</item>
-        <item name="strokeWidth">0dp</item>
+        <item name="cardBackgroundColor">@color/adaptive_surface_elevated</item>
+        <item name="strokeColor">@color/adaptive_card_stroke</item>
+        <item name="strokeWidth">1dp</item>
     </style>
 
     <style name="FloatingSearchBar" parent="PremiumCard">
         <item name="cardElevation">8dp</item>
-        <item name="cardBackgroundColor">@color/white</item>
+        <item name="cardBackgroundColor">@color/adaptive_surface_elevated</item>
+        <item name="strokeWidth">1.5dp</item>
+        <item name="strokeColor">@color/adaptive_divider</item>
     </style>
 
     <style name="CircleImage" parent="">

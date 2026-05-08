@@ -25,7 +25,7 @@
         <com.google.android.material.card.MaterialCardView
             android:layout_width="48dp"
             android:layout_height="48dp"
-            app:cardBackgroundColor="@color/white"
+            app:cardBackgroundColor="@color/adaptive_surface_elevated"
             app:cardCornerRadius="24dp"
             app:cardElevation="0dp"
             app:strokeWidth="0dp">
@@ -47,7 +47,7 @@
             android:ellipsize="end"
             android:maxLines="1"
             android:text="Nature"
-            android:textColor="@color/black"
+            android:textColor="@color/adaptive_text_primary"
             android:textSize="13sp"
             android:textStyle="bold" />
     </LinearLayout>
