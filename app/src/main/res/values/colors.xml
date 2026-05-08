@@ -46,4 +46,19 @@
 
     <!-- Success/Indicators -->
     <color name="indicator_green">#4CAF50</color>
+
+    <!-- Adaptive Day/Night Colors -->
+    <color name="adaptive_bg">#FDFDFD</color>
+    <color name="adaptive_surface">#FFFFFF</color>
+    <color name="adaptive_surface_elevated">#FFFFFF</color>
+    <color name="adaptive_text_primary">#1A1A1A</color>
+    <color name="adaptive_text_secondary">#757575</color>
+    <color name="adaptive_text_muted">#9E9E9E</color>
+    <color name="adaptive_divider">#EAEAEA</color>
+    <color name="adaptive_primary_light">#F3E5F5</color>
+    <color name="adaptive_card_stroke">#EAEAEA</color>
+    <color name="adaptive_shadow">#1A000000</color>
+    <color name="adaptive_glass_surface">#BCFFFFFF</color>
+    <color name="adaptive_logout_bg">#FFEBEE</color>
+    <color name="adaptive_logout_text">#D32F2F</color>
 </resources>

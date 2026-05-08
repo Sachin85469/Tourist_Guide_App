@@ -7,7 +7,7 @@
     android:layout_margin="6dp"
     app:cardCornerRadius="20dp"
     app:cardElevation="2dp"
-    app:cardBackgroundColor="@color/white">
+    app:cardBackgroundColor="@color/adaptive_surface">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -29,7 +29,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Trips"
-            android:textColor="@color/text_secondary"
+            android:textColor="@color/adaptive_text_secondary"
             android:textSize="12sp"
             android:textStyle="bold" />
     </LinearLayout>

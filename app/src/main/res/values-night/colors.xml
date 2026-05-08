@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Premium Dark Mode Colors (Layered Surface Strategy) -->
+    <color name="primary">#9575CD</color> <!-- Softer Deep Purple -->
+    <color name="primary_dark">#7E57C2</color>
+    <color name="primary_light">#311B92</color>
+    <color name="accent">#80CBC4</color>
+
+    <!-- Layered Dark Backgrounds -->
+    <color name="adaptive_bg">#121212</color>
+    <color name="adaptive_surface">#181818</color>
+    <color name="adaptive_surface_elevated">#1E1E1E</color>
+
+    <!-- Adaptive Day/Night Colors (Dark) -->
+    <color name="adaptive_text_primary">#E0E0E0</color>
+    <color name="adaptive_text_secondary">#9E9E9E</color>
+    <color name="adaptive_text_muted">#616161</color>
+    <color name="adaptive_divider">#2C2C2C</color>
+    <color name="adaptive_primary_light">#261B35</color>
+    <color name="adaptive_card_stroke">#2A2A2A</color>
+    <color name="adaptive_shadow">#66000000</color>
+    <color name="adaptive_glass_surface">#1AFFFFFF</color>
+
+    <!-- Gradient Overrides for Premium Feel -->
+    <color name="purple_gradient_start">#673AB7</color>
+    <color name="purple_gradient_end">#512DA8</color>
+
+    <!-- UI Backgrounds (Night) -->
+    <color name="premium_bg_start">#121212</color>
+    <color name="premium_bg_end">#000000</color>
+    <color name="glass_white">#0DFFFFFF</color>
+
+    <color name="adaptive_logout_bg">#2D1A1A</color>
+    <color name="adaptive_logout_text">#FF5252</color>
+
+    <!-- Category Backgrounds (Darkened & Elevated) -->
+    <color name="cat_historical_bg">#2D203A</color>
+    <color name="cat_food_bg">#2D2320</color>
+    <color name="cat_nature_bg">#202D23</color>
+    <color name="cat_adventure_bg">#20252D</color>
+</resources>
