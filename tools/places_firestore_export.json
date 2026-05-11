@@ -1,12 +1,20 @@
 {
-  "exportVersion": 1,
+  "exportVersion": 2,
   "collection": "places",
+  "schema": {
+    "description": "Wrapper for batch import scripts. Each item becomes places/{id} with fields written as Firestore fields.",
+    "documentIdField": "id",
+    "idStrategy": "Use id as Firestore document path. Must match fields.legacyId and match old Place.getId() so PlaceMapper (documentId -> Place.id) does not break favorites.",
+    "slugField": "fields.slug — stable human-readable key (unique). Optional in Firestore; ignored by PlaceDto until you add it to the contract.",
+    "placeDtoContract": "Names align with com.arriva.touristguideapp.data.places.PlacesFirestoreContract",
+    "queries": "FirestorePlaceDataSource filters on status=published; optional isTopPick, category. Composite indexes required for multi-filter queries.",
+    "ratings": "DataProvider never calls setRating; runtime default is 4.0 — ratingAvg set to 4.0 for all rows."
+  },
   "notes": [
-    "Import with Firebase Admin SDK (batch writes); convert latitude/longitude to GeoPoint in script.",
-    "Document id MUST equal legacyId (old Place.getId()) so current PlaceMapper keeps favorites / intents stable.",
-    "Optional: use human-readable doc ids only after PlaceMapper prefers legacyId for client id (not implemented yet).",
+    "Import with Firebase Admin SDK (batch writes); set fields.location to GeoPoint(lat, lng) in script if desired (optional; lat/lng alone satisfy PlaceDto).",
     "drawableAssetKey / galleryDrawableKeys are migration metadata only (not read by PlaceDto today).",
-    "Omit imageUrl until Firebase Storage URLs exist; app uses PlaceImageHelper + imageResId placeholder from PlaceMapper."
+    "Omit imageUrl / galleryImageUrls until Storage URLs exist, or add URLs later with merge writes.",
+    "Prevent duplicates: deterministic id + merge:true on re-import."
   ],
   "documents": [
     {
@@ -14,6 +22,7 @@
       "fields": {
         "status": "published",
         "legacyId": "1",
+        "slug": "place_pune_shaniwar_wada",
         "name": "Shaniwar Wada",
         "city": "Pune",
         "category": "History",
@@ -24,7 +33,7 @@
         "bestTime": "Evening",
         "latitude": 18.5196,
         "longitude": 73.8553,
-        "ratingAvg": 4.5,
+        "ratingAvg": 4.0,
         "tips": "Visit during evening for light show. Avoid weekends.",
         "funFact": "The fort is believed to be haunted by the ghost of Narayanrao.",
         "nearestStation": "Pune Station (3 km)",
@@ -39,6 +48,7 @@
       "fields": {
         "status": "published",
         "legacyId": "2",
+        "slug": "place_pune_dagdusheth_ganpati",
         "name": "Dagdusheth Ganpati",
         "city": "Pune",
         "category": "Spiritual",
@@ -49,7 +59,7 @@
         "bestTime": "Morning",
         "latitude": 18.5165,
         "longitude": 73.8563,
-        "ratingAvg": 4.6,
+        "ratingAvg": 4.0,
         "tips": "Visit early morning to avoid crowd.",
         "funFact": "The idol is adorned with over 40kg gold.",
         "nearestStation": "Pune Station (2.5 km)",
@@ -64,6 +74,7 @@
       "fields": {
         "status": "published",
         "legacyId": "3",
+        "slug": "place_pune_sinhagad_fort",
         "name": "Sinhagad Fort",
         "city": "Pune",
         "category": "Adventure",
@@ -74,7 +85,7 @@
         "bestTime": "Morning",
         "latitude": 18.3663,
         "longitude": 73.755,
-        "ratingAvg": 4.5,
+        "ratingAvg": 4.0,
         "tips": "Start trek early morning.",
         "funFact": "Known for Battle of Sinhagad.",
         "nearestStation": "Pune Station (30 km)",
@@ -89,6 +100,7 @@
       "fields": {
         "status": "published",
         "legacyId": "4",
+        "slug": "place_pune_khadakwasla_dam",
         "name": "Khadakwasla Dam",
         "city": "Pune",
         "category": "Nature",
@@ -99,7 +111,7 @@
         "bestTime": "Evening",
         "latitude": 18.4465,
         "longitude": 73.765,
-        "ratingAvg": 4.4,
+        "ratingAvg": 4.0,
         "tips": "Best during sunset. Avoid late night.",
         "funFact": "Featured in Bollywood movie scenes.",
         "nearestStation": "Shivajinagar (15 km)",
@@ -114,6 +126,7 @@
       "fields": {
         "status": "published",
         "legacyId": "5",
+        "slug": "place_pune_fm_live",
         "name": "F.M. Live",
         "city": "Pune",
         "category": "Entertainment",
@@ -124,7 +137,7 @@
         "bestTime": "Day",
         "latitude": 18.5362,
         "longitude": 73.893,
-        "ratingAvg": 4.2,
+        "ratingAvg": 4.0,
         "tips": "Visit during live sessions for a better experience.",
         "funFact": "Part of BIG FM network, one of India's popular radio stations.",
         "nearestStation": "Koregaon Park (1 km)",
@@ -139,6 +152,7 @@
       "fields": {
         "status": "published",
         "legacyId": "6",
+        "slug": "place_pune_zoo",
         "name": "Pune Zoo",
         "city": "Pune",
         "category": "Nature",
@@ -149,7 +163,7 @@
         "bestTime": "Morning",
         "latitude": 18.5308,
         "longitude": 73.8747,
-        "ratingAvg": 4.3,
+        "ratingAvg": 4.0,
         "tips": "Visit early when animals are active.",
         "funFact": "Known for rare animal species.",
         "nearestStation": "Pune Station (6 km)",
@@ -164,6 +178,7 @@
       "fields": {
         "status": "published",
         "legacyId": "7",
+        "slug": "place_pune_fc_road",
         "name": "FC Road",
         "city": "Pune",
         "category": "Food",
@@ -174,7 +189,7 @@
         "bestTime": "Evening",
         "latitude": 18.5204,
         "longitude": 73.841,
-        "ratingAvg": 4.4,
+        "ratingAvg": 4.0,
         "tips": "Try Misal Pav and street snacks.",
         "funFact": "Heart of Pune's youth culture.",
         "nearestStation": "Shivajinagar (1 km)",
@@ -189,6 +204,7 @@
       "fields": {
         "status": "published",
         "legacyId": "8",
+        "slug": "place_pune_tulshi_baug",
         "name": "Tulshi Baug",
         "city": "Pune",
         "category": "Shopping",
@@ -199,7 +215,7 @@
         "bestTime": "Afternoon",
         "latitude": 18.5163,
         "longitude": 73.855,
-        "ratingAvg": 4.2,
+        "ratingAvg": 4.0,
         "tips": "Bargain properly while shopping.",
         "funFact": "One of the oldest markets in Pune.",
         "nearestStation": "Pune Station (2 km)",
@@ -214,6 +230,7 @@
       "fields": {
         "status": "published",
         "legacyId": "-551126823",
+        "slug": "place_pune_aga_khan_palace",
         "name": "Aga Khan Palace",
         "city": "Pune",
         "category": "History",
@@ -239,6 +256,7 @@
       "fields": {
         "status": "published",
         "legacyId": "-1756714914",
+        "slug": "place_pune_chaturshringi_temple",
         "name": "Chaturshringi Temple",
         "city": "Pune",
         "category": "Spiritual",
@@ -264,6 +282,7 @@
       "fields": {
         "status": "published",
         "legacyId": "-612666982",
+        "slug": "place_pune_empress_garden",
         "name": "Empress Garden",
         "city": "Pune",
         "category": "Nature",
@@ -289,6 +308,7 @@
       "fields": {
         "status": "published",
         "legacyId": "-170268559",
+        "slug": "place_pune_german_bakery_koregaon_park",
         "name": "German Bakery (Koregaon Park)",
         "city": "Pune",
         "category": "Food",
@@ -314,6 +334,7 @@
       "fields": {
         "status": "published",
         "legacyId": "1524573245",
+        "slug": "place_pune_high_street_baner",
         "name": "High Street Baner",
         "city": "Pune",
         "category": "Entertainment",
@@ -339,6 +360,7 @@
       "fields": {
         "status": "published",
         "legacyId": "-1446420468",
+        "slug": "place_pune_iskcon_temple",
         "name": "ISKCON Temple",
         "city": "Pune",
         "category": "Spiritual",
@@ -364,6 +386,7 @@
       "fields": {
         "status": "published",
         "legacyId": "-322321290",
+        "slug": "place_pune_lal_mahal",
         "name": "Lal Mahal",
         "city": "Pune",
         "category": "History",
@@ -389,6 +412,7 @@
       "fields": {
         "status": "published",
         "legacyId": "745703132",
+        "slug": "place_pune_okayama_friendship_garden",
         "name": "Okayama Friendship Garden",
         "city": "Pune",
         "category": "Nature",
@@ -414,6 +438,7 @@
       "fields": {
         "status": "published",
         "legacyId": "-64886592",
+        "slug": "place_pune_parvati_hill",
         "name": "Parvati Hill",
         "city": "Pune",
         "category": "Nature",
@@ -439,6 +464,7 @@
       "fields": {
         "status": "published",
         "legacyId": "-1369682212",
+        "slug": "place_pune_pashan_lake",
         "name": "Pashan Lake",
         "city": "Pune",
         "category": "Nature",
@@ -464,6 +490,7 @@
       "fields": {
         "status": "published",
         "legacyId": "-1715627427",
+        "slug": "place_pune_phoenix_marketcity_viman_nagar",
         "name": "Phoenix Marketcity (Viman Nagar)",
         "city": "Pune",
         "category": "Shopping",
