@@ -1,5 +1,6 @@
 package com.arriva.touristguideapp;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import java.io.Serializable;
