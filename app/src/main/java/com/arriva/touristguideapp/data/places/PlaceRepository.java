@@ -70,7 +70,8 @@ public class PlaceRepository {
                         deliver(local.getAllPlaces(), DataOrigin.LOCAL_FALLBACK, "mapping_failed_all", callback);
                         return;
                     }
-                    Log.d(TAG, "fetchPublishedPlaces: Firestore success count=" + mapped.size());
+                    Log.d(TAG, "fetchPublishedPlaces: Firestore success count=" + mapped.size()
+                            + " firstId=" + mapped.get(0).getId());
                     deliver(mapped, DataOrigin.FIRESTORE, null, callback);
                 });
     }
@@ -101,7 +102,8 @@ public class PlaceRepository {
                         deliver(local.getTopPicks(), DataOrigin.LOCAL_FALLBACK, "mapping_failed_all", callback);
                         return;
                     }
-                    Log.d(TAG, "fetchTopPicks: Firestore success count=" + mapped.size());
+                    Log.d(TAG, "fetchTopPicks: Firestore success count=" + mapped.size()
+                            + " firstId=" + mapped.get(0).getId());
                     deliver(mapped, DataOrigin.FIRESTORE, null, callback);
                 });
     }
@@ -134,7 +136,8 @@ public class PlaceRepository {
                         deliver(local.getPlacesByCategory(category), DataOrigin.LOCAL_FALLBACK, "mapping_failed_all", callback);
                         return;
                     }
-                    Log.d(TAG, "fetchPublishedByCategory: Firestore success category=" + category + " count=" + mapped.size());
+                    Log.d(TAG, "fetchPublishedByCategory: Firestore success category=" + category
+                            + " count=" + mapped.size() + " firstId=" + mapped.get(0).getId());
                     deliver(mapped, DataOrigin.FIRESTORE, null, callback);
                 });
     }
@@ -145,6 +148,8 @@ public class PlaceRepository {
                          @NonNull PlacesLoadCallback callback) {
         if (origin == DataOrigin.LOCAL_FALLBACK) {
             Log.i(TAG, "LOCAL_FALLBACK delivery size=" + places.size() + (message != null ? (" detail=" + message) : ""));
+        } else {
+            Log.d(TAG, "FIRESTORE delivery size=" + places.size());
         }
         callback.onPlacesLoaded(places, origin, message);
     }

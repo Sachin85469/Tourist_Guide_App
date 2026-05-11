@@ -62,6 +62,7 @@ public final class PlaceMapper {
                 place.setGalleryImages(new ArrayList<>());
             }
 
+            Log.d(TAG, "toPlace OK docId=" + id + " imageUrlSet=" + (dto.getImageUrl() != null));
             return place;
         } catch (Exception e) {
             Log.e(TAG, "Mapping failure for documentId=" + dto.getDocumentId(), e);
