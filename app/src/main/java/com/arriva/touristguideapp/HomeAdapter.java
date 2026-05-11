@@ -234,7 +234,7 @@ public class HomeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 }
             }
 
-            placeImage.setImageResource(place.getImageResId());
+            PlaceImageHelper.loadThumbnail(placeImage, place);
             
             boolean isFav = FavoritesManager.isFavorite(context, place.getId());
             btnFavorite.setImageResource(isFav ? R.drawable.ic_favorite : R.drawable.ic_favorite_border);
