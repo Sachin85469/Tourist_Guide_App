@@ -27,6 +27,8 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 public class LoginActivity extends AppCompatActivity {
 
@@ -118,13 +120,41 @@ public class LoginActivity extends AppCompatActivity {
                         if (task.isSuccessful()) {
                             // Sign in success, update UI with the signed-in user's information
                             FirebaseUser user = mAuth.getCurrentUser();
-                            Toast.makeText(LoginActivity.this, "Welcome " + (user != null ? user.getDisplayName() : ""), Toast.LENGTH_SHORT).show();
-                            navigateToMap();
+                            if (user != null) {
+                                checkUserInFirestore(user);
+                            } else {
+                                navigateToMap();
+                            }
                         } else {
                             // If sign in fails, display a message to the user.
                             Log.e(TAG, "Firebase auth with google failed", task.getException());
                             Toast.makeText(LoginActivity.this, "Authentication Failed.", Toast.LENGTH_SHORT).show();
                         }
+                    }
+                });
+    }
+
+    private void checkUserInFirestore(FirebaseUser user) {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        db.collection("users").document(user.getUid()).get()
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        DocumentSnapshot document = task.getResult();
+                        if (document != null && !document.exists()) {
+                            // Automatically create Firestore document if it does not exist
+                            User newUser = new User(
+                                    user.getUid(),
+                                    user.getDisplayName(),
+                                    user.getEmail(),
+                                    "" // profileImage initially empty
+                            );
+                            db.collection("users").document(user.getUid()).set(newUser);
+                        }
+                        Toast.makeText(LoginActivity.this, "Welcome " + (user.getDisplayName() != null ? user.getDisplayName() : ""), Toast.LENGTH_SHORT).show();
+                        navigateToMap();
+                    } else {
+                        Log.e(TAG, "Firestore check failed", task.getException());
+                        navigateToMap(); // Still navigate even if check fails, better than blocking user
                     }
                 });
     }

@@ -26,6 +26,7 @@ public class HomeActivity extends AppCompatActivity {
     private PlaceAdapter placeAdapter;
     private EditText editTextSearch;
     private ImageView btnVoiceSearch, ivProfileIcon;
+    private TextView tvHomeUserName, tvHomeUserEmail;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,9 +38,11 @@ public class HomeActivity extends AppCompatActivity {
         editTextSearch = findViewById(R.id.editTextSearch);
         btnVoiceSearch = findViewById(R.id.btnVoiceSearch);
         ivProfileIcon = findViewById(R.id.ivProfileIcon);
+        tvHomeUserName = findViewById(R.id.tvHomeUserName);
+        tvHomeUserEmail = findViewById(R.id.tvHomeUserEmail);
 
-        // Profile Avatar Setup
-        ProfileUtils.loadAvatar(this, ivProfileIcon);
+        // Profile Avatar and User Info Setup
+        loadUserInfo();
         ivProfileIcon.setOnClickListener(v -> {
             startActivity(new Intent(this, ProfileActivity.class));
             overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
@@ -189,11 +192,33 @@ public class HomeActivity extends AppCompatActivity {
         }
     }
 
+    private void loadUserInfo() {
+        // Load local avatar immediately from SharedPreferences for better UX (Requirement 4)
+        ProfileUtils.loadAvatar(this, ivProfileIcon);
+
+        com.google.firebase.auth.FirebaseUser user = com.google.firebase.auth.FirebaseAuth.getInstance().getCurrentUser();
+        if (user != null) {
+            ProfileUtils.fetchUserData(user.getUid(), new ProfileUtils.UserCallback() {
+                @Override
+                public void onUserLoaded(User userModel) {
+                    if (tvHomeUserName != null) tvHomeUserName.setText("Hello, " + userModel.getName());
+                    if (tvHomeUserEmail != null) tvHomeUserEmail.setText(userModel.getEmail());
+                    ProfileUtils.loadAvatar(HomeActivity.this, ivProfileIcon, userModel);
+                }
+
+                @Override
+                public void onError(Exception e) {
+                    if (tvHomeUserName != null) tvHomeUserName.setText(user.getDisplayName() != null ? user.getDisplayName() : "ExploreEase");
+                    if (tvHomeUserEmail != null) tvHomeUserEmail.setText(user.getEmail());
+                    ProfileUtils.loadAvatar(HomeActivity.this, ivProfileIcon);
+                }
+            });
+        }
+    }
+
     @Override
     protected void onResume() {
         super.onResume();
-        if (ivProfileIcon != null) {
-            ProfileUtils.loadAvatar(this, ivProfileIcon);
-        }
+        loadUserInfo();
     }
 }

@@ -1,7 +1,6 @@
 package com.arriva.touristguideapp;
 
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
@@ -22,6 +21,7 @@ import com.google.android.material.chip.Chip;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.UserInfo;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 public class ProfileActivity extends AppCompatActivity {
 
@@ -35,7 +35,6 @@ public class ProfileActivity extends AppCompatActivity {
     private View btnBack, btnEditImage;
 
     private FirebaseAuth mAuth;
-    private SharedPreferences prefs;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,7 +42,6 @@ public class ProfileActivity extends AppCompatActivity {
         setContentView(R.layout.activity_profile);
 
         mAuth = FirebaseAuth.getInstance();
-        prefs = getSharedPreferences("UserPrefs", MODE_PRIVATE);
 
         initViews();
         loadUserData();
@@ -64,12 +62,7 @@ public class ProfileActivity extends AppCompatActivity {
         btnSaveName.setOnClickListener(v -> {
             String newName = etEditName.getText().toString().trim();
             if (!TextUtils.isEmpty(newName)) {
-                saveNameLocally(newName);
-                tvProfileName.setText(newName);
-                cardEditName.setVisibility(View.GONE);
-                Toast.makeText(this, "Profile updated!", Toast.LENGTH_SHORT).show();
-                // Refresh avatar in case name changed (for fallback letter)
-                loadAvatar();
+                updateNameInFirestore(newName);
             }
         });
 
@@ -82,6 +75,21 @@ public class ProfileActivity extends AppCompatActivity {
             startActivity(intent);
             finish();
         });
+    }
+
+    private void updateNameInFirestore(String newName) {
+        FirebaseUser user = mAuth.getCurrentUser();
+        if (user != null) {
+            FirebaseFirestore.getInstance().collection("users").document(user.getUid())
+                    .update("name", newName)
+                    .addOnSuccessListener(aVoid -> {
+                        tvProfileName.setText(newName);
+                        cardEditName.setVisibility(View.GONE);
+                        Toast.makeText(this, "Profile updated!", Toast.LENGTH_SHORT).show();
+                        loadUserData();
+                    })
+                    .addOnFailureListener(e -> Toast.makeText(this, "Update failed", Toast.LENGTH_SHORT).show());
+        }
     }
 
     private void setupStats() {
@@ -133,44 +141,36 @@ public class ProfileActivity extends AppCompatActivity {
     }
 
     private void loadUserData() {
+        // Load local avatar immediately for best UX
+        ProfileUtils.loadAvatar(this, ivProfileImage);
+
         FirebaseUser user = mAuth.getCurrentUser();
         if (user != null) {
-            String email = user.getEmail();
-            String name = user.getDisplayName();
-            String provider = "Email Account";
+            ProfileUtils.fetchUserData(user.getUid(), new ProfileUtils.UserCallback() {
+                @Override
+                public void onUserLoaded(User userModel) {
+                    tvProfileName.setText(userModel.getName());
+                    tvProfileEmail.setText(userModel.getEmail());
 
-            for (UserInfo profile : user.getProviderData()) {
-                if (profile.getProviderId().equals("google.com")) {
-                    provider = "Google Account";
-                    if (TextUtils.isEmpty(name)) name = profile.getDisplayName();
+                    String provider = "Email Account";
+                    for (UserInfo profile : user.getProviderData()) {
+                        if (profile.getProviderId().equals("google.com")) {
+                            provider = "Google Account";
+                        }
+                    }
+                    chipLoginProvider.setText(provider);
+
+                    ProfileUtils.loadAvatar(ProfileActivity.this, ivProfileImage, userModel);
                 }
-            }
 
-            // Load local manual override if exists
-            String savedName = prefs.getString("user_display_name", null);
-            if (!TextUtils.isEmpty(savedName)) {
-                name = savedName;
-            }
-
-            tvProfileEmail.setText(email);
-            chipLoginProvider.setText(provider);
-            tvProfileName.setText(!TextUtils.isEmpty(name) ? name : "Tourist");
-
-            loadAvatar();
-        }
-    }
-
-    private void loadAvatar() {
-        // Check for locally saved image first
-        String localImageUri = prefs.getString("local_profile_image", null);
-        if (localImageUri != null) {
-            Glide.with(this)
-                    .load(Uri.parse(localImageUri))
-                    .circleCrop()
-                    .into(ivProfileImage);
-        } else {
-            // Fallback to dynamic avatar logic
-            ProfileUtils.loadAvatar(this, ivProfileImage);
+                @Override
+                public void onError(Exception e) {
+                    // Fallback to basic Auth info
+                    tvProfileName.setText(user.getDisplayName());
+                    tvProfileEmail.setText(user.getEmail());
+                    ProfileUtils.loadAvatar(ProfileActivity.this, ivProfileImage);
+                }
+            });
         }
     }
 
@@ -184,23 +184,20 @@ public class ProfileActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == PICK_IMAGE_REQUEST && resultCode == RESULT_OK && data != null && data.getData() != null) {
             Uri imageUri = data.getData();
-            saveImageLocally(imageUri);
             
-            // Show instantly
+            // 1. Save to SharedPreferences for local persistence (Requirement 1 & 2)
+            getSharedPreferences("UserPrefs", MODE_PRIVATE)
+                    .edit()
+                    .putString("local_profile_image", imageUri.toString())
+                    .apply();
+            
+            // 2. Show instantly in UI
             Glide.with(this)
                     .load(imageUri)
                     .circleCrop()
                     .into(ivProfileImage);
             
-            Toast.makeText(this, "Photo updated!", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Profile photo updated!", Toast.LENGTH_SHORT).show();
         }
-    }
-
-    private void saveImageLocally(Uri uri) {
-        prefs.edit().putString("local_profile_image", uri.toString()).apply();
-    }
-
-    private void saveNameLocally(String name) {
-        prefs.edit().putString("user_display_name", name).apply();
     }
 }

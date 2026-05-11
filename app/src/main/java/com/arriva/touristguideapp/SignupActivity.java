@@ -13,6 +13,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.UserProfileChangeRequest;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 public class SignupActivity extends AppCompatActivity {
 
@@ -79,19 +80,36 @@ public class SignupActivity extends AppCompatActivity {
                     if (task.isSuccessful()) {
                         FirebaseUser user = mAuth.getCurrentUser();
                         if (user != null) {
+                            // 1. Update Profile in Auth
                             UserProfileChangeRequest profileUpdates = new UserProfileChangeRequest.Builder()
                                     .setDisplayName(name)
                                     .build();
                             user.updateProfile(profileUpdates);
+
+                            // 2. Save User to Firestore
+                            saveUserToFirestore(user.getUid(), name, email);
                         }
-                        progressBar.setVisibility(View.GONE);
-                        startActivity(new Intent(SignupActivity.this, MainActivity.class));
-                        finishAffinity();
                     } else {
                         progressBar.setVisibility(View.GONE);
                         Toast.makeText(SignupActivity.this, "Signup Failed: " + task.getException().getMessage(),
                                 Toast.LENGTH_SHORT).show();
                     }
+                });
+    }
+
+    private void saveUserToFirestore(String uid, String name, String email) {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        User user = new User(uid, name, email, "");
+
+        db.collection("users").document(uid).set(user)
+                .addOnSuccessListener(aVoid -> {
+                    progressBar.setVisibility(View.GONE);
+                    startActivity(new Intent(SignupActivity.this, MainActivity.class));
+                    finishAffinity();
+                })
+                .addOnFailureListener(e -> {
+                    progressBar.setVisibility(View.GONE);
+                    Toast.makeText(SignupActivity.this, "Failed to save user info: " + e.getMessage(), Toast.LENGTH_SHORT).show();
                 });
     }
 }

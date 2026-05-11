@@ -31,7 +31,6 @@ android {
 }
 
 dependencies {
-
     implementation libs.appcompat
     implementation libs.material
     implementation libs.activity
@@ -49,6 +48,7 @@ dependencies {
     // Firebase
     implementation platform(libs.firebase.bom)
     implementation libs.firebase.auth
+    implementation libs.firebase.firestore
     implementation libs.play.services.auth
 
     testImplementation libs.junit

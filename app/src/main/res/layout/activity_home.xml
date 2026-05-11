@@ -27,6 +27,7 @@
                     android:orientation="vertical">
 
                     <TextView
+                        android:id="@+id/tvHomeUserName"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="ExploreEase"
@@ -35,6 +36,7 @@
                         android:textStyle="bold" />
 
                     <TextView
+                        android:id="@+id/tvHomeUserEmail"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Tourist Guide"

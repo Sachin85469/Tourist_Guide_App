@@ -18,17 +18,40 @@ import com.bumptech.glide.Glide;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.UserInfo;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 public class ProfileUtils {
 
+    public interface UserCallback {
+        void onUserLoaded(User user);
+        void onError(Exception e);
+    }
+
     /**
-     * Loads the current user's profile image or a letter avatar fallback into an ImageView.
+     * Fetches user data from Firestore.
+     */
+    public static void fetchUserData(String uid, UserCallback callback) {
+        FirebaseFirestore.getInstance().collection("users").document(uid).get()
+                .addOnSuccessListener(documentSnapshot -> {
+                    User user = documentSnapshot.toObject(User.class);
+                    if (user != null) {
+                        callback.onUserLoaded(user);
+                    } else {
+                        callback.onError(new Exception("User not found"));
+                    }
+                })
+                .addOnFailureListener(callback::onError);
+    }
+
+    /**
+     * Loads the current user's profile image or a letter avatar fallback into an ImageView using Firestore data.
+     * Priority: SharedPreferences (Local) > Firestore (Remote) > Auth (Google) > Letter Avatar
      */
     public static void loadAvatar(Context context, ImageView imageView) {
-        // 1. Check SharedPreferences for local image override
+        // 1. Check SharedPreferences for local image persistence (Requirement 1 & 3)
         android.content.SharedPreferences prefs = context.getSharedPreferences("UserPrefs", Context.MODE_PRIVATE);
         String localImageUri = prefs.getString("local_profile_image", null);
-        
+
         if (localImageUri != null) {
             Glide.with(context)
                     .load(android.net.Uri.parse(localImageUri))
@@ -37,28 +60,61 @@ public class ProfileUtils {
             return;
         }
 
-        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-        if (user == null) {
+        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+        if (currentUser == null) {
             imageView.setImageResource(android.R.drawable.ic_menu_gallery);
             return;
         }
 
-        String photoUrl = null;
-        for (UserInfo profile : user.getProviderData()) {
-            if (profile.getPhotoUrl() != null) {
-                photoUrl = profile.getPhotoUrl().toString();
-                break;
+        fetchUserData(currentUser.getUid(), new UserCallback() {
+            @Override
+            public void onUserLoaded(User user) {
+                if (!TextUtils.isEmpty(user.getProfileImage())) {
+                    Glide.with(context)
+                            .load(user.getProfileImage())
+                            .circleCrop()
+                            .placeholder(generateLetterAvatar(context, user.getName()))
+                            .into(imageView);
+                } else {
+                    imageView.setImageDrawable(generateLetterAvatar(context, user.getName()));
+                }
             }
+
+            @Override
+            public void onError(Exception e) {
+                // Fallback to Auth display name if Firestore fails
+                imageView.setImageDrawable(generateLetterAvatar(context, currentUser.getDisplayName()));
+            }
+        });
+    }
+
+    /**
+     * Overloaded loadAvatar to use provided User object directly (efficiency).
+     * Still checks SharedPreferences first for immediate local updates.
+     */
+    public static void loadAvatar(Context context, ImageView imageView, User user) {
+        // 1. Check SharedPreferences for local image persistence
+        android.content.SharedPreferences prefs = context.getSharedPreferences("UserPrefs", Context.MODE_PRIVATE);
+        String localImageUri = prefs.getString("local_profile_image", null);
+
+        if (localImageUri != null) {
+            Glide.with(context)
+                    .load(android.net.Uri.parse(localImageUri))
+                    .circleCrop()
+                    .into(imageView);
+            return;
         }
 
-        if (!TextUtils.isEmpty(photoUrl)) {
+        if (user == null) return;
+        
+        if (!TextUtils.isEmpty(user.getProfileImage())) {
             Glide.with(context)
-                    .load(photoUrl)
+                    .load(user.getProfileImage())
                     .circleCrop()
-                    .placeholder(generateLetterAvatar(context, user.getDisplayName()))
+                    .placeholder(generateLetterAvatar(context, user.getName()))
                     .into(imageView);
         } else {
-            imageView.setImageDrawable(generateLetterAvatar(context, user.getDisplayName()));
+            imageView.setImageDrawable(generateLetterAvatar(context, user.getName()));
         }
     }
 

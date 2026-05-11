@@ -14,6 +14,7 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -53,6 +54,7 @@ public class MainActivity extends AppCompatActivity {
     private View emptyStateContainer;
     private EditText searchBox;
     private ImageView btnVoiceSearch;
+    private TextView tvMainUserName, tvMainUserEmail;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,11 +68,13 @@ public class MainActivity extends AppCompatActivity {
 
         rvHome = findViewById(R.id.rvHome);
         btnProfile = findViewById(R.id.btnProfile);
-        ivProfileIcon = (ImageView) btnProfile;
+        ivProfileIcon = findViewById(R.id.btnProfile);
         bottomNavigationView = findViewById(R.id.bottom_navigation);
+        tvMainUserName = findViewById(R.id.tvMainUserName);
+        tvMainUserEmail = findViewById(R.id.tvMainUserEmail);
 
-        // Profile Avatar Setup
-        ProfileUtils.loadAvatar(this, ivProfileIcon);
+        // Profile Avatar and User Info Setup
+        loadUserInfo();
         progressBar = findViewById(R.id.mainProgressBar);
         emptyStateContainer = findViewById(R.id.tvEmptyState);
         searchBox = findViewById(R.id.searchBox);
@@ -373,11 +377,33 @@ public class MainActivity extends AppCompatActivity {
         overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
     }
 
+    private void loadUserInfo() {
+        // Load local avatar immediately from SharedPreferences for better UX (Requirement 4)
+        ProfileUtils.loadAvatar(this, ivProfileIcon);
+
+        com.google.firebase.auth.FirebaseUser user = com.google.firebase.auth.FirebaseAuth.getInstance().getCurrentUser();
+        if (user != null) {
+            ProfileUtils.fetchUserData(user.getUid(), new ProfileUtils.UserCallback() {
+                @Override
+                public void onUserLoaded(User userModel) {
+                    if (tvMainUserName != null) tvMainUserName.setText(userModel.getName());
+                    if (tvMainUserEmail != null) tvMainUserEmail.setText(userModel.getEmail());
+                    ProfileUtils.loadAvatar(MainActivity.this, ivProfileIcon, userModel);
+                }
+
+                @Override
+                public void onError(Exception e) {
+                    if (tvMainUserName != null) tvMainUserName.setText(user.getDisplayName() != null ? user.getDisplayName() : "ExploreEase");
+                    if (tvMainUserEmail != null) tvMainUserEmail.setText(user.getEmail());
+                    ProfileUtils.loadAvatar(MainActivity.this, ivProfileIcon);
+                }
+            });
+        }
+    }
+
     @Override
     protected void onResume() {
         super.onResume();
-        if (ivProfileIcon != null) {
-            ProfileUtils.loadAvatar(this, ivProfileIcon);
-        }
+        loadUserInfo();
     }
 }
