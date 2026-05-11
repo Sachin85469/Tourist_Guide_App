@@ -85,6 +85,7 @@ public class FirestorePlaceDataSource {
                 PlaceDto dto = PlaceDto.fromSnapshot(doc);
                 if (dto != null) {
                     out.add(dto);
+                    Log.d(TAG, operation + ": mapper OK docId=" + dto.getDocumentId() + " name=" + dto.getName());
                 } else {
                     Log.w(TAG, operation + ": skipped invalid document id=" + doc.getId());
                 }
@@ -93,7 +94,7 @@ public class FirestorePlaceDataSource {
             }
         });
 
-        Log.d(TAG, operation + " success count=" + out.size());
+        Log.d(TAG, operation + " rawDocs=" + snapshot.size() + " mappedDtos=" + out.size());
         return out;
     }
 }
