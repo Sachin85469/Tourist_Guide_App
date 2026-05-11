@@ -5,7 +5,6 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 
 import com.google.android.gms.tasks.Task;
-import com.google.android.gms.tasks.Tasks;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
@@ -96,13 +95,5 @@ public class FirestorePlaceDataSource {
 
         Log.d(TAG, operation + " success count=" + out.size());
         return out;
-    }
-
-    /**
-     * Wraps a failed Task into an empty success for repository-level fallback handling.
-     */
-    @NonNull
-    public static <T> Task<T> emptySuccess() {
-        return Tasks.forResult(null);
     }
 }
