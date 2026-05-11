@@ -27,6 +27,7 @@ import com.google.android.gms.location.LocationServices;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationBarView;
 import com.google.android.libraries.places.api.Places;
+import com.arriva.touristguideapp.data.places.PlaceRepository;
 import com.google.firebase.auth.FirebaseAuth;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -36,6 +37,7 @@ import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity {
 
+    private static final String TAG = "MainActivity";
     private static final int VOICE_SEARCH_REQUEST_CODE = 101;
     private RecyclerView rvHome;
     private HomeAdapter homeAdapter;
@@ -55,6 +57,11 @@ public class MainActivity extends AppCompatActivity {
     private EditText searchBox;
     private ImageView btnVoiceSearch;
     private TextView tvMainUserName, tvMainUserEmail;
+
+    private PlaceRepository placeRepository;
+    /** Last fix used to sort "Top Picks Near You" after the Firestore catalog arrives. */
+    @Nullable
+    private Location cachedUserLocation;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -92,6 +99,7 @@ public class MainActivity extends AppCompatActivity {
         
         // Fetch location and data
         checkLocationPermission();
+        loadPublishedPlacesCatalog();
 
         bottomNavigationView.setSelectedItemId(R.id.nav_home);
         bottomNavigationView.setOnItemSelectedListener(new NavigationBarView.OnItemSelectedListener() {
@@ -199,9 +207,10 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void initData() {
-        allPlaces = DataProvider.getAllPlaces();
-        
-        // Initial fallback Top Picks to avoid empty screen
+        // Browse-all list is filled asynchronously via PlaceRepository (Firestore with local fallback).
+        allPlaces = new ArrayList<>();
+
+        // Initial Top Picks row until location + catalog are ready (unchanged UX).
         topPicks = new ArrayList<>(DataProvider.getDefaultTopPicks());
 
         categories = new ArrayList<>();
@@ -226,6 +235,7 @@ public class MainActivity extends AppCompatActivity {
         try {
             fusedLocationClient.getLastLocation().addOnSuccessListener(this, location -> {
                 if (location != null) {
+                    cachedUserLocation = location;
                     updateTopPicksWithLocation(location.getLatitude(), location.getLongitude());
                 } else {
                     Log.w("NearbyDebug", "Location is null, using fallback");
@@ -356,6 +366,62 @@ public class MainActivity extends AppCompatActivity {
         for (Place p : allPlaces) {
             sections.add(new HomeSection(HomeSection.TYPE_PLACE, p));
         }
+    }
+
+    /**
+     * Loads published places for the home "Browse All" list (Firestore, else {@link DataProvider} via repository fallback).
+     */
+    private void loadPublishedPlacesCatalog() {
+        if (placeRepository == null) {
+            placeRepository = new PlaceRepository();
+        }
+        placeRepository.fetchPublishedPlaces((places, origin, message) -> {
+            boolean fromFirestore = origin == PlaceRepository.DataOrigin.FIRESTORE;
+            if (fromFirestore) {
+                Log.d(TAG, "fetchPublishedPlaces: Firestore success (main home) count=" + places.size());
+            } else {
+                Log.w(TAG, "fetchPublishedPlaces: LOCAL_FALLBACK (main home) count=" + places.size()
+                        + (message != null ? (" detail=" + message) : ""));
+            }
+
+            allPlaces.clear();
+            allPlaces.addAll(places);
+
+            if (cachedUserLocation != null) {
+                updateTopPicksWithLocation(cachedUserLocation.getLatitude(), cachedUserLocation.getLongitude());
+            } else {
+                sections.clear();
+                addDefaultSections();
+                if (homeAdapter != null) {
+                    homeAdapter.notifyDataSetChanged();
+                }
+            }
+
+            if (searchBox != null) {
+                String q = searchBox.getText() != null ? searchBox.getText().toString() : "";
+                if (!q.trim().isEmpty()) {
+                    filter(q);
+                }
+            }
+
+            if (homeAdapter != null) {
+                Log.d(TAG, "HomeAdapter item count=" + homeAdapter.getItemCount()
+                        + " browseAllPlaceRows=" + countBrowseAllPlaceRows());
+            }
+        });
+    }
+
+    private int countBrowseAllPlaceRows() {
+        if (sections == null) {
+            return 0;
+        }
+        int n = 0;
+        for (HomeSection s : sections) {
+            if (HomeSection.TYPE_PLACE.equals(s.getType())) {
+                n++;
+            }
+        }
+        return n;
     }
 
     private void openDetails(Place place) {
