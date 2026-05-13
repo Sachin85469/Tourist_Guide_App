@@ -98,13 +98,36 @@ public final class PlaceDto {
         }
         String documentId = snap.getId();
 
+        try {
+            return parseSnapshotFields(snap, documentId);
+        } catch (Exception e) {
+            // Top-level safety net: no single document should crash the entire batch.
+            Log.e(TAG, "docId=" + documentId
+                    + " UNEXPECTED parse exception — skipping document"
+                    + " exceptionType=" + e.getClass().getSimpleName()
+                    + " message=" + e.getMessage(), e);
+            return null;
+        }
+    }
+
+    /**
+     * Actual field-by-field parsing, extracted so the outer method can catch any unchecked exception.
+     */
+    @Nullable
+    private static PlaceDto parseSnapshotFields(@NonNull DocumentSnapshot snap,
+                                                 @NonNull String documentId) {
+        // ── Required fields ──
         String status = readRequiredString(snap, documentId, PlacesFirestoreContract.FIELD_STATUS);
         String name = readRequiredString(snap, documentId, PlacesFirestoreContract.FIELD_NAME);
         if (status == null || name == null) {
-            Log.w(TAG, "Skipping document " + documentId + " because required field is missing/invalid");
+            Log.w(TAG, "docId=" + documentId
+                    + " SKIPPED — required field missing"
+                    + " statusPresent=" + (status != null)
+                    + " namePresent=" + (name != null));
             return null;
         }
 
+        // ── Optional string fields ──
         String city = readOptionalString(snap, documentId, PlacesFirestoreContract.FIELD_CITY, "Unknown");
         String category = readOptionalString(snap, documentId, PlacesFirestoreContract.FIELD_CATEGORY, "General");
         String categoryId = readOptionalStringOrNull(snap, documentId, PlacesFirestoreContract.FIELD_CATEGORY_ID);
@@ -114,22 +137,34 @@ public final class PlaceDto {
         String crowdLevel = readOptionalString(snap, documentId, PlacesFirestoreContract.FIELD_CROWD_LEVEL, "Moderate");
         String bestTime = readOptionalString(snap, documentId, PlacesFirestoreContract.FIELD_BEST_TIME, "Day");
 
-        double latitude;
-        double longitude;
-        GeoPoint geo = snap.getGeoPoint(PlacesFirestoreContract.FIELD_LOCATION);
-        if (geo != null) {
-            latitude = geo.getLatitude();
-            longitude = geo.getLongitude();
-        } else {
+        // ── Location: GeoPoint first, then separate doubles ──
+        double latitude = 0d;
+        double longitude = 0d;
+        try {
+            GeoPoint geo = snap.getGeoPoint(PlacesFirestoreContract.FIELD_LOCATION);
+            if (geo != null) {
+                latitude = geo.getLatitude();
+                longitude = geo.getLongitude();
+            } else {
+                latitude = readOptionalDouble(snap, documentId, PlacesFirestoreContract.FIELD_LATITUDE, 0d);
+                longitude = readOptionalDouble(snap, documentId, PlacesFirestoreContract.FIELD_LONGITUDE, 0d);
+            }
+        } catch (Exception geoEx) {
+            // ClassCastException if the field exists but is not a GeoPoint type
+            Log.w(TAG, "docId=" + documentId
+                    + " location field is not a GeoPoint (" + geoEx.getClass().getSimpleName()
+                    + ") — falling back to latitude/longitude doubles");
             latitude = readOptionalDouble(snap, documentId, PlacesFirestoreContract.FIELD_LATITUDE, 0d);
             longitude = readOptionalDouble(snap, documentId, PlacesFirestoreContract.FIELD_LONGITUDE, 0d);
         }
 
+        // ── Rating: prefer ratingAvg, then rating ──
         double rating = readOptionalDouble(snap, documentId, PlacesFirestoreContract.FIELD_RATING_AVG, 4.0);
         if (!hasField(snap, PlacesFirestoreContract.FIELD_RATING_AVG)) {
             rating = readOptionalDouble(snap, documentId, PlacesFirestoreContract.FIELD_RATING, 4.0);
         }
 
+        // ── Image URLs ──
         String imageUrl = readOptionalStringOrNull(snap, documentId, PlacesFirestoreContract.FIELD_IMAGE_URL);
         if (imageUrl == null) {
             imageUrl = readOptionalStringOrNull(snap, documentId, PlacesFirestoreContract.FIELD_HERO_IMAGE_URL);
@@ -141,6 +176,7 @@ public final class PlaceDto {
                 PlacesFirestoreContract.FIELD_GALLERY_IMAGE_URLS
         );
 
+        // ── Remaining optional fields ──
         String tips = readOptionalString(snap, documentId, PlacesFirestoreContract.FIELD_TIPS, "");
         String funFact = readOptionalString(snap, documentId, PlacesFirestoreContract.FIELD_FUN_FACT, "");
         String nearestStation = readOptionalString(snap, documentId, PlacesFirestoreContract.FIELD_NEAREST_STATION, "");
@@ -149,6 +185,10 @@ public final class PlaceDto {
         boolean topPick = readOptionalBoolean(snap, documentId, PlacesFirestoreContract.FIELD_IS_TOP_PICK, false);
 
         String legacyId = readOptionalStringOrNull(snap, documentId, PlacesFirestoreContract.FIELD_LEGACY_ID);
+
+        Log.d(TAG, "docId=" + documentId + " PARSE_OK name=" + name
+                + " hasImageUrl=" + (imageUrl != null)
+                + " gallerySize=" + gallery.size());
 
         return new PlaceDto(
                 documentId,

@@ -53,26 +53,37 @@ public class PlaceRepository {
                 .addOnCompleteListener(task -> {
                     if (!task.isSuccessful()) {
                         Exception ex = task.getException();
-                        Log.w(TAG, "fetchPublishedPlaces: Firestore failed, activating LOCAL_FALLBACK", ex);
+                        Log.w(TAG, "fetchPublishedPlaces: Firestore QUERY failed, activating LOCAL_FALLBACK"
+                                + " exception=" + (ex != null ? ex.getMessage() : "unknown"), ex);
                         deliver(local.getAllPlaces(), DataOrigin.LOCAL_FALLBACK,
                                 ex != null ? ex.getMessage() : "unknown_error", callback);
                         return;
                     }
-                    List<PlaceDto> dtos = task.getResult();
-                    if (dtos == null || dtos.isEmpty()) {
-                        Log.w(TAG, "fetchPublishedPlaces: empty remote result, activating LOCAL_FALLBACK");
-                        deliver(local.getAllPlaces(), DataOrigin.LOCAL_FALLBACK, "empty_remote", callback);
-                        return;
+                    try {
+                        List<PlaceDto> dtos = task.getResult();
+                        if (dtos == null || dtos.isEmpty()) {
+                            Log.w(TAG, "fetchPublishedPlaces: empty remote result, activating LOCAL_FALLBACK");
+                            deliver(local.getAllPlaces(), DataOrigin.LOCAL_FALLBACK, "empty_remote", callback);
+                            return;
+                        }
+                        List<Place> mapped = PlaceMapper.toPlaces(dtos);
+                        if (mapped.isEmpty()) {
+                            Log.w(TAG, "fetchPublishedPlaces: all " + dtos.size()
+                                    + " DTOs failed mapping, activating LOCAL_FALLBACK");
+                            deliver(local.getAllPlaces(), DataOrigin.LOCAL_FALLBACK, "mapping_failed_all", callback);
+                            return;
+                        }
+                        Log.d(TAG, "fetchPublishedPlaces: FIRESTORE success count=" + mapped.size()
+                                + " (from " + dtos.size() + " DTOs)"
+                                + " firstId=" + mapped.get(0).getId());
+                        deliver(mapped, DataOrigin.FIRESTORE, null, callback);
+                    } catch (Exception resultEx) {
+                        // Catches wrapped exceptions from continueWith / task.getResult()
+                        Log.e(TAG, "fetchPublishedPlaces: task.getResult() threw, activating LOCAL_FALLBACK"
+                                + " exception=" + resultEx.getMessage(), resultEx);
+                        deliver(local.getAllPlaces(), DataOrigin.LOCAL_FALLBACK,
+                                "result_exception: " + resultEx.getMessage(), callback);
                     }
-                    List<Place> mapped = PlaceMapper.toPlaces(dtos);
-                    if (mapped.isEmpty()) {
-                        Log.w(TAG, "fetchPublishedPlaces: all DTOs failed mapping, activating LOCAL_FALLBACK");
-                        deliver(local.getAllPlaces(), DataOrigin.LOCAL_FALLBACK, "mapping_failed_all", callback);
-                        return;
-                    }
-                    Log.d(TAG, "fetchPublishedPlaces: Firestore success count=" + mapped.size()
-                            + " firstId=" + mapped.get(0).getId());
-                    deliver(mapped, DataOrigin.FIRESTORE, null, callback);
                 });
     }
 
@@ -85,26 +96,36 @@ public class PlaceRepository {
                 .addOnCompleteListener(task -> {
                     if (!task.isSuccessful()) {
                         Exception ex = task.getException();
-                        Log.w(TAG, "fetchTopPicks: Firestore failed, activating LOCAL_FALLBACK", ex);
+                        Log.w(TAG, "fetchTopPicks: Firestore QUERY failed, activating LOCAL_FALLBACK"
+                                + " exception=" + (ex != null ? ex.getMessage() : "unknown"), ex);
                         deliver(local.getTopPicks(), DataOrigin.LOCAL_FALLBACK,
                                 ex != null ? ex.getMessage() : "unknown_error", callback);
                         return;
                     }
-                    List<PlaceDto> dtos = task.getResult();
-                    if (dtos == null || dtos.isEmpty()) {
-                        Log.w(TAG, "fetchTopPicks: empty remote result, activating LOCAL_FALLBACK");
-                        deliver(local.getTopPicks(), DataOrigin.LOCAL_FALLBACK, "empty_remote", callback);
-                        return;
+                    try {
+                        List<PlaceDto> dtos = task.getResult();
+                        if (dtos == null || dtos.isEmpty()) {
+                            Log.w(TAG, "fetchTopPicks: empty remote result, activating LOCAL_FALLBACK");
+                            deliver(local.getTopPicks(), DataOrigin.LOCAL_FALLBACK, "empty_remote", callback);
+                            return;
+                        }
+                        List<Place> mapped = PlaceMapper.toPlaces(dtos);
+                        if (mapped.isEmpty()) {
+                            Log.w(TAG, "fetchTopPicks: all " + dtos.size()
+                                    + " DTOs failed mapping, activating LOCAL_FALLBACK");
+                            deliver(local.getTopPicks(), DataOrigin.LOCAL_FALLBACK, "mapping_failed_all", callback);
+                            return;
+                        }
+                        Log.d(TAG, "fetchTopPicks: FIRESTORE success count=" + mapped.size()
+                                + " (from " + dtos.size() + " DTOs)"
+                                + " firstId=" + mapped.get(0).getId());
+                        deliver(mapped, DataOrigin.FIRESTORE, null, callback);
+                    } catch (Exception resultEx) {
+                        Log.e(TAG, "fetchTopPicks: task.getResult() threw, activating LOCAL_FALLBACK"
+                                + " exception=" + resultEx.getMessage(), resultEx);
+                        deliver(local.getTopPicks(), DataOrigin.LOCAL_FALLBACK,
+                                "result_exception: " + resultEx.getMessage(), callback);
                     }
-                    List<Place> mapped = PlaceMapper.toPlaces(dtos);
-                    if (mapped.isEmpty()) {
-                        Log.w(TAG, "fetchTopPicks: all DTOs failed mapping, activating LOCAL_FALLBACK");
-                        deliver(local.getTopPicks(), DataOrigin.LOCAL_FALLBACK, "mapping_failed_all", callback);
-                        return;
-                    }
-                    Log.d(TAG, "fetchTopPicks: Firestore success count=" + mapped.size()
-                            + " firstId=" + mapped.get(0).getId());
-                    deliver(mapped, DataOrigin.FIRESTORE, null, callback);
                 });
     }
 
@@ -117,28 +138,39 @@ public class PlaceRepository {
                 .addOnCompleteListener(task -> {
                     if (!task.isSuccessful()) {
                         Exception ex = task.getException();
-                        Log.w(TAG, "fetchPublishedByCategory: Firestore failed, activating LOCAL_FALLBACK category="
-                                + category, ex);
+                        Log.w(TAG, "fetchPublishedByCategory: Firestore QUERY failed, activating LOCAL_FALLBACK"
+                                + " category=" + category
+                                + " exception=" + (ex != null ? ex.getMessage() : "unknown"), ex);
                         deliver(local.getPlacesByCategory(category), DataOrigin.LOCAL_FALLBACK,
                                 ex != null ? ex.getMessage() : "unknown_error", callback);
                         return;
                     }
-                    List<PlaceDto> dtos = task.getResult();
-                    if (dtos == null || dtos.isEmpty()) {
-                        Log.w(TAG, "fetchPublishedByCategory: empty remote result, activating LOCAL_FALLBACK category="
-                                + category);
-                        deliver(local.getPlacesByCategory(category), DataOrigin.LOCAL_FALLBACK, "empty_remote", callback);
-                        return;
+                    try {
+                        List<PlaceDto> dtos = task.getResult();
+                        if (dtos == null || dtos.isEmpty()) {
+                            Log.w(TAG, "fetchPublishedByCategory: empty remote result, activating LOCAL_FALLBACK"
+                                    + " category=" + category);
+                            deliver(local.getPlacesByCategory(category), DataOrigin.LOCAL_FALLBACK, "empty_remote", callback);
+                            return;
+                        }
+                        List<Place> mapped = PlaceMapper.toPlaces(dtos);
+                        if (mapped.isEmpty()) {
+                            Log.w(TAG, "fetchPublishedByCategory: all " + dtos.size()
+                                    + " DTOs failed mapping, activating LOCAL_FALLBACK category=" + category);
+                            deliver(local.getPlacesByCategory(category), DataOrigin.LOCAL_FALLBACK, "mapping_failed_all", callback);
+                            return;
+                        }
+                        Log.d(TAG, "fetchPublishedByCategory: FIRESTORE success category=" + category
+                                + " count=" + mapped.size() + " (from " + dtos.size() + " DTOs)"
+                                + " firstId=" + mapped.get(0).getId());
+                        deliver(mapped, DataOrigin.FIRESTORE, null, callback);
+                    } catch (Exception resultEx) {
+                        Log.e(TAG, "fetchPublishedByCategory: task.getResult() threw, activating LOCAL_FALLBACK"
+                                + " category=" + category
+                                + " exception=" + resultEx.getMessage(), resultEx);
+                        deliver(local.getPlacesByCategory(category), DataOrigin.LOCAL_FALLBACK,
+                                "result_exception: " + resultEx.getMessage(), callback);
                     }
-                    List<Place> mapped = PlaceMapper.toPlaces(dtos);
-                    if (mapped.isEmpty()) {
-                        Log.w(TAG, "fetchPublishedByCategory: all DTOs failed mapping, activating LOCAL_FALLBACK");
-                        deliver(local.getPlacesByCategory(category), DataOrigin.LOCAL_FALLBACK, "mapping_failed_all", callback);
-                        return;
-                    }
-                    Log.d(TAG, "fetchPublishedByCategory: Firestore success category=" + category
-                            + " count=" + mapped.size() + " firstId=" + mapped.get(0).getId());
-                    deliver(mapped, DataOrigin.FIRESTORE, null, callback);
                 });
     }
 

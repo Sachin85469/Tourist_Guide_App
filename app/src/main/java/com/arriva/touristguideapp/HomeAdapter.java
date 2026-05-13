@@ -257,6 +257,14 @@ public class HomeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                     intent.putExtra("nearestStation", place.getNearestStation());
                     intent.putExtra("lat", place.getLatitude());
                     intent.putExtra("lng", place.getLongitude());
+                    // Pass remote image data for Firestore places
+                    if (place.getImageUrl() != null) {
+                        intent.putExtra("imageUrl", place.getImageUrl());
+                    }
+                    if (place.hasRemoteGalleryImages()) {
+                        intent.putStringArrayListExtra("galleryImageUrls",
+                                new java.util.ArrayList<>(place.getGalleryImageUrls()));
+                    }
                     context.startActivity(intent);
                 }
             });

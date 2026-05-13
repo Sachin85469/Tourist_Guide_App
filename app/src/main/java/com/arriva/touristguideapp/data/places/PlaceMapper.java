@@ -53,6 +53,7 @@ public final class PlaceMapper {
             place.setRating(dto.getRating());
             place.setTopPick(dto.isTopPick());
             place.setImageUrl(dto.getImageUrl());
+
             List<String> galleryUrls = dto.getGalleryImageUrls() != null
                     ? new ArrayList<>(dto.getGalleryImageUrls())
                     : Collections.emptyList();
@@ -63,13 +64,19 @@ public final class PlaceMapper {
 
             boolean hasRemoteImages = dto.getImageUrl() != null || !galleryUrls.isEmpty();
             if (hasRemoteImages) {
+                // Clear drawable gallery so adapters know to use URL-based gallery
                 place.setGalleryImages(new ArrayList<>());
             }
 
-            Log.d(TAG, "toPlace OK docId=" + id + " imageUrlSet=" + (dto.getImageUrl() != null));
+            Log.d(TAG, "toPlace OK docId=" + id
+                    + " imageUrlSet=" + (dto.getImageUrl() != null)
+                    + " galleryUrlCount=" + galleryUrls.size());
             return place;
         } catch (Exception e) {
-            Log.e(TAG, "Mapping failure for documentId=" + dto.getDocumentId(), e);
+            Log.e(TAG, "toPlace FAILED for docId=" + dto.getDocumentId()
+                    + " name=" + dto.getName()
+                    + " exceptionType=" + e.getClass().getSimpleName()
+                    + " message=" + e.getMessage(), e);
             return null;
         }
     }
