@@ -6,10 +6,13 @@ import android.os.Bundle;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.viewpager2.widget.ViewPager2;
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
 
 public class PlaceDetailsActivity extends AppCompatActivity {
@@ -57,9 +60,34 @@ public class PlaceDetailsActivity extends AppCompatActivity {
             lat = intent.getDoubleExtra("lat", 0);
             lng = intent.getDoubleExtra("lng", 0);
 
-            // Remote image fields from Firestore (may be null for local places)
+            // Remote / gallery fields
             String imageUrl = intent.getStringExtra("imageUrl");
             ArrayList<String> galleryImageUrls = intent.getStringArrayListExtra("galleryImageUrls");
+            ArrayList<String> galleryUrlsExtra = intent.getStringArrayListExtra("galleryUrls");
+            ArrayList<String> mergedGalleryUrls = mergeGalleryUrlExtras(galleryImageUrls, galleryUrlsExtra);
+            if (imageUrl != null && !imageUrl.trim().isEmpty()) {
+                String u = imageUrl.trim();
+                if (mergedGalleryUrls.isEmpty()) {
+                    mergedGalleryUrls.add(u);
+                } else if (!mergedGalleryUrls.contains(u)) {
+                    mergedGalleryUrls.add(0, u);
+                }
+            }
+
+            String drawableAssetKey = intent.getStringExtra("drawableAssetKey");
+            ArrayList<String> galleryDrawableKeys = intent.getStringArrayListExtra("galleryDrawableKeys");
+            ArrayList<String> drawableKeysForAdapter = new ArrayList<>();
+            if (galleryDrawableKeys != null) {
+                for (String k : galleryDrawableKeys) {
+                    if (k != null && !k.trim().isEmpty()) {
+                        drawableKeysForAdapter.add(k.trim());
+                    }
+                }
+            }
+            if (mergedGalleryUrls.isEmpty() && drawableKeysForAdapter.isEmpty()
+                    && drawableAssetKey != null && !drawableAssetKey.trim().isEmpty()) {
+                drawableKeysForAdapter.add(drawableAssetKey.trim());
+            }
 
             // Display data
             if (tvName != null) tvName.setText(name);
@@ -79,32 +107,30 @@ public class PlaceDetailsActivity extends AppCompatActivity {
                 .setPositiveButton("Cool!", null)
                 .show();
 
-            // Setup Gallery — prefer remote URLs, then local drawables
+            // Setup Gallery — remote URLs first, then drawable keys, then local ints (all via Glide)
             List<Integer> galleryDrawables = new ArrayList<>();
-            boolean hasRemoteGallery = galleryImageUrls != null && !galleryImageUrls.isEmpty();
+            boolean hasRemoteGallery = !mergedGalleryUrls.isEmpty();
 
             if (!hasRemoteGallery) {
-                // Fall back to DataProvider lookup for drawable-based gallery
                 List<Place> allPlaces = DataProvider.getPlaces();
                 for (Place p : allPlaces) {
-                    if (p.getId().equals(placeId)) {
+                    if (p.getId() != null && p.getId().equals(placeId)) {
                         galleryDrawables.addAll(p.getGalleryImages());
                         break;
                     }
                 }
             }
 
-            // Fallback if gallery is empty or doesn't have the main image
             if (!hasRemoteGallery && galleryDrawables.isEmpty() && imageResId != 0) {
                 galleryDrawables.add(imageResId);
             }
 
             GalleryAdapter galleryAdapter;
             if (hasRemoteGallery) {
-                // Dual-mode: remote URLs with drawable fallback
-                galleryAdapter = new GalleryAdapter(galleryDrawables, galleryImageUrls);
+                galleryAdapter = new GalleryAdapter(galleryDrawables, mergedGalleryUrls, null);
+            } else if (!drawableKeysForAdapter.isEmpty()) {
+                galleryAdapter = new GalleryAdapter(galleryDrawables, null, drawableKeysForAdapter);
             } else {
-                // Legacy: drawable-only
                 galleryAdapter = new GalleryAdapter(galleryDrawables);
             }
             if (viewPagerGallery != null) {
@@ -142,6 +168,27 @@ public class PlaceDetailsActivity extends AppCompatActivity {
                 });
             }
         }
+    }
+
+    @NonNull
+    private static ArrayList<String> mergeGalleryUrlExtras(@Nullable ArrayList<String> a,
+                                                           @Nullable ArrayList<String> b) {
+        LinkedHashSet<String> set = new LinkedHashSet<>();
+        if (a != null) {
+            for (String s : a) {
+                if (s != null && !s.trim().isEmpty()) {
+                    set.add(s.trim());
+                }
+            }
+        }
+        if (b != null) {
+            for (String s : b) {
+                if (s != null && !s.trim().isEmpty()) {
+                    set.add(s.trim());
+                }
+            }
+        }
+        return new ArrayList<>(set);
     }
 
     private void updateFavoriteIcon() {

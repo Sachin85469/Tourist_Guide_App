@@ -457,27 +457,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void openDetails(Place place) {
         Intent intent = new Intent(MainActivity.this, PlaceDetailsActivity.class);
-        intent.putExtra("id", place.getId());
-        intent.putExtra("name", place.getName());
-        intent.putExtra("description", place.getDescription());
-        intent.putExtra("category", place.getCategory());
-        intent.putExtra("budget", place.getBudget());
-        intent.putExtra("crowdLevel", place.getCrowdLevel());
-        intent.putExtra("bestTime", place.getBestTime());
-        intent.putExtra("imageResId", place.getImageResId());
-        intent.putExtra("tips", place.getTips());
-        intent.putExtra("funFact", place.getFunFact());
-        intent.putExtra("nearestStation", place.getNearestStation());
-        intent.putExtra("lat", place.getLatitude());
-        intent.putExtra("lng", place.getLongitude());
-        // Pass remote image data for Firestore places
-        if (place.getImageUrl() != null) {
-            intent.putExtra("imageUrl", place.getImageUrl());
-        }
-        if (place.hasRemoteGalleryImages()) {
-            intent.putStringArrayListExtra("galleryImageUrls",
-                    new java.util.ArrayList<>(place.getGalleryImageUrls()));
-        }
+        PlaceIntentExtras.putPlaceDetails(intent, place);
         startActivity(intent);
         overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
     }

@@ -8,7 +8,6 @@ import androidx.annotation.Nullable;
 import com.arriva.touristguideapp.Place;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 /**
@@ -54,9 +53,7 @@ public final class PlaceMapper {
             place.setTopPick(dto.isTopPick());
             place.setImageUrl(dto.getImageUrl());
 
-            List<String> galleryUrls = dto.getGalleryImageUrls() != null
-                    ? new ArrayList<>(dto.getGalleryImageUrls())
-                    : Collections.emptyList();
+            List<String> galleryUrls = new ArrayList<>(dto.getGalleryUrls());
             place.setGalleryImageUrls(galleryUrls);
             place.setCategoryId(dto.getCategoryId());
             place.setCatalogStatus(dto.getStatus());
@@ -64,14 +61,16 @@ public final class PlaceMapper {
             place.setDrawableAssetKey(dto.getDrawableAssetKey());
             place.setGalleryDrawableKeys(new ArrayList<>(dto.getGalleryDrawableKeys()));
 
-            boolean hasRemoteImages = dto.getImageUrl() != null || !galleryUrls.isEmpty();
+            boolean hasRemoteHero = dto.getImageUrl() != null && !dto.getImageUrl().trim().isEmpty();
+            boolean hasRemoteGallery = !galleryUrls.isEmpty();
+            boolean hasRemoteImages = hasRemoteHero || hasRemoteGallery;
             if (hasRemoteImages) {
                 // Clear drawable gallery so adapters know to use URL-based gallery
                 place.setGalleryImages(new ArrayList<>());
             }
 
             Log.d(TAG, "toPlace OK docId=" + id
-                    + " imageUrlSet=" + (dto.getImageUrl() != null)
+                    + " imageUrlSet=" + hasRemoteHero
                     + " galleryUrlCount=" + galleryUrls.size()
                     + " drawableAssetKeySet=" + (dto.getDrawableAssetKey() != null)
                     + " galleryDrawableKeyCount=" + dto.getGalleryDrawableKeys().size());

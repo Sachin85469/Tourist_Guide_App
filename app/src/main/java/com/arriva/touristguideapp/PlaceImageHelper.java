@@ -12,23 +12,17 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 
 /**
- * Unified thumbnail loading for {@link Place}: HTTPS / Firebase Storage URL,
- * bundled drawable via {@link Place#getDrawableAssetKey()}, or legacy {@link Place#getImageResId()}.
- * Always uses Glide so RecyclerView recycling stays consistent.
+ * Unified thumbnail loading for {@link Place}: remote URL first (Firestore / direct HTTPS),
+ * then bundled drawable via {@link Place#getDrawableAssetKey()}, then {@link Place#getImageResId()}.
+ * Always uses Glide.
  */
 public final class PlaceImageHelper {
 
     private static final String TAG = "PlaceImageHelper";
 
-    private static final int GENERIC_PLACEHOLDER = android.R.drawable.ic_menu_gallery;
-
     private PlaceImageHelper() {
     }
 
-    /**
-     * Cancels Glide work for this {@link ImageView} (call from
-     * {@link androidx.recyclerview.widget.RecyclerView.Adapter#onViewRecycled}).
-     */
     public static void clear(@NonNull ImageView imageView) {
         Glide.with(imageView).clear(imageView);
     }
@@ -42,8 +36,6 @@ public final class PlaceImageHelper {
         int resolvedKeyRes = resolveDrawableResId(ctx, place.getDrawableAssetKey());
         int resId = place.getImageResId();
 
-        int placeholder = pickThumbnailPlaceholder(resolvedKeyRes, resId);
-
         if (url != null) {
             Log.d(TAG, "thumbnail placeId=" + id + " name=" + title
                     + " sourceType=REMOTE_URL"
@@ -53,8 +45,8 @@ public final class PlaceImageHelper {
                     + " drawableAssetKey=" + safeKey(place.getDrawableAssetKey()));
             RequestOptions opts = new RequestOptions()
                     .centerCrop()
-                    .placeholder(placeholder)
-                    .error(placeholder);
+                    .placeholder(R.drawable.placeholder)
+                    .error(R.drawable.placeholder);
             Glide.with(imageView)
                     .load(url)
                     .apply(opts)
@@ -71,7 +63,7 @@ public final class PlaceImageHelper {
             loadRes = resId;
             sourceType = "LOCAL_RES_ID";
         } else {
-            loadRes = GENERIC_PLACEHOLDER;
+            loadRes = R.drawable.placeholder;
             sourceType = "GENERIC_PLACEHOLDER";
         }
 
@@ -84,8 +76,8 @@ public final class PlaceImageHelper {
 
         RequestOptions opts = new RequestOptions()
                 .centerCrop()
-                .placeholder(GENERIC_PLACEHOLDER)
-                .error(GENERIC_PLACEHOLDER);
+                .placeholder(R.drawable.placeholder)
+                .error(R.drawable.placeholder);
 
         Glide.with(imageView)
                 .load(loadRes)
@@ -118,17 +110,6 @@ public final class PlaceImageHelper {
         }
     }
 
-    private static int pickThumbnailPlaceholder(int resolvedKeyRes, int resId) {
-        if (resolvedKeyRes != 0) {
-            return resolvedKeyRes;
-        }
-        if (resId != 0) {
-            return resId;
-        }
-        return GENERIC_PLACEHOLDER;
-    }
-
-    /** @return 0 if key missing or no matching {@code drawable} in this app package */
     private static int resolveDrawableResId(@NonNull Context ctx, @Nullable String assetKey) {
         if (assetKey == null) {
             return 0;

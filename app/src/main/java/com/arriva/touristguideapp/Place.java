@@ -217,6 +217,16 @@ public class Place implements Serializable {
         this.galleryImageUrls = new ArrayList<>(galleryImageUrls);
     }
 
+    /** Same backing list as {@link #getGalleryImageUrls()} / Firestore {@code galleryUrls}. */
+    @NonNull
+    public List<String> getGalleryUrls() {
+        return galleryImageUrls;
+    }
+
+    public void setGalleryUrls(@NonNull List<String> galleryUrls) {
+        setGalleryImageUrls(galleryUrls);
+    }
+
     @Nullable
     public String getCategoryId() {
         return categoryId;

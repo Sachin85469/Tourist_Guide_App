@@ -29,6 +29,9 @@ public final class PlacesFirestoreContract {
     public static final String FIELD_HERO_IMAGE_URL = "heroImageUrl";
     public static final String FIELD_GALLERY_IMAGE_URLS = "galleryImageUrls";
 
+    /** Alternate / preferred field name for ordered remote gallery URLs (same semantics as {@link #FIELD_GALLERY_IMAGE_URLS}). */
+    public static final String FIELD_GALLERY_URLS = "galleryUrls";
+
     public static final String FIELD_RATING = "rating";
     public static final String FIELD_RATING_AVG = "ratingAvg";
 
