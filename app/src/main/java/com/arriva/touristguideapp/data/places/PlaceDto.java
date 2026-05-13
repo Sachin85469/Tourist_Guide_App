@@ -11,6 +11,7 @@ import com.google.firebase.firestore.GeoPoint;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.LinkedHashSet;
 import java.util.List;
 
 /**
@@ -147,6 +148,36 @@ public final class PlaceDto {
         return status == null || name == null;
     }
 
+    /**
+     * Merges {@link PlacesFirestoreContract#FIELD_GALLERY_IMAGE_URLS} and {@link PlacesFirestoreContract#FIELD_GALLERY_URLS}
+     * in order, de-duplicated. Never throws: missing or malformed fields yield an empty list.
+     */
+    @NonNull
+    private static List<String> mergeGalleryUrlLists(@NonNull DocumentSnapshot snap,
+                                                     @NonNull String documentId) {
+        try {
+            List<String> fromLegacyField = readOptionalStringList(
+                    snap, documentId, PlacesFirestoreContract.FIELD_GALLERY_IMAGE_URLS);
+            List<String> fromGalleryUrls = readOptionalStringList(
+                    snap, documentId, PlacesFirestoreContract.FIELD_GALLERY_URLS);
+            LinkedHashSet<String> merged = new LinkedHashSet<>();
+            for (String s : fromLegacyField) {
+                if (s != null && !s.trim().isEmpty()) {
+                    merged.add(s.trim());
+                }
+            }
+            for (String s : fromGalleryUrls) {
+                if (s != null && !s.trim().isEmpty()) {
+                    merged.add(s.trim());
+                }
+            }
+            return new ArrayList<>(merged);
+        } catch (Throwable t) {
+            Log.w(TAG, "docId=" + documentId + " mergeGalleryUrlLists failed safely action=empty_list", t);
+            return new ArrayList<>();
+        }
+    }
+
     @Nullable
     private static PlaceDto parseSnapshotFields(@NonNull DocumentSnapshot snap,
                                                 @NonNull String documentId) {
@@ -210,8 +241,7 @@ public final class PlaceDto {
             imageUrl = readOptionalStringOrNull(snap, documentId, PlacesFirestoreContract.FIELD_HERO_IMAGE_URL);
         }
 
-        List<String> gallery = readOptionalStringList(
-                snap, documentId, PlacesFirestoreContract.FIELD_GALLERY_IMAGE_URLS);
+        List<String> gallery = mergeGalleryUrlLists(snap, documentId);
 
         String tips = readOptionalStringWithDefault(
                 snap, documentId, PlacesFirestoreContract.FIELD_TIPS, DEFAULT_DESCRIPTION);
@@ -229,12 +259,23 @@ public final class PlaceDto {
 
         String drawableAssetKey = readOptionalStringOrNull(
                 snap, documentId, PlacesFirestoreContract.FIELD_DRAWABLE_ASSET_KEY);
-        List<String> galleryDrawableKeys = readOptionalStringList(
-                snap, documentId, PlacesFirestoreContract.FIELD_GALLERY_DRAWABLE_KEYS);
+        List<String> galleryDrawableKeys;
+        try {
+            galleryDrawableKeys = readOptionalStringList(
+                    snap, documentId, PlacesFirestoreContract.FIELD_GALLERY_DRAWABLE_KEYS);
+        } catch (Throwable t) {
+            Log.w(TAG, "docId=" + documentId + " galleryDrawableKeys read failed safely action=empty_list", t);
+            galleryDrawableKeys = new ArrayList<>();
+        }
+
+        final String trimmedHero = imageUrl != null && !imageUrl.trim().isEmpty() ? imageUrl.trim() : null;
+        final String heroLoadSource = trimmedHero != null ? "REMOTE_URL" : "MISSING";
+        final String galleryUrlsLoadSource = !gallery.isEmpty() ? "REMOTE_URL" : "MISSING";
 
         Log.d(TAG, "docId=" + documentId + " PARSE_OK name=" + name
-                + " hasImageUrl=" + (imageUrl != null)
-                + " galleryUrlSize=" + gallery.size()
+                + " heroLoadSource=" + heroLoadSource
+                + " galleryUrlsLoadSource=" + galleryUrlsLoadSource
+                + " mergedGalleryUrlCount=" + gallery.size()
                 + " hasDrawableAssetKey=" + (drawableAssetKey != null)
                 + " galleryDrawableKeyCount=" + galleryDrawableKeys.size());
 
@@ -251,7 +292,7 @@ public final class PlaceDto {
                 latitude,
                 longitude,
                 rating,
-                imageUrl != null && !imageUrl.trim().isEmpty() ? imageUrl.trim() : null,
+                trimmedHero,
                 gallery,
                 tips,
                 funFact,
@@ -591,6 +632,14 @@ public final class PlaceDto {
     }
 
     public List<String> getGalleryImageUrls() {
+        return galleryImageUrls;
+    }
+
+    /**
+     * Same ordered list as {@link #getGalleryImageUrls()} — supports Firestore field name {@code galleryUrls}.
+     */
+    @NonNull
+    public List<String> getGalleryUrls() {
         return galleryImageUrls;
     }
 

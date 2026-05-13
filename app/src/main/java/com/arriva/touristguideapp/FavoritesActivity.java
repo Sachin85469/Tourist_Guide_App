@@ -56,14 +56,7 @@ public class FavoritesActivity extends AppCompatActivity implements FavoriteAdap
     @Override
     public void onItemClick(Place place) {
         Intent intent = new Intent(this, PlaceDetailsActivity.class);
-        intent.putExtra("id", place.getId());
-        intent.putExtra("name", place.getName());
-        intent.putExtra("description", place.getDescription());
-        intent.putExtra("category", place.getCategory());
-        intent.putExtra("imageResId", place.getImageResId());
-        intent.putExtra("tips", place.getTips());
-        intent.putExtra("funFact", place.getFunFact());
-        intent.putExtra("nearestStation", place.getNearestStation());
+        PlaceIntentExtras.putPlaceDetails(intent, place);
         startActivity(intent);
         overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
     }

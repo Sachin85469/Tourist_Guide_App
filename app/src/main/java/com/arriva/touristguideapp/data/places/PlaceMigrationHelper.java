@@ -1,7 +1,6 @@
 package com.arriva.touristguideapp.data.places;
 
 import android.content.Context;
-import android.content.res.Resources;
 import android.os.Handler;
 import android.util.Log;
 
@@ -14,21 +13,17 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.GeoPoint;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * TEMPORARY one-shot migration: uploads hardcoded {@link DataProvider} rows into the
- * {@link PlacesFirestoreContract#COLLECTION_PLACES} collection. Safe to delete once Firestore is seeded.
- *
- * <p>Writes use {@link com.google.firebase.firestore.DocumentReference#set(Object)} with no merge options,
- * so each run replaces the full document for that id (idempotent; no duplicate rows from re-running).</p>
+ * {@link PlacesFirestoreContract#COLLECTION_PLACES} collection.
+ * 
+ * Updated to remove legacy drawable mapping.
  */
 public final class PlaceMigrationHelper {
 
@@ -41,11 +36,6 @@ public final class PlaceMigrationHelper {
     private PlaceMigrationHelper() {
     }
 
-    /**
-     * Reads {@link DataProvider#getAllPlaces()}, de-duplicates by resolved Firestore document id, then
-     * writes each document with {@link Task} {@code set()} (full replace). Logs per-document outcome and
-     * a final success/failure total.
-     */
     public static void migratePlacesToFirestore(@NonNull Context context,
                                                 @Nullable MigrationCallback callback) {
         Context app = context.getApplicationContext();
@@ -89,10 +79,7 @@ public final class PlaceMigrationHelper {
         AtomicInteger failure = new AtomicInteger(preflightFailures.get());
         AtomicInteger pending = new AtomicInteger(unique.size());
 
-        Log.i(TAG, "migratePlacesToFirestore: START sourceRows=" + places.size()
-                + " uniqueDocWrites=" + unique.size()
-                + " preFailures(duplicates+invalid)=" + preflightFailures.get()
-                + " writeMode=set(fullDocumentReplace)");
+        Log.i(TAG, "migratePlacesToFirestore: START sourceRows=" + places.size());
 
         Runnable onOneFinished = () -> {
             if (pending.decrementAndGet() != 0) {
@@ -110,7 +97,7 @@ public final class PlaceMigrationHelper {
             String docId = e.getKey();
             Place place = e.getValue();
 
-            Map<String, Object> payload = buildDocument(app, place);
+            Map<String, Object> payload = buildDocument(place);
             Task<Void> write = db.collection(PlacesFirestoreContract.COLLECTION_PLACES)
                     .document(docId)
                     .set(payload);
@@ -122,8 +109,7 @@ public final class PlaceMigrationHelper {
                 } else {
                     failure.incrementAndGet();
                     Exception ex = task.getException();
-                    Log.e(TAG, "UPLOAD_FAILURE docId=" + docId + " name=" + place.getName()
-                            + " message=" + (ex != null ? ex.getMessage() : "unknown"), ex);
+                    Log.e(TAG, "UPLOAD_FAILURE docId=" + docId + " name=" + place.getName(), ex);
                 }
                 onOneFinished.run();
             });
@@ -134,11 +120,6 @@ public final class PlaceMigrationHelper {
         new Handler(app.getMainLooper()).post(r);
     }
 
-    /**
-     * Prefers {@link Place#getLegacyCatalogId()} when set, otherwise {@link Place#getId()} (e.g. {@code "1"},
-     * {@code "2"}, … from {@link DataProvider}). Hash-based ids from the short {@link Place} constructor are
-     * also valid unique Firestore ids when no explicit legacy id exists.
-     */
     @Nullable
     private static String resolveDocumentId(@NonNull Place place) {
         String legacy = place.getLegacyCatalogId();
@@ -157,7 +138,7 @@ public final class PlaceMigrationHelper {
     }
 
     @NonNull
-    private static Map<String, Object> buildDocument(@NonNull Context context, @NonNull Place place) {
+    private static Map<String, Object> buildDocument(@NonNull Place place) {
         Map<String, Object> map = new HashMap<>();
 
         map.put(PlacesFirestoreContract.FIELD_NAME, place.getName());
@@ -182,40 +163,9 @@ public final class PlaceMigrationHelper {
         map.put(PlacesFirestoreContract.FIELD_TAG, place.getTag());
         map.put(PlacesFirestoreContract.FIELD_LEGACY_ID, place.getId());
 
-        map.put(PlacesFirestoreContract.FIELD_DRAWABLE_ASSET_KEY,
-                drawableAssetKey(context, place.getImageResId()));
-        map.put(PlacesFirestoreContract.FIELD_GALLERY_DRAWABLE_KEYS,
-                galleryDrawableKeys(context, place.getGalleryImages()));
-
+        // Note: imageUrl and galleryUrls are NOT mapped here as they are manually added to Firestore
+        // or provided by the data source if already remote-first.
+        
         return map;
-    }
-
-    @NonNull
-    private static String drawableAssetKey(@NonNull Context context, int resId) {
-        if (resId == 0) {
-            return "";
-        }
-        try {
-            return context.getResources().getResourceEntryName(resId);
-        } catch (Resources.NotFoundException e) {
-            Log.w(TAG, "drawableAssetKey: NotFoundException resId=0x" + Integer.toHexString(resId));
-            return "missing_drawable_" + resId;
-        }
-    }
-
-    @NonNull
-    private static List<String> galleryDrawableKeys(@NonNull Context context,
-                                                    @Nullable List<Integer> resIds) {
-        if (resIds == null || resIds.isEmpty()) {
-            return new ArrayList<>();
-        }
-        Set<String> ordered = new LinkedHashSet<>();
-        for (Integer id : resIds) {
-            if (id == null || id == 0) {
-                continue;
-            }
-            ordered.add(drawableAssetKey(context, id));
-        }
-        return new ArrayList<>(ordered);
     }
 }
