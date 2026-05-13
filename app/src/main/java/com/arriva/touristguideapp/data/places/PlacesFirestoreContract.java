@@ -39,6 +39,12 @@ public final class PlacesFirestoreContract {
 
     public static final String FIELD_LEGACY_ID = "legacyId";
 
+    /** Local drawable resource name for migration / asset pipelines (not read by {@code PlaceDto}). */
+    public static final String FIELD_DRAWABLE_ASSET_KEY = "drawableAssetKey";
+
+    /** Drawable resource names for gallery slots (not read by {@code PlaceDto}). */
+    public static final String FIELD_GALLERY_DRAWABLE_KEYS = "galleryDrawableKeys";
+
     private PlacesFirestoreContract() {
     }
 }
