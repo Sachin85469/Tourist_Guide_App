@@ -61,6 +61,8 @@ public final class PlaceMapper {
             place.setCategoryId(dto.getCategoryId());
             place.setCatalogStatus(dto.getStatus());
             place.setLegacyCatalogId(dto.getLegacyId());
+            place.setDrawableAssetKey(dto.getDrawableAssetKey());
+            place.setGalleryDrawableKeys(new ArrayList<>(dto.getGalleryDrawableKeys()));
 
             boolean hasRemoteImages = dto.getImageUrl() != null || !galleryUrls.isEmpty();
             if (hasRemoteImages) {
@@ -70,7 +72,9 @@ public final class PlaceMapper {
 
             Log.d(TAG, "toPlace OK docId=" + id
                     + " imageUrlSet=" + (dto.getImageUrl() != null)
-                    + " galleryUrlCount=" + galleryUrls.size());
+                    + " galleryUrlCount=" + galleryUrls.size()
+                    + " drawableAssetKeySet=" + (dto.getDrawableAssetKey() != null)
+                    + " galleryDrawableKeyCount=" + dto.getGalleryDrawableKeys().size());
             return place;
         } catch (Exception e) {
             Log.e(TAG, "toPlace FAILED for docId=" + dto.getDocumentId()

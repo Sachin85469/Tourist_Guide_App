@@ -67,6 +67,12 @@ public class PlaceAdapter extends RecyclerView.Adapter<PlaceAdapter.ViewHolder> 
         return placeList.size();
     }
 
+    @Override
+    public void onViewRecycled(@NonNull ViewHolder holder) {
+        PlaceImageHelper.clear(holder.placeImage);
+        super.onViewRecycled(holder);
+    }
+
     public static class ViewHolder extends RecyclerView.ViewHolder {
         public TextView placeName;
         public TextView placeCategory;

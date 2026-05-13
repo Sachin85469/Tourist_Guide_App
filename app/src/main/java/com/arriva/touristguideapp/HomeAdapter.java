@@ -124,6 +124,14 @@ public class HomeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         return sections.size();
     }
 
+    @Override
+    public void onViewRecycled(@NonNull RecyclerView.ViewHolder holder) {
+        if (holder instanceof PlaceViewHolder) {
+            PlaceImageHelper.clear(((PlaceViewHolder) holder).placeImage);
+        }
+        super.onViewRecycled(holder);
+    }
+
     static class WelcomeViewHolder extends RecyclerView.ViewHolder {
         TextView tvWelcomeUser;
         WelcomeViewHolder(View itemView) {

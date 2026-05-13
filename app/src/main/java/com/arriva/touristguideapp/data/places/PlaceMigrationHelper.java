@@ -59,16 +59,16 @@ public final class PlaceMigrationHelper {
         }
 
         LinkedHashMap<String, Place> unique = new LinkedHashMap<>();
-        int preflightFailures = 0;
+        AtomicInteger preflightFailures = new AtomicInteger(0);
         for (Place place : places) {
             String docId = resolveDocumentId(place);
             if (docId == null || docId.isEmpty()) {
-                preflightFailures++;
+                preflightFailures.incrementAndGet();
                 Log.e(TAG, "UPLOAD_FAILURE reason=invalid_doc_id name=" + place.getName());
                 continue;
             }
             if (unique.containsKey(docId)) {
-                preflightFailures++;
+                preflightFailures.incrementAndGet();
                 Log.e(TAG, "UPLOAD_SKIPPED reason=duplicate_doc_id docId=" + docId
                         + " keptName=" + unique.get(docId).getName() + " droppedName=" + place.getName());
                 continue;
@@ -79,19 +79,19 @@ public final class PlaceMigrationHelper {
         if (unique.isEmpty()) {
             Log.w(TAG, "migratePlacesToFirestore: no valid document ids after de-duplication");
             if (callback != null) {
-                postMain(app, () -> callback.onMigrationFinished(0, preflightFailures));
+                postMain(app, () -> callback.onMigrationFinished(0, preflightFailures.get()));
             }
             return;
         }
 
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         AtomicInteger success = new AtomicInteger(0);
-        AtomicInteger failure = new AtomicInteger(preflightFailures);
+        AtomicInteger failure = new AtomicInteger(preflightFailures.get());
         AtomicInteger pending = new AtomicInteger(unique.size());
 
         Log.i(TAG, "migratePlacesToFirestore: START sourceRows=" + places.size()
                 + " uniqueDocWrites=" + unique.size()
-                + " preFailures(duplicates+invalid)=" + preflightFailures
+                + " preFailures(duplicates+invalid)=" + preflightFailures.get()
                 + " writeMode=set(fullDocumentReplace)");
 
         Runnable onOneFinished = () -> {

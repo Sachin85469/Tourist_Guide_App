@@ -96,4 +96,10 @@ public class TopPickAdapter extends RecyclerView.Adapter<TopPickAdapter.ViewHold
     public int getItemCount() {
         return topPickList.size();
     }
+
+    @Override
+    public void onViewRecycled(@NonNull ViewHolder holder) {
+        PlaceImageHelper.clear(holder.image);
+        super.onViewRecycled(holder);
+    }
 }
