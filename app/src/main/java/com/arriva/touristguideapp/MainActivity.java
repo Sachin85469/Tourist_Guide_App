@@ -11,6 +11,7 @@ import android.text.TextWatcher;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
@@ -83,13 +84,23 @@ public class MainActivity extends AppCompatActivity {
 
         // Profile Avatar and User Info Setup
         loadUserInfo();
-        // TEMPORARY: long-press subtitle to seed Firestore from DataProvider (remove with PlaceMigrationHelper).
+        // TEMPORARY: long-press subtitle or debug button seeds Firestore from DataProvider (remove with PlaceMigrationHelper).
         if (tvMainUserEmail != null) {
             tvMainUserEmail.setOnLongClickListener(v -> {
                 Toast.makeText(this, "Starting Firestore place migration…", Toast.LENGTH_SHORT).show();
                 migratePlacesToFirestore();
                 return true;
             });
+        }
+        Button btnSeedFirestorePlaces = findViewById(R.id.btnSeedFirestorePlaces);
+        if (btnSeedFirestorePlaces != null) {
+            if (BuildConfig.DEBUG) {
+                btnSeedFirestorePlaces.setVisibility(View.VISIBLE);
+                btnSeedFirestorePlaces.setOnClickListener(v -> {
+                    Toast.makeText(this, "Starting Firestore place migration…", Toast.LENGTH_SHORT).show();
+                    migratePlacesToFirestore();
+                });
+            }
         }
         progressBar = findViewById(R.id.mainProgressBar);
         emptyStateContainer = findViewById(R.id.tvEmptyState);
@@ -379,7 +390,7 @@ public class MainActivity extends AppCompatActivity {
 
     /**
      * TEMPORARY: uploads all {@link DataProvider#getAllPlaces()} documents into Firestore {@code places}.
-     * Remove this method and the {@code tvMainUserEmail} long-press hook after one-time migration.
+     * Remove this method, the {@code tvMainUserEmail} long-press hook, and {@code btnSeedFirestorePlaces} after migration.
      */
     private void migratePlacesToFirestore() {
         PlaceMigrationHelper.migratePlacesToFirestore(getApplicationContext(), (success, failure) ->
