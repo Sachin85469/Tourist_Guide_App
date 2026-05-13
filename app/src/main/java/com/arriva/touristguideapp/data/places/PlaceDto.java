@@ -1,9 +1,11 @@
 package com.arriva.touristguideapp.data.places;
 
 import android.util.Log;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.GeoPoint;
 
@@ -13,11 +15,21 @@ import java.util.List;
 
 /**
  * Immutable Firestore projection for a place document.
- * Parsing stays defensive so partial or legacy-shaped documents do not crash the app.
+ * Only {@link PlacesFirestoreContract#FIELD_STATUS} and {@link PlacesFirestoreContract#FIELD_NAME}
+ * are required; every other field is best-effort with warnings on failure.
  */
 public final class PlaceDto {
 
     private static final String TAG = "PlaceDto";
+
+    private static final String DEFAULT_CITY = "Unknown";
+    private static final String DEFAULT_CATEGORY = "General";
+    private static final String DEFAULT_DESCRIPTION = "";
+    private static final String DEFAULT_BUDGET = "Medium";
+    private static final String DEFAULT_CROWD = "Moderate";
+    private static final String DEFAULT_BEST_TIME = "Day";
+    private static final String DEFAULT_TAG = "Popular";
+    private static final double DEFAULT_RATING = 4.0;
 
     private final String documentId;
     private final String name;
@@ -40,7 +52,7 @@ public final class PlaceDto {
     private final String nearestStation;
     private final String tag;
     private final boolean topPick;
-    @Nullable
+    @NonNull
     private final String status;
     @Nullable
     private final String legacyId;
@@ -65,7 +77,7 @@ public final class PlaceDto {
             String nearestStation,
             String tag,
             boolean topPick,
-            @Nullable String status,
+            @NonNull String status,
             @Nullable String legacyId
     ) {
         this.documentId = documentId;
@@ -101,88 +113,109 @@ public final class PlaceDto {
         try {
             return parseSnapshotFields(snap, documentId);
         } catch (Exception e) {
-            // Top-level safety net: no single document should crash the entire batch.
             Log.e(TAG, "docId=" + documentId
-                    + " UNEXPECTED parse exception — skipping document"
+                    + " unexpected parse exception — attempting minimal recovery"
                     + " exceptionType=" + e.getClass().getSimpleName()
                     + " message=" + e.getMessage(), e);
+            PlaceDto recovered = tryRecoverMinimalDto(snap, documentId, e);
+            if (recovered != null) {
+                return recovered;
+            }
+            Log.e(TAG, "docId=" + documentId + " minimal recovery failed — document skipped");
             return null;
         }
     }
 
     /**
-     * Actual field-by-field parsing, extracted so the outer method can catch any unchecked exception.
+     * @return true if the snapshot is unusable for the catalog because required fields are absent.
      */
+    public static boolean isMissingRequiredFields(@NonNull DocumentSnapshot snap) {
+        if (!snap.exists()) {
+            return true;
+        }
+        String documentId = snap.getId();
+        String status = readRequiredCoerced(snap, documentId, PlacesFirestoreContract.FIELD_STATUS, false);
+        String name = readRequiredCoerced(snap, documentId, PlacesFirestoreContract.FIELD_NAME, false);
+        return status == null || name == null;
+    }
+
     @Nullable
     private static PlaceDto parseSnapshotFields(@NonNull DocumentSnapshot snap,
-                                                 @NonNull String documentId) {
-        // ── Required fields ──
-        String status = readRequiredString(snap, documentId, PlacesFirestoreContract.FIELD_STATUS);
-        String name = readRequiredString(snap, documentId, PlacesFirestoreContract.FIELD_NAME);
+                                                @NonNull String documentId) {
+        String status = readRequiredCoerced(snap, documentId, PlacesFirestoreContract.FIELD_STATUS, true);
+        String name = readRequiredCoerced(snap, documentId, PlacesFirestoreContract.FIELD_NAME, true);
         if (status == null || name == null) {
-            Log.w(TAG, "docId=" + documentId
-                    + " SKIPPED — required field missing"
-                    + " statusPresent=" + (status != null)
-                    + " namePresent=" + (name != null));
+            Log.w(TAG, "docId=" + documentId + " SKIPPED_DOCUMENT missing_required_fields statusPresent="
+                    + (status != null) + " namePresent=" + (name != null));
             return null;
         }
 
-        // ── Optional string fields ──
-        String city = readOptionalString(snap, documentId, PlacesFirestoreContract.FIELD_CITY, "Unknown");
-        String category = readOptionalString(snap, documentId, PlacesFirestoreContract.FIELD_CATEGORY, "General");
-        String categoryId = readOptionalStringOrNull(snap, documentId, PlacesFirestoreContract.FIELD_CATEGORY_ID);
+        String city = readOptionalStringWithDefault(
+                snap, documentId, PlacesFirestoreContract.FIELD_CITY, DEFAULT_CITY);
+        String category = readOptionalStringWithDefault(
+                snap, documentId, PlacesFirestoreContract.FIELD_CATEGORY, DEFAULT_CATEGORY);
+        String categoryId = readOptionalStringOrNull(
+                snap, documentId, PlacesFirestoreContract.FIELD_CATEGORY_ID);
 
-        String description = readOptionalString(snap, documentId, PlacesFirestoreContract.FIELD_DESCRIPTION, "");
-        String budget = readOptionalString(snap, documentId, PlacesFirestoreContract.FIELD_BUDGET, "Medium");
-        String crowdLevel = readOptionalString(snap, documentId, PlacesFirestoreContract.FIELD_CROWD_LEVEL, "Moderate");
-        String bestTime = readOptionalString(snap, documentId, PlacesFirestoreContract.FIELD_BEST_TIME, "Day");
+        String description = readOptionalStringWithDefault(
+                snap, documentId, PlacesFirestoreContract.FIELD_DESCRIPTION, DEFAULT_DESCRIPTION);
+        String budget = readOptionalStringWithDefault(
+                snap, documentId, PlacesFirestoreContract.FIELD_BUDGET, DEFAULT_BUDGET);
+        String crowdLevel = readOptionalStringWithDefault(
+                snap, documentId, PlacesFirestoreContract.FIELD_CROWD_LEVEL, DEFAULT_CROWD);
+        String bestTime = readOptionalStringWithDefault(
+                snap, documentId, PlacesFirestoreContract.FIELD_BEST_TIME, DEFAULT_BEST_TIME);
 
-        // ── Location: GeoPoint first, then separate doubles ──
         double latitude = 0d;
         double longitude = 0d;
-        try {
-            GeoPoint geo = snap.getGeoPoint(PlacesFirestoreContract.FIELD_LOCATION);
-            if (geo != null) {
-                latitude = geo.getLatitude();
-                longitude = geo.getLongitude();
-            } else {
-                latitude = readOptionalDouble(snap, documentId, PlacesFirestoreContract.FIELD_LATITUDE, 0d);
-                longitude = readOptionalDouble(snap, documentId, PlacesFirestoreContract.FIELD_LONGITUDE, 0d);
+        Object locRaw = snap.get(PlacesFirestoreContract.FIELD_LOCATION);
+        if (locRaw instanceof GeoPoint) {
+            GeoPoint geo = (GeoPoint) locRaw;
+            latitude = geo.getLatitude();
+            longitude = geo.getLongitude();
+        } else {
+            if (locRaw != null) {
+                warnFieldParse(
+                        documentId,
+                        PlacesFirestoreContract.FIELD_LOCATION,
+                        "GeoPoint",
+                        locRaw,
+                        "falling_back_to_latitude_longitude_fields");
             }
-        } catch (Exception geoEx) {
-            // ClassCastException if the field exists but is not a GeoPoint type
-            Log.w(TAG, "docId=" + documentId
-                    + " location field is not a GeoPoint (" + geoEx.getClass().getSimpleName()
-                    + ") — falling back to latitude/longitude doubles");
-            latitude = readOptionalDouble(snap, documentId, PlacesFirestoreContract.FIELD_LATITUDE, 0d);
-            longitude = readOptionalDouble(snap, documentId, PlacesFirestoreContract.FIELD_LONGITUDE, 0d);
+            latitude = readOptionalDouble(
+                    snap, documentId, PlacesFirestoreContract.FIELD_LATITUDE, 0d);
+            longitude = readOptionalDouble(
+                    snap, documentId, PlacesFirestoreContract.FIELD_LONGITUDE, 0d);
         }
 
-        // ── Rating: prefer ratingAvg, then rating ──
-        double rating = readOptionalDouble(snap, documentId, PlacesFirestoreContract.FIELD_RATING_AVG, 4.0);
-        if (!hasField(snap, PlacesFirestoreContract.FIELD_RATING_AVG)) {
-            rating = readOptionalDouble(snap, documentId, PlacesFirestoreContract.FIELD_RATING, 4.0);
+        double rating;
+        if (hasField(snap, PlacesFirestoreContract.FIELD_RATING_AVG)) {
+            rating = readOptionalDouble(
+                    snap, documentId, PlacesFirestoreContract.FIELD_RATING_AVG, DEFAULT_RATING);
+        } else {
+            rating = readOptionalDouble(
+                    snap, documentId, PlacesFirestoreContract.FIELD_RATING, DEFAULT_RATING);
         }
 
-        // ── Image URLs ──
         String imageUrl = readOptionalStringOrNull(snap, documentId, PlacesFirestoreContract.FIELD_IMAGE_URL);
         if (imageUrl == null) {
             imageUrl = readOptionalStringOrNull(snap, documentId, PlacesFirestoreContract.FIELD_HERO_IMAGE_URL);
         }
 
-        List<String> gallery = readOptionalStringArray(
-                snap,
-                documentId,
-                PlacesFirestoreContract.FIELD_GALLERY_IMAGE_URLS
-        );
+        List<String> gallery = readOptionalStringList(
+                snap, documentId, PlacesFirestoreContract.FIELD_GALLERY_IMAGE_URLS);
 
-        // ── Remaining optional fields ──
-        String tips = readOptionalString(snap, documentId, PlacesFirestoreContract.FIELD_TIPS, "");
-        String funFact = readOptionalString(snap, documentId, PlacesFirestoreContract.FIELD_FUN_FACT, "");
-        String nearestStation = readOptionalString(snap, documentId, PlacesFirestoreContract.FIELD_NEAREST_STATION, "");
-        String tag = readOptionalString(snap, documentId, PlacesFirestoreContract.FIELD_TAG, "Popular");
+        String tips = readOptionalStringWithDefault(
+                snap, documentId, PlacesFirestoreContract.FIELD_TIPS, DEFAULT_DESCRIPTION);
+        String funFact = readOptionalStringWithDefault(
+                snap, documentId, PlacesFirestoreContract.FIELD_FUN_FACT, DEFAULT_DESCRIPTION);
+        String nearestStation = readOptionalStringWithDefault(
+                snap, documentId, PlacesFirestoreContract.FIELD_NEAREST_STATION, DEFAULT_DESCRIPTION);
+        String tag = readOptionalStringWithDefault(
+                snap, documentId, PlacesFirestoreContract.FIELD_TAG, DEFAULT_TAG);
 
-        boolean topPick = readOptionalBoolean(snap, documentId, PlacesFirestoreContract.FIELD_IS_TOP_PICK, false);
+        boolean topPick = readOptionalBoolean(
+                snap, documentId, PlacesFirestoreContract.FIELD_IS_TOP_PICK, false);
 
         String legacyId = readOptionalStringOrNull(snap, documentId, PlacesFirestoreContract.FIELD_LEGACY_ID);
 
@@ -216,54 +249,148 @@ public final class PlaceDto {
     }
 
     @Nullable
-    private static String readRequiredString(@NonNull DocumentSnapshot snap,
-                                             @NonNull String docId,
-                                             @NonNull String field) {
+    private static PlaceDto tryRecoverMinimalDto(@NonNull DocumentSnapshot snap,
+                                                 @NonNull String documentId,
+                                                 @NonNull Exception cause) {
+        String status = readRequiredCoerced(snap, documentId, PlacesFirestoreContract.FIELD_STATUS, true);
+        String name = readRequiredCoerced(snap, documentId, PlacesFirestoreContract.FIELD_NAME, true);
+        if (status == null || name == null) {
+            return null;
+        }
+        Log.w(TAG, "docId=" + documentId + " RECOVERED_MINIMAL after="
+                + cause.getClass().getSimpleName());
+        return new PlaceDto(
+                documentId,
+                name.trim(),
+                DEFAULT_CITY,
+                DEFAULT_CATEGORY,
+                null,
+                DEFAULT_DESCRIPTION,
+                DEFAULT_BUDGET,
+                DEFAULT_CROWD,
+                DEFAULT_BEST_TIME,
+                0d,
+                0d,
+                DEFAULT_RATING,
+                null,
+                new ArrayList<>(),
+                DEFAULT_DESCRIPTION,
+                DEFAULT_DESCRIPTION,
+                DEFAULT_DESCRIPTION,
+                DEFAULT_TAG,
+                false,
+                status,
+                null
+        );
+    }
+
+    /**
+     * Required field: must become a non-empty string after coercion (Firestore often stores numbers as Long).
+     */
+    @Nullable
+    private static String readRequiredCoerced(@NonNull DocumentSnapshot snap,
+                                              @NonNull String docId,
+                                              @NonNull String field,
+                                              boolean logOnReject) {
         Object raw = snap.get(field);
+        String value = coerceToNonEmptyString(raw);
+        if (value != null) {
+            return value;
+        }
+        if (!logOnReject) {
+            return null;
+        }
         if (raw == null) {
-            Log.w(TAG, "docId=" + docId + " required field missing: " + field);
-            return null;
+            Log.w(TAG, "docId=" + docId + " required field missing field=" + field
+                    + " expected=non_empty_text actualType=null");
+        } else {
+            warnFieldParse(docId, field, "non_empty String|Number|Boolean|Timestamp", raw,
+                    "required_field_rejected");
         }
-        if (!(raw instanceof String)) {
-            Log.w(TAG, "docId=" + docId + " invalid required field type field=" + field
-                    + " actualType=" + raw.getClass().getSimpleName());
-            return null;
-        }
-        String value = ((String) raw).trim();
-        if (value.isEmpty()) {
-            Log.w(TAG, "docId=" + docId + " required field empty: " + field);
-            return null;
-        }
-        return value;
+        return null;
     }
 
     @Nullable
     private static String readOptionalStringOrNull(@NonNull DocumentSnapshot snap,
-                                                    @NonNull String docId,
-                                                    @NonNull String field) {
+                                                   @NonNull String docId,
+                                                   @NonNull String field) {
         Object raw = snap.get(field);
+        String value = coerceToNonEmptyString(raw);
+        if (value != null) {
+            return value;
+        }
         if (raw == null) {
             return null;
         }
-        if (!(raw instanceof String)) {
-            logOptionalTypeMismatch(docId, field, raw);
+        if (raw instanceof String && ((String) raw).trim().isEmpty()) {
+            Log.w(TAG, "docId=" + docId + " optional field empty field=" + field
+                    + " expected=non_empty_string actualType=String");
             return null;
         }
-        String value = ((String) raw).trim();
-        if (value.isEmpty()) {
-            Log.w(TAG, "docId=" + docId + " skipped optional field=" + field + " reason=empty_string");
-            return null;
-        }
-        return value;
+        warnFieldParse(docId, field, "String|Number|Boolean|Timestamp", raw,
+                "optional_string_unusable action=null");
+        return null;
     }
 
     @NonNull
-    private static String readOptionalString(@NonNull DocumentSnapshot snap,
-                                             @NonNull String docId,
-                                             @NonNull String field,
-                                             @NonNull String fallback) {
-        String value = readOptionalStringOrNull(snap, docId, field);
-        return value != null ? value : fallback;
+    private static String readOptionalStringWithDefault(@NonNull DocumentSnapshot snap,
+                                                        @NonNull String docId,
+                                                        @NonNull String field,
+                                                        @NonNull String fallback) {
+        Object raw = snap.get(field);
+        String value = coerceToNonEmptyString(raw);
+        if (value != null) {
+            return value;
+        }
+        if (raw instanceof String && ((String) raw).trim().isEmpty()) {
+            Log.w(TAG, "docId=" + docId + " optional field empty field=" + field
+                    + " expected=non_empty_string actualType=String action=use_fallback");
+            return fallback;
+        }
+        if (raw != null) {
+            warnFieldParse(docId, field, "String|Number|Boolean|Timestamp", raw,
+                    "optional_string_unusable action=use_fallback");
+        }
+        return fallback;
+    }
+
+    /**
+     * Accepts String, whole/fractional numbers, Boolean, Timestamp; returns null if missing or unusable.
+     */
+    @Nullable
+    private static String coerceToNonEmptyString(@Nullable Object raw) {
+        if (raw == null) {
+            return null;
+        }
+        if (raw instanceof String) {
+            String s = ((String) raw).trim();
+            return s.isEmpty() ? null : s;
+        }
+        if (raw instanceof Number) {
+            Number n = (Number) raw;
+            if (n instanceof Double || n instanceof Float) {
+                double d = n.doubleValue();
+                if (Double.isNaN(d) || Double.isInfinite(d)) {
+                    return null;
+                }
+                long asLong = (long) d;
+                if (asLong == d) {
+                    return String.valueOf(asLong);
+                }
+                return String.valueOf(d);
+            }
+            return String.valueOf(n.longValue());
+        }
+        if (raw instanceof Boolean) {
+            return ((Boolean) raw) ? "true" : "false";
+        }
+        if (raw instanceof Timestamp) {
+            return String.valueOf(((Timestamp) raw).getSeconds());
+        }
+        if (raw instanceof java.util.Date) {
+            return String.valueOf(((java.util.Date) raw).getTime());
+        }
+        return null;
     }
 
     private static double readOptionalDouble(@NonNull DocumentSnapshot snap,
@@ -275,23 +402,32 @@ public final class PlaceDto {
             return fallback;
         }
         if (raw instanceof Number) {
-            return ((Number) raw).doubleValue();
+            double v = ((Number) raw).doubleValue();
+            if (Double.isNaN(v) || Double.isInfinite(v)) {
+                warnFieldParse(docId, field, "finite Number", raw, "action=use_fallback");
+                return fallback;
+            }
+            return v;
         }
         if (raw instanceof String) {
             String value = ((String) raw).trim();
             if (value.isEmpty()) {
-                Log.w(TAG, "docId=" + docId + " skipped optional field=" + field + " reason=empty_string");
+                Log.w(TAG, "docId=" + docId + " optional field=" + field
+                        + " expected=Number|non_empty_String actualType=String(empty) action=use_fallback");
                 return fallback;
             }
             try {
                 return Double.parseDouble(value);
             } catch (NumberFormatException nfe) {
-                Log.w(TAG, "docId=" + docId + " malformed optional field=" + field
-                        + " value=" + value + " expected=double");
+                warnFieldParse(docId, field, "Number|parseable String", raw,
+                        "NumberFormatException action=use_fallback");
                 return fallback;
             }
         }
-        logOptionalTypeMismatch(docId, field, raw);
+        if (raw instanceof Boolean) {
+            return ((Boolean) raw) ? 1d : 0d;
+        }
+        warnFieldParse(docId, field, "Number|String|Boolean", raw, "action=use_fallback");
         return fallback;
     }
 
@@ -306,50 +442,63 @@ public final class PlaceDto {
         if (raw instanceof Boolean) {
             return (Boolean) raw;
         }
+        if (raw instanceof Number) {
+            return ((Number) raw).longValue() != 0L;
+        }
         if (raw instanceof String) {
             String value = ((String) raw).trim();
-            if ("true".equalsIgnoreCase(value)) {
+            if ("true".equalsIgnoreCase(value) || "1".equals(value)) {
                 return true;
             }
-            if ("false".equalsIgnoreCase(value)) {
+            if ("false".equalsIgnoreCase(value) || "0".equals(value)) {
                 return false;
             }
-            Log.w(TAG, "docId=" + docId + " malformed optional field=" + field
-                    + " value=" + value + " expected=boolean");
+            warnFieldParse(docId, field, "Boolean|Number|true/false/0/1 String", raw,
+                    "action=use_fallback");
             return fallback;
         }
-        logOptionalTypeMismatch(docId, field, raw);
+        warnFieldParse(docId, field, "Boolean|Number|String", raw, "action=use_fallback");
         return fallback;
     }
 
     @NonNull
-    private static List<String> readOptionalStringArray(@NonNull DocumentSnapshot snap,
-                                                        @NonNull String docId,
-                                                        @NonNull String field) {
+    private static List<String> readOptionalStringList(@NonNull DocumentSnapshot snap,
+                                                       @NonNull String docId,
+                                                       @NonNull String field) {
         Object raw = snap.get(field);
         List<String> out = new ArrayList<>();
         if (raw == null) {
             return out;
         }
+        if (raw instanceof String) {
+            String s = ((String) raw).trim();
+            if (!s.isEmpty()) {
+                out.add(s);
+            } else {
+                Log.w(TAG, "docId=" + docId + " optional field=" + field
+                        + " expected=List|non_empty_String actualType=String(empty) action=empty_list");
+            }
+            return out;
+        }
         if (!(raw instanceof List<?>)) {
-            logOptionalTypeMismatch(docId, field, raw);
+            warnFieldParse(docId, field, "List|String", raw, "action=empty_list");
             return out;
         }
         List<?> list = (List<?>) raw;
+        int index = 0;
         for (Object item : list) {
-            if (!(item instanceof String)) {
-                String itemType = item == null ? "null" : item.getClass().getSimpleName();
-                Log.w(TAG, "docId=" + docId + " skipped optional field=" + field
-                        + " reason=invalid_array_item_type itemType=" + itemType);
-                continue;
+            String element = coerceToNonEmptyString(item);
+            if (element != null) {
+                out.add(element);
+            } else if (item != null) {
+                warnFieldParse(
+                        docId,
+                        field + "[" + index + "]",
+                        "String|Number|Boolean|Timestamp",
+                        item,
+                        "skipped_array_item");
             }
-            String value = ((String) item).trim();
-            if (value.isEmpty()) {
-                Log.w(TAG, "docId=" + docId + " skipped optional field=" + field
-                        + " reason=empty_array_item");
-                continue;
-            }
-            out.add(value);
+            index++;
         }
         return out;
     }
@@ -358,12 +507,14 @@ public final class PlaceDto {
         return snap.get(field) != null;
     }
 
-    private static void logOptionalTypeMismatch(@NonNull String docId,
-                                                @NonNull String field,
-                                                @NonNull Object raw) {
-        Log.w(TAG, "docId=" + docId + " invalid optional field type field=" + field
-                + " actualType=" + raw.getClass().getSimpleName()
-                + " action=skipped_optional_field");
+    private static void warnFieldParse(@NonNull String docId,
+                                       @NonNull String field,
+                                       @NonNull String expectedType,
+                                       @Nullable Object raw,
+                                       @NonNull String detail) {
+        String actualType = raw == null ? "null" : raw.getClass().getName();
+        Log.w(TAG, "docId=" + docId + " field=" + field + " expected=" + expectedType
+                + " actualType=" + actualType + " " + detail);
     }
 
     public String getDocumentId() {
@@ -444,7 +595,7 @@ public final class PlaceDto {
         return topPick;
     }
 
-    @Nullable
+    @NonNull
     public String getStatus() {
         return status;
     }

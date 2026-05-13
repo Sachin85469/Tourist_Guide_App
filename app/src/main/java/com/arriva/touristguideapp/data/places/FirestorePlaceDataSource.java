@@ -93,8 +93,13 @@ public class FirestorePlaceDataSource {
                     Log.d(TAG, operation + ": OK docId=" + dto.getDocumentId() + " name=" + dto.getName());
                 } else {
                     skipped++;
+                    boolean missingRequired = PlaceDto.isMissingRequiredFields(doc);
                     Log.w(TAG, operation + ": SKIPPED document id=" + doc.getId()
-                            + " reason=fromSnapshot_returned_null");
+                            + " reason="
+                            + (missingRequired
+                            ? "missing_required_name_or_status"
+                            : "fatal_parse_exception_or_recovery_failed")
+                            + " (see PlaceDto tag for field-level detail)");
                 }
             } catch (Exception ex) {
                 skipped++;
