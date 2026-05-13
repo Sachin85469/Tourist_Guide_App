@@ -3,13 +3,16 @@ package com.arriva.touristguideapp;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
-import android.widget.Button;
+import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.viewpager2.widget.ViewPager2;
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
 
 public class PlaceDetailsActivity extends AppCompatActivity {
@@ -35,7 +38,7 @@ public class PlaceDetailsActivity extends AppCompatActivity {
         TextView tvTips = findViewById(R.id.detailTips);
         TextView tvFunFact = findViewById(R.id.detailFunFact);
         TextView tvStation = findViewById(R.id.detailStation);
-        Button btnDirections = findViewById(R.id.btnDirections);
+        findViewById(R.id.btnDirections);
         
         // Favorite button in details
         btnFavorite = findViewById(R.id.btnFavoriteDetails);
@@ -53,13 +56,23 @@ public class PlaceDetailsActivity extends AppCompatActivity {
             String tips = intent.getStringExtra("tips");
             String funFact = intent.getStringExtra("funFact");
             String station = intent.getStringExtra("nearestStation");
-            int imageResId = intent.getIntExtra("imageResId", 0);
             lat = intent.getDoubleExtra("lat", 0);
             lng = intent.getDoubleExtra("lng", 0);
 
-            // Remote image fields from Firestore (may be null for local places)
+            // Remote / gallery fields
             String imageUrl = intent.getStringExtra("imageUrl");
             ArrayList<String> galleryImageUrls = intent.getStringArrayListExtra("galleryImageUrls");
+            ArrayList<String> galleryUrlsExtra = intent.getStringArrayListExtra("galleryUrls");
+            ArrayList<String> mergedGalleryUrls = mergeGalleryUrlExtras(galleryImageUrls, galleryUrlsExtra);
+            
+            if (imageUrl != null && !imageUrl.trim().isEmpty()) {
+                String u = imageUrl.trim();
+                if (mergedGalleryUrls.isEmpty()) {
+                    mergedGalleryUrls.add(u);
+                } else if (!mergedGalleryUrls.contains(u)) {
+                    mergedGalleryUrls.add(0, u);
+                }
+            }
 
             // Display data
             if (tvName != null) tvName.setText(name);
@@ -79,34 +92,8 @@ public class PlaceDetailsActivity extends AppCompatActivity {
                 .setPositiveButton("Cool!", null)
                 .show();
 
-            // Setup Gallery — prefer remote URLs, then local drawables
-            List<Integer> galleryDrawables = new ArrayList<>();
-            boolean hasRemoteGallery = galleryImageUrls != null && !galleryImageUrls.isEmpty();
-
-            if (!hasRemoteGallery) {
-                // Fall back to DataProvider lookup for drawable-based gallery
-                List<Place> allPlaces = DataProvider.getPlaces();
-                for (Place p : allPlaces) {
-                    if (p.getId().equals(placeId)) {
-                        galleryDrawables.addAll(p.getGalleryImages());
-                        break;
-                    }
-                }
-            }
-
-            // Fallback if gallery is empty or doesn't have the main image
-            if (!hasRemoteGallery && galleryDrawables.isEmpty() && imageResId != 0) {
-                galleryDrawables.add(imageResId);
-            }
-
-            GalleryAdapter galleryAdapter;
-            if (hasRemoteGallery) {
-                // Dual-mode: remote URLs with drawable fallback
-                galleryAdapter = new GalleryAdapter(galleryDrawables, galleryImageUrls);
-            } else {
-                // Legacy: drawable-only
-                galleryAdapter = new GalleryAdapter(galleryDrawables);
-            }
+            // Setup Gallery — exclusively uses remote URLs
+            GalleryAdapter galleryAdapter = new GalleryAdapter(mergedGalleryUrls);
             if (viewPagerGallery != null) {
                 viewPagerGallery.setAdapter(galleryAdapter);
             }
@@ -128,6 +115,7 @@ public class PlaceDetailsActivity extends AppCompatActivity {
                 });
             }
 
+            View btnDirections = findViewById(R.id.btnDirections);
             if (btnDirections != null) {
                 btnDirections.setOnClickListener(v -> {
                     Uri uri = Uri.parse("google.navigation:q=" + lat + "," + lng);
@@ -142,6 +130,27 @@ public class PlaceDetailsActivity extends AppCompatActivity {
                 });
             }
         }
+    }
+
+    @NonNull
+    private static ArrayList<String> mergeGalleryUrlExtras(@Nullable ArrayList<String> a,
+                                                           @Nullable ArrayList<String> b) {
+        LinkedHashSet<String> set = new LinkedHashSet<>();
+        if (a != null) {
+            for (String s : a) {
+                if (s != null && !s.trim().isEmpty()) {
+                    set.add(s.trim());
+                }
+            }
+        }
+        if (b != null) {
+            for (String s : b) {
+                if (s != null && !s.trim().isEmpty()) {
+                    set.add(s.trim());
+                }
+            }
+        }
+        return new ArrayList<>(set);
     }
 
     private void updateFavoriteIcon() {

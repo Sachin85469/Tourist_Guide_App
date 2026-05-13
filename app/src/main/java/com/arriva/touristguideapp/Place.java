@@ -10,6 +10,7 @@ import java.util.List;
 /**
  * Data model for a tourist place.
  * Scalable to include many cities and categories.
+ * Updated to exclusively use remote (Firestore) image URLs.
  */
 public class Place implements Serializable {
     private String id;
@@ -23,8 +24,6 @@ public class Place implements Serializable {
     private double latitude;
     private double longitude;
     private double rating = 4.0; // Default rating
-    private int imageResId;     // Local drawable resource ID
-    private List<Integer> galleryImages = new ArrayList<>(); // Additional gallery images
     
     // New Fields
     private String tips = "";
@@ -34,11 +33,12 @@ public class Place implements Serializable {
     private double distance = -1.0; // Distance from user in km
     private boolean isTopPick = false;
 
-    /** HTTPS image URL from Firestore (optional); list UIs may continue using {@link #imageResId} until migrated. */
+    /** HTTPS image URL from Firestore. */
     @Nullable
     private String imageUrl;
 
-    /** Ordered remote gallery URLs from Firestore (optional). */
+    /** Ordered remote gallery URLs from Firestore. */
+    @NonNull
     private List<String> galleryImageUrls = new ArrayList<>();
 
     /** Optional stable category key from Firestore (e.g. {@code history}). */
@@ -53,20 +53,25 @@ public class Place implements Serializable {
     @Nullable
     private String legacyCatalogId;
 
-    /** Firestore migration / catalog: drawable resource name (e.g. {@code shaniwar_wada}). */
-    @Nullable
-    private String drawableAssetKey;
-
-    /** Drawable resource names for remote-first rows (gallery when URLs absent). */
-    @NonNull
-    private List<String> galleryDrawableKeys = new ArrayList<>();
+    public Place() {
+        // Required for Firestore serialization
+    }
 
     /**
-     * Comprehensive Constructor including all fields.
+     * Minimal constructor for Firestore-bound objects.
+     */
+    public Place(String id, String name, String city) {
+        this.id = id;
+        this.name = name;
+        this.city = city;
+    }
+
+    /**
+     * Comprehensive Constructor including most fields (excluding legacy drawable fields).
      */
     public Place(String id, String name, String city, String category, String description, 
                  String budget, String crowdLevel, String bestTime, 
-                 double latitude, double longitude, int imageResId,
+                 double latitude, double longitude,
                  String tips, String funFact, String nearestStation, String tag) {
         this.id = id;
         this.name = name;
@@ -78,72 +83,10 @@ public class Place implements Serializable {
         this.bestTime = bestTime;
         this.latitude = latitude;
         this.longitude = longitude;
-        this.imageResId = imageResId;
-        this.galleryImages.add(imageResId); // Add main image as first in gallery
         this.tips = tips;
         this.funFact = funFact;
         this.nearestStation = nearestStation;
         this.tag = tag;
-    }
-
-    /**
-     * Constructor for existing code support.
-     */
-    public Place(String id, String name, String city, String category, String description, 
-                 String budget, String crowdLevel, String bestTime, 
-                 double latitude, double longitude, int imageResId) {
-        this.id = id;
-        this.name = name;
-        this.city = city;
-        this.category = category;
-        this.description = description;
-        this.budget = budget;
-        this.crowdLevel = crowdLevel;
-        this.bestTime = bestTime;
-        this.latitude = latitude;
-        this.longitude = longitude;
-        this.imageResId = imageResId;
-        this.galleryImages.add(imageResId);
-    }
-
-    /**
-     * Simplified Constructor for quick additions.
-     */
-    public Place(String name, String city, double latitude, double longitude, int imageResId, String category, String tag) {
-        this.id = String.valueOf(name.hashCode());
-        this.name = name;
-        this.city = city;
-        this.latitude = latitude;
-        this.longitude = longitude;
-        this.imageResId = imageResId;
-        this.galleryImages.add(imageResId);
-        this.category = category;
-        this.tag = tag;
-        this.description = "A beautiful place to visit in " + city;
-        this.budget = "Medium";
-        this.crowdLevel = "Moderate";
-        this.bestTime = "Morning/Evening";
-    }
-
-    /**
-     * Legacy Constructor including Rating.
-     */
-    public Place(String id, String name, String city, String category, String description, 
-                 String budget, String crowdLevel, String bestTime, 
-                 double latitude, double longitude, double rating, int imageResId) {
-        this.id = id;
-        this.name = name;
-        this.city = city;
-        this.category = category;
-        this.description = description;
-        this.budget = budget;
-        this.crowdLevel = crowdLevel;
-        this.bestTime = bestTime;
-        this.latitude = latitude;
-        this.longitude = longitude;
-        this.rating = rating;
-        this.imageResId = imageResId;
-        this.galleryImages.add(imageResId);
     }
 
     // Getters
@@ -158,26 +101,16 @@ public class Place implements Serializable {
     public double getLatitude() { return latitude; }
     public double getLongitude() { return longitude; }
     public double getRating() { return rating; }
-    public int getImageResId() { return imageResId; }
     public String getTag() { return tag; }
     
     // Alias getters
     public double getLat() { return latitude; }
     public double getLng() { return longitude; }
-    public int getImage() { return imageResId; }
     
     // New Getters
     public String getTips() { return tips; }
     public String getFunFact() { return funFact; }
     public String getNearestStation() { return nearestStation; }
-
-    public List<Integer> getGalleryImages() {
-        return galleryImages;
-    }
-
-    public void setGalleryImages(List<Integer> galleryImages) {
-        this.galleryImages = galleryImages;
-    }
 
     public double getDistance() {
         return distance;
@@ -217,6 +150,16 @@ public class Place implements Serializable {
         this.galleryImageUrls = new ArrayList<>(galleryImageUrls);
     }
 
+    /** Same backing list as {@link #getGalleryImageUrls()} / Firestore {@code galleryUrls}. */
+    @NonNull
+    public List<String> getGalleryUrls() {
+        return galleryImageUrls;
+    }
+
+    public void setGalleryUrls(@NonNull List<String> galleryUrls) {
+        setGalleryImageUrls(galleryUrls);
+    }
+
     @Nullable
     public String getCategoryId() {
         return categoryId;
@@ -244,27 +187,7 @@ public class Place implements Serializable {
         this.legacyCatalogId = legacyCatalogId;
     }
 
-    @Nullable
-    public String getDrawableAssetKey() {
-        return drawableAssetKey;
-    }
-
-    public void setDrawableAssetKey(@Nullable String drawableAssetKey) {
-        this.drawableAssetKey = drawableAssetKey;
-    }
-
-    @NonNull
-    public List<String> getGalleryDrawableKeys() {
-        return galleryDrawableKeys;
-    }
-
-    public void setGalleryDrawableKeys(@Nullable List<String> galleryDrawableKeys) {
-        this.galleryDrawableKeys = galleryDrawableKeys != null
-                ? new ArrayList<>(galleryDrawableKeys)
-                : new ArrayList<>();
-    }
-
-    /** True when a remote hero URL is present (adapters can prefer Glide in a later phase). */
+    /** True when a remote hero URL is present. */
     public boolean hasRemoteHeroImage() {
         return imageUrl != null && !imageUrl.trim().isEmpty();
     }

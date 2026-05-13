@@ -1,7 +1,6 @@
 package com.arriva.touristguideapp;
 
-import android.content.Context;
-import android.net.Uri;
+import android.graphics.drawable.Drawable;
 import android.util.Log;
 import android.widget.ImageView;
 
@@ -9,87 +8,66 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.DataSource;
+import com.bumptech.glide.load.engine.GlideException;
+import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.RequestOptions;
+import com.bumptech.glide.request.target.Target;
 
 /**
- * Unified thumbnail loading for {@link Place}: HTTPS / Firebase Storage URL,
- * bundled drawable via {@link Place#getDrawableAssetKey()}, or legacy {@link Place#getImageResId()}.
- * Always uses Glide so RecyclerView recycling stays consistent.
+ * Unified thumbnail loading for {@link Place}: exclusively uses remote URLs from Firestore.
+ * Always uses Glide with placeholder/error drawables.
  */
 public final class PlaceImageHelper {
 
     private static final String TAG = "PlaceImageHelper";
 
-    private static final int GENERIC_PLACEHOLDER = android.R.drawable.ic_menu_gallery;
-
     private PlaceImageHelper() {
     }
 
-    /**
-     * Cancels Glide work for this {@link ImageView} (call from
-     * {@link androidx.recyclerview.widget.RecyclerView.Adapter#onViewRecycled}).
-     */
     public static void clear(@NonNull ImageView imageView) {
         Glide.with(imageView).clear(imageView);
     }
 
+    /**
+     * Loads the hero image for a place. Only uses remote URL.
+     */
     public static void loadThumbnail(@NonNull ImageView imageView, @NonNull Place place) {
-        Context ctx = imageView.getContext();
         String id = place.getId() != null ? place.getId() : "?";
         String title = place.getName() != null ? place.getName() : "?";
 
         String url = trimToNull(place.getImageUrl());
-        int resolvedKeyRes = resolveDrawableResId(ctx, place.getDrawableAssetKey());
-        int resId = place.getImageResId();
 
-        int placeholder = pickThumbnailPlaceholder(resolvedKeyRes, resId);
-
-        if (url != null) {
-            Log.d(TAG, "thumbnail placeId=" + id + " name=" + title
-                    + " sourceType=REMOTE_URL"
-                    + " remoteUrlUsed=true"
-                    + " remoteUrlHost=" + hostOnly(url)
-                    + " drawableKeyResolved=" + (resolvedKeyRes != 0)
-                    + " drawableAssetKey=" + safeKey(place.getDrawableAssetKey()));
-            RequestOptions opts = new RequestOptions()
-                    .centerCrop()
-                    .placeholder(placeholder)
-                    .error(placeholder);
+        if (url == null) {
+            Log.d(TAG, "PLACEHOLDER_USED placeId=" + id + " reason=null_url");
             Glide.with(imageView)
-                    .load(url)
-                    .apply(opts)
+                    .load(R.drawable.placeholder)
                     .into(imageView);
             return;
         }
 
-        int loadRes;
-        String sourceType;
-        if (resolvedKeyRes != 0) {
-            loadRes = resolvedKeyRes;
-            sourceType = "DRAWABLE_ASSET_KEY";
-        } else if (resId != 0) {
-            loadRes = resId;
-            sourceType = "LOCAL_RES_ID";
-        } else {
-            loadRes = GENERIC_PLACEHOLDER;
-            sourceType = "GENERIC_PLACEHOLDER";
-        }
-
-        Log.d(TAG, "thumbnail placeId=" + id + " name=" + title
-                + " sourceType=" + sourceType
-                + " remoteUrlUsed=false"
-                + " drawableKeyResolved=" + (resolvedKeyRes != 0)
-                + " drawableAssetKey=" + safeKey(place.getDrawableAssetKey())
-                + " localResIdUsed=" + (resId != 0 && loadRes == resId));
-
         RequestOptions opts = new RequestOptions()
                 .centerCrop()
-                .placeholder(GENERIC_PLACEHOLDER)
-                .error(GENERIC_PLACEHOLDER);
+                .placeholder(R.drawable.placeholder)
+                .error(R.drawable.placeholder);
 
         Glide.with(imageView)
-                .load(loadRes)
+                .load(url)
                 .apply(opts)
+                .listener(new RequestListener<Drawable>() {
+                    @Override
+                    public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable> target, boolean isFirstResource) {
+                        Log.e(TAG, "REMOTE_IMAGE_FAILED placeId=" + id + " url=" + url + " msg=" + (e != null ? e.getMessage() : "unknown"));
+                        Log.d(TAG, "PLACEHOLDER_USED placeId=" + id + " reason=load_failed");
+                        return false;
+                    }
+
+                    @Override
+                    public boolean onResourceReady(Drawable resource, Object model, Target<Drawable> target, DataSource dataSource, boolean isFirstResource) {
+                        Log.i(TAG, "REMOTE_IMAGE_SUCCESS placeId=" + id + " source=" + dataSource);
+                        return false;
+                    }
+                })
                 .into(imageView);
     }
 
@@ -100,44 +78,5 @@ public final class PlaceImageHelper {
         }
         String t = s.trim();
         return t.isEmpty() ? null : t;
-    }
-
-    @NonNull
-    private static String safeKey(@Nullable String k) {
-        return k == null ? "null" : k;
-    }
-
-    @NonNull
-    private static String hostOnly(@NonNull String url) {
-        try {
-            Uri u = Uri.parse(url);
-            String h = u.getHost();
-            return h != null ? h : "nohost";
-        } catch (Exception e) {
-            return "bad-uri";
-        }
-    }
-
-    private static int pickThumbnailPlaceholder(int resolvedKeyRes, int resId) {
-        if (resolvedKeyRes != 0) {
-            return resolvedKeyRes;
-        }
-        if (resId != 0) {
-            return resId;
-        }
-        return GENERIC_PLACEHOLDER;
-    }
-
-    /** @return 0 if key missing or no matching {@code drawable} in this app package */
-    private static int resolveDrawableResId(@NonNull Context ctx, @Nullable String assetKey) {
-        if (assetKey == null) {
-            return 0;
-        }
-        String key = assetKey.trim();
-        if (key.isEmpty()) {
-            return 0;
-        }
-        int rid = ctx.getResources().getIdentifier(key, "drawable", ctx.getPackageName());
-        return rid == 0 ? 0 : rid;
     }
 }
