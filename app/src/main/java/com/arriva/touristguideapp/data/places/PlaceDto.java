@@ -1,5 +1,7 @@
 package com.arriva.touristguideapp.data.places;
 
+import android.util.Log;
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -14,6 +16,8 @@ import java.util.List;
  * Parsing stays defensive so partial or legacy-shaped documents do not crash the app.
  */
 public final class PlaceDto {
+
+    private static final String TAG = "PlaceDto";
 
     private final String documentId;
     private final String name;
@@ -94,22 +98,21 @@ public final class PlaceDto {
         }
         String documentId = snap.getId();
 
-        String name = snap.getString(PlacesFirestoreContract.FIELD_NAME);
-        if (name == null || name.trim().isEmpty()) {
+        String status = readRequiredString(snap, documentId, PlacesFirestoreContract.FIELD_STATUS);
+        String name = readRequiredString(snap, documentId, PlacesFirestoreContract.FIELD_NAME);
+        if (status == null || name == null) {
+            Log.w(TAG, "Skipping document " + documentId + " because required field is missing/invalid");
             return null;
         }
 
-        String city = defaultString(snap.getString(PlacesFirestoreContract.FIELD_CITY), "Unknown");
-        String category = defaultString(snap.getString(PlacesFirestoreContract.FIELD_CATEGORY), "General");
-        String categoryId = snap.getString(PlacesFirestoreContract.FIELD_CATEGORY_ID);
+        String city = readOptionalString(snap, documentId, PlacesFirestoreContract.FIELD_CITY, "Unknown");
+        String category = readOptionalString(snap, documentId, PlacesFirestoreContract.FIELD_CATEGORY, "General");
+        String categoryId = readOptionalStringOrNull(snap, documentId, PlacesFirestoreContract.FIELD_CATEGORY_ID);
 
-        String description = defaultString(
-                snap.getString(PlacesFirestoreContract.FIELD_DESCRIPTION),
-                ""
-        );
-        String budget = defaultString(snap.getString(PlacesFirestoreContract.FIELD_BUDGET), "Medium");
-        String crowdLevel = defaultString(snap.getString(PlacesFirestoreContract.FIELD_CROWD_LEVEL), "Moderate");
-        String bestTime = defaultString(snap.getString(PlacesFirestoreContract.FIELD_BEST_TIME), "Day");
+        String description = readOptionalString(snap, documentId, PlacesFirestoreContract.FIELD_DESCRIPTION, "");
+        String budget = readOptionalString(snap, documentId, PlacesFirestoreContract.FIELD_BUDGET, "Medium");
+        String crowdLevel = readOptionalString(snap, documentId, PlacesFirestoreContract.FIELD_CROWD_LEVEL, "Moderate");
+        String bestTime = readOptionalString(snap, documentId, PlacesFirestoreContract.FIELD_BEST_TIME, "Day");
 
         double latitude;
         double longitude;
@@ -118,49 +121,34 @@ public final class PlaceDto {
             latitude = geo.getLatitude();
             longitude = geo.getLongitude();
         } else {
-            Double lat = snap.getDouble(PlacesFirestoreContract.FIELD_LATITUDE);
-            Double lng = snap.getDouble(PlacesFirestoreContract.FIELD_LONGITUDE);
-            latitude = lat != null ? lat : 0d;
-            longitude = lng != null ? lng : 0d;
+            latitude = readOptionalDouble(snap, documentId, PlacesFirestoreContract.FIELD_LATITUDE, 0d);
+            longitude = readOptionalDouble(snap, documentId, PlacesFirestoreContract.FIELD_LONGITUDE, 0d);
         }
 
-        double rating = 4.0;
-        Double r = snap.getDouble(PlacesFirestoreContract.FIELD_RATING_AVG);
-        if (r == null) {
-            r = snap.getDouble(PlacesFirestoreContract.FIELD_RATING);
-        }
-        if (r != null) {
-            rating = r;
+        double rating = readOptionalDouble(snap, documentId, PlacesFirestoreContract.FIELD_RATING_AVG, 4.0);
+        if (!hasField(snap, PlacesFirestoreContract.FIELD_RATING_AVG)) {
+            rating = readOptionalDouble(snap, documentId, PlacesFirestoreContract.FIELD_RATING, 4.0);
         }
 
-        String imageUrl = snap.getString(PlacesFirestoreContract.FIELD_IMAGE_URL);
-        if (imageUrl == null || imageUrl.trim().isEmpty()) {
-            imageUrl = snap.getString(PlacesFirestoreContract.FIELD_HERO_IMAGE_URL);
+        String imageUrl = readOptionalStringOrNull(snap, documentId, PlacesFirestoreContract.FIELD_IMAGE_URL);
+        if (imageUrl == null) {
+            imageUrl = readOptionalStringOrNull(snap, documentId, PlacesFirestoreContract.FIELD_HERO_IMAGE_URL);
         }
 
-        List<String> gallery = new ArrayList<>();
-        Object galleryRaw = snap.get(PlacesFirestoreContract.FIELD_GALLERY_IMAGE_URLS);
-        if (galleryRaw instanceof List<?>) {
-            for (Object o : (List<?>) galleryRaw) {
-                if (o instanceof String) {
-                    String u = (String) o;
-                    if (!u.trim().isEmpty()) {
-                        gallery.add(u.trim());
-                    }
-                }
-            }
-        }
+        List<String> gallery = readOptionalStringArray(
+                snap,
+                documentId,
+                PlacesFirestoreContract.FIELD_GALLERY_IMAGE_URLS
+        );
 
-        String tips = defaultString(snap.getString(PlacesFirestoreContract.FIELD_TIPS), "");
-        String funFact = defaultString(snap.getString(PlacesFirestoreContract.FIELD_FUN_FACT), "");
-        String nearestStation = defaultString(snap.getString(PlacesFirestoreContract.FIELD_NEAREST_STATION), "");
-        String tag = defaultString(snap.getString(PlacesFirestoreContract.FIELD_TAG), "Popular");
+        String tips = readOptionalString(snap, documentId, PlacesFirestoreContract.FIELD_TIPS, "");
+        String funFact = readOptionalString(snap, documentId, PlacesFirestoreContract.FIELD_FUN_FACT, "");
+        String nearestStation = readOptionalString(snap, documentId, PlacesFirestoreContract.FIELD_NEAREST_STATION, "");
+        String tag = readOptionalString(snap, documentId, PlacesFirestoreContract.FIELD_TAG, "Popular");
 
-        Boolean top = snap.getBoolean(PlacesFirestoreContract.FIELD_IS_TOP_PICK);
-        boolean topPick = top != null && top;
+        boolean topPick = readOptionalBoolean(snap, documentId, PlacesFirestoreContract.FIELD_IS_TOP_PICK, false);
 
-        String status = snap.getString(PlacesFirestoreContract.FIELD_STATUS);
-        String legacyId = snap.getString(PlacesFirestoreContract.FIELD_LEGACY_ID);
+        String legacyId = readOptionalStringOrNull(snap, documentId, PlacesFirestoreContract.FIELD_LEGACY_ID);
 
         return new PlaceDto(
                 documentId,
@@ -187,11 +175,155 @@ public final class PlaceDto {
         );
     }
 
-    private static String defaultString(@Nullable String value, String fallback) {
-        if (value == null || value.trim().isEmpty()) {
+    @Nullable
+    private static String readRequiredString(@NonNull DocumentSnapshot snap,
+                                             @NonNull String docId,
+                                             @NonNull String field) {
+        Object raw = snap.get(field);
+        if (raw == null) {
+            Log.w(TAG, "docId=" + docId + " required field missing: " + field);
+            return null;
+        }
+        if (!(raw instanceof String)) {
+            Log.w(TAG, "docId=" + docId + " invalid required field type field=" + field
+                    + " actualType=" + raw.getClass().getSimpleName());
+            return null;
+        }
+        String value = ((String) raw).trim();
+        if (value.isEmpty()) {
+            Log.w(TAG, "docId=" + docId + " required field empty: " + field);
+            return null;
+        }
+        return value;
+    }
+
+    @Nullable
+    private static String readOptionalStringOrNull(@NonNull DocumentSnapshot snap,
+                                                    @NonNull String docId,
+                                                    @NonNull String field) {
+        Object raw = snap.get(field);
+        if (raw == null) {
+            return null;
+        }
+        if (!(raw instanceof String)) {
+            logOptionalTypeMismatch(docId, field, raw);
+            return null;
+        }
+        String value = ((String) raw).trim();
+        if (value.isEmpty()) {
+            Log.w(TAG, "docId=" + docId + " skipped optional field=" + field + " reason=empty_string");
+            return null;
+        }
+        return value;
+    }
+
+    @NonNull
+    private static String readOptionalString(@NonNull DocumentSnapshot snap,
+                                             @NonNull String docId,
+                                             @NonNull String field,
+                                             @NonNull String fallback) {
+        String value = readOptionalStringOrNull(snap, docId, field);
+        return value != null ? value : fallback;
+    }
+
+    private static double readOptionalDouble(@NonNull DocumentSnapshot snap,
+                                             @NonNull String docId,
+                                             @NonNull String field,
+                                             double fallback) {
+        Object raw = snap.get(field);
+        if (raw == null) {
             return fallback;
         }
-        return value.trim();
+        if (raw instanceof Number) {
+            return ((Number) raw).doubleValue();
+        }
+        if (raw instanceof String) {
+            String value = ((String) raw).trim();
+            if (value.isEmpty()) {
+                Log.w(TAG, "docId=" + docId + " skipped optional field=" + field + " reason=empty_string");
+                return fallback;
+            }
+            try {
+                return Double.parseDouble(value);
+            } catch (NumberFormatException nfe) {
+                Log.w(TAG, "docId=" + docId + " malformed optional field=" + field
+                        + " value=" + value + " expected=double");
+                return fallback;
+            }
+        }
+        logOptionalTypeMismatch(docId, field, raw);
+        return fallback;
+    }
+
+    private static boolean readOptionalBoolean(@NonNull DocumentSnapshot snap,
+                                               @NonNull String docId,
+                                               @NonNull String field,
+                                               boolean fallback) {
+        Object raw = snap.get(field);
+        if (raw == null) {
+            return fallback;
+        }
+        if (raw instanceof Boolean) {
+            return (Boolean) raw;
+        }
+        if (raw instanceof String) {
+            String value = ((String) raw).trim();
+            if ("true".equalsIgnoreCase(value)) {
+                return true;
+            }
+            if ("false".equalsIgnoreCase(value)) {
+                return false;
+            }
+            Log.w(TAG, "docId=" + docId + " malformed optional field=" + field
+                    + " value=" + value + " expected=boolean");
+            return fallback;
+        }
+        logOptionalTypeMismatch(docId, field, raw);
+        return fallback;
+    }
+
+    @NonNull
+    private static List<String> readOptionalStringArray(@NonNull DocumentSnapshot snap,
+                                                        @NonNull String docId,
+                                                        @NonNull String field) {
+        Object raw = snap.get(field);
+        List<String> out = new ArrayList<>();
+        if (raw == null) {
+            return out;
+        }
+        if (!(raw instanceof List<?>)) {
+            logOptionalTypeMismatch(docId, field, raw);
+            return out;
+        }
+        List<?> list = (List<?>) raw;
+        for (Object item : list) {
+            if (!(item instanceof String)) {
+                String itemType = item == null ? "null" : item.getClass().getSimpleName();
+                Log.w(TAG, "docId=" + docId + " skipped optional field=" + field
+                        + " reason=invalid_array_item_type itemType=" + itemType);
+                continue;
+            }
+            String value = ((String) item).trim();
+            if (value.isEmpty()) {
+                Log.w(TAG, "docId=" + docId + " skipped optional field=" + field
+                        + " reason=empty_array_item");
+                continue;
+            }
+            out.add(value);
+        }
+        return out;
+    }
+
+    private static boolean hasField(@NonNull DocumentSnapshot snap, @NonNull String field) {
+        return snap.get(field) != null;
+    }
+
+    private static void logOptionalTypeMismatch(@NonNull String docId,
+                                                @NonNull String field,
+                                                @NonNull Object raw) {
+        Log.w(TAG, "docId=" + docId + " invalid optional field type field=" + field
+                + " actualType=" + raw.getClass().getSimpleName()
+                + " action=skipped_optional_field");
     }
 
     public String getDocumentId() {

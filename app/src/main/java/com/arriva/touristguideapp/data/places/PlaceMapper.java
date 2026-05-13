@@ -8,6 +8,7 @@ import androidx.annotation.Nullable;
 import com.arriva.touristguideapp.Place;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -52,12 +53,15 @@ public final class PlaceMapper {
             place.setRating(dto.getRating());
             place.setTopPick(dto.isTopPick());
             place.setImageUrl(dto.getImageUrl());
-            place.setGalleryImageUrls(new ArrayList<>(dto.getGalleryImageUrls()));
+            List<String> galleryUrls = dto.getGalleryImageUrls() != null
+                    ? new ArrayList<>(dto.getGalleryImageUrls())
+                    : Collections.emptyList();
+            place.setGalleryImageUrls(galleryUrls);
             place.setCategoryId(dto.getCategoryId());
             place.setCatalogStatus(dto.getStatus());
             place.setLegacyCatalogId(dto.getLegacyId());
 
-            boolean hasRemoteImages = dto.getImageUrl() != null || !dto.getGalleryImageUrls().isEmpty();
+            boolean hasRemoteImages = dto.getImageUrl() != null || !galleryUrls.isEmpty();
             if (hasRemoteImages) {
                 place.setGalleryImages(new ArrayList<>());
             }
