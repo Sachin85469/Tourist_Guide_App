@@ -57,6 +57,10 @@ public class PlaceDetailsActivity extends AppCompatActivity {
             lat = intent.getDoubleExtra("lat", 0);
             lng = intent.getDoubleExtra("lng", 0);
 
+            // Remote image fields from Firestore (may be null for local places)
+            String imageUrl = intent.getStringExtra("imageUrl");
+            ArrayList<String> galleryImageUrls = intent.getStringArrayListExtra("galleryImageUrls");
+
             // Display data
             if (tvName != null) tvName.setText(name);
             if (tvDescription != null) tvDescription.setText(description);
@@ -75,22 +79,34 @@ public class PlaceDetailsActivity extends AppCompatActivity {
                 .setPositiveButton("Cool!", null)
                 .show();
 
-            // Setup Gallery
-            List<Place> allPlaces = DataProvider.getPlaces();
-            List<Integer> galleryImages = new ArrayList<>();
-            for (Place p : allPlaces) {
-                if (p.getId().equals(placeId)) {
-                    galleryImages.addAll(p.getGalleryImages());
-                    break;
+            // Setup Gallery — prefer remote URLs, then local drawables
+            List<Integer> galleryDrawables = new ArrayList<>();
+            boolean hasRemoteGallery = galleryImageUrls != null && !galleryImageUrls.isEmpty();
+
+            if (!hasRemoteGallery) {
+                // Fall back to DataProvider lookup for drawable-based gallery
+                List<Place> allPlaces = DataProvider.getPlaces();
+                for (Place p : allPlaces) {
+                    if (p.getId().equals(placeId)) {
+                        galleryDrawables.addAll(p.getGalleryImages());
+                        break;
+                    }
                 }
             }
 
             // Fallback if gallery is empty or doesn't have the main image
-            if (galleryImages.isEmpty() && imageResId != 0) {
-                galleryImages.add(imageResId);
+            if (!hasRemoteGallery && galleryDrawables.isEmpty() && imageResId != 0) {
+                galleryDrawables.add(imageResId);
             }
 
-            GalleryAdapter galleryAdapter = new GalleryAdapter(galleryImages);
+            GalleryAdapter galleryAdapter;
+            if (hasRemoteGallery) {
+                // Dual-mode: remote URLs with drawable fallback
+                galleryAdapter = new GalleryAdapter(galleryDrawables, galleryImageUrls);
+            } else {
+                // Legacy: drawable-only
+                galleryAdapter = new GalleryAdapter(galleryDrawables);
+            }
             if (viewPagerGallery != null) {
                 viewPagerGallery.setAdapter(galleryAdapter);
             }

@@ -38,7 +38,7 @@ public class FavoriteAdapter extends RecyclerView.Adapter<FavoriteAdapter.ViewHo
         public void bind(final Place place, final OnItemClickListener listener) {
             Context context = itemView.getContext();
             name.setText(place.getName());
-            image.setImageResource(place.getImageResId());
+            PlaceImageHelper.loadThumbnail(image, place);
             
             boolean isFav = FavoritesManager.isFavorite(context, place.getId());
             favoriteIcon.setImageResource(isFav ? R.drawable.ic_favorite : R.drawable.ic_favorite_border);
