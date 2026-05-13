@@ -129,7 +129,7 @@ public class ProfileUtils {
         FirebaseFirestore.getInstance().collection("users").document(uid).get()
                 .addOnSuccessListener(documentSnapshot -> {
                     String role = documentSnapshot.getString("role");
-                    callback.onResult("admin".equals(role));
+                    callback.onResult("admin".equals(role) || "moderator".equals(role));
                 })
                 .addOnFailureListener(e -> callback.onResult(false));
     }

@@ -109,7 +109,7 @@
                     app:boxCornerRadiusTopEnd="16dp"
                     app:boxCornerRadiusTopStart="16dp"
                     app:passwordToggleEnabled="true"
-                    app:startIconDrawable="@android:drawable/ic_lock_idle_lock"
+                    app:startIconDrawable="@android:drawable/ic_lock_lock"
                     app:startIconTint="@color/primary">
 
                     <com.google.android.material.textfield.TextInputEditText
@@ -131,7 +131,7 @@
                     app:boxCornerRadiusTopEnd="16dp"
                     app:boxCornerRadiusTopStart="16dp"
                     app:passwordToggleEnabled="true"
-                    app:startIconDrawable="@android:drawable/ic_lock_idle_lock"
+                    app:startIconDrawable="@android:drawable/ic_lock_lock"
                     app:startIconTint="@color/primary">
 
                     <com.google.android.material.textfield.TextInputEditText

@@ -91,7 +91,7 @@
                 android:id="@+id/btnVoiceSearch"
                 android:layout_width="24dp"
                 android:layout_height="24dp"
-                android:src="@android:drawable/ic_btn_speak_now"
+                android:src="@android:drawable/ic_menu_directions"
                 app:tint="@color/primary" />
         </LinearLayout>
     </com.google.android.material.card.MaterialCardView>

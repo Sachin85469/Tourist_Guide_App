@@ -15,6 +15,7 @@ public final class AnalyticsFirestoreContract {
     public static final String FIELD_LAST_VIEWED_AT = "lastViewedAt";
     public static final String FIELD_DAILY_VIEWS = "dailyViews";
     public static final String FIELD_WEEKLY_VIEWS = "weeklyViews";
+    public static final String FIELD_TRENDING_SCORE = "trendingScore";
 
     // Search fields
     public static final String FIELD_QUERY = "query";

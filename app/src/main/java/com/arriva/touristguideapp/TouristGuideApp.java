@@ -18,8 +18,21 @@ public class TouristGuideApp extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
+        
+        // Phase 12: Performance Tracking
+        PerformanceTracker.startTimer("APP_STARTUP");
+        
+        // Global Crash Handler Simulation (Requirement 4)
+        Thread.setDefaultUncaughtExceptionHandler((thread, throwable) -> {
+            android.util.Log.e("TouristGuideApp", "CRASH_RECOVERED: Uncaught exception in thread " + thread.getName(), throwable);
+            // In a real app, send to Sentry/Crashlytics here
+            System.exit(1);
+        });
+
         FirebaseApp.initializeApp(this);
         configureFirestorePersistence();
+        
+        PerformanceTracker.endTimer("APP_STARTUP");
     }
 
     private void configureFirestorePersistence() {

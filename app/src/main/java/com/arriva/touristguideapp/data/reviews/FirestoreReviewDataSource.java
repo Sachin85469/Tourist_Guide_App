@@ -203,9 +203,11 @@ public class FirestoreReviewDataSource {
             Long c = placeSnapshot.getLong(ReviewsFirestoreContract.FIELD_PLACE_TOTAL_COMMENTS);
             if (c != null) currentComments = c;
 
-            long newTotal = wasActive ? currentTotal - 1 : currentTotal;
+            // Phase 12: Sync Conflict Handling (Requirement 3)
+            // Ensure values don't go negative during concurrent deletions
+            long newTotal = wasActive ? Math.max(0, currentTotal - 1) : currentTotal;
             double newAvg = newTotal > 0 ? ((currentAvg * currentTotal) - (wasActive ? rating : 0)) / newTotal : 0.0;
-            long newComments = (wasActive && hadComment) ? currentComments - 1 : currentComments;
+            long newComments = (wasActive && hadComment) ? Math.max(0, currentComments - 1) : currentComments;
 
             transaction.delete(reviewRef);
             transaction.update(placeRef, 
@@ -315,5 +317,15 @@ public class FirestoreReviewDataSource {
 
             return null;
         });
+    }
+
+    /**
+     * CMS: Fetch pending reports for moderation.
+     */
+    public Task<QuerySnapshot> fetchReports() {
+        return db.collection("reports")
+                .whereEqualTo("status", "pending")
+                .orderBy("timestamp", Query.Direction.DESCENDING)
+                .get();
     }
 }

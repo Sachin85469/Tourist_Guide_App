@@ -22,9 +22,39 @@ public class MyFcmService extends FirebaseMessagingService {
     public void onMessageReceived(@NonNull RemoteMessage remoteMessage) {
         Log.d(TAG, "NOTIFICATION_RECEIVED from: " + remoteMessage.getFrom());
 
+        String title = null;
+        String body = null;
+        String type = NotificationRepository.TYPE_ADMIN;
+
+        // Handle data payload
+        if (remoteMessage.getData().size() > 0) {
+            title = remoteMessage.getData().get("title");
+            body = remoteMessage.getData().get("body");
+            type = remoteMessage.getData().get("type");
+        }
+
+        // Handle notification payload fallback
         if (remoteMessage.getNotification() != null) {
-            showNotification(remoteMessage.getNotification().getTitle(), 
-                             remoteMessage.getNotification().getBody());
+            if (title == null) title = remoteMessage.getNotification().getTitle();
+            if (body == null) body = remoteMessage.getNotification().getBody();
+        }
+
+        if (title != null && body != null) {
+            NotificationRepository repository = new NotificationRepository(this);
+            
+            // Check user preference
+            if (repository.isEnabled(type)) {
+                showNotification(title, body, type);
+                
+                // Save to history
+                NotificationModel model = new NotificationModel(
+                    java.util.UUID.randomUUID().toString(),
+                    title, body, type, System.currentTimeMillis()
+                );
+                repository.saveToHistory(model);
+            } else {
+                Log.d(TAG, "NOTIFICATION_MUTED: type=" + type);
+            }
         }
     }
 
@@ -34,7 +64,7 @@ public class MyFcmService extends FirebaseMessagingService {
         new NotificationRepository(this).registerToken(token);
     }
 
-    private void showNotification(String title, String message) {
+    private void showNotification(String title, String message, String type) {
         NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -43,6 +73,7 @@ public class MyFcmService extends FirebaseMessagingService {
         }
 
         Intent intent = new Intent(this, MainActivity.class);
+        intent.putExtra("notification_type", type);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, 
                 PendingIntent.FLAG_ONE_SHOT | PendingIntent.FLAG_IMMUTABLE);
@@ -52,9 +83,10 @@ public class MyFcmService extends FirebaseMessagingService {
                 .setContentTitle(title)
                 .setContentText(message)
                 .setAutoCancel(true)
-                .setContentIntent(pendingIntent);
+                .setContentIntent(pendingIntent)
+                .setPriority(NotificationCompat.PRIORITY_DEFAULT);
 
-        notificationManager.notify(0, notificationBuilder.build());
+        notificationManager.notify((int) System.currentTimeMillis(), notificationBuilder.build());
         Log.d(TAG, "NOTIFICATION_SENT: " + title);
     }
 }

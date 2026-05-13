@@ -65,6 +65,44 @@ public class FirestorePlaceDataSource {
         return query.get().continueWith(task -> mapSnapshotToDtos(task, "fetchPublishedByCategory"));
     }
 
+    /**
+     * CMS: Saves or updates a place.
+     */
+    public Task<Void> savePlace(com.arriva.touristguideapp.Place place) {
+        if (place.getId() == null || place.getId().isEmpty()) {
+            // New place
+            com.google.firebase.firestore.DocumentReference ref = db.collection(PlacesFirestoreContract.COLLECTION_PLACES).document();
+            place.setId(ref.getId());
+            return ref.set(place);
+        }
+        return db.collection(PlacesFirestoreContract.COLLECTION_PLACES).document(place.getId()).set(place);
+    }
+
+    /**
+     * CMS: Deletes a place.
+     */
+    public Task<Void> deletePlace(String placeId) {
+        return db.collection(PlacesFirestoreContract.COLLECTION_PLACES).document(placeId).delete();
+    }
+
+    /**
+     * CMS: Updates place status (published, draft, archived).
+     */
+    public Task<Void> updateStatus(String placeId, String status) {
+        return db.collection(PlacesFirestoreContract.COLLECTION_PLACES).document(placeId)
+                .update(PlacesFirestoreContract.FIELD_STATUS, status);
+    }
+
+    /**
+     * CMS: Fetch all places for admin management (paginated).
+     */
+    public Task<QuerySnapshot> fetchAllPlaces(int limit) {
+        return db.collection(PlacesFirestoreContract.COLLECTION_PLACES)
+                .orderBy(PlacesFirestoreContract.FIELD_NAME)
+                .limit(limit)
+                .get();
+    }
+
     @NonNull
     private List<PlaceDto> mapSnapshotToDtos(@NonNull com.google.android.gms.tasks.Task<QuerySnapshot> task,
                                              @NonNull String operation) {

@@ -65,6 +65,7 @@ public class MainActivity extends AppCompatActivity {
     private com.arriva.touristguideapp.data.places.DiscoveryRepository discoveryRepository;
     private com.arriva.touristguideapp.data.places.SearchHistoryManager searchHistoryManager;
     private com.arriva.touristguideapp.data.places.RecentlyViewedManager recentlyViewedManager;
+    private com.arriva.touristguideapp.data.notifications.NotificationRepository notificationRepository;
 
     /** Last fix used to sort "Top Picks Near You" after the Firestore catalog arrives. */
     @Nullable
@@ -72,6 +73,7 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        PerformanceTracker.startTimer("MAIN_ACTIVITY_INIT");
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
@@ -101,6 +103,17 @@ public class MainActivity extends AppCompatActivity {
         setupHomeSections();
         setupSearch();
         setupVoiceSearch();
+
+        // Handle Notification Intent
+        handleNotificationIntent(getIntent());
+
+        // Phase 10: Local Notification Reminder (Requirement 5)
+        if (savedInstanceState == null) {
+            rvHome.postDelayed(() -> {
+                com.arriva.touristguideapp.data.notifications.LocalNotificationHelper.showReminder(
+                    this, "Ready for Adventure?", "Explore the best hidden gems in Pune today!");
+            }, 5000);
+        }
         
         // Start with ProgressBar visible
         if (progressBar != null) progressBar.setVisibility(View.VISIBLE);
@@ -108,6 +121,8 @@ public class MainActivity extends AppCompatActivity {
         // Fetch location and data
         checkLocationPermission();
         loadPublishedPlacesCatalog();
+
+        PerformanceTracker.endTimer("MAIN_ACTIVITY_INIT");
 
         bottomNavigationView.setSelectedItemId(R.id.nav_home);
         bottomNavigationView.setOnItemSelectedListener(new NavigationBarView.OnItemSelectedListener() {
@@ -134,6 +149,27 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(new Intent(MainActivity.this, ProfileActivity.class));
                 overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
             });
+        }
+    }
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        setIntent(intent);
+        handleNotificationIntent(intent);
+    }
+
+    private void handleNotificationIntent(Intent intent) {
+        if (intent != null && intent.hasExtra("notification_type")) {
+            String type = intent.getStringExtra("notification_type");
+            Log.d(TAG, "NOTIFICATION_OPENED: type=" + type);
+            if (notificationRepository != null) {
+                notificationRepository.logNotificationOpened(type);
+            }
+            // Navigate based on type if needed
+            if ("trending".equals(type)) {
+                // Scroll to trending section or open a trending activity
+            }
         }
     }
 
@@ -222,6 +258,7 @@ public class MainActivity extends AppCompatActivity {
         discoveryRepository = new com.arriva.touristguideapp.data.places.DiscoveryRepository();
         searchHistoryManager = new com.arriva.touristguideapp.data.places.SearchHistoryManager(this);
         recentlyViewedManager = new com.arriva.touristguideapp.data.places.RecentlyViewedManager(this);
+        notificationRepository = new com.arriva.touristguideapp.data.notifications.NotificationRepository(this);
 
         // Browse-all list is filled asynchronously via PlaceRepository (Firestore with local fallback).
         allPlaces = new ArrayList<>();

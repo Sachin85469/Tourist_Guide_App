@@ -32,7 +32,7 @@ public class ProfileActivity extends AppCompatActivity {
     private MaterialCardView cardEditName;
     private EditText etEditName;
     private Button btnSaveName, btnEditProfile, btnLogout, btnAdminDashboard;
-    private View btnBack, btnEditImage, dividerAdmin;
+    private View btnBack, btnEditImage, dividerAdmin, btnNotificationHistory, btnNotificationSettings;
 
     private FirebaseAuth mAuth;
 
@@ -49,6 +49,14 @@ public class ProfileActivity extends AppCompatActivity {
         applyAnimations();
 
         btnBack.setOnClickListener(v -> finish());
+
+        btnNotificationHistory.setOnClickListener(v -> {
+            startActivity(new Intent(this, NotificationHistoryActivity.class));
+        });
+
+        btnNotificationSettings.setOnClickListener(v -> {
+            startActivity(new Intent(this, NotificationSettingsActivity.class));
+        });
         
         btnEditProfile.setOnClickListener(v -> {
             if (cardEditName.getVisibility() == View.VISIBLE) {
@@ -140,6 +148,8 @@ public class ProfileActivity extends AppCompatActivity {
         btnEditProfile = findViewById(R.id.btnEditProfile);
         btnLogout = findViewById(R.id.btnLogout);
         btnBack = findViewById(R.id.btnBack);
+        btnNotificationHistory = findViewById(R.id.btnNotificationHistory);
+        btnNotificationSettings = findViewById(R.id.btnNotificationSettings);
     }
 
     private void loadUserData() {

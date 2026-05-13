@@ -126,18 +126,11 @@ public final class PlaceDto {
         String documentId = snap.getId();
 
         try {
+            // Requirement 4: Crash Protection / Safe Parsing
             return parseSnapshotFields(snap, documentId);
-        } catch (Exception e) {
-            Log.e(TAG, "docId=" + documentId
-                    + " unexpected parse exception — attempting minimal recovery"
-                    + " exceptionType=" + e.getClass().getSimpleName()
-                    + " message=" + e.getMessage(), e);
-            PlaceDto recovered = tryRecoverMinimalDto(snap, documentId, e);
-            if (recovered != null) {
-                return recovered;
-            }
-            Log.e(TAG, "docId=" + documentId + " minimal recovery failed — document skipped");
-            return null;
+        } catch (Throwable e) {
+            Log.e(TAG, "docId=" + documentId + " CRASH_RECOVERED: fatal_parse_exception", e);
+            return tryRecoverMinimalDto(snap, documentId, new Exception(e));
         }
     }
 

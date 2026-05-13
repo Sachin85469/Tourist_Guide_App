@@ -82,6 +82,15 @@
             android:name=".AdminDashboardActivity"
             android:exported="false"
             android:theme="@style/Theme.TouristGuideApp" />
+        <activity
+            android:name=".NotificationHistoryActivity"
+            android:exported="false" />
+        <activity
+            android:name=".NotificationSettingsActivity"
+            android:exported="false" />
+        <activity
+            android:name=".PlaceEditorActivity"
+            android:exported="false" />
     </application>
 
 </manifest>

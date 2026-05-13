@@ -46,6 +46,11 @@
                 android:layout_height="wrap_content"
                 android:text="Analytics" />
 
+            <com.google.android.material.tabs.TabItem
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Broadcast" />
+
         </com.google.android.material.tabs.TabLayout>
     </HorizontalScrollView>
 
@@ -61,7 +66,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|end"
         android:layout_margin="16dp"
-        app:srcCompat="@android:drawable/ic_input_add"
+        app:srcCompat="@android:drawable/ic_menu_add"
         app:tint="@color/white" />
 
 </LinearLayout>

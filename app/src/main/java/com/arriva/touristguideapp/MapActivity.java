@@ -332,7 +332,7 @@ public class MapActivity extends AppCompatActivity {
             marker.setTitle(p.getName());
             marker.setSnippet(p.getCategory() + " - " + p.getCity());
             marker.setAnchor(org.osmdroid.views.overlay.Marker.ANCHOR_CENTER, org.osmdroid.views.overlay.Marker.ANCHOR_BOTTOM);
-            marker.setIcon(getResources().getDrawable(android.R.drawable.ic_dialog_map));
+            marker.setIcon(getResources().getDrawable(android.R.drawable.ic_menu_mapmode));
             
             marker.setOnMarkerClickListener((m, mapView) -> {
                 searchedPoint = (GeoPoint) m.getPosition();

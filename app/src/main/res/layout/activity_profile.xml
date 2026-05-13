@@ -39,7 +39,7 @@
                 android:layout_height="48dp"
                 android:layout_margin="16dp"
                 android:background="?attr/selectableItemBackgroundBorderless"
-                android:src="@android:drawable/ic_menu_revert"
+                android:src="@android:drawable/ic_menu_directions"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
                 app:tint="@color/white" />
@@ -122,7 +122,7 @@
                     android:text="Verified Account"
                     app:chipBackgroundColor="@color/adaptive_glass_surface"
                     app:chipStrokeWidth="0dp"
-                    app:chipIcon="@android:drawable/checkbox_on_background"
+                    app:chipIcon="@android:drawable/ic_menu_info_details"
                     app:chipIconTint="@color/primary"
                     android:textColor="@color/adaptive_text_primary" />
             </LinearLayout>
@@ -192,6 +192,48 @@
                         android:textColor="@color/adaptive_text_primary"
                         android:textSize="16sp"
                         app:icon="@android:drawable/ic_menu_manage"
+                        app:iconPadding="16dp"
+                        app:iconSize="24dp"
+                        app:iconTint="@color/primary" />
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:layout_marginHorizontal="8dp"
+                        android:background="@color/adaptive_divider" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnNotificationHistory"
+                        style="@style/Widget.MaterialComponents.Button.TextButton"
+                        android:layout_width="match_parent"
+                        android:layout_height="64dp"
+                        android:gravity="start|center_vertical"
+                        android:text="Notification History"
+                        android:textAllCaps="false"
+                        android:textColor="@color/adaptive_text_primary"
+                        android:textSize="16sp"
+                        app:icon="@android:drawable/ic_dialog_info"
+                        app:iconPadding="16dp"
+                        app:iconSize="24dp"
+                        app:iconTint="@color/primary" />
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:layout_marginHorizontal="8dp"
+                        android:background="@color/adaptive_divider" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnNotificationSettings"
+                        style="@style/Widget.MaterialComponents.Button.TextButton"
+                        android:layout_width="match_parent"
+                        android:layout_height="64dp"
+                        android:gravity="start|center_vertical"
+                        android:text="Notification Settings"
+                        android:textAllCaps="false"
+                        android:textColor="@color/adaptive_text_primary"
+                        android:textSize="16sp"
+                        app:icon="@android:drawable/ic_dialog_info"
                         app:iconPadding="16dp"
                         app:iconSize="24dp"
                         app:iconTint="@color/primary" />
@@ -279,7 +321,7 @@
                 android:textAllCaps="false"
                 android:textColor="@color/adaptive_logout_text"
                 app:cornerRadius="20dp"
-                app:icon="@android:drawable/ic_lock_power_off"
+                app:icon="@android:drawable/ic_menu_close_clear_cancel"
                 app:iconTint="@color/adaptive_logout_text"
                 app:layout_constraintTop_toBottomOf="@id/cardEditName"
                 app:layout_constraintBottom_toBottomOf="parent"

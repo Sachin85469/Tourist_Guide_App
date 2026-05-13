@@ -1,12 +1,9 @@
 package com.arriva.touristguideapp.data.places;
 
 import android.util.Log;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-
 import com.arriva.touristguideapp.Place;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -18,20 +15,21 @@ public final class PlaceMapper {
 
     private static final String TAG = "PlaceMapper";
 
-    private PlaceMapper() {
-    }
+    private PlaceMapper() {}
 
     @Nullable
     public static Place toPlace(@Nullable PlaceDto dto) {
-        if (dto == null) {
-            return null;
-        }
+        if (dto == null) return null;
+        
         try {
             String id = dto.getDocumentId();
+            // Defensive Null Handling (Requirement 4)
+            if (id == null) id = java.util.UUID.randomUUID().toString();
+            String name = dto.getName() != null ? dto.getName() : "Unknown Place";
 
             Place place = new Place(
                     id,
-                    dto.getName(),
+                    name,
                     dto.getCity(),
                     dto.getCategory(),
                     dto.getDescription(),
@@ -57,18 +55,9 @@ public final class PlaceMapper {
             place.setCatalogStatus(dto.getStatus());
             place.setLegacyCatalogId(dto.getLegacyId());
 
-            boolean hasRemoteHero = dto.getImageUrl() != null && !dto.getImageUrl().trim().isEmpty();
-            boolean hasRemoteGallery = !galleryUrls.isEmpty();
-
-            Log.d(TAG, "toPlace OK docId=" + id
-                    + " imageUrlSet=" + hasRemoteHero
-                    + " galleryUrlCount=" + galleryUrls.size());
             return place;
         } catch (Exception e) {
-            Log.e(TAG, "toPlace FAILED for docId=" + dto.getDocumentId()
-                    + " name=" + dto.getName()
-                    + " exceptionType=" + e.getClass().getSimpleName()
-                    + " message=" + e.getMessage(), e);
+            Log.e(TAG, "toPlace FAILED for docId=" + dto.getDocumentId(), e);
             return null;
         }
     }
@@ -78,10 +67,18 @@ public final class PlaceMapper {
         List<Place> out = new ArrayList<>();
         for (PlaceDto dto : dtos) {
             Place p = toPlace(dto);
-            if (p != null) {
-                out.add(p);
-            }
+            if (p != null) out.add(p);
         }
         return out;
+    }
+
+    @NonNull
+    public static List<PlaceDto> fromSnapshots(@NonNull List<com.google.firebase.firestore.DocumentSnapshot> snapshots) {
+        List<PlaceDto> dtos = new ArrayList<>();
+        for (com.google.firebase.firestore.DocumentSnapshot snap : snapshots) {
+            PlaceDto dto = PlaceDto.fromSnapshot(snap);
+            if (dto != null) dtos.add(dto);
+        }
+        return dtos;
     }
 }

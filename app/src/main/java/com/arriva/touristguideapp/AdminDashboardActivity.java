@@ -1,5 +1,6 @@
 package com.arriva.touristguideapp;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.View;
@@ -36,10 +37,33 @@ public class AdminDashboardActivity extends AppCompatActivity {
                 switch (tab.getPosition()) {
                     case 0:
                         fabAddPlace.show();
+                        getSupportFragmentManager().beginTransaction()
+                            .replace(R.id.adminContainer, new ManagePlacesFragment())
+                            .commit();
                         break;
                     case 1:
+                        fabAddPlace.hide();
+                        getSupportFragmentManager().beginTransaction()
+                            .replace(R.id.adminContainer, new ReviewModerationFragment())
+                            .commit();
+                        break;
                     case 2:
                         fabAddPlace.hide();
+                        getSupportFragmentManager().beginTransaction()
+                            .replace(R.id.adminContainer, new BulkUploadFragment())
+                            .commit();
+                        break;
+                    case 3:
+                        fabAddPlace.hide();
+                        getSupportFragmentManager().beginTransaction()
+                            .replace(R.id.adminContainer, new AdminAnalyticsFragment())
+                            .commit();
+                        break;
+                    case 4:
+                        fabAddPlace.hide();
+                        getSupportFragmentManager().beginTransaction()
+                            .replace(R.id.adminContainer, new AdminBroadcastFragment())
+                            .commit();
                         break;
                 }
             }
@@ -52,8 +76,13 @@ public class AdminDashboardActivity extends AppCompatActivity {
         });
 
         fabAddPlace.setOnClickListener(v -> {
-            Toast.makeText(this, "Opening Add Place Editor...", Toast.LENGTH_SHORT).show();
+            startActivity(new Intent(this, PlaceEditorActivity.class));
         });
+
+        // Load default tab (Places)
+        getSupportFragmentManager().beginTransaction()
+            .replace(R.id.adminContainer, new ManagePlacesFragment())
+            .commit();
     }
 
     @Override

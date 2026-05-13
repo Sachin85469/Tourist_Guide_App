@@ -34,12 +34,10 @@ public final class PlaceImageHelper {
      */
     public static void loadThumbnail(@NonNull ImageView imageView, @NonNull Place place) {
         String id = place.getId() != null ? place.getId() : "?";
-        String title = place.getName() != null ? place.getName() : "?";
-
+        
         String url = trimToNull(place.getImageUrl());
 
         if (url == null) {
-            Log.d(TAG, "PLACEHOLDER_USED placeId=" + id + " reason=null_url");
             Glide.with(imageView)
                     .load(R.drawable.placeholder)
                     .into(imageView);
@@ -48,6 +46,7 @@ public final class PlaceImageHelper {
 
         RequestOptions opts = new RequestOptions()
                 .centerCrop()
+                .diskCacheStrategy(com.bumptech.glide.load.engine.DiskCacheStrategy.ALL)
                 .placeholder(R.drawable.placeholder)
                 .error(R.drawable.placeholder);
 
@@ -57,14 +56,16 @@ public final class PlaceImageHelper {
                 .listener(new RequestListener<Drawable>() {
                     @Override
                     public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable> target, boolean isFirstResource) {
-                        Log.e(TAG, "REMOTE_IMAGE_FAILED placeId=" + id + " url=" + url + " msg=" + (e != null ? e.getMessage() : "unknown"));
-                        Log.d(TAG, "PLACEHOLDER_USED placeId=" + id + " reason=load_failed");
+                        Log.e(TAG, "REMOTE_IMAGE_FAILED placeId=" + id + " url=" + url);
+                        Log.d(TAG, "CACHE_MISS placeId=" + id);
                         return false;
                     }
 
                     @Override
                     public boolean onResourceReady(Drawable resource, Object model, Target<Drawable> target, DataSource dataSource, boolean isFirstResource) {
-                        Log.i(TAG, "REMOTE_IMAGE_SUCCESS placeId=" + id + " source=" + dataSource);
+                        if (dataSource == DataSource.LOCAL || dataSource == DataSource.DATA_DISK_CACHE || dataSource == DataSource.RESOURCE_DISK_CACHE) {
+                            Log.d(TAG, "CACHE_HIT placeId=" + id + " source=" + dataSource);
+                        }
                         return false;
                     }
                 })

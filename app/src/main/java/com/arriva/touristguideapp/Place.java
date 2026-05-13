@@ -108,6 +108,22 @@ public class Place implements Serializable {
     public long getTotalComments() { return totalComments; }
     public String getTag() { return tag; }
     
+    // Setters
+    public void setId(String id) { this.id = id; }
+    public void setName(String name) { this.name = name; }
+    public void setCity(String city) { this.city = city; }
+    public void setCategory(String category) { this.category = category; }
+    public void setDescription(String description) { this.description = description; }
+    public void setBudget(String budget) { this.budget = budget; }
+    public void setCrowdLevel(String crowdLevel) { this.crowdLevel = crowdLevel; }
+    public void setBestTime(String bestTime) { this.bestTime = bestTime; }
+    public void setLatitude(double latitude) { this.latitude = latitude; }
+    public void setLongitude(double longitude) { this.longitude = longitude; }
+    public void setTag(String tag) { this.tag = tag; }
+    public void setTips(String tips) { this.tips = tips; }
+    public void setFunFact(String funFact) { this.funFact = funFact; }
+    public void setNearestStation(String nearestStation) { this.nearestStation = nearestStation; }
+
     // Alias getters
     public double getLat() { return latitude; }
     public double getLng() { return longitude; }

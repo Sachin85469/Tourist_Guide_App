@@ -99,7 +99,7 @@
                         android:layout_marginStart="8dp"
                         android:clickable="true"
                         android:focusable="true"
-                        android:src="@android:drawable/ic_btn_speak_now"
+                        android:src="@android:drawable/ic_menu_directions"
                         app:tint="@color/primary" />
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>

@@ -61,7 +61,7 @@
                     android:layout_height="36dp"
                     android:background="@drawable/bg_premium_gradient"
                     android:padding="8dp"
-                    android:src="@android:drawable/ic_btn_speak_now"
+                    android:src="@android:drawable/ic_menu_directions"
                     app:tint="@color/white" />
 
                 <com.google.android.material.card.MaterialCardView

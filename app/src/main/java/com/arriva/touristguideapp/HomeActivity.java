@@ -27,6 +27,8 @@ public class HomeActivity extends AppCompatActivity {
     private EditText editTextSearch;
     private ImageView btnVoiceSearch, ivProfileIcon;
     private TextView tvHomeUserName, tvHomeUserEmail;
+    private long lastSearchLogTime = 0;
+    private static final long SEARCH_LOG_DEBOUNCE = 2000;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,7 +57,18 @@ public class HomeActivity extends AppCompatActivity {
         List<Place> allPlaces = DataProvider.getAllPlaces();
 
         // 4. Create Adapter and set it to RecyclerView
-        placeAdapter = new PlaceAdapter(new ArrayList<>(allPlaces));
+        placeAdapter = new PlaceAdapter(new ArrayList<>(allPlaces), place -> {
+            // Track search click (Requirement 2)
+            String query = editTextSearch != null ? editTextSearch.getText().toString().trim() : "";
+            if (!query.isEmpty()) {
+                new com.arriva.touristguideapp.data.analytics.AnalyticsRepository().logSearchClick(query, place.getId());
+            }
+
+            Intent intent = new Intent(this, PlaceDetailsActivity.class);
+            PlaceIntentExtras.putPlaceDetails(intent, place);
+            startActivity(intent);
+            overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
+        });
         recyclerViewPlaces.setAdapter(placeAdapter);
 
         // 5. Setup Category Buttons
@@ -176,6 +189,9 @@ public class HomeActivity extends AppCompatActivity {
     }
 
     private void openCategory(String category) {
+        // Track Category Explored (Requirement 3)
+        new com.arriva.touristguideapp.data.analytics.AnalyticsRepository().trackCategoryExplored(category);
+
         Intent intent = new Intent(this, CategoryPlacesActivity.class);
         intent.putExtra("category", category);
         startActivity(intent);
@@ -189,6 +205,15 @@ public class HomeActivity extends AppCompatActivity {
         // Update the adapter with the filtered list
         if (placeAdapter != null) {
             placeAdapter.updateList(filteredList);
+        }
+
+        // Requirement 2 & 7: Log search analytics with debounce
+        if (query != null && query.trim().length() >= 3) {
+            long currentTime = System.currentTimeMillis();
+            if (currentTime - lastSearchLogTime > SEARCH_LOG_DEBOUNCE) {
+                new com.arriva.touristguideapp.data.analytics.AnalyticsRepository().logSearch(query, filteredList.size());
+                lastSearchLogTime = currentTime;
+            }
         }
     }
 

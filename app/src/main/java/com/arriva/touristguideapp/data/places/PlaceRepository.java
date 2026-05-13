@@ -6,6 +6,7 @@ import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.arriva.touristguideapp.PerformanceTracker;
 import com.arriva.touristguideapp.Place;
 
 import java.util.List;
@@ -49,8 +50,10 @@ public class PlaceRepository {
      */
     @MainThread
     public void fetchPublishedPlaces(@NonNull PlacesLoadCallback callback) {
+        PerformanceTracker.startTimer("FETCH_PLACES_REMOTE");
         remote.fetchPublishedPlaces()
                 .addOnCompleteListener(task -> {
+                    PerformanceTracker.endTimer("FETCH_PLACES_REMOTE");
                     if (!task.isSuccessful()) {
                         Exception ex = task.getException();
                         Log.w(TAG, "fetchPublishedPlaces: Firestore QUERY failed, activating LOCAL_FALLBACK"
