@@ -1,5 +1,8 @@
 package com.arriva.touristguideapp;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
@@ -30,6 +33,33 @@ public class Place implements Serializable {
     private String tag = "Popular"; // Default tag
     private double distance = -1.0; // Distance from user in km
     private boolean isTopPick = false;
+
+    /** HTTPS image URL from Firestore (optional); list UIs may continue using {@link #imageResId} until migrated. */
+    @Nullable
+    private String imageUrl;
+
+    /** Ordered remote gallery URLs from Firestore (optional). */
+    private List<String> galleryImageUrls = new ArrayList<>();
+
+    /** Optional stable category key from Firestore (e.g. {@code history}). */
+    @Nullable
+    private String categoryId;
+
+    /** Firestore catalog lifecycle (e.g. published); optional for local static rows. */
+    @Nullable
+    private String catalogStatus;
+
+    /** Optional id from a prior static catalog for migration tooling. */
+    @Nullable
+    private String legacyCatalogId;
+
+    /** Firestore migration / catalog: drawable resource name (e.g. {@code shaniwar_wada}). */
+    @Nullable
+    private String drawableAssetKey;
+
+    /** Drawable resource names for remote-first rows (gallery when URLs absent). */
+    @NonNull
+    private List<String> galleryDrawableKeys = new ArrayList<>();
 
     /**
      * Comprehensive Constructor including all fields.
@@ -163,5 +193,84 @@ public class Place implements Serializable {
 
     public void setTopPick(boolean topPick) {
         isTopPick = topPick;
+    }
+
+    public void setRating(double rating) {
+        this.rating = rating;
+    }
+
+    @Nullable
+    public String getImageUrl() {
+        return imageUrl;
+    }
+
+    public void setImageUrl(@Nullable String imageUrl) {
+        this.imageUrl = imageUrl;
+    }
+
+    @NonNull
+    public List<String> getGalleryImageUrls() {
+        return galleryImageUrls;
+    }
+
+    public void setGalleryImageUrls(@NonNull List<String> galleryImageUrls) {
+        this.galleryImageUrls = new ArrayList<>(galleryImageUrls);
+    }
+
+    @Nullable
+    public String getCategoryId() {
+        return categoryId;
+    }
+
+    public void setCategoryId(@Nullable String categoryId) {
+        this.categoryId = categoryId;
+    }
+
+    @Nullable
+    public String getCatalogStatus() {
+        return catalogStatus;
+    }
+
+    public void setCatalogStatus(@Nullable String catalogStatus) {
+        this.catalogStatus = catalogStatus;
+    }
+
+    @Nullable
+    public String getLegacyCatalogId() {
+        return legacyCatalogId;
+    }
+
+    public void setLegacyCatalogId(@Nullable String legacyCatalogId) {
+        this.legacyCatalogId = legacyCatalogId;
+    }
+
+    @Nullable
+    public String getDrawableAssetKey() {
+        return drawableAssetKey;
+    }
+
+    public void setDrawableAssetKey(@Nullable String drawableAssetKey) {
+        this.drawableAssetKey = drawableAssetKey;
+    }
+
+    @NonNull
+    public List<String> getGalleryDrawableKeys() {
+        return galleryDrawableKeys;
+    }
+
+    public void setGalleryDrawableKeys(@Nullable List<String> galleryDrawableKeys) {
+        this.galleryDrawableKeys = galleryDrawableKeys != null
+                ? new ArrayList<>(galleryDrawableKeys)
+                : new ArrayList<>();
+    }
+
+    /** True when a remote hero URL is present (adapters can prefer Glide in a later phase). */
+    public boolean hasRemoteHeroImage() {
+        return imageUrl != null && !imageUrl.trim().isEmpty();
+    }
+
+    /** True when any remote gallery URL entries exist. */
+    public boolean hasRemoteGalleryImages() {
+        return galleryImageUrls != null && !galleryImageUrls.isEmpty();
     }
 }

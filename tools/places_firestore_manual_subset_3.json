@@ -1,0 +1,84 @@
+{
+  "description": "Manual Firestore subset test — 3 docs only. Import via Console or Admin SDK. Do not import all 19 until validated.",
+  "collection": "places",
+  "documents": [
+    {
+      "id": "1",
+      "fields": {
+        "status": "published",
+        "legacyId": "1",
+        "slug": "place_pune_shaniwar_wada",
+        "name": "Shaniwar Wada",
+        "city": "Pune",
+        "category": "History",
+        "categoryId": "history",
+        "description": "18th-century Maratha palace fort known for its massive gates and rich history. Built in 1732 by Peshwa Baji Rao I, it was once the seat of the Peshwa empire.",
+        "budget": "Low",
+        "crowdLevel": "High",
+        "bestTime": "Evening",
+        "latitude": 18.5196,
+        "longitude": 73.8553,
+        "ratingAvg": 4.0,
+        "isTopPick": true,
+        "tips": "Visit during evening for light show. Avoid weekends.",
+        "funFact": "The fort is believed to be haunted by the ghost of Narayanrao.",
+        "nearestStation": "Pune Station (3 km)",
+        "tag": "Popular",
+        "drawableAssetKey": "shaniwar_wada",
+        "galleryDrawableKeys": ["shaniwar_wada", "sinhagad", "dagadusheth"]
+      }
+    },
+    {
+      "id": "2",
+      "fields": {
+        "status": "published",
+        "legacyId": "2",
+        "slug": "place_pune_dagdusheth_ganpati",
+        "name": "Dagdusheth Ganpati",
+        "city": "Pune",
+        "category": "Spiritual",
+        "categoryId": "spiritual",
+        "description": "Famous Ganesha temple known for its gold idol and grand Ganesh festival celebrations.",
+        "budget": "Low",
+        "crowdLevel": "Very High",
+        "bestTime": "Morning",
+        "latitude": 18.5165,
+        "longitude": 73.8563,
+        "ratingAvg": 4.0,
+        "isTopPick": true,
+        "tips": "Visit early morning to avoid crowd.",
+        "funFact": "The idol is adorned with over 40kg gold.",
+        "nearestStation": "Pune Station (2.5 km)",
+        "tag": "Popular",
+        "drawableAssetKey": "dagadusheth",
+        "galleryDrawableKeys": ["dagadusheth", "shaniwar_wada"]
+      }
+    },
+    {
+      "id": "4",
+      "fields": {
+        "status": "published",
+        "legacyId": "4",
+        "slug": "place_pune_khadakwasla_dam",
+        "name": "Khadakwasla Dam",
+        "city": "Pune",
+        "category": "Nature",
+        "categoryId": "nature",
+        "description": "Scenic dam known for sunset views and peaceful environment. Popular picnic spot.",
+        "budget": "Low",
+        "crowdLevel": "High",
+        "bestTime": "Evening",
+        "latitude": 18.4465,
+        "longitude": 73.765,
+        "ratingAvg": 4.0,
+        "isTopPick": false,
+        "tips": "Best during sunset. Avoid late night.",
+        "funFact": "Featured in Bollywood movie scenes.",
+        "nearestStation": "Shivajinagar (15 km)",
+        "tag": "Couple",
+        "drawableAssetKey": "khadakwasla",
+        "galleryDrawableKeys": ["khadakwasla", "sinhagad"]
+      }
+    }
+  ]
+}

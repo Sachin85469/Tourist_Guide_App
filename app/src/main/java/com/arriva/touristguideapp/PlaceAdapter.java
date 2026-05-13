@@ -67,6 +67,12 @@ public class PlaceAdapter extends RecyclerView.Adapter<PlaceAdapter.ViewHolder> 
         return placeList.size();
     }
 
+    @Override
+    public void onViewRecycled(@NonNull ViewHolder holder) {
+        PlaceImageHelper.clear(holder.placeImage);
+        super.onViewRecycled(holder);
+    }
+
     public static class ViewHolder extends RecyclerView.ViewHolder {
         public TextView placeName;
         public TextView placeCategory;
@@ -98,7 +104,7 @@ public class PlaceAdapter extends RecyclerView.Adapter<PlaceAdapter.ViewHolder> 
             if (placeCity != null) placeCity.setText(place.getCity());
             if (placeRating != null) placeRating.setText(String.format(Locale.getDefault(), "%.1f ⭐", place.getRating()));
             if (placeTag != null) placeTag.setText(place.getTag());
-            placeImage.setImageResource(place.getImageResId());
+            PlaceImageHelper.loadThumbnail(placeImage, place);
             
             // Display Top Pick Badge
             if (txtBadge != null) {
@@ -133,6 +139,14 @@ public class PlaceAdapter extends RecyclerView.Adapter<PlaceAdapter.ViewHolder> 
                     intent.putExtra("tips", place.getTips());
                     intent.putExtra("funFact", place.getFunFact());
                     intent.putExtra("nearestStation", place.getNearestStation());
+                    // Pass remote image data for Firestore places
+                    if (place.getImageUrl() != null) {
+                        intent.putExtra("imageUrl", place.getImageUrl());
+                    }
+                    if (place.hasRemoteGalleryImages()) {
+                        intent.putStringArrayListExtra("galleryImageUrls",
+                                new java.util.ArrayList<>(place.getGalleryImageUrls()));
+                    }
                     context.startActivity(intent);
                     if (context instanceof Activity) {
                         ((Activity) context).overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);

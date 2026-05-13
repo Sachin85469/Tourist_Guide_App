@@ -39,7 +39,7 @@ public class TopPickAdapter extends RecyclerView.Adapter<TopPickAdapter.ViewHold
             name.setText(place.getName());
             rating.setText(place.getRating() + " ⭐");
             budget.setText(place.getBudget());
-            image.setImageResource(place.getImageResId());
+            PlaceImageHelper.loadThumbnail(image, place);
 
             if (distance != null) {
                 if (place.getDistance() >= 0) {
@@ -95,5 +95,11 @@ public class TopPickAdapter extends RecyclerView.Adapter<TopPickAdapter.ViewHold
     @Override
     public int getItemCount() {
         return topPickList.size();
+    }
+
+    @Override
+    public void onViewRecycled(@NonNull ViewHolder holder) {
+        PlaceImageHelper.clear(holder.image);
+        super.onViewRecycled(holder);
     }
 }

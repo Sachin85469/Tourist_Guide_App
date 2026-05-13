@@ -5,7 +5,6 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 
 import com.google.android.gms.tasks.Task;
-import com.google.android.gms.tasks.Tasks;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
@@ -71,38 +70,48 @@ public class FirestorePlaceDataSource {
                                              @NonNull String operation) {
         if (!task.isSuccessful()) {
             Exception e = task.getException();
-            Log.e(TAG, operation + " query failed", e);
-            throw e != null ? new RuntimeException(e) : new RuntimeException(operation + " failed");
+            Log.e(TAG, operation + " query failed"
+                    + " exceptionType=" + (e != null ? e.getClass().getSimpleName() : "null")
+                    + " message=" + (e != null ? e.getMessage() : "unknown"), e);
+            // Return empty list instead of throwing — PlaceRepository will treat as "empty remote"
+            // and apply LOCAL_FALLBACK gracefully instead of crashing the continuation.
+            return new ArrayList<>();
         }
         QuerySnapshot snapshot = task.getResult();
         if (snapshot == null) {
-            Log.w(TAG, operation + " returned null snapshot");
+            Log.w(TAG, operation + " returned null snapshot — treating as empty");
             return new ArrayList<>();
         }
 
         List<PlaceDto> out = new ArrayList<>();
-        snapshot.getDocuments().forEach(doc -> {
+        int skipped = 0;
+        for (com.google.firebase.firestore.DocumentSnapshot doc : snapshot.getDocuments()) {
             try {
                 PlaceDto dto = PlaceDto.fromSnapshot(doc);
                 if (dto != null) {
                     out.add(dto);
+                    Log.d(TAG, operation + ": OK docId=" + dto.getDocumentId() + " name=" + dto.getName());
                 } else {
-                    Log.w(TAG, operation + ": skipped invalid document id=" + doc.getId());
+                    skipped++;
+                    boolean missingRequired = PlaceDto.isMissingRequiredFields(doc);
+                    Log.w(TAG, operation + ": SKIPPED document id=" + doc.getId()
+                            + " reason="
+                            + (missingRequired
+                            ? "missing_required_name_or_status"
+                            : "fatal_parse_exception_or_recovery_failed")
+                            + " (see PlaceDto tag for field-level detail)");
                 }
             } catch (Exception ex) {
-                Log.e(TAG, operation + ": mapping exception for id=" + doc.getId(), ex);
+                skipped++;
+                Log.e(TAG, operation + ": EXCEPTION for docId=" + doc.getId()
+                        + " exceptionType=" + ex.getClass().getSimpleName()
+                        + " message=" + ex.getMessage(), ex);
             }
-        });
+        }
 
-        Log.d(TAG, operation + " success count=" + out.size());
+        Log.i(TAG, operation + " SUMMARY rawDocs=" + snapshot.size()
+                + " parsedOK=" + out.size()
+                + " skipped=" + skipped);
         return out;
-    }
-
-    /**
-     * Wraps a failed Task into an empty success for repository-level fallback handling.
-     */
-    @NonNull
-    public static <T> Task<T> emptySuccess() {
-        return Tasks.forResult(null);
     }
 }

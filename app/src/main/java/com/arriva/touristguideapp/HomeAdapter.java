@@ -124,6 +124,14 @@ public class HomeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         return sections.size();
     }
 
+    @Override
+    public void onViewRecycled(@NonNull RecyclerView.ViewHolder holder) {
+        if (holder instanceof PlaceViewHolder) {
+            PlaceImageHelper.clear(((PlaceViewHolder) holder).placeImage);
+        }
+        super.onViewRecycled(holder);
+    }
+
     static class WelcomeViewHolder extends RecyclerView.ViewHolder {
         TextView tvWelcomeUser;
         WelcomeViewHolder(View itemView) {
@@ -234,7 +242,7 @@ public class HomeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 }
             }
 
-            placeImage.setImageResource(place.getImageResId());
+            PlaceImageHelper.loadThumbnail(placeImage, place);
             
             boolean isFav = FavoritesManager.isFavorite(context, place.getId());
             btnFavorite.setImageResource(isFav ? R.drawable.ic_favorite : R.drawable.ic_favorite_border);
@@ -257,6 +265,14 @@ public class HomeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                     intent.putExtra("nearestStation", place.getNearestStation());
                     intent.putExtra("lat", place.getLatitude());
                     intent.putExtra("lng", place.getLongitude());
+                    // Pass remote image data for Firestore places
+                    if (place.getImageUrl() != null) {
+                        intent.putExtra("imageUrl", place.getImageUrl());
+                    }
+                    if (place.hasRemoteGalleryImages()) {
+                        intent.putStringArrayListExtra("galleryImageUrls",
+                                new java.util.ArrayList<>(place.getGalleryImageUrls()));
+                    }
                     context.startActivity(intent);
                 }
             });
