@@ -53,6 +53,7 @@ public class FirestoreReviewDataSource {
     /**
      * Submits or updates a review for a place.
      * Uses a transaction to update aggregate ratings on the parent place document.
+     * Ensure mandatory fields are ALWAYS present and aggregates are consistent.
      */
     public Task<Void> submitReview(String placeId, Review review) {
         DocumentReference placeRef = db.collection(PlacesFirestoreContract.COLLECTION_PLACES).document(placeId);
@@ -64,10 +65,16 @@ public class FirestoreReviewDataSource {
 
             boolean isNewReview = !reviewSnapshot.exists();
             float oldRating = 0;
+            String oldStatus = Review.STATUS_ACTIVE;
+            
             if (!isNewReview) {
                 Double r = reviewSnapshot.getDouble(ReviewsFirestoreContract.FIELD_RATING);
                 oldRating = r != null ? r.floatValue() : 0;
+                String s = reviewSnapshot.getString(ReviewsFirestoreContract.FIELD_STATUS);
+                if (s != null) oldStatus = s;
             }
+            
+            boolean wasActive = !isNewReview && Review.STATUS_ACTIVE.equals(oldStatus);
             float newRating = review.getRating();
 
             double currentAvg = 0.0;
@@ -98,33 +105,34 @@ public class FirestoreReviewDataSource {
                 if (review.getComment() != null && !review.getComment().trim().isEmpty()) {
                     newComments = currentComments + 1;
                 }
-                // Ensure createdAt is set for new reviews
-                if (review.getCreatedAt() == null) {
-                    review.setCreatedAt(new Date());
-                }
+                if (review.getCreatedAt() == null) review.setCreatedAt(new Date());
                 Log.d(TAG, "REVIEW_CREATED placeId=" + placeId);
             } else {
-                newAvg = ((currentAvg * currentTotal) - oldRating + newRating) / currentTotal;
+                // If it was already active, just adjust the average. 
+                // If it was NOT active, it's a "new" contribution to the visible total.
+                if (wasActive) {
+                    newAvg = ((currentAvg * currentTotal) - oldRating + newRating) / currentTotal;
+                } else {
+                    newTotal = currentTotal + 1;
+                    newAvg = ((currentAvg * currentTotal) + newRating) / newTotal;
+                }
+                
                 String oldComment = reviewSnapshot.getString(ReviewsFirestoreContract.FIELD_COMMENT);
-                boolean hadComment = oldComment != null && !oldComment.trim().isEmpty();
+                boolean hadComment = wasActive && oldComment != null && !oldComment.trim().isEmpty();
                 boolean hasComment = review.getComment() != null && !review.getComment().trim().isEmpty();
                 
                 if (!hadComment && hasComment) newComments = currentComments + 1;
                 else if (hadComment && !hasComment) newComments = currentComments - 1;
 
-                // Preservation: Keep original createdAt if it exists in DB
                 Date originalCreatedAt = reviewSnapshot.getDate(ReviewsFirestoreContract.FIELD_CREATED_AT);
-                if (originalCreatedAt != null) {
-                    review.setCreatedAt(originalCreatedAt);
-                } else if (review.getCreatedAt() == null) {
-                    // Fallback for legacy updates
-                    review.setCreatedAt(new Date());
-                }
+                if (originalCreatedAt != null) review.setCreatedAt(originalCreatedAt);
+                else if (review.getCreatedAt() == null) review.setCreatedAt(new Date());
 
-                Log.d(TAG, "REVIEW_UPDATED placeId=" + placeId);
+                Log.d(TAG, "REVIEW_UPDATED placeId=" + placeId + " wasActive=" + wasActive);
             }
 
             review.setUpdatedAt(new Date());
+            review.setStatus(Review.STATUS_ACTIVE); // Editing always restores to active
 
             transaction.set(reviewRef, review);
             transaction.update(placeRef, 
@@ -242,10 +250,70 @@ public class FirestoreReviewDataSource {
     }
 
     public Task<Void> updateReviewStatus(String placeId, String userId, String newStatus) {
-        return db.collection(PlacesFirestoreContract.COLLECTION_PLACES)
-                .document(placeId)
-                .collection(ReviewsFirestoreContract.SUB_COLLECTION_REVIEWS)
-                .document(userId)
-                .update(ReviewsFirestoreContract.FIELD_STATUS, newStatus);
+        DocumentReference placeRef = db.collection(PlacesFirestoreContract.COLLECTION_PLACES).document(placeId);
+        DocumentReference reviewRef = placeRef.collection(ReviewsFirestoreContract.SUB_COLLECTION_REVIEWS).document(userId);
+
+        return db.runTransaction(transaction -> {
+            DocumentSnapshot reviewSnapshot = transaction.get(reviewRef);
+            if (!reviewSnapshot.exists()) return null;
+
+            String oldStatus = reviewSnapshot.getString(ReviewsFirestoreContract.FIELD_STATUS);
+            if (oldStatus == null) oldStatus = Review.STATUS_ACTIVE;
+            
+            if (oldStatus.equals(newStatus)) return null;
+
+            boolean wasActive = Review.STATUS_ACTIVE.equals(oldStatus);
+            boolean isBecomingActive = Review.STATUS_ACTIVE.equals(newStatus);
+
+            if (wasActive == isBecomingActive) {
+                // Both are non-active (e.g., reported -> hidden), just update status
+                transaction.update(reviewRef, ReviewsFirestoreContract.FIELD_STATUS, newStatus);
+                return null;
+            }
+
+            // Status transition affects aggregates
+            float rating = 0;
+            Double r = reviewSnapshot.getDouble(ReviewsFirestoreContract.FIELD_RATING);
+            if (r != null) rating = r.floatValue();
+
+            String comment = reviewSnapshot.getString(ReviewsFirestoreContract.FIELD_COMMENT);
+            boolean hasComment = comment != null && !comment.trim().isEmpty();
+
+            DocumentSnapshot placeSnapshot = transaction.get(placeRef);
+            double currentAvg = 0.0;
+            Double a = placeSnapshot.getDouble(ReviewsFirestoreContract.FIELD_PLACE_AVG_RATING);
+            if (a != null) currentAvg = a;
+
+            long currentTotal = 0;
+            Long t = placeSnapshot.getLong(ReviewsFirestoreContract.FIELD_PLACE_TOTAL_RATINGS);
+            if (t != null) currentTotal = t;
+
+            long currentComments = 0;
+            Long c = placeSnapshot.getLong(ReviewsFirestoreContract.FIELD_PLACE_TOTAL_COMMENTS);
+            if (c != null) currentComments = c;
+
+            long newTotal;
+            double newAvg;
+            long newComments;
+
+            if (wasActive) { // Active -> Non-Active
+                newTotal = currentTotal - 1;
+                newAvg = newTotal > 0 ? ((currentAvg * currentTotal) - rating) / newTotal : 0.0;
+                newComments = hasComment ? currentComments - 1 : currentComments;
+            } else { // Non-Active -> Active
+                newTotal = currentTotal + 1;
+                newAvg = ((currentAvg * currentTotal) + rating) / newTotal;
+                newComments = hasComment ? currentComments + 1 : currentComments;
+            }
+
+            transaction.update(reviewRef, ReviewsFirestoreContract.FIELD_STATUS, newStatus);
+            transaction.update(placeRef, 
+                ReviewsFirestoreContract.FIELD_PLACE_AVG_RATING, newAvg,
+                ReviewsFirestoreContract.FIELD_PLACE_TOTAL_RATINGS, newTotal,
+                ReviewsFirestoreContract.FIELD_PLACE_TOTAL_COMMENTS, newComments
+            );
+
+            return null;
+        });
     }
 }

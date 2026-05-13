@@ -37,15 +37,14 @@ public class ReviewRepository {
     public ListenerRegistration listenToReviews(String placeId, int limit, ReviewsCallback callback) {
         return dataSource.listenToReviews(placeId, limit, (value, error) -> {
             if (error != null) {
-                android.util.Log.e("ReviewRepository", "REVIEW_FETCH_FAILED: " + error.getMessage());
+                android.util.Log.e("ReviewRepository", "REVIEW_PERMISSION_DENIED or error: " + error.getMessage());
                 callback.onReviewsLoaded(new ArrayList<>(), error.getMessage());
                 return;
             }
             if (value != null) {
-                android.util.Log.d("ReviewRepository", "REVIEW_DOCS_FETCHED count=" + value.size());
-                List<ReviewDto> dtos = value.toObjects(ReviewDto.class);
-                List<Review> reviews = ReviewMapper.toReviews(dtos);
-                android.util.Log.d("ReviewRepository", "REVIEW_LIST_SUBMITTED count=" + reviews.size());
+                android.util.Log.d("ReviewRepository", "REVIEW_QUERY_RESULT_COUNT: count=" + value.size());
+                List<Review> reviews = ReviewMapper.fromSnapshots(value.getDocuments());
+                android.util.Log.d("ReviewRepository", "REVIEW_LIST_SUBMITTED: count=" + reviews.size());
                 callback.onReviewsLoaded(reviews, null);
             }
         });

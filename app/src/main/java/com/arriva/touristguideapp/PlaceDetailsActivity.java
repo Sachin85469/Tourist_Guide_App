@@ -321,6 +321,7 @@ public class PlaceDetailsActivity extends AppCompatActivity {
         reviewsListener = reviewRepository.listenToReviews(placeId, currentReviewLimit, (reviews, error) -> {
             pbReviewsLoading.setVisibility(View.GONE);
             isPaginationLoading = false;
+            Log.d(TAG, "REVIEW_REALTIME_EVENT: trigger=FirestoreSnapshot count=" + reviews.size());
             Log.d(TAG, "REVIEW_REALTIME_UPDATE count=" + reviews.size() + " limit=" + currentReviewLimit);
             
             if (error != null) {
@@ -341,7 +342,9 @@ public class PlaceDetailsActivity extends AppCompatActivity {
                 // If the number of reviews returned is less than current limit, there are no more reviews
                 hasMoreReviews = reviews.size() >= currentReviewLimit;
                 
+                Log.d(TAG, "REVIEW_ADAPTER_SUBMIT: size=" + reviews.size());
                 reviewAdapter.setReviews(reviews);
+                Log.d(TAG, "REVIEW_LIST_FINAL_SIZE: " + reviewAdapter.getItemCount());
             }
         });
         Log.d(TAG, "REVIEW_LISTENER_ATTACHED placeId=" + placeId + " limit=" + currentReviewLimit);
