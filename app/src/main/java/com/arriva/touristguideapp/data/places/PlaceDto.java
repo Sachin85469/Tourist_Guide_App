@@ -45,6 +45,8 @@ public final class PlaceDto {
     private final double latitude;
     private final double longitude;
     private final double rating;
+    private final long totalRatings;
+    private final long totalComments;
     @Nullable
     private final String imageUrl;
     private final List<String> galleryImageUrls;
@@ -75,6 +77,8 @@ public final class PlaceDto {
             double latitude,
             double longitude,
             double rating,
+            long totalRatings,
+            long totalComments,
             @Nullable String imageUrl,
             List<String> galleryImageUrls,
             String tips,
@@ -99,6 +103,8 @@ public final class PlaceDto {
         this.latitude = latitude;
         this.longitude = longitude;
         this.rating = rating;
+        this.totalRatings = totalRatings;
+        this.totalComments = totalComments;
         this.imageUrl = imageUrl;
         this.galleryImageUrls = Collections.unmodifiableList(new ArrayList<>(galleryImageUrls));
         this.tips = tips;
@@ -236,6 +242,9 @@ public final class PlaceDto {
                     snap, documentId, PlacesFirestoreContract.FIELD_RATING, DEFAULT_RATING);
         }
 
+        long totalRatings = (long) readOptionalDouble(snap, documentId, "totalRatings", 0);
+        long totalComments = (long) readOptionalDouble(snap, documentId, "totalComments", 0);
+
         String imageUrl = readOptionalStringOrNull(snap, documentId, PlacesFirestoreContract.FIELD_IMAGE_URL);
         if (imageUrl == null) {
             imageUrl = readOptionalStringOrNull(snap, documentId, PlacesFirestoreContract.FIELD_HERO_IMAGE_URL);
@@ -292,6 +301,8 @@ public final class PlaceDto {
                 latitude,
                 longitude,
                 rating,
+                totalRatings,
+                totalComments,
                 trimmedHero,
                 gallery,
                 tips,
@@ -330,6 +341,8 @@ public final class PlaceDto {
                 0d,
                 0d,
                 DEFAULT_RATING,
+                0,
+                0,
                 null,
                 new ArrayList<>(),
                 DEFAULT_DESCRIPTION,
@@ -624,6 +637,14 @@ public final class PlaceDto {
 
     public double getRating() {
         return rating;
+    }
+
+    public long getTotalRatings() {
+        return totalRatings;
+    }
+
+    public long getTotalComments() {
+        return totalComments;
     }
 
     @Nullable

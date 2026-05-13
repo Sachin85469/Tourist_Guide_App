@@ -46,6 +46,8 @@ public final class PlaceMapper {
                     dto.getTag()
             );
             place.setRating(dto.getRating());
+            place.setTotalRatings(dto.getTotalRatings());
+            place.setTotalComments(dto.getTotalComments());
             place.setTopPick(dto.isTopPick());
             place.setImageUrl(dto.getImageUrl());
 

@@ -23,7 +23,9 @@ public class Place implements Serializable {
     private String bestTime;
     private double latitude;
     private double longitude;
-    private double rating = 4.0; // Default rating
+    private double rating = 0.0; // Average rating from reviews
+    private long totalRatings = 0;
+    private long totalComments = 0;
     
     // New Fields
     private String tips = "";
@@ -101,6 +103,8 @@ public class Place implements Serializable {
     public double getLatitude() { return latitude; }
     public double getLongitude() { return longitude; }
     public double getRating() { return rating; }
+    public long getTotalRatings() { return totalRatings; }
+    public long getTotalComments() { return totalComments; }
     public String getTag() { return tag; }
     
     // Alias getters
@@ -130,6 +134,14 @@ public class Place implements Serializable {
 
     public void setRating(double rating) {
         this.rating = rating;
+    }
+
+    public void setTotalRatings(long totalRatings) {
+        this.totalRatings = totalRatings;
+    }
+
+    public void setTotalComments(long totalComments) {
+        this.totalComments = totalComments;
     }
 
     @Nullable

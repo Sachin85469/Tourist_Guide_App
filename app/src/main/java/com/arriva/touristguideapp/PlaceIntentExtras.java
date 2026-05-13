@@ -27,6 +27,8 @@ public final class PlaceIntentExtras {
         intent.putExtra("nearestStation", place.getNearestStation());
         intent.putExtra("lat", place.getLatitude());
         intent.putExtra("lng", place.getLongitude());
+        intent.putExtra("avgRating", place.getRating());
+        intent.putExtra("totalRatings", place.getTotalRatings());
 
         String hero = place.getImageUrl();
         if (hero != null && !hero.trim().isEmpty()) {

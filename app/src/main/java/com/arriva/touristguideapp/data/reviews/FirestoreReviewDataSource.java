@@ -1,20 +1,18 @@
 package com.arriva.touristguideapp.data.reviews;
 
 import android.util.Log;
-import androidx.annotation.NonNull;
 import com.arriva.touristguideapp.Review;
 import com.arriva.touristguideapp.data.places.PlacesFirestoreContract;
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.Tasks;
-import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.ListenerRegistration;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
-import com.google.firebase.firestore.Transaction;
 import java.util.Date;
-import java.util.List;
 
 /**
  * Data source for interacting with Firestore reviews.
@@ -26,6 +24,27 @@ public class FirestoreReviewDataSource {
 
     public FirestoreReviewDataSource() {
         this.db = FirebaseFirestore.getInstance();
+    }
+
+    /**
+     * Realtime listener for reviews of a place.
+     */
+    public ListenerRegistration listenToReviews(String placeId, EventListener<QuerySnapshot> listener) {
+        Log.d(TAG, "REVIEW_LISTENER_ATTACHED placeId=" + placeId);
+        return db.collection(PlacesFirestoreContract.COLLECTION_PLACES)
+                .document(placeId)
+                .collection(ReviewsFirestoreContract.SUB_COLLECTION_REVIEWS)
+                .orderBy(ReviewsFirestoreContract.FIELD_CREATED_AT, Query.Direction.DESCENDING)
+                .addSnapshotListener(listener);
+    }
+
+    /**
+     * Realtime listener for the parent place document (to watch ratings change).
+     */
+    public ListenerRegistration listenToPlace(String placeId, EventListener<DocumentSnapshot> listener) {
+        return db.collection(PlacesFirestoreContract.COLLECTION_PLACES)
+                .document(placeId)
+                .addSnapshotListener(listener);
     }
 
     /**
@@ -41,15 +60,30 @@ public class FirestoreReviewDataSource {
             DocumentSnapshot reviewSnapshot = transaction.get(reviewRef);
 
             boolean isNewReview = !reviewSnapshot.exists();
-            float oldRating = isNewReview ? 0 : reviewSnapshot.getDouble(ReviewsFirestoreContract.FIELD_RATING).floatValue();
+            float oldRating = 0;
+            if (!isNewReview) {
+                Double r = reviewSnapshot.getDouble(ReviewsFirestoreContract.FIELD_RATING);
+                oldRating = r != null ? r.floatValue() : 0;
+            }
             float newRating = review.getRating();
 
-            double currentAvg = placeSnapshot.contains(ReviewsFirestoreContract.FIELD_PLACE_AVG_RATING) ? 
-                    placeSnapshot.getDouble(ReviewsFirestoreContract.FIELD_PLACE_AVG_RATING) : 0.0;
-            long currentTotal = placeSnapshot.contains(ReviewsFirestoreContract.FIELD_PLACE_TOTAL_RATINGS) ? 
-                    placeSnapshot.getLong(ReviewsFirestoreContract.FIELD_PLACE_TOTAL_RATINGS) : 0;
-            long currentComments = placeSnapshot.contains(ReviewsFirestoreContract.FIELD_PLACE_TOTAL_COMMENTS) ? 
-                    placeSnapshot.getLong(ReviewsFirestoreContract.FIELD_PLACE_TOTAL_COMMENTS) : 0;
+            double currentAvg = 0.0;
+            if (placeSnapshot.contains(ReviewsFirestoreContract.FIELD_PLACE_AVG_RATING)) {
+                Double a = placeSnapshot.getDouble(ReviewsFirestoreContract.FIELD_PLACE_AVG_RATING);
+                if (a != null) currentAvg = a;
+            }
+
+            long currentTotal = 0;
+            if (placeSnapshot.contains(ReviewsFirestoreContract.FIELD_PLACE_TOTAL_RATINGS)) {
+                Long t = placeSnapshot.getLong(ReviewsFirestoreContract.FIELD_PLACE_TOTAL_RATINGS);
+                if (t != null) currentTotal = t;
+            }
+
+            long currentComments = 0;
+            if (placeSnapshot.contains(ReviewsFirestoreContract.FIELD_PLACE_TOTAL_COMMENTS)) {
+                Long c = placeSnapshot.getLong(ReviewsFirestoreContract.FIELD_PLACE_TOTAL_COMMENTS);
+                if (c != null) currentComments = c;
+            }
 
             double newAvg;
             long newTotal = currentTotal;
@@ -62,14 +96,16 @@ public class FirestoreReviewDataSource {
                     newComments = currentComments + 1;
                 }
                 review.setCreatedAt(new Date());
+                Log.d(TAG, "REVIEW_CREATED placeId=" + placeId);
             } else {
                 newAvg = ((currentAvg * currentTotal) - oldRating + newRating) / currentTotal;
-                boolean hadComment = reviewSnapshot.getString(ReviewsFirestoreContract.FIELD_COMMENT) != null && 
-                                    !reviewSnapshot.getString(ReviewsFirestoreContract.FIELD_COMMENT).trim().isEmpty();
+                String oldComment = reviewSnapshot.getString(ReviewsFirestoreContract.FIELD_COMMENT);
+                boolean hadComment = oldComment != null && !oldComment.trim().isEmpty();
                 boolean hasComment = review.getComment() != null && !review.getComment().trim().isEmpty();
                 
                 if (!hadComment && hasComment) newComments = currentComments + 1;
                 else if (hadComment && !hasComment) newComments = currentComments - 1;
+                Log.d(TAG, "REVIEW_UPDATED placeId=" + placeId);
             }
 
             review.setUpdatedAt(new Date());
@@ -82,8 +118,16 @@ public class FirestoreReviewDataSource {
             );
 
             return null;
-        }).addOnSuccessListener(aVoid -> Log.i(TAG, "REVIEW_UPLOAD_SUCCESS placeId=" + placeId + " userId=" + review.getUserId()))
-          .addOnFailureListener(e -> Log.e(TAG, "REVIEW_UPLOAD_FAILED placeId=" + placeId + " error=" + e.getMessage()));
+        }).continueWithTask(task -> {
+            if (task.isSuccessful()) {
+                Log.i(TAG, "REVIEW_UPLOAD_SUCCESS placeId=" + placeId + " userId=" + review.getUserId());
+                return Tasks.forResult(null);
+            } else {
+                Exception e = task.getException();
+                Log.e(TAG, "REVIEW_UPLOAD_FAILED placeId=" + placeId + " error=" + (e != null ? e.getMessage() : "unknown"));
+                return Tasks.forException(e != null ? e : new Exception("Transaction failed"));
+            }
+        });
     }
 
     public Task<QuerySnapshot> fetchReviews(String placeId) {
@@ -112,14 +156,26 @@ public class FirestoreReviewDataSource {
             DocumentSnapshot reviewSnapshot = transaction.get(reviewRef);
             if (!reviewSnapshot.exists()) return null;
 
-            float rating = reviewSnapshot.getDouble(ReviewsFirestoreContract.FIELD_RATING).floatValue();
-            boolean hadComment = reviewSnapshot.getString(ReviewsFirestoreContract.FIELD_COMMENT) != null && 
-                                !reviewSnapshot.getString(ReviewsFirestoreContract.FIELD_COMMENT).trim().isEmpty();
+            float rating = 0;
+            Double r = reviewSnapshot.getDouble(ReviewsFirestoreContract.FIELD_RATING);
+            if (r != null) rating = r.floatValue();
+
+            String oldComment = reviewSnapshot.getString(ReviewsFirestoreContract.FIELD_COMMENT);
+            boolean hadComment = oldComment != null && !oldComment.trim().isEmpty();
 
             DocumentSnapshot placeSnapshot = transaction.get(placeRef);
-            double currentAvg = placeSnapshot.getDouble(ReviewsFirestoreContract.FIELD_PLACE_AVG_RATING);
-            long currentTotal = placeSnapshot.getLong(ReviewsFirestoreContract.FIELD_PLACE_TOTAL_RATINGS);
-            long currentComments = placeSnapshot.getLong(ReviewsFirestoreContract.FIELD_PLACE_TOTAL_COMMENTS);
+            
+            double currentAvg = 0.0;
+            Double a = placeSnapshot.getDouble(ReviewsFirestoreContract.FIELD_PLACE_AVG_RATING);
+            if (a != null) currentAvg = a;
+
+            long currentTotal = 0;
+            Long t = placeSnapshot.getLong(ReviewsFirestoreContract.FIELD_PLACE_TOTAL_RATINGS);
+            if (t != null) currentTotal = t;
+
+            long currentComments = 0;
+            Long c = placeSnapshot.getLong(ReviewsFirestoreContract.FIELD_PLACE_TOTAL_COMMENTS);
+            if (c != null) currentComments = c;
 
             long newTotal = currentTotal - 1;
             double newAvg = newTotal > 0 ? ((currentAvg * currentTotal) - rating) / newTotal : 0.0;
@@ -133,6 +189,13 @@ public class FirestoreReviewDataSource {
             );
 
             return null;
+        }).continueWithTask(task -> {
+            if (task.isSuccessful()) {
+                return Tasks.forResult(null);
+            } else {
+                Exception e = task.getException();
+                return Tasks.forException(e != null ? e : new Exception("Delete transaction failed"));
+            }
         });
     }
 }
