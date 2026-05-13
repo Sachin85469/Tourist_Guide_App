@@ -27,6 +27,7 @@ import com.google.android.gms.location.LocationServices;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationBarView;
 import com.google.android.libraries.places.api.Places;
+import com.arriva.touristguideapp.data.places.PlaceMigrationHelper;
 import com.arriva.touristguideapp.data.places.PlaceRepository;
 import com.google.firebase.auth.FirebaseAuth;
 import java.util.ArrayList;
@@ -82,6 +83,14 @@ public class MainActivity extends AppCompatActivity {
 
         // Profile Avatar and User Info Setup
         loadUserInfo();
+        // TEMPORARY: long-press subtitle to seed Firestore from DataProvider (remove with PlaceMigrationHelper).
+        if (tvMainUserEmail != null) {
+            tvMainUserEmail.setOnLongClickListener(v -> {
+                Toast.makeText(this, "Starting Firestore place migration…", Toast.LENGTH_SHORT).show();
+                migratePlacesToFirestore();
+                return true;
+            });
+        }
         progressBar = findViewById(R.id.mainProgressBar);
         emptyStateContainer = findViewById(R.id.tvEmptyState);
         searchBox = findViewById(R.id.searchBox);
@@ -366,6 +375,17 @@ public class MainActivity extends AppCompatActivity {
         for (Place p : allPlaces) {
             sections.add(new HomeSection(HomeSection.TYPE_PLACE, p));
         }
+    }
+
+    /**
+     * TEMPORARY: uploads all {@link DataProvider#getAllPlaces()} documents into Firestore {@code places}.
+     * Remove this method and the {@code tvMainUserEmail} long-press hook after one-time migration.
+     */
+    private void migratePlacesToFirestore() {
+        PlaceMigrationHelper.migratePlacesToFirestore(getApplicationContext(), (success, failure) ->
+                runOnUiThread(() -> Toast.makeText(this,
+                        "Migration finished: " + success + " succeeded, " + failure + " failed",
+                        Toast.LENGTH_LONG).show()));
     }
 
     /**
