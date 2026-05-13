@@ -18,7 +18,12 @@ public class FavoritesManager {
     public static void toggleFavorite(Context context, String placeId) {
         SharedPreferences prefs = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
         boolean current = prefs.getBoolean(placeId, false);
-        prefs.edit().putBoolean(placeId, !current).apply();
+        boolean next = !current;
+        prefs.edit().putBoolean(placeId, next).apply();
+        
+        if (next) {
+            new com.arriva.touristguideapp.data.analytics.AnalyticsRepository().trackFavoriteAdded(placeId);
+        }
     }
 
     public static Set<String> getFavoriteIds(Context context) {

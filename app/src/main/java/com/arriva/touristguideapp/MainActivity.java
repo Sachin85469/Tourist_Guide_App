@@ -61,6 +61,7 @@ public class MainActivity extends AppCompatActivity {
     private TextView tvMainUserName, tvMainUserEmail;
 
     private PlaceRepository placeRepository;
+    private com.arriva.touristguideapp.data.analytics.AnalyticsRepository analyticsRepository;
     private com.arriva.touristguideapp.data.places.DiscoveryRepository discoveryRepository;
     private com.arriva.touristguideapp.data.places.SearchHistoryManager searchHistoryManager;
     private com.arriva.touristguideapp.data.places.RecentlyViewedManager recentlyViewedManager;
@@ -197,6 +198,7 @@ public class MainActivity extends AppCompatActivity {
 
         searchHistoryManager.addSearch(text);
         List<Place> filteredList = discoveryRepository.searchAndRank(allPlaces, text);
+        analyticsRepository.logSearch(text, filteredList.size());
 
         if (filteredList.isEmpty()) {
             rvHome.setVisibility(View.GONE);
@@ -216,6 +218,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void initData() {
         placeRepository = new PlaceRepository();
+        analyticsRepository = new com.arriva.touristguideapp.data.analytics.AnalyticsRepository();
         discoveryRepository = new com.arriva.touristguideapp.data.places.DiscoveryRepository();
         searchHistoryManager = new com.arriva.touristguideapp.data.places.SearchHistoryManager(this);
         recentlyViewedManager = new com.arriva.touristguideapp.data.places.RecentlyViewedManager(this);

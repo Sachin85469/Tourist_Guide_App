@@ -57,16 +57,30 @@ public class DiscoveryRepository {
     }
 
     /**
-     * Trending: High rating + high review count.
+     * Trending: High rating + high review count + engagement (views).
      */
-    public List<Place> getTrendingPlaces(List<Place> allPlaces) {
+    public List<Place> getTrendingPlaces(List<Place> allPlaces, java.util.Map<String, Long> placeViews) {
         List<Place> trending = new ArrayList<>(allPlaces);
         Collections.sort(trending, (p1, p2) -> {
             double s1 = (p1.getRating() * 10) + p1.getTotalRatings();
+            if (placeViews != null) {
+                Long v1 = placeViews.get(p1.getId());
+                if (v1 != null) s1 += (v1 / 5.0); // 1 point per 5 views
+            }
+
             double s2 = (p2.getRating() * 10) + p2.getTotalRatings();
+            if (placeViews != null) {
+                Long v2 = placeViews.get(p2.getId());
+                if (v2 != null) s2 += (v2 / 5.0);
+            }
             return Double.compare(s2, s1);
         });
+        Log.d(TAG, "TRENDING_SCORE_UPDATED");
         return trending.size() > 10 ? trending.subList(0, 10) : trending;
+    }
+
+    public List<Place> getTrendingPlaces(List<Place> allPlaces) {
+        return getTrendingPlaces(allPlaces, null);
     }
 
     /**

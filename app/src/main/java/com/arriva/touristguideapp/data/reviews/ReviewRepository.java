@@ -26,9 +26,11 @@ public class ReviewRepository {
     }
 
     private final FirestoreReviewDataSource dataSource;
+    private final com.arriva.touristguideapp.data.analytics.AnalyticsRepository analyticsRepository;
 
     public ReviewRepository() {
         this.dataSource = new FirestoreReviewDataSource();
+        this.analyticsRepository = new com.arriva.touristguideapp.data.analytics.AnalyticsRepository();
     }
 
     /**
@@ -95,7 +97,10 @@ public class ReviewRepository {
         }
 
         return dataSource.submitReview(placeId, review)
-            .addOnSuccessListener(aVoid -> android.util.Log.i("ReviewRepository", "REVIEW_SYNC_SUCCESS"))
+            .addOnSuccessListener(aVoid -> {
+                android.util.Log.i("ReviewRepository", "REVIEW_SYNC_SUCCESS");
+                analyticsRepository.trackReviewSubmitted(placeId);
+            })
             .addOnFailureListener(e -> {
                 if (e instanceof com.google.firebase.firestore.FirebaseFirestoreException) {
                     com.google.firebase.firestore.FirebaseFirestoreException fe = (com.google.firebase.firestore.FirebaseFirestoreException) e;

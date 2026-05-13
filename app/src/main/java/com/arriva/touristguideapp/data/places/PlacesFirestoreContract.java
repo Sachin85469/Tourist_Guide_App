@@ -9,7 +9,10 @@ public final class PlacesFirestoreContract {
     public static final String COLLECTION_PLACES = "places";
 
     public static final String FIELD_STATUS = "status";
+    public static final String STATUS_DRAFT = "draft";
+    public static final String STATUS_PENDING = "pending";
     public static final String STATUS_PUBLISHED = "published";
+    public static final String STATUS_ARCHIVED = "archived";
 
     public static final String FIELD_IS_TOP_PICK = "isTopPick";
     public static final String FIELD_CATEGORY = "category";

@@ -21,6 +21,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.arriva.touristguideapp.data.reviews.ReviewAdapter;
 import com.arriva.touristguideapp.data.reviews.ReviewRepository;
 import com.arriva.touristguideapp.data.places.PlaceRepository;
+import com.arriva.touristguideapp.data.analytics.AnalyticsRepository;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import androidx.viewpager2.widget.ViewPager2;
@@ -40,6 +41,7 @@ public class PlaceDetailsActivity extends AppCompatActivity {
 
     // Review UI
     private ReviewRepository reviewRepository;
+    private AnalyticsRepository analyticsRepository;
     private ReviewAdapter reviewAdapter;
     private com.google.firebase.firestore.ListenerRegistration reviewsListener;
     private com.google.firebase.firestore.ListenerRegistration placeListener;
@@ -214,6 +216,11 @@ public class PlaceDetailsActivity extends AppCompatActivity {
 
     private void setupReviewUI() {
         reviewRepository = new ReviewRepository();
+        analyticsRepository = new AnalyticsRepository();
+        
+        // Track View
+        analyticsRepository.trackPlaceView(placeId);
+
         tvRatingSummary = findViewById(R.id.tvRatingSummary);
         rvReviews = findViewById(R.id.rvReviews);
         tvNoReviews = findViewById(R.id.tvNoReviews);
