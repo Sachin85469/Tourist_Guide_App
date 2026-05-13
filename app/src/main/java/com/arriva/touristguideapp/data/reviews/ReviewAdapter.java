@@ -26,9 +26,14 @@ public class ReviewAdapter extends RecyclerView.Adapter<ReviewAdapter.ViewHolder
         void onDeleteClick(Review review);
     }
 
+    public interface OnReviewReportListener {
+        void onReportClick(Review review);
+    }
+
     private List<Review> reviews = new ArrayList<>();
     private final SimpleDateFormat dateFormat = new SimpleDateFormat("MMM dd, yyyy", Locale.getDefault());
     private OnReviewDeleteListener deleteListener;
+    private OnReviewReportListener reportListener;
     private final String currentUserId;
 
     public ReviewAdapter() {
@@ -37,12 +42,44 @@ public class ReviewAdapter extends RecyclerView.Adapter<ReviewAdapter.ViewHolder
     }
 
     public void setReviews(List<Review> newReviews) {
+        androidx.recyclerview.widget.DiffUtil.DiffResult diffResult = androidx.recyclerview.widget.DiffUtil.calculateDiff(new androidx.recyclerview.widget.DiffUtil.Callback() {
+            @Override
+            public int getOldListSize() {
+                return reviews.size();
+            }
+
+            @Override
+            public int getNewListSize() {
+                return newReviews.size();
+            }
+
+            @Override
+            public boolean areItemsTheSame(int oldItemPosition, int newItemPosition) {
+                return reviews.get(oldItemPosition).getUserId().equals(newReviews.get(newItemPosition).getUserId());
+            }
+
+            @Override
+            public boolean areContentsTheSame(int oldItemPosition, int newItemPosition) {
+                Review oldR = reviews.get(oldItemPosition);
+                Review newR = newReviews.get(newItemPosition);
+                return oldR.getRating() == newR.getRating() &&
+                        java.util.Objects.equals(oldR.getComment(), newR.getComment()) &&
+                        java.util.Objects.equals(oldR.getUserName(), newR.getUserName()) &&
+                        java.util.Objects.equals(oldR.getUserPhotoUrl(), newR.getUserPhotoUrl()) &&
+                        java.util.Objects.equals(oldR.getStatus(), newR.getStatus());
+            }
+        });
+
         this.reviews = new ArrayList<>(newReviews);
-        notifyDataSetChanged();
+        diffResult.dispatchUpdatesTo(this);
     }
 
     public void setOnReviewDeleteListener(OnReviewDeleteListener listener) {
         this.deleteListener = listener;
+    }
+
+    public void setOnReviewReportListener(OnReviewReportListener listener) {
+        this.reportListener = listener;
     }
 
     @NonNull
@@ -63,7 +100,7 @@ public class ReviewAdapter extends RecyclerView.Adapter<ReviewAdapter.ViewHolder
     }
 
     class ViewHolder extends RecyclerView.ViewHolder {
-        ImageView ivUserPhoto, btnDelete;
+        ImageView ivUserPhoto, btnDelete, btnReport;
         TextView tvUserName, tvDate, tvComment;
         RatingBar rbRating;
 
@@ -75,6 +112,7 @@ public class ReviewAdapter extends RecyclerView.Adapter<ReviewAdapter.ViewHolder
             tvComment = itemView.findViewById(R.id.tvReviewComment);
             rbRating = itemView.findViewById(R.id.rbReviewStars);
             btnDelete = itemView.findViewById(R.id.btnDeleteReview);
+            btnReport = itemView.findViewById(R.id.btnReportReview);
         }
 
         void bind(Review review) {
@@ -89,7 +127,10 @@ public class ReviewAdapter extends RecyclerView.Adapter<ReviewAdapter.ViewHolder
             if (review.getUserPhotoUrl() != null && !review.getUserPhotoUrl().isEmpty()) {
                 Glide.with(itemView.getContext())
                         .load(review.getUserPhotoUrl())
-                        .apply(new RequestOptions().placeholder(android.R.drawable.ic_menu_gallery).circleCrop())
+                        .apply(new RequestOptions()
+                            .placeholder(android.R.drawable.ic_menu_gallery)
+                            .circleCrop()
+                            .diskCacheStrategy(com.bumptech.glide.load.engine.DiskCacheStrategy.ALL))
                         .into(ivUserPhoto);
             } else {
                 ivUserPhoto.setImageResource(android.R.drawable.ic_menu_gallery);
@@ -103,8 +144,15 @@ public class ReviewAdapter extends RecyclerView.Adapter<ReviewAdapter.ViewHolder
                         deleteListener.onDeleteClick(review);
                     }
                 });
+                btnReport.setVisibility(View.GONE);
             } else {
                 btnDelete.setVisibility(View.GONE);
+                btnReport.setVisibility(View.VISIBLE);
+                btnReport.setOnClickListener(v -> {
+                    if (reportListener != null) {
+                        reportListener.onReportClick(review);
+                    }
+                });
             }
         }
     }

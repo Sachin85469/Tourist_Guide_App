@@ -5,6 +5,7 @@ public class User {
     private String name;
     private String email;
     private String profileImage;
+    private String role = "user"; // Default role: user, admin
 
     // Empty constructor for Firestore
     public User() {
@@ -47,5 +48,17 @@ public class User {
 
     public void setProfileImage(String profileImage) {
         this.profileImage = profileImage;
+    }
+
+    public String getRole() {
+        return role;
+    }
+
+    public void setRole(String role) {
+        this.role = role;
+    }
+
+    public boolean isAdmin() {
+        return "admin".equals(role);
     }
 }

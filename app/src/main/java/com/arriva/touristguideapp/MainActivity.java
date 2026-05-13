@@ -61,6 +61,10 @@ public class MainActivity extends AppCompatActivity {
     private TextView tvMainUserName, tvMainUserEmail;
 
     private PlaceRepository placeRepository;
+    private com.arriva.touristguideapp.data.places.DiscoveryRepository discoveryRepository;
+    private com.arriva.touristguideapp.data.places.SearchHistoryManager searchHistoryManager;
+    private com.arriva.touristguideapp.data.places.RecentlyViewedManager recentlyViewedManager;
+
     /** Last fix used to sort "Top Picks Near You" after the Firestore catalog arrives. */
     @Nullable
     private Location cachedUserLocation;
@@ -181,15 +185,20 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void filter(String text) {
-        List<Place> filteredList = new ArrayList<>();
-        for (Place item : allPlaces) {
-            if (item.getName().toLowerCase().contains(text.toLowerCase()) || 
-                item.getCity().toLowerCase().contains(text.toLowerCase())) {
-                filteredList.add(item);
-            }
+        if (text == null) text = "";
+        text = text.trim();
+
+        if (text.isEmpty()) {
+            sections.clear();
+            addDefaultSections();
+            homeAdapter.notifyDataSetChanged();
+            return;
         }
 
-        if (filteredList.isEmpty() && !text.isEmpty()) {
+        searchHistoryManager.addSearch(text);
+        List<Place> filteredList = discoveryRepository.searchAndRank(allPlaces, text);
+
+        if (filteredList.isEmpty()) {
             rvHome.setVisibility(View.GONE);
             emptyStateContainer.setVisibility(View.VISIBLE);
         } else {
@@ -197,19 +206,20 @@ public class MainActivity extends AppCompatActivity {
             emptyStateContainer.setVisibility(View.GONE);
             
             sections.clear();
-            if (text.isEmpty()) {
-                addDefaultSections();
-            } else {
-                sections.add(new HomeSection(HomeSection.TYPE_ALL_PLACES_HEADER, "Search Results"));
-                for (Place p : filteredList) {
-                    sections.add(new HomeSection(HomeSection.TYPE_PLACE, p));
-                }
+            sections.add(new HomeSection(HomeSection.TYPE_ALL_PLACES_HEADER, "Search Results (" + filteredList.size() + ")"));
+            for (Place p : filteredList) {
+                sections.add(new HomeSection(HomeSection.TYPE_PLACE, p));
             }
             homeAdapter.notifyDataSetChanged();
         }
     }
 
     private void initData() {
+        placeRepository = new PlaceRepository();
+        discoveryRepository = new com.arriva.touristguideapp.data.places.DiscoveryRepository();
+        searchHistoryManager = new com.arriva.touristguideapp.data.places.SearchHistoryManager(this);
+        recentlyViewedManager = new com.arriva.touristguideapp.data.places.RecentlyViewedManager(this);
+
         // Browse-all list is filled asynchronously via PlaceRepository (Firestore with local fallback).
         allPlaces = new ArrayList<>();
 
@@ -239,6 +249,7 @@ public class MainActivity extends AppCompatActivity {
             fusedLocationClient.getLastLocation().addOnSuccessListener(this, location -> {
                 if (location != null) {
                     cachedUserLocation = location;
+                    Log.i(TAG, "USER_LOCATION_UPDATED lat=" + location.getLatitude() + " lng=" + location.getLongitude());
                     updateTopPicksWithLocation(location.getLatitude(), location.getLongitude());
                 } else {
                     Log.w("NearbyDebug", "Location is null, using fallback");
@@ -263,12 +274,10 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void updateTopPicksWithLocation(double userLat, double userLng) {
-        // Calculate distances for all places
+        // Calculate distances for all places using LocationUtils
         for (Place place : allPlaces) {
             if (place.getLat() != 0 && place.getLng() != 0) {
-                float[] results = new float[1];
-                Location.distanceBetween(userLat, userLng, place.getLat(), place.getLng(), results);
-                place.setDistance(results[0] / 1000.0); // Convert to km
+                place.setDistance(LocationUtils.calculateDistance(userLat, userLng, place.getLat(), place.getLng()));
             }
         }
 
@@ -358,12 +367,50 @@ public class MainActivity extends AppCompatActivity {
 
         rvHome.setLayoutManager(new LinearLayoutManager(this));
         rvHome.setAdapter(homeAdapter);
+        rvHome.setItemViewCacheSize(20);
+        rvHome.setHasFixedSize(true);
     }
 
     private void addDefaultSections() {
         sections.add(new HomeSection(HomeSection.TYPE_WELCOME));
         sections.add(new HomeSection(HomeSection.TYPE_CATEGORIES));
-        sections.add(new HomeSection(HomeSection.TYPE_TOP_PICKS, "Top Picks Near You"));
+        
+        // Phase 6: Recent Searches (if search box is empty)
+        List<String> history = searchHistoryManager.getHistory();
+        if (!history.isEmpty()) {
+            // We could show this as a special section or just log it for now
+            // To keep UI clean, we'll just log and maybe add a UI later if requested
+            Log.d(TAG, "Recent Searches available: " + history.size());
+        }
+
+        if (topPicks != null && !topPicks.isEmpty()) {
+            sections.add(new HomeSection(HomeSection.TYPE_TOP_PICKS, "Top Picks Near You"));
+        }
+
+        // Phase 6: Trending & Recommendations
+        if (allPlaces != null && !allPlaces.isEmpty()) {
+            List<Place> trending = discoveryRepository.getTrendingPlaces(allPlaces);
+            if (!trending.isEmpty()) {
+                sections.add(new HomeSection(HomeSection.TYPE_TRENDING, "Trending Now") {{
+                    setData(trending);
+                }});
+            }
+
+            List<Place> recommendations = discoveryRepository.getRecommendedPlaces(allPlaces);
+            if (!recommendations.isEmpty()) {
+                sections.add(new HomeSection(HomeSection.TYPE_RECOMMENDED, "Recommended for You") {{
+                    setData(recommendations);
+                }});
+            }
+        }
+
+        List<Place> recent = recentlyViewedManager.getRecentPlaces();
+        if (!recent.isEmpty()) {
+            sections.add(new HomeSection(HomeSection.TYPE_RECENTLY_VIEWED, "Recently Viewed") {{
+                setData(recent);
+            }});
+        }
+
         sections.add(new HomeSection(HomeSection.TYPE_PLAN_TRIP));
         sections.add(new HomeSection(HomeSection.TYPE_ALL_PLACES_HEADER, "Browse All"));
         for (Place p : allPlaces) {
@@ -439,6 +486,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void openDetails(Place place) {
+        if (place == null) return;
+        recentlyViewedManager.addPlace(place);
         Intent intent = new Intent(MainActivity.this, PlaceDetailsActivity.class);
         PlaceIntentExtras.putPlaceDetails(intent, place);
         startActivity(intent);

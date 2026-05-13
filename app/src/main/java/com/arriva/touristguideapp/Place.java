@@ -34,6 +34,7 @@ public class Place implements Serializable {
     private String tag = "Popular"; // Default tag
     private double distance = -1.0; // Distance from user in km
     private boolean isTopPick = false;
+    private double searchScore = 0.0; // Runtime score for search/ranking
 
     /** HTTPS image URL from Firestore. */
     @Nullable
@@ -130,6 +131,14 @@ public class Place implements Serializable {
 
     public void setTopPick(boolean topPick) {
         isTopPick = topPick;
+    }
+
+    public double getSearchScore() {
+        return searchScore;
+    }
+
+    public void setSearchScore(double searchScore) {
+        this.searchScore = searchScore;
     }
 
     public void setRating(double rating) {

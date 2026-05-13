@@ -31,6 +31,7 @@ public class HomeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private static final int TYPE_PLAN_TRIP = 2;
     private static final int TYPE_SECTION_HEADER = 3;
     private static final int TYPE_PLACE = 4;
+    private static final int TYPE_HORIZONTAL_LIST = 6;
 
     private List<HomeSection> sections;
     private List<Category> categories;
@@ -62,6 +63,10 @@ public class HomeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             case HomeSection.TYPE_CATEGORIES: return TYPE_CATEGORIES;
             case HomeSection.TYPE_TOP_PICKS: return TYPE_TOP_PICKS;
             case HomeSection.TYPE_PLAN_TRIP: return TYPE_PLAN_TRIP;
+            case HomeSection.TYPE_TRENDING:
+            case HomeSection.TYPE_RECOMMENDED:
+            case HomeSection.TYPE_RECENTLY_VIEWED:
+                return TYPE_HORIZONTAL_LIST;
             case HomeSection.TYPE_ALL_PLACES_HEADER: return TYPE_SECTION_HEADER;
             case HomeSection.TYPE_PLACE: return TYPE_PLACE;
             default: return -1;
@@ -78,6 +83,7 @@ public class HomeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             case TYPE_CATEGORIES:
                 return new CategoriesViewHolder(inflater.inflate(R.layout.layout_home_categories, parent, false));
             case TYPE_TOP_PICKS:
+            case TYPE_HORIZONTAL_LIST:
                 return new HorizontalViewHolder(inflater.inflate(R.layout.layout_home_horizontal_section, parent, false));
             case TYPE_PLAN_TRIP:
                 return new PlanTripViewHolder(inflater.inflate(R.layout.layout_home_plan_trip, parent, false));
@@ -101,7 +107,11 @@ public class HomeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         } else if (holder instanceof CategoriesViewHolder) {
             ((CategoriesViewHolder) holder).bind(categories, categoryClickListener);
         } else if (holder instanceof HorizontalViewHolder) {
-            ((HorizontalViewHolder) holder).bind(section.getTitle(), topPicks, placeClickListener);
+            if (section.getType().equals(HomeSection.TYPE_TOP_PICKS)) {
+                ((HorizontalViewHolder) holder).bind(section.getTitle(), topPicks, placeClickListener);
+            } else {
+                ((HorizontalViewHolder) holder).bind(section.getTitle(), section.getData(), placeClickListener);
+            }
         } else if (holder instanceof PlanTripViewHolder) {
             ((PlanTripViewHolder) holder).bind(planTripClickListener);
         } else if (holder instanceof HeaderViewHolder) {

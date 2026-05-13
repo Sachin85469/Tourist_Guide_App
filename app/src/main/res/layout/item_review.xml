@@ -72,6 +72,15 @@
                 android:src="@android:drawable/ic_menu_delete"
                 android:visibility="gone"
                 app:tint="#FF5252" />
+
+            <ImageView
+                android:id="@+id/btnReportReview"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:layout_marginStart="4dp"
+                android:padding="6dp"
+                android:src="@android:drawable/ic_menu_info_details"
+                app:tint="#888888" />
         </LinearLayout>
 
         <TextView

@@ -8,12 +8,18 @@ import java.util.Date;
  * Data model for a user review.
  */
 public class Review implements Serializable {
+    public static final String STATUS_ACTIVE = "active";
+    public static final String STATUS_HIDDEN = "hidden";
+    public static final String STATUS_REPORTED = "reported";
+    public static final String STATUS_REMOVED = "removed";
+
     private String userId;
     private String userName;
     @Nullable
     private String userPhotoUrl;
     private float rating;
     private String comment;
+    private String status = STATUS_ACTIVE;
     private Date createdAt;
     private Date updatedAt;
 
@@ -46,6 +52,9 @@ public class Review implements Serializable {
 
     public String getComment() { return comment; }
     public void setComment(String comment) { this.comment = comment; }
+
+    public String getStatus() { return status; }
+    public void setStatus(String status) { this.status = status; }
 
     public Date getCreatedAt() { return createdAt; }
     public void setCreatedAt(Date createdAt) { this.createdAt = createdAt; }

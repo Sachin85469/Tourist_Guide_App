@@ -20,10 +20,12 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import com.arriva.touristguideapp.data.reviews.ReviewAdapter;
 import com.arriva.touristguideapp.data.reviews.ReviewRepository;
+import com.arriva.touristguideapp.data.places.PlaceRepository;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import androidx.viewpager2.widget.ViewPager2;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.LinkedHashSet;
 import java.util.Locale;
 
@@ -39,14 +41,26 @@ public class PlaceDetailsActivity extends AppCompatActivity {
     // Review UI
     private ReviewRepository reviewRepository;
     private ReviewAdapter reviewAdapter;
+    private com.google.firebase.firestore.ListenerRegistration reviewsListener;
+    private com.google.firebase.firestore.ListenerRegistration placeListener;
+    private int currentReviewLimit = 10;
+    private boolean isPaginationLoading = false;
+    private boolean hasMoreReviews = true;
     private RecyclerView rvReviews;
     private TextView tvNoReviews, tvRatingSummary;
     private ProgressBar pbReviewsLoading;
+    private Button btnRetryReviews;
+    private RecyclerView rvNearbyPlaces;
+    private View llNearbyPlaces;
+    private androidx.core.widget.NestedScrollView nsvPlaceDetails;
     private View cvAddReview;
     private RatingBar rbInputRating;
     private EditText etReviewComment;
     private Button btnSubmitReview;
     private ProgressBar pbSubmitReview;
+
+    private long lastSubmitTime = 0;
+    private static final long SUBMIT_COOLDOWN_MS = 10000; // 10 seconds anti-spam
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -114,7 +128,9 @@ public class PlaceDetailsActivity extends AppCompatActivity {
             // Setup Review UI
             setupReviewUI();
             updateRatingSummary(avgRating, totalRatings);
-            loadReviews();
+            
+            // Setup Nearby UI
+            setupNearbyUI();
 
             // Show fun fact popup
             new AlertDialog.Builder(this)
@@ -163,21 +179,105 @@ public class PlaceDetailsActivity extends AppCompatActivity {
         }
     }
 
+    private void setupNearbyUI() {
+        llNearbyPlaces = findViewById(R.id.llNearbyPlaces);
+        rvNearbyPlaces = findViewById(R.id.rvNearbyPlaces);
+        
+        if (rvNearbyPlaces != null) {
+            rvNearbyPlaces.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
+            
+            // Load all places and filter for nearby
+            new PlaceRepository().fetchPublishedPlaces((places, origin, message) -> {
+                if (!places.isEmpty()) {
+                    // Filter out current place
+                    List<Place> otherPlaces = new ArrayList<>();
+                    for (Place p : places) {
+                        if (!p.getId().equals(placeId)) {
+                            otherPlaces.add(p);
+                        }
+                    }
+                    
+                    List<Place> nearby = LocationUtils.getNearbyPlaces(otherPlaces, lat, lng, 5);
+                    if (!nearby.isEmpty()) {
+                        llNearbyPlaces.setVisibility(View.VISIBLE);
+                        TopPickAdapter adapter = new TopPickAdapter(nearby, p -> {
+                            Intent intent = new Intent(PlaceDetailsActivity.this, PlaceDetailsActivity.class);
+                            PlaceIntentExtras.putPlaceDetails(intent, p);
+                            startActivity(intent);
+                        });
+                        rvNearbyPlaces.setAdapter(adapter);
+                    }
+                }
+            });
+        }
+    }
+
     private void setupReviewUI() {
         reviewRepository = new ReviewRepository();
         tvRatingSummary = findViewById(R.id.tvRatingSummary);
         rvReviews = findViewById(R.id.rvReviews);
         tvNoReviews = findViewById(R.id.tvNoReviews);
         pbReviewsLoading = findViewById(R.id.pbReviewsLoading);
+        btnRetryReviews = findViewById(R.id.btnRetryReviews);
+        nsvPlaceDetails = findViewById(R.id.nsvPlaceDetails);
         cvAddReview = findViewById(R.id.cvAddReview);
+        
+        btnRetryReviews.setOnClickListener(v -> {
+            stopListeners();
+            startReviewListener();
+            startPlaceListener();
+        });
+
+        // RecyclerView Optimizations
+        rvReviews.setHasFixedSize(false); // Comments vary in length
+        rvReviews.setItemViewCacheSize(20);
+        rvReviews.setNestedScrollingEnabled(false);
+
         rbInputRating = findViewById(R.id.rbInputRating);
         etReviewComment = findViewById(R.id.etReviewComment);
         btnSubmitReview = findViewById(R.id.btnSubmitReview);
         pbSubmitReview = findViewById(R.id.pbSubmitReview);
 
         reviewAdapter = new ReviewAdapter();
-        rvReviews.setLayoutManager(new LinearLayoutManager(this));
+        reviewAdapter.setOnReviewDeleteListener(review -> {
+            // TODO: Add moderation/report feature here for other users' reviews
+            new AlertDialog.Builder(this)
+                .setTitle("Delete Review")
+                .setMessage("Are you sure you want to delete your review?")
+                .setPositiveButton("Delete", (dialog, which) -> deleteReview(review))
+                .setNegativeButton("Cancel", null)
+                .show();
+        });
+        
+        reviewAdapter.setOnReviewReportListener(review -> {
+            final String[] reasons = {"Spam", "Inappropriate content", "Hate speech", "Harassment", "Other"};
+            new AlertDialog.Builder(this)
+                .setTitle("Report Review")
+                .setItems(reasons, (dialog, which) -> {
+                    reportReview(review, reasons[which]);
+                })
+                .setNegativeButton("Cancel", null)
+                .show();
+        });
+        
+        LinearLayoutManager layoutManager = new LinearLayoutManager(this);
+        rvReviews.setLayoutManager(layoutManager);
         rvReviews.setAdapter(reviewAdapter);
+
+        // Pagination Scroll Listener on NestedScrollView
+        nsvPlaceDetails.setOnScrollChangeListener((androidx.core.widget.NestedScrollView.OnScrollChangeListener) (v, scrollX, scrollY, oldScrollX, oldScrollY) -> {
+            if (scrollY > oldScrollY) { // Scrolling down
+                // Check if we are near the bottom
+                View child = v.getChildAt(v.getChildCount() - 1);
+                int diff = (child.getBottom() - (v.getHeight() + v.getScrollY()));
+                
+                if (diff <= 300) { // 300px before bottom
+                    if (!isPaginationLoading && hasMoreReviews) {
+                        loadMoreReviews();
+                    }
+                }
+            }
+        });
 
         FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
         if (currentUser != null) {
@@ -198,35 +298,132 @@ public class PlaceDetailsActivity extends AppCompatActivity {
         } else {
             cvAddReview.setVisibility(View.GONE);
         }
-        
-        Log.d(TAG, "REVIEW_UI_LOADED placeId=" + placeId);
     }
 
-    private void loadReviews() {
-        pbReviewsLoading.setVisibility(View.VISIBLE);
-        rvReviews.setVisibility(View.GONE);
-        tvNoReviews.setVisibility(View.GONE);
+    @Override
+    protected void onStart() {
+        super.onStart();
+        startReviewListener();
+        startPlaceListener();
+    }
 
-        reviewRepository.fetchReviews(placeId, (reviews, error) -> {
+    @Override
+    protected void onStop() {
+        super.onStop();
+        stopListeners();
+    }
+
+    private void startReviewListener() {
+        if (reviewsListener != null) return;
+
+        pbReviewsLoading.setVisibility(View.VISIBLE);
+        btnRetryReviews.setVisibility(View.GONE);
+        reviewsListener = reviewRepository.listenToReviews(placeId, currentReviewLimit, (reviews, error) -> {
             pbReviewsLoading.setVisibility(View.GONE);
+            isPaginationLoading = false;
+            Log.d(TAG, "REVIEW_REALTIME_UPDATE count=" + reviews.size() + " limit=" + currentReviewLimit);
+            
             if (error != null) {
-                Toast.makeText(PlaceDetailsActivity.this, "Failed to load reviews: " + error, Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "Error syncing reviews: " + error, Toast.LENGTH_SHORT).show();
+                btnRetryReviews.setVisibility(View.VISIBLE);
                 return;
             }
 
-            if (reviews.isEmpty()) {
+            btnRetryReviews.setVisibility(View.GONE);
+            if (reviews.isEmpty() && currentReviewLimit == 10) {
                 tvNoReviews.setVisibility(View.VISIBLE);
                 rvReviews.setVisibility(View.GONE);
+                hasMoreReviews = false;
             } else {
                 tvNoReviews.setVisibility(View.GONE);
                 rvReviews.setVisibility(View.VISIBLE);
+                
+                // If the number of reviews returned is less than current limit, there are no more reviews
+                hasMoreReviews = reviews.size() >= currentReviewLimit;
+                
                 reviewAdapter.setReviews(reviews);
-                Log.d(TAG, "REVIEW_LIST_UPDATED count=" + reviews.size());
+            }
+        });
+        Log.d(TAG, "REVIEW_LISTENER_ATTACHED placeId=" + placeId + " limit=" + currentReviewLimit);
+    }
+
+    private void loadMoreReviews() {
+        Log.d(TAG, "LOAD_MORE_REVIEWS triggered");
+        isPaginationLoading = true;
+        currentReviewLimit += 10;
+        
+        // Remove old listener and start new one with larger limit
+        if (reviewsListener != null) {
+            reviewsListener.remove();
+            reviewsListener = null;
+        }
+        startReviewListener();
+    }
+
+    private void startPlaceListener() {
+        if (placeListener != null) return;
+
+        placeListener = reviewRepository.listenToPlace(placeId, (avg, total, comments) -> {
+            updateRatingSummary(avg, total);
+        });
+    }
+
+    private void stopListeners() {
+        if (reviewsListener != null) {
+            reviewsListener.remove();
+            reviewsListener = null;
+            Log.d(TAG, "REVIEW_LISTENER_REMOVED placeId=" + placeId);
+        }
+        if (placeListener != null) {
+            placeListener.remove();
+            placeListener = null;
+        }
+    }
+
+    private void deleteReview(Review review) {
+        reviewRepository.deleteReview(placeId, review.getUserId()).addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                Toast.makeText(this, "Review deleted", Toast.LENGTH_SHORT).show();
+                Log.i(TAG, "REVIEW_DELETED userId=" + review.getUserId());
+                
+                // Clear input if it was the deleted review
+                FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+                if (user != null && user.getUid().equals(review.getUserId())) {
+                    rbInputRating.setRating(0);
+                    etReviewComment.setText("");
+                    btnSubmitReview.setText(R.string.submit_review);
+                }
+            } else {
+                Toast.makeText(this, "Failed to delete review", Toast.LENGTH_SHORT).show();
             }
         });
     }
 
+    private void reportReview(Review review, String reason) {
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        if (user == null) {
+            Toast.makeText(this, "Please login to report", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        reviewRepository.reportReview(placeId, review.getUserId(), user.getUid(), reason)
+            .addOnCompleteListener(task -> {
+                if (task.isSuccessful()) {
+                    Toast.makeText(this, "Review reported. Thank you.", Toast.LENGTH_SHORT).show();
+                } else {
+                    Toast.makeText(this, "Failed to report review", Toast.LENGTH_SHORT).show();
+                }
+            });
+    }
+
     private void submitReview(FirebaseUser user) {
+        // Anti-spam: Rapid duplicate prevention
+        long currentTime = System.currentTimeMillis();
+        if (currentTime - lastSubmitTime < SUBMIT_COOLDOWN_MS) {
+            Toast.makeText(this, "Please wait a few seconds before submitting again.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
         float rating = rbInputRating.getRating();
         String comment = etReviewComment.getText().toString().trim();
 
@@ -234,11 +431,18 @@ public class PlaceDetailsActivity extends AppCompatActivity {
             Toast.makeText(this, "Please select a rating", Toast.LENGTH_SHORT).show();
             return;
         }
+        
+        if (comment.length() > 500) {
+            Toast.makeText(this, "Comment is too long (max 500 chars)", Toast.LENGTH_SHORT).show();
+            return;
+        }
 
         btnSubmitReview.setEnabled(false);
         btnSubmitReview.setText("");
         pbSubmitReview.setVisibility(View.VISIBLE);
 
+        // TODO: Future moderation - scan comment for banned words/spam patterns
+        
         Review review = new Review(user.getUid(), 
                                    user.getDisplayName() != null ? user.getDisplayName() : "Anonymous", 
                                    user.getPhotoUrl() != null ? user.getPhotoUrl().toString() : null, 
@@ -251,12 +455,27 @@ public class PlaceDetailsActivity extends AppCompatActivity {
             pbSubmitReview.setVisibility(View.GONE);
 
             if (task.isSuccessful()) {
+                lastSubmitTime = System.currentTimeMillis();
                 Toast.makeText(this, "Review submitted successfully", Toast.LENGTH_SHORT).show();
-                loadReviews(); // Refresh list
                 btnSubmitReview.setText(R.string.update_review);
+                
+                // Heuristic: New reviews appear at top. 
+                // Updated reviews might be further down, but listener will refresh the list.
+                rvReviews.postDelayed(() -> rvReviews.smoothScrollToPosition(0), 500);
             } else {
-                String error = task.getException() != null ? task.getException().getMessage() : "Unknown error";
-                Toast.makeText(this, "Failed to submit review: " + error, Toast.LENGTH_SHORT).show();
+                Exception e = task.getException();
+                String error = e != null ? e.getMessage() : "Unknown error";
+                
+                if (error != null && error.contains("offline")) {
+                    Log.d(TAG, "OFFLINE_REVIEW_QUEUE: Review will sync when online");
+                    Toast.makeText(this, "Offline: Review will sync when you're back online", Toast.LENGTH_LONG).show();
+                } else if (e instanceof com.google.firebase.firestore.FirebaseFirestoreException && 
+                           ((com.google.firebase.firestore.FirebaseFirestoreException)e).getCode() == com.google.firebase.firestore.FirebaseFirestoreException.Code.PERMISSION_DENIED) {
+                    Log.e(TAG, "SECURITY_RULE_BLOCK: You don't have permission to perform this action");
+                    Toast.makeText(this, "Action denied by security policy", Toast.LENGTH_SHORT).show();
+                } else {
+                    Toast.makeText(this, "Failed to submit review: " + error, Toast.LENGTH_SHORT).show();
+                }
             }
         });
     }

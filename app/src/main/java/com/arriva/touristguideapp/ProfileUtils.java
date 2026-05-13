@@ -27,6 +27,10 @@ public class ProfileUtils {
         void onError(Exception e);
     }
 
+    public interface AdminCallback {
+        void onResult(boolean isAdmin);
+    }
+
     /**
      * Fetches user data from Firestore.
      */
@@ -121,6 +125,15 @@ public class ProfileUtils {
     /**
      * Generates a circular Drawable with a purple gradient background and the first letter of the name.
      */
+    public static void checkAdminStatus(String uid, AdminCallback callback) {
+        FirebaseFirestore.getInstance().collection("users").document(uid).get()
+                .addOnSuccessListener(documentSnapshot -> {
+                    String role = documentSnapshot.getString("role");
+                    callback.onResult("admin".equals(role));
+                })
+                .addOnFailureListener(e -> callback.onResult(false));
+    }
+
     public static Drawable generateLetterAvatar(Context context, String name) {
         String letter = "U"; // Default to U for User
         if (!TextUtils.isEmpty(name)) {

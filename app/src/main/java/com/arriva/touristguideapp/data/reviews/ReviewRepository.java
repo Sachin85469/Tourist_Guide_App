@@ -32,17 +32,21 @@ public class ReviewRepository {
     }
 
     /**
-     * Realtime listener for reviews.
+     * Realtime listener for reviews with pagination support.
      */
-    public ListenerRegistration listenToReviews(String placeId, ReviewsCallback callback) {
-        return dataSource.listenToReviews(placeId, (value, error) -> {
+    public ListenerRegistration listenToReviews(String placeId, int limit, ReviewsCallback callback) {
+        return dataSource.listenToReviews(placeId, limit, (value, error) -> {
             if (error != null) {
+                android.util.Log.e("ReviewRepository", "REVIEW_FETCH_FAILED: " + error.getMessage());
                 callback.onReviewsLoaded(new ArrayList<>(), error.getMessage());
                 return;
             }
             if (value != null) {
+                android.util.Log.d("ReviewRepository", "REVIEW_DOCS_FETCHED count=" + value.size());
                 List<ReviewDto> dtos = value.toObjects(ReviewDto.class);
-                callback.onReviewsLoaded(ReviewMapper.toReviews(dtos), null);
+                List<Review> reviews = ReviewMapper.toReviews(dtos);
+                android.util.Log.d("ReviewRepository", "REVIEW_LIST_SUBMITTED count=" + reviews.size());
+                callback.onReviewsLoaded(reviews, null);
             }
         });
     }
@@ -77,14 +81,31 @@ public class ReviewRepository {
     }
 
     public Task<Void> submitReview(String placeId, Review review) {
-        // Validation
+        // Validation & Anti-Spam
         if (review.getRating() < 1 || review.getRating() > 5) {
             return com.google.android.gms.tasks.Tasks.forException(new IllegalArgumentException("Rating must be between 1 and 5"));
         }
-        if (review.getComment() != null) {
-            review.setComment(review.getComment().trim());
+        
+        String comment = review.getComment();
+        if (comment != null) {
+            comment = comment.trim();
+            if (comment.length() > 500) {
+                return com.google.android.gms.tasks.Tasks.forException(new IllegalArgumentException("Comment is too long (max 500 characters)"));
+            }
+            review.setComment(comment);
         }
-        return dataSource.submitReview(placeId, review);
+
+        return dataSource.submitReview(placeId, review)
+            .addOnSuccessListener(aVoid -> android.util.Log.i("ReviewRepository", "REVIEW_SYNC_SUCCESS"))
+            .addOnFailureListener(e -> {
+                if (e instanceof com.google.firebase.firestore.FirebaseFirestoreException) {
+                    com.google.firebase.firestore.FirebaseFirestoreException fe = (com.google.firebase.firestore.FirebaseFirestoreException) e;
+                    if (fe.getCode() == com.google.firebase.firestore.FirebaseFirestoreException.Code.PERMISSION_DENIED) {
+                        android.util.Log.e("ReviewRepository", "SECURITY_RULE_BLOCK: Permission denied");
+                    }
+                }
+                android.util.Log.e("ReviewRepository", "REVIEW_SYNC_FAILED: " + e.getMessage());
+            });
     }
 
     public void fetchReviews(String placeId, ReviewsCallback callback) {
@@ -111,6 +132,18 @@ public class ReviewRepository {
 
     public Task<Void> deleteReview(String placeId, String userId) {
         return dataSource.deleteReview(placeId, userId);
+    }
+
+    public Task<Void> reportReview(String placeId, String reviewUserId, String reporterId, String reason) {
+        return dataSource.reportReview(placeId, reviewUserId, reporterId, reason);
+    }
+
+    public Task<Void> hideReview(String placeId, String userId) {
+        return dataSource.updateReviewStatus(placeId, userId, Review.STATUS_HIDDEN);
+    }
+
+    public Task<Void> approveReview(String placeId, String userId) {
+        return dataSource.updateReviewStatus(placeId, userId, Review.STATUS_ACTIVE);
     }
     
     // updateReview is functionally same as submitReview due to the document ID being userId

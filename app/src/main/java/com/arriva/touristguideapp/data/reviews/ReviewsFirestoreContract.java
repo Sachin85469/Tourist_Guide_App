@@ -15,6 +15,7 @@ public final class ReviewsFirestoreContract {
     public static final String FIELD_USER_PHOTO_URL = "userPhotoUrl";
     public static final String FIELD_RATING = "rating";
     public static final String FIELD_COMMENT = "comment";
+    public static final String FIELD_STATUS = "status";
     public static final String FIELD_CREATED_AT = "createdAt";
     public static final String FIELD_UPDATED_AT = "updatedAt";
 

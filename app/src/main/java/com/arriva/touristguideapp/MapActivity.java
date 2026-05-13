@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Address;
 import android.location.Geocoder;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -38,6 +39,7 @@ import org.osmdroid.views.overlay.Polyline;
 import org.osmdroid.views.overlay.mylocation.GpsMyLocationProvider;
 import org.osmdroid.views.overlay.mylocation.MyLocationNewOverlay;
 
+import android.util.Log;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -45,6 +47,9 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import com.arriva.touristguideapp.data.places.PlaceRepository;
+import com.arriva.touristguideapp.data.places.PlaceDto;
+import com.arriva.touristguideapp.data.places.PlaceMapper;
 
 public class MapActivity extends AppCompatActivity {
 
@@ -63,6 +68,8 @@ public class MapActivity extends AppCompatActivity {
     private BottomSheetBehavior<View> bottomSheetBehavior;
     private TextView placeNameTv, placeDetailsTv;
     private Button btnSheetGo;
+    private PlaceRepository placeRepository;
+    private List<Place> allTouristPlaces = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -141,6 +148,9 @@ public class MapActivity extends AppCompatActivity {
 
         btnSheetGo.setOnClickListener(v -> getDirectionsToSearched());
 
+        placeRepository = new PlaceRepository();
+        loadAllTouristPlaces();
+
         // Request permissions and init location
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) 
                 != PackageManager.PERMISSION_GRANTED) {
@@ -203,11 +213,15 @@ public class MapActivity extends AppCompatActivity {
             Toast.makeText(this, "Search a place first", Toast.LENGTH_SHORT).show();
             return;
         }
-        if (locationOverlay == null || locationOverlay.getMyLocation() == null) {
-            Toast.makeText(this, "Location not available", Toast.LENGTH_SHORT).show();
-            return;
+        
+        Uri uri = Uri.parse("google.navigation:q=" + searchedPoint.getLatitude() + "," + searchedPoint.getLongitude());
+        Intent mapIntent = new Intent(Intent.ACTION_VIEW, uri);
+        mapIntent.setPackage("com.google.android.apps.maps");
+        if (mapIntent.resolveActivity(getPackageManager()) != null) {
+            startActivity(mapIntent);
+        } else {
+            startActivity(new Intent(Intent.ACTION_VIEW, uri));
         }
-        fetchRoute(locationOverlay.getMyLocation(), searchedPoint);
         bottomSheetBehavior.setState(BottomSheetBehavior.STATE_HIDDEN);
     }
 
@@ -297,9 +311,61 @@ public class MapActivity extends AppCompatActivity {
         map.invalidate();
     }
 
+    private void loadAllTouristPlaces() {
+        placeRepository.fetchPublishedPlaces((places, origin, message) -> {
+            if (!places.isEmpty()) {
+                allTouristPlaces = places;
+                renderPlaceMarkers();
+            }
+        });
+    }
+
+    private void renderPlaceMarkers() {
+        // Remove existing tourist markers, keep location overlay and search markers
+        map.getOverlays().removeIf(o -> o instanceof org.osmdroid.views.overlay.Marker && 
+                !((org.osmdroid.views.overlay.Marker)o).getTitle().equals(searchInput.getText().toString()));
+
+        for (Place p : allTouristPlaces) {
+            GeoPoint point = new GeoPoint(p.getLat(), p.getLng());
+            org.osmdroid.views.overlay.Marker marker = new org.osmdroid.views.overlay.Marker(map);
+            marker.setPosition(point);
+            marker.setTitle(p.getName());
+            marker.setSnippet(p.getCategory() + " - " + p.getCity());
+            marker.setAnchor(org.osmdroid.views.overlay.Marker.ANCHOR_CENTER, org.osmdroid.views.overlay.Marker.ANCHOR_BOTTOM);
+            marker.setIcon(getResources().getDrawable(android.R.drawable.ic_dialog_map));
+            
+            marker.setOnMarkerClickListener((m, mapView) -> {
+                searchedPoint = (GeoPoint) m.getPosition();
+                showPlaceInfo(m.getTitle(), m.getSnippet(), p);
+                map.getController().animateTo(m.getPosition());
+                return true;
+            });
+            
+            map.getOverlays().add(marker);
+        }
+        map.invalidate();
+        Log.d("MapActivity", "MAP_MARKERS_RENDERED count=" + allTouristPlaces.size());
+    }
+
+    private void showPlaceInfo(String name, String details, Place place) {
+        placeNameTv.setText(name);
+        placeDetailsTv.setText(details);
+        
+        btnSheetGo.setText("View Details");
+        btnSheetGo.setOnClickListener(v -> {
+            Intent intent = new Intent(this, PlaceDetailsActivity.class);
+            PlaceIntentExtras.putPlaceDetails(intent, place);
+            startActivity(intent);
+        });
+
+        bottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
+    }
+
     private void showPlaceInfo(String name, String details) {
         placeNameTv.setText(name);
         placeDetailsTv.setText(details);
+        btnSheetGo.setText("Get Directions");
+        btnSheetGo.setOnClickListener(v -> getDirectionsToSearched());
         bottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
     }
 

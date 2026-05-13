@@ -31,8 +31,8 @@ public class ProfileActivity extends AppCompatActivity {
     private Chip chipLoginProvider;
     private MaterialCardView cardEditName;
     private EditText etEditName;
-    private Button btnSaveName, btnEditProfile, btnLogout;
-    private View btnBack, btnEditImage;
+    private Button btnSaveName, btnEditProfile, btnLogout, btnAdminDashboard;
+    private View btnBack, btnEditImage, dividerAdmin;
 
     private FirebaseAuth mAuth;
 
@@ -129,6 +129,8 @@ public class ProfileActivity extends AppCompatActivity {
     private void initViews() {
         ivProfileImage = findViewById(R.id.ivProfileImage);
         btnEditImage = findViewById(R.id.btnEditImage);
+        btnAdminDashboard = findViewById(R.id.btnAdminDashboard);
+        dividerAdmin = findViewById(R.id.dividerAdmin);
         tvProfileName = findViewById(R.id.tvProfileName);
         tvProfileEmail = findViewById(R.id.tvProfileEmail);
         chipLoginProvider = findViewById(R.id.chipLoginProvider);
@@ -146,6 +148,18 @@ public class ProfileActivity extends AppCompatActivity {
 
         FirebaseUser user = mAuth.getCurrentUser();
         if (user != null) {
+            // Check Admin Status
+            ProfileUtils.checkAdminStatus(user.getUid(), isAdmin -> {
+                if (isAdmin) {
+                    btnAdminDashboard.setVisibility(View.VISIBLE);
+                    dividerAdmin.setVisibility(View.VISIBLE);
+                    btnAdminDashboard.setOnClickListener(v -> {
+                        Intent intent = new Intent(this, AdminDashboardActivity.class);
+                        startActivity(intent);
+                    });
+                }
+            });
+
             ProfileUtils.fetchUserData(user.getUid(), new ProfileUtils.UserCallback() {
                 @Override
                 public void onUserLoaded(User userModel) {

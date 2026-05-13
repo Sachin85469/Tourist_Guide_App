@@ -27,14 +27,17 @@ public class FirestoreReviewDataSource {
     }
 
     /**
-     * Realtime listener for reviews of a place.
+     * Realtime listener for reviews of a place with pagination support.
+     * BUG FIX: Removed status filter to allow legacy reviews (without status field) to appear.
+     * Filtering is now handled in ReviewMapper.
      */
-    public ListenerRegistration listenToReviews(String placeId, EventListener<QuerySnapshot> listener) {
-        Log.d(TAG, "REVIEW_LISTENER_ATTACHED placeId=" + placeId);
+    public ListenerRegistration listenToReviews(String placeId, int limit, EventListener<QuerySnapshot> listener) {
+        Log.d(TAG, "REVIEW_LISTENER_ATTACHED placeId=" + placeId + " limit=" + limit);
         return db.collection(PlacesFirestoreContract.COLLECTION_PLACES)
                 .document(placeId)
                 .collection(ReviewsFirestoreContract.SUB_COLLECTION_REVIEWS)
                 .orderBy(ReviewsFirestoreContract.FIELD_CREATED_AT, Query.Direction.DESCENDING)
+                .limit(limit)
                 .addSnapshotListener(listener);
     }
 
@@ -95,7 +98,10 @@ public class FirestoreReviewDataSource {
                 if (review.getComment() != null && !review.getComment().trim().isEmpty()) {
                     newComments = currentComments + 1;
                 }
-                review.setCreatedAt(new Date());
+                // Ensure createdAt is set for new reviews
+                if (review.getCreatedAt() == null) {
+                    review.setCreatedAt(new Date());
+                }
                 Log.d(TAG, "REVIEW_CREATED placeId=" + placeId);
             } else {
                 newAvg = ((currentAvg * currentTotal) - oldRating + newRating) / currentTotal;
@@ -105,6 +111,16 @@ public class FirestoreReviewDataSource {
                 
                 if (!hadComment && hasComment) newComments = currentComments + 1;
                 else if (hadComment && !hasComment) newComments = currentComments - 1;
+
+                // Preservation: Keep original createdAt if it exists in DB
+                Date originalCreatedAt = reviewSnapshot.getDate(ReviewsFirestoreContract.FIELD_CREATED_AT);
+                if (originalCreatedAt != null) {
+                    review.setCreatedAt(originalCreatedAt);
+                } else if (review.getCreatedAt() == null) {
+                    // Fallback for legacy updates
+                    review.setCreatedAt(new Date());
+                }
+
                 Log.d(TAG, "REVIEW_UPDATED placeId=" + placeId);
             }
 
@@ -162,6 +178,8 @@ public class FirestoreReviewDataSource {
 
             String oldComment = reviewSnapshot.getString(ReviewsFirestoreContract.FIELD_COMMENT);
             boolean hadComment = oldComment != null && !oldComment.trim().isEmpty();
+            String oldStatus = reviewSnapshot.getString(ReviewsFirestoreContract.FIELD_STATUS);
+            boolean wasActive = Review.STATUS_ACTIVE.equals(oldStatus) || oldStatus == null;
 
             DocumentSnapshot placeSnapshot = transaction.get(placeRef);
             
@@ -177,9 +195,9 @@ public class FirestoreReviewDataSource {
             Long c = placeSnapshot.getLong(ReviewsFirestoreContract.FIELD_PLACE_TOTAL_COMMENTS);
             if (c != null) currentComments = c;
 
-            long newTotal = currentTotal - 1;
-            double newAvg = newTotal > 0 ? ((currentAvg * currentTotal) - rating) / newTotal : 0.0;
-            long newComments = hadComment ? currentComments - 1 : currentComments;
+            long newTotal = wasActive ? currentTotal - 1 : currentTotal;
+            double newAvg = newTotal > 0 ? ((currentAvg * currentTotal) - (wasActive ? rating : 0)) / newTotal : 0.0;
+            long newComments = (wasActive && hadComment) ? currentComments - 1 : currentComments;
 
             transaction.delete(reviewRef);
             transaction.update(placeRef, 
@@ -191,11 +209,43 @@ public class FirestoreReviewDataSource {
             return null;
         }).continueWithTask(task -> {
             if (task.isSuccessful()) {
+                Log.i(TAG, "REVIEW_DELETED placeId=" + placeId + " userId=" + userId);
                 return Tasks.forResult(null);
             } else {
                 Exception e = task.getException();
+                Log.e(TAG, "REVIEW_DELETE_FAILED placeId=" + placeId + " userId=" + userId + " error=" + (e != null ? e.getMessage() : "unknown"));
                 return Tasks.forException(e != null ? e : new Exception("Delete transaction failed"));
             }
         });
+    }
+
+    public Task<Void> reportReview(String placeId, String reviewUserId, String reporterId, String reason) {
+        java.util.Map<String, Object> report = new java.util.HashMap<>();
+        report.put("placeId", placeId);
+        report.put("reviewUserId", reviewUserId);
+        report.put("reporterId", reporterId);
+        report.put("reason", reason);
+        report.put("timestamp", new Date());
+        report.put("status", "pending");
+
+        return db.collection("reports").add(report).continueWithTask(task -> {
+            if (task.isSuccessful()) {
+                // Also mark the review as reported
+                return db.collection(PlacesFirestoreContract.COLLECTION_PLACES)
+                        .document(placeId)
+                        .collection(ReviewsFirestoreContract.SUB_COLLECTION_REVIEWS)
+                        .document(reviewUserId)
+                        .update(ReviewsFirestoreContract.FIELD_STATUS, Review.STATUS_REPORTED);
+            }
+            return Tasks.forException(task.getException());
+        });
+    }
+
+    public Task<Void> updateReviewStatus(String placeId, String userId, String newStatus) {
+        return db.collection(PlacesFirestoreContract.COLLECTION_PLACES)
+                .document(placeId)
+                .collection(ReviewsFirestoreContract.SUB_COLLECTION_REVIEWS)
+                .document(userId)
+                .update(ReviewsFirestoreContract.FIELD_STATUS, newStatus);
     }
 }

@@ -4,4 +4,6 @@
     <string name="default_web_client_id">YOUR_WEB_CLIENT_ID.apps.googleusercontent.com</string>
     <string name="update_review">Update Review</string>
     <string name="submit_review">Submit Review</string>
+    <string name="retry">Retry</string>
+    <string name="nearby_tourist_spots">Nearby Tourist Spots</string>
 </resources>

@@ -7,6 +7,9 @@ public class HomeSection {
     public static final String TYPE_CATEGORIES = "categories";
     public static final String TYPE_TOP_PICKS = "top_picks";
     public static final String TYPE_PLAN_TRIP = "plan_trip";
+    public static final String TYPE_TRENDING = "trending";
+    public static final String TYPE_RECOMMENDED = "recommended";
+    public static final String TYPE_RECENTLY_VIEWED = "recently_viewed";
     public static final String TYPE_ALL_PLACES_HEADER = "all_places_header";
     public static final String TYPE_PLACE = "place";
 
@@ -44,6 +47,10 @@ public class HomeSection {
 
     public List<Place> getData() {
         return data;
+    }
+
+    public void setData(List<Place> data) {
+        this.data = data;
     }
 
     public Place getSinglePlace() {

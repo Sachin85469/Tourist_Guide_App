@@ -16,6 +16,8 @@ public class ReviewDto {
     private float rating;
     @PropertyName(ReviewsFirestoreContract.FIELD_COMMENT)
     private String comment;
+    @PropertyName(ReviewsFirestoreContract.FIELD_STATUS)
+    private String status;
     @PropertyName(ReviewsFirestoreContract.FIELD_CREATED_AT)
     private Date createdAt;
     @PropertyName(ReviewsFirestoreContract.FIELD_UPDATED_AT)
@@ -47,6 +49,11 @@ public class ReviewDto {
     public String getComment() { return comment; }
     @PropertyName(ReviewsFirestoreContract.FIELD_COMMENT)
     public void setComment(String comment) { this.comment = comment; }
+
+    @PropertyName(ReviewsFirestoreContract.FIELD_STATUS)
+    public String getStatus() { return status; }
+    @PropertyName(ReviewsFirestoreContract.FIELD_STATUS)
+    public void setStatus(String status) { this.status = status; }
 
     @PropertyName(ReviewsFirestoreContract.FIELD_CREATED_AT)
     public Date getCreatedAt() { return createdAt; }
