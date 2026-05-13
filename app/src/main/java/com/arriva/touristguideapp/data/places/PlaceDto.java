@@ -56,6 +56,10 @@ public final class PlaceDto {
     private final String status;
     @Nullable
     private final String legacyId;
+    @Nullable
+    private final String drawableAssetKey;
+    @NonNull
+    private final List<String> galleryDrawableKeys;
 
     public PlaceDto(
             String documentId,
@@ -78,7 +82,9 @@ public final class PlaceDto {
             String tag,
             boolean topPick,
             @NonNull String status,
-            @Nullable String legacyId
+            @Nullable String legacyId,
+            @Nullable String drawableAssetKey,
+            @NonNull List<String> galleryDrawableKeys
     ) {
         this.documentId = documentId;
         this.name = name;
@@ -101,6 +107,8 @@ public final class PlaceDto {
         this.topPick = topPick;
         this.status = status;
         this.legacyId = legacyId;
+        this.drawableAssetKey = drawableAssetKey;
+        this.galleryDrawableKeys = Collections.unmodifiableList(new ArrayList<>(galleryDrawableKeys));
     }
 
     @Nullable
@@ -219,9 +227,16 @@ public final class PlaceDto {
 
         String legacyId = readOptionalStringOrNull(snap, documentId, PlacesFirestoreContract.FIELD_LEGACY_ID);
 
+        String drawableAssetKey = readOptionalStringOrNull(
+                snap, documentId, PlacesFirestoreContract.FIELD_DRAWABLE_ASSET_KEY);
+        List<String> galleryDrawableKeys = readOptionalStringList(
+                snap, documentId, PlacesFirestoreContract.FIELD_GALLERY_DRAWABLE_KEYS);
+
         Log.d(TAG, "docId=" + documentId + " PARSE_OK name=" + name
                 + " hasImageUrl=" + (imageUrl != null)
-                + " gallerySize=" + gallery.size());
+                + " galleryUrlSize=" + gallery.size()
+                + " hasDrawableAssetKey=" + (drawableAssetKey != null)
+                + " galleryDrawableKeyCount=" + galleryDrawableKeys.size());
 
         return new PlaceDto(
                 documentId,
@@ -244,7 +259,9 @@ public final class PlaceDto {
                 tag,
                 topPick,
                 status,
-                legacyId
+                legacyId,
+                drawableAssetKey,
+                galleryDrawableKeys
         );
     }
 
@@ -280,7 +297,9 @@ public final class PlaceDto {
                 DEFAULT_TAG,
                 false,
                 status,
-                null
+                null,
+                null,
+                Collections.emptyList()
         );
     }
 
@@ -603,5 +622,15 @@ public final class PlaceDto {
     @Nullable
     public String getLegacyId() {
         return legacyId;
+    }
+
+    @Nullable
+    public String getDrawableAssetKey() {
+        return drawableAssetKey;
+    }
+
+    @NonNull
+    public List<String> getGalleryDrawableKeys() {
+        return galleryDrawableKeys;
     }
 }

@@ -86,4 +86,10 @@ public class FavoriteAdapter extends RecyclerView.Adapter<FavoriteAdapter.ViewHo
     public int getItemCount() {
         return favoriteList.size();
     }
+
+    @Override
+    public void onViewRecycled(@NonNull ViewHolder holder) {
+        PlaceImageHelper.clear(holder.image);
+        super.onViewRecycled(holder);
+    }
 }

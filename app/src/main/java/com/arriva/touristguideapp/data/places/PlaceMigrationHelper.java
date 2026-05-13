@@ -16,6 +16,7 @@ import com.google.firebase.firestore.GeoPoint;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -25,6 +26,9 @@ import java.util.concurrent.atomic.AtomicInteger;
 /**
  * TEMPORARY one-shot migration: uploads hardcoded {@link DataProvider} rows into the
  * {@link PlacesFirestoreContract#COLLECTION_PLACES} collection. Safe to delete once Firestore is seeded.
+ *
+ * <p>Writes use {@link com.google.firebase.firestore.DocumentReference#set(Object)} with no merge options,
+ * so each run replaces the full document for that id (idempotent; no duplicate rows from re-running).</p>
  */
 public final class PlaceMigrationHelper {
 
@@ -38,8 +42,9 @@ public final class PlaceMigrationHelper {
     }
 
     /**
-     * Reads {@link DataProvider#getAllPlaces()} and writes each document with {@link Task} {@code set()}
-     * (full replace per document id). Logs per-document outcome and a final summary.
+     * Reads {@link DataProvider#getAllPlaces()}, de-duplicates by resolved Firestore document id, then
+     * writes each document with {@link Task} {@code set()} (full replace). Logs per-document outcome and
+     * a final success/failure total.
      */
     public static void migratePlacesToFirestore(@NonNull Context context,
                                                 @Nullable MigrationCallback callback) {
@@ -53,12 +58,41 @@ public final class PlaceMigrationHelper {
             return;
         }
 
+        LinkedHashMap<String, Place> unique = new LinkedHashMap<>();
+        AtomicInteger preflightFailures = new AtomicInteger(0);
+        for (Place place : places) {
+            String docId = resolveDocumentId(place);
+            if (docId == null || docId.isEmpty()) {
+                preflightFailures.incrementAndGet();
+                Log.e(TAG, "UPLOAD_FAILURE reason=invalid_doc_id name=" + place.getName());
+                continue;
+            }
+            if (unique.containsKey(docId)) {
+                preflightFailures.incrementAndGet();
+                Log.e(TAG, "UPLOAD_SKIPPED reason=duplicate_doc_id docId=" + docId
+                        + " keptName=" + unique.get(docId).getName() + " droppedName=" + place.getName());
+                continue;
+            }
+            unique.put(docId, place);
+        }
+
+        if (unique.isEmpty()) {
+            Log.w(TAG, "migratePlacesToFirestore: no valid document ids after de-duplication");
+            if (callback != null) {
+                postMain(app, () -> callback.onMigrationFinished(0, preflightFailures.get()));
+            }
+            return;
+        }
+
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         AtomicInteger success = new AtomicInteger(0);
-        AtomicInteger failure = new AtomicInteger(0);
-        AtomicInteger pending = new AtomicInteger(places.size());
+        AtomicInteger failure = new AtomicInteger(preflightFailures.get());
+        AtomicInteger pending = new AtomicInteger(unique.size());
 
-        Log.i(TAG, "migratePlacesToFirestore: START count=" + places.size());
+        Log.i(TAG, "migratePlacesToFirestore: START sourceRows=" + places.size()
+                + " uniqueDocWrites=" + unique.size()
+                + " preFailures(duplicates+invalid)=" + preflightFailures.get()
+                + " writeMode=set(fullDocumentReplace)");
 
         Runnable onOneFinished = () -> {
             if (pending.decrementAndGet() != 0) {
@@ -72,14 +106,9 @@ public final class PlaceMigrationHelper {
             }
         };
 
-        for (Place place : places) {
-            String docId = resolveDocumentId(place);
-            if (docId == null || docId.isEmpty()) {
-                failure.incrementAndGet();
-                Log.e(TAG, "UPLOAD_FAILURE reason=invalid_doc_id name=" + place.getName());
-                onOneFinished.run();
-                continue;
-            }
+        for (Map.Entry<String, Place> e : unique.entrySet()) {
+            String docId = e.getKey();
+            Place place = e.getValue();
 
             Map<String, Object> payload = buildDocument(app, place);
             Task<Void> write = db.collection(PlacesFirestoreContract.COLLECTION_PLACES)
@@ -92,9 +121,9 @@ public final class PlaceMigrationHelper {
                     Log.i(TAG, "UPLOAD_SUCCESS docId=" + docId + " name=" + place.getName());
                 } else {
                     failure.incrementAndGet();
-                    Exception e = task.getException();
+                    Exception ex = task.getException();
                     Log.e(TAG, "UPLOAD_FAILURE docId=" + docId + " name=" + place.getName()
-                            + " message=" + (e != null ? e.getMessage() : "unknown"), e);
+                            + " message=" + (ex != null ? ex.getMessage() : "unknown"), ex);
                 }
                 onOneFinished.run();
             });
@@ -106,10 +135,19 @@ public final class PlaceMigrationHelper {
     }
 
     /**
-     * Uses {@link Place#getId()} so numeric legacy ids ("1", "2", "3", …) become Firestore document ids.
+     * Prefers {@link Place#getLegacyCatalogId()} when set, otherwise {@link Place#getId()} (e.g. {@code "1"},
+     * {@code "2"}, … from {@link DataProvider}). Hash-based ids from the short {@link Place} constructor are
+     * also valid unique Firestore ids when no explicit legacy id exists.
      */
     @Nullable
     private static String resolveDocumentId(@NonNull Place place) {
+        String legacy = place.getLegacyCatalogId();
+        if (legacy != null) {
+            legacy = legacy.trim();
+            if (!legacy.isEmpty()) {
+                return legacy;
+            }
+        }
         String id = place.getId();
         if (id == null) {
             return null;

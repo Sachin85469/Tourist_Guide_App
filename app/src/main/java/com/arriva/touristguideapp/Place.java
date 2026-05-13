@@ -53,6 +53,14 @@ public class Place implements Serializable {
     @Nullable
     private String legacyCatalogId;
 
+    /** Firestore migration / catalog: drawable resource name (e.g. {@code shaniwar_wada}). */
+    @Nullable
+    private String drawableAssetKey;
+
+    /** Drawable resource names for remote-first rows (gallery when URLs absent). */
+    @NonNull
+    private List<String> galleryDrawableKeys = new ArrayList<>();
+
     /**
      * Comprehensive Constructor including all fields.
      */
@@ -234,6 +242,26 @@ public class Place implements Serializable {
 
     public void setLegacyCatalogId(@Nullable String legacyCatalogId) {
         this.legacyCatalogId = legacyCatalogId;
+    }
+
+    @Nullable
+    public String getDrawableAssetKey() {
+        return drawableAssetKey;
+    }
+
+    public void setDrawableAssetKey(@Nullable String drawableAssetKey) {
+        this.drawableAssetKey = drawableAssetKey;
+    }
+
+    @NonNull
+    public List<String> getGalleryDrawableKeys() {
+        return galleryDrawableKeys;
+    }
+
+    public void setGalleryDrawableKeys(@Nullable List<String> galleryDrawableKeys) {
+        this.galleryDrawableKeys = galleryDrawableKeys != null
+                ? new ArrayList<>(galleryDrawableKeys)
+                : new ArrayList<>();
     }
 
     /** True when a remote hero URL is present (adapters can prefer Glide in a later phase). */
