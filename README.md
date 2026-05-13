@@ -1,10 +1,10 @@
-login system
+wlogin system
 profile of individual
 changes in planner system
 map updation
+review
 
-
-Tourist Spots
+Tourist pots
 
 Historical Places
 
