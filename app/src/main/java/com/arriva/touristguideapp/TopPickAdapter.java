@@ -39,6 +39,8 @@ public class TopPickAdapter extends RecyclerView.Adapter<TopPickAdapter.ViewHold
             name.setText(place.getName());
             rating.setText(place.getRating() + " ⭐");
             budget.setText(place.getBudget());
+            
+            // Exclusively remote URLs via PlaceImageHelper
             PlaceImageHelper.loadThumbnail(image, place);
 
             if (distance != null) {

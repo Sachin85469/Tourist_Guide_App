@@ -128,25 +128,7 @@ public class PlaceAdapter extends RecyclerView.Adapter<PlaceAdapter.ViewHolder> 
                     listener.onItemClick(place);
                 } else {
                     android.content.Intent intent = new android.content.Intent(context, PlaceDetailsActivity.class);
-                    intent.putExtra("id", place.getId());
-                    intent.putExtra("name", place.getName());
-                    intent.putExtra("description", place.getDescription());
-                    intent.putExtra("category", place.getCategory());
-                    intent.putExtra("budget", place.getBudget());
-                    intent.putExtra("crowdLevel", place.getCrowdLevel());
-                    intent.putExtra("bestTime", place.getBestTime());
-                    intent.putExtra("imageResId", place.getImageResId());
-                    intent.putExtra("tips", place.getTips());
-                    intent.putExtra("funFact", place.getFunFact());
-                    intent.putExtra("nearestStation", place.getNearestStation());
-                    // Pass remote image data for Firestore places
-                    if (place.getImageUrl() != null) {
-                        intent.putExtra("imageUrl", place.getImageUrl());
-                    }
-                    if (place.hasRemoteGalleryImages()) {
-                        intent.putStringArrayListExtra("galleryImageUrls",
-                                new java.util.ArrayList<>(place.getGalleryImageUrls()));
-                    }
+                    PlaceIntentExtras.putPlaceDetails(intent, place);
                     context.startActivity(intent);
                     if (context instanceof Activity) {
                         ((Activity) context).overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);

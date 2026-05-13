@@ -38,6 +38,8 @@ public class FavoriteAdapter extends RecyclerView.Adapter<FavoriteAdapter.ViewHo
         public void bind(final Place place, final OnItemClickListener listener) {
             Context context = itemView.getContext();
             name.setText(place.getName());
+            
+            // Exclusively remote URLs via PlaceImageHelper
             PlaceImageHelper.loadThumbnail(image, place);
             
             boolean isFav = FavoritesManager.isFavorite(context, place.getId());
