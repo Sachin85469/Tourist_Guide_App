@@ -7,6 +7,8 @@ import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.arriva.touristguideapp.communication.translation.TranslationCache;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -92,8 +94,13 @@ public class PhrasebookRepository {
                                       @Nullable String category,
                                       @Nullable String query,
                                       boolean favoritesOnly,
-                                      @NonNull java.util.Set<String> favoriteIds) {
+                                      @NonNull java.util.Set<String> favoriteIds,
+                                      @NonNull TranslationCache translationCache,
+                                      @NonNull String targetLangCode) {
         List<Phrase> filtered = new ArrayList<>();
+        String q = query != null ? query.trim() : "";
+        boolean hasQuery = !q.isEmpty();
+
         for (Phrase phrase : source) {
             if (favoritesOnly && !favoriteIds.contains(phrase.getId())) {
                 continue;
@@ -101,10 +108,20 @@ public class PhrasebookRepository {
             if (!phrase.matchesCategory(category)) {
                 continue;
             }
-            if (!phrase.matchesQuery(query)) {
+            if (!hasQuery) {
+                filtered.add(phrase);
                 continue;
             }
-            filtered.add(phrase);
+            if (phrase.matchesBaseQuery(q)) {
+                filtered.add(phrase);
+                continue;
+            }
+            String cacheKey = translationCache.phraseKey(
+                    phrase.getId(), phrase.getBaseLanguage(), targetLangCode);
+            String translated = translationCache.get(cacheKey);
+            if (phrase.matchesTranslatedQuery(q, translated)) {
+                filtered.add(phrase);
+            }
         }
         return filtered;
     }

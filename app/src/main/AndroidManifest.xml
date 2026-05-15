@@ -92,7 +92,7 @@
             android:name=".PlaceEditorActivity"
             android:exported="false" />
         <activity
-            android:name=".PhrasebookActivity"
+            android:name=".communication.CommunicationHubActivity"
             android:exported="false"
             android:theme="@style/Theme.TouristGuideApp" />
     </application>

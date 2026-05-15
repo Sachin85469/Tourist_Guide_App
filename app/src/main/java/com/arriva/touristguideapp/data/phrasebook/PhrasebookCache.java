@@ -5,7 +5,6 @@ import android.content.SharedPreferences;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -14,7 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Persists the last successful Firestore phrase list for offline use.
+ * Persists phrase catalog for offline use (base text only).
  */
 public class PhrasebookCache {
 
@@ -34,9 +33,8 @@ public class PhrasebookCache {
             for (Phrase phrase : phrases) {
                 JSONObject obj = new JSONObject();
                 obj.put("id", phrase.getId());
-                obj.put("englishText", phrase.getEnglishText());
-                obj.put("marathiText", phrase.getMarathiText());
-                obj.put("hindiText", phrase.getHindiText());
+                obj.put("baseText", phrase.getBaseText());
+                obj.put("baseLanguage", phrase.getBaseLanguage());
                 obj.put("category", phrase.getCategory());
                 array.put(obj);
             }
@@ -57,30 +55,16 @@ public class PhrasebookCache {
             JSONArray array = new JSONArray(json);
             for (int i = 0; i < array.length(); i++) {
                 JSONObject obj = array.getJSONObject(i);
-                Phrase phrase = new Phrase(
+                phrases.add(new Phrase(
                         obj.getString("id"),
-                        obj.getString("englishText"),
-                        obj.getString("marathiText"),
-                        obj.getString("hindiText"),
+                        obj.getString("baseText"),
+                        obj.optString("baseLanguage", "en"),
                         obj.getString("category")
-                );
-                phrases.add(phrase);
+                ));
             }
         } catch (Exception e) {
             Log.w(TAG, "load failed", e);
         }
         return phrases;
-    }
-
-    public void clear() {
-        prefs.edit().remove(KEY_JSON).apply();
-    }
-
-    @Nullable
-    public String lastSavedAtLabel() {
-        if (!prefs.contains(KEY_JSON)) {
-            return null;
-        }
-        return "Offline copy";
     }
 }

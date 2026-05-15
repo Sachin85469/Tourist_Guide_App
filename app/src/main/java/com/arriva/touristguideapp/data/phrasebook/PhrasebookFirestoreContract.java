@@ -7,10 +7,12 @@ public final class PhrasebookFirestoreContract {
 
     public static final String COLLECTION_PHRASEBOOK = "phrasebook";
 
-    public static final String FIELD_ENGLISH = "englishText";
-    public static final String FIELD_MARATHI = "marathiText";
-    public static final String FIELD_HINDI = "hindiText";
+    public static final String FIELD_BASE_TEXT = "baseText";
+    public static final String FIELD_BASE_LANGUAGE = "baseLanguage";
     public static final String FIELD_CATEGORY = "category";
+
+    /** @deprecated Legacy field — migrated to {@link #FIELD_BASE_TEXT} at read time. */
+    public static final String FIELD_LEGACY_ENGLISH = "englishText";
 
     public static final String CATEGORY_ALL = "All";
     public static final String CATEGORY_TRANSPORT = "Transport";

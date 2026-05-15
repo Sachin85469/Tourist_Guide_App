@@ -56,22 +56,6 @@ public class FirestorePhrasebookDataSource {
         });
     }
 
-    public void listenByCategory(@NonNull String category, @NonNull PhrasesSnapshotListener listener) {
-        removeListener();
-        Query query = db.collection(PhrasebookFirestoreContract.COLLECTION_PHRASEBOOK)
-                .whereEqualTo(PhrasebookFirestoreContract.FIELD_CATEGORY, category)
-                .orderBy(PhrasebookFirestoreContract.FIELD_ENGLISH);
-
-        registration = query.addSnapshotListener((snapshot, error) -> {
-            if (error != null) {
-                Log.e(TAG, "listenByCategory failed", error);
-                listener.onError(error.getMessage() != null ? error.getMessage() : "unknown_error");
-                return;
-            }
-            listener.onPhrasesUpdated(mapSnapshot(snapshot));
-        });
-    }
-
     public void removeListener() {
         if (registration != null) {
             registration.remove();

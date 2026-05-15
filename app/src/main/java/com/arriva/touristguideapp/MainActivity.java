@@ -404,7 +404,7 @@ public class MainActivity extends AppCompatActivity {
                 overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
             },
             v -> {
-                startActivity(new Intent(MainActivity.this, PhrasebookActivity.class));
+                startActivity(new Intent(MainActivity.this, com.arriva.touristguideapp.communication.CommunicationHubActivity.class));
                 overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
             }
         );

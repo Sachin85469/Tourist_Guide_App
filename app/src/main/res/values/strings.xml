@@ -25,5 +25,33 @@
     <string name="phrasebook_favorite">Favorite</string>
     <string name="phrasebook_copied">Phrase copied</string>
     <string name="phrasebook_home_title">Travel Phrasebook</string>
-    <string name="phrasebook_home_subtitle">Speak Marathi &amp; Hindi with locals</string>
+    <string name="phrasebook_home_subtitle">Translate and speak in any supported language</string>
+
+    <string name="communication_hub_title">Travel Communication</string>
+    <string name="communication_tab_phrasebook">Phrasebook</string>
+    <string name="communication_tab_translator">Translator</string>
+    <string name="communication_tab_conversation">Conversation</string>
+    <string name="communication_source_language">Source language</string>
+    <string name="communication_target_language">Target language</string>
+    <string name="communication_input_hint">Type or speak text to translate…</string>
+    <string name="communication_translate">Translate</string>
+    <string name="communication_voice_input">Voice</string>
+    <string name="communication_speak">Speak</string>
+    <string name="communication_copy">Copy</string>
+    <string name="communication_translation_result">Translation</string>
+    <string name="communication_original_phrase">Original</string>
+    <string name="communication_translated_phrase">Translated</string>
+    <string name="communication_recent_translations">Recent translations</string>
+    <string name="communication_status_ready">Ready</string>
+    <string name="communication_status_translating">Translating…</string>
+    <string name="communication_status_speaking">Speaking…</string>
+    <string name="communication_status_listening">Listening…</string>
+    <string name="communication_enter_text">Enter text to translate</string>
+    <string name="communication_translation_failed">Translation failed</string>
+    <string name="communication_speech_prompt">Speak in %1$s…</string>
+    <string name="communication_speech_unavailable">Speech recognition is not available on this device</string>
+    <string name="communication_speech_failed">Could not recognize speech. Try again.</string>
+    <string name="communication_tap_to_speak">Tap to speak</string>
+    <string name="communication_speak_again">Speak translation again</string>
+    <string name="communication_you_said">You said</string>
 </resources>

@@ -30,7 +30,7 @@
                 android:textColor="@color/primary"
                 android:textSize="12sp"
                 android:textStyle="bold"
-                tools:text="Transport" />
+                tools:text="Emergency" />
 
             <ImageButton
                 android:id="@+id/btnPhraseCopy"
@@ -52,14 +52,23 @@
         </LinearLayout>
 
         <TextView
-            android:id="@+id/tvPhraseEnglish"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
+            android:text="@string/communication_original_phrase"
+            android:textColor="@color/text_muted"
+            android:textSize="11sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/tvPhraseOriginal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="2dp"
             android:textColor="@color/adaptive_text_primary"
             android:textSize="17sp"
             android:textStyle="bold"
-            tools:text="Where is the railway station?" />
+            tools:text="Call the police." />
 
         <View
             android:layout_width="match_parent"
@@ -70,77 +79,54 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/phrasebook_marathi_label"
+            android:text="@string/communication_translated_phrase"
             android:textColor="@color/text_muted"
             android:textSize="11sp"
             android:textStyle="bold" />
 
-        <TextView
-            android:id="@+id/tvPhraseMarathi"
+        <FrameLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="2dp"
-            android:textColor="@color/adaptive_text_primary"
-            android:textSize="16sp"
-            tools:text="रेल्वे स्टेशन कुठे आहे?" />
+            android:layout_marginTop="4dp"
+            android:minHeight="40dp">
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
-            android:text="@string/phrasebook_hindi_label"
-            android:textColor="@color/text_muted"
-            android:textSize="11sp"
-            android:textStyle="bold" />
+            <ProgressBar
+                android:id="@+id/progressPhraseTranslation"
+                android:layout_width="28dp"
+                android:layout_height="28dp"
+                android:layout_gravity="center_vertical"
+                android:indeterminateTint="@color/primary"
+                android:visibility="gone" />
 
-        <TextView
-            android:id="@+id/tvPhraseHindi"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="2dp"
-            android:textColor="@color/adaptive_text_primary"
-            android:textSize="16sp"
-            tools:text="रेलवे स्टेशन कहाँ है?" />
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="14dp"
-            android:orientation="horizontal">
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnSpeakMarathi"
-                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-                android:layout_width="0dp"
+            <TextView
+                android:id="@+id/tvPhraseTranslated"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginEnd="6dp"
-                android:layout_weight="1"
-                android:text="@string/phrasebook_speak_marathi"
-                android:textAllCaps="false"
-                android:textSize="13sp"
-                app:cornerRadius="12dp"
-                app:icon="@drawable/ic_volume"
-                app:iconGravity="textStart"
-                app:iconPadding="6dp"
-                app:iconTint="@color/primary"
-                app:strokeColor="@color/adaptive_card_stroke" />
+                android:textColor="@color/adaptive_text_primary"
+                android:textSize="16sp"
+                tools:text="पोलीसांना बोलावा." />
 
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnSpeakHindi"
-                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-                android:layout_width="0dp"
+            <TextView
+                android:id="@+id/tvPhraseTranslationError"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="6dp"
-                android:layout_weight="1"
-                android:text="@string/phrasebook_speak_hindi"
-                android:textAllCaps="false"
+                android:textColor="@color/indicator_red"
                 android:textSize="13sp"
-                app:cornerRadius="12dp"
-                app:icon="@drawable/ic_volume"
-                app:iconGravity="textStart"
-                app:iconPadding="6dp"
-                app:iconTint="@color/primary"
-                app:strokeColor="@color/adaptive_card_stroke" />
-        </LinearLayout>
+                android:visibility="gone" />
+        </FrameLayout>
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnPhraseSpeak"
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:text="@string/communication_speak"
+            android:textAllCaps="false"
+            app:cornerRadius="12dp"
+            app:icon="@drawable/ic_volume"
+            app:iconGravity="textStart"
+            app:iconTint="@color/primary"
+            app:strokeColor="@color/adaptive_card_stroke" />
     </LinearLayout>
 </com.google.android.material.card.MaterialCardView>
