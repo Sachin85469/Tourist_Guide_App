@@ -29,6 +29,8 @@ public class PhrasebookListAdapter extends RecyclerView.Adapter<PhrasebookListAd
         void onSpeak(@NonNull Phrase phrase, @NonNull String textToSpeak);
 
         void onFavoriteToggled();
+
+        void onRetryTranslation(@NonNull Phrase phrase);
     }
 
     private final List<PhraseDisplayItem> items = new ArrayList<>();
@@ -81,6 +83,7 @@ public class PhrasebookListAdapter extends RecyclerView.Adapter<PhrasebookListAd
         private final ImageButton btnFavorite;
         private final ImageButton btnCopy;
         private final MaterialButton btnSpeak;
+        private final MaterialButton btnRetryTranslation;
 
         PhraseViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -92,6 +95,7 @@ public class PhrasebookListAdapter extends RecyclerView.Adapter<PhrasebookListAd
             btnFavorite = itemView.findViewById(R.id.btnPhraseFavorite);
             btnCopy = itemView.findViewById(R.id.btnPhraseCopy);
             btnSpeak = itemView.findViewById(R.id.btnPhraseSpeak);
+            btnRetryTranslation = itemView.findViewById(R.id.btnPhraseRetryTranslation);
         }
 
         void bind(@NonNull PhraseDisplayItem item,
@@ -116,6 +120,7 @@ public class PhrasebookListAdapter extends RecyclerView.Adapter<PhrasebookListAd
                     progressTranslation.setVisibility(View.VISIBLE);
                     tvTranslated.setVisibility(View.GONE);
                     tvTranslationError.setVisibility(View.GONE);
+                    btnRetryTranslation.setVisibility(View.GONE);
                     break;
                 case ERROR:
                     progressTranslation.setVisibility(View.GONE);
@@ -124,10 +129,13 @@ public class PhrasebookListAdapter extends RecyclerView.Adapter<PhrasebookListAd
                     tvTranslationError.setText(item.getErrorMessage() != null
                             ? item.getErrorMessage()
                             : context.getString(R.string.communication_translation_failed));
+                    btnRetryTranslation.setVisibility(View.VISIBLE);
+                    btnRetryTranslation.setOnClickListener(v -> listener.onRetryTranslation(phrase));
                     break;
                 case READY:
                     progressTranslation.setVisibility(View.GONE);
                     tvTranslationError.setVisibility(View.GONE);
+                    btnRetryTranslation.setVisibility(View.GONE);
                     tvTranslated.setVisibility(View.VISIBLE);
                     tvTranslated.setText(item.getTranslatedText() != null
                             ? item.getTranslatedText()
@@ -136,6 +144,7 @@ public class PhrasebookListAdapter extends RecyclerView.Adapter<PhrasebookListAd
                 default:
                     progressTranslation.setVisibility(View.GONE);
                     tvTranslationError.setVisibility(View.GONE);
+                    btnRetryTranslation.setVisibility(View.GONE);
                     tvTranslated.setVisibility(View.VISIBLE);
                     tvTranslated.setText("…");
                     break;

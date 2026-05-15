@@ -113,6 +113,14 @@
                 android:textColor="@color/indicator_red"
                 android:textSize="13sp"
                 android:visibility="gone" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnPhraseRetryTranslation"
+                style="@style/Widget.MaterialComponents.Button.TextButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/retry"
+                android:visibility="gone" />
         </FrameLayout>
 
         <com.google.android.material.button.MaterialButton
