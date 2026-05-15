@@ -27,6 +27,7 @@ public class HomeActivity extends AppCompatActivity {
     private EditText editTextSearch;
     private ImageView btnVoiceSearch, ivProfileIcon;
     private TextView tvHomeUserName, tvHomeUserEmail;
+    private View fabAiChat;
     private long lastSearchLogTime = 0;
     private static final long SEARCH_LOG_DEBOUNCE = 2000;
 
@@ -42,6 +43,14 @@ public class HomeActivity extends AppCompatActivity {
         ivProfileIcon = findViewById(R.id.ivProfileIcon);
         tvHomeUserName = findViewById(R.id.tvHomeUserName);
         tvHomeUserEmail = findViewById(R.id.tvHomeUserEmail);
+        fabAiChat = findViewById(R.id.fabAiChat);
+
+        // AI Chatbot setup
+        if (fabAiChat != null) {
+            fabAiChat.setOnClickListener(v -> {
+                startActivity(new Intent(this, AiChatActivity.class));
+            });
+        }
 
         // Profile Avatar and User Info Setup
         loadUserInfo();
