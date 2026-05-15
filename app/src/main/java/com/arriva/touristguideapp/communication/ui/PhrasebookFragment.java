@@ -119,6 +119,11 @@ public class PhrasebookFragment extends Fragment {
             public void onFavoriteToggled() {
                 applyFiltersAndTranslate();
             }
+
+            @Override
+            public void onRetryTranslation(@NonNull Phrase phrase) {
+                retryPhraseTranslation(phrase);
+            }
         });
         rvPhrases.setLayoutManager(new LinearLayoutManager(requireContext()));
         rvPhrases.setAdapter(listAdapter);
@@ -270,66 +275,96 @@ public class PhrasebookFragment extends Fragment {
     private void translateAllVisible() {
         LanguageConfig target = host.getTargetLanguage();
         for (int i = 0; i < displayItems.size(); i++) {
-            PhraseDisplayItem item = displayItems.get(i);
-            Phrase phrase = item.getPhrase();
-            LanguageConfig source = LanguageRegistry.requireFromCode(phrase.getBaseLanguage());
-
-            if (source.getLanguageCode().equals(target.getLanguageCode())) {
-                item.setTranslatedText(phrase.getBaseText());
-                item.setState(PhraseDisplayItem.TranslationUiState.READY);
-                listAdapter.notifyItemChanged(i);
-                continue;
-            }
-
-            String cacheKey = translationCache.phraseKey(
-                    phrase.getId(), source.getLanguageCode(), target.getLanguageCode());
-            String cached = translationCache.get(cacheKey);
-            if (cached != null) {
-                item.setTranslatedText(cached);
-                item.setState(PhraseDisplayItem.TranslationUiState.READY);
-                listAdapter.notifyItemChanged(i);
-                continue;
-            }
-
-            item.setState(PhraseDisplayItem.TranslationUiState.LOADING);
-            listAdapter.notifyItemChanged(i);
-            final int index = i;
-            translationManager.translate(
-                    phrase.getBaseText(),
-                    source,
-                    target,
-                    cacheKey,
-                    new TranslationCallback() {
-                        @Override
-                        public void onSuccess(@NonNull String translatedText) {
-                            if (!isAdded() || index >= displayItems.size()) {
-                                return;
-                            }
-                            PhraseDisplayItem current = displayItems.get(index);
-                            if (!current.getPhrase().getId().equals(phrase.getId())) {
-                                return;
-                            }
-                            current.setTranslatedText(translatedText);
-                            current.setState(PhraseDisplayItem.TranslationUiState.READY);
-                            requireActivity().runOnUiThread(() -> listAdapter.notifyItemChanged(index));
-                        }
-
-                        @Override
-                        public void onProgress(@NonNull String message) {
-                        }
-
-                        @Override
-                        public void onFailure(@NonNull String errorMessage) {
-                            if (!isAdded() || index >= displayItems.size()) {
-                                return;
-                            }
-                            PhraseDisplayItem current = displayItems.get(index);
-                            current.setState(PhraseDisplayItem.TranslationUiState.ERROR);
-                            current.setErrorMessage(errorMessage);
-                            requireActivity().runOnUiThread(() -> listAdapter.notifyItemChanged(index));
-                        }
-                    });
+            translatePhraseAtIndex(i, displayItems.get(i).getPhrase(), target);
         }
+    }
+
+    private void retryPhraseTranslation(@NonNull Phrase phrase) {
+        LanguageConfig target = host.getTargetLanguage();
+        for (int i = 0; i < displayItems.size(); i++) {
+            if (displayItems.get(i).getPhrase().getId().equals(phrase.getId())) {
+                translatePhraseAtIndex(i, phrase, target);
+                return;
+            }
+        }
+    }
+
+    private void translatePhraseAtIndex(int index,
+                                        @NonNull Phrase phrase,
+                                        @NonNull LanguageConfig target) {
+        PhraseDisplayItem item = displayItems.get(index);
+        LanguageConfig source = LanguageRegistry.requireFromCode(phrase.getBaseLanguage());
+
+        if (source.getLanguageCode().equals(target.getLanguageCode())) {
+            item.setTranslatedText(phrase.getBaseText());
+            item.setState(PhraseDisplayItem.TranslationUiState.READY);
+            listAdapter.notifyItemChanged(index);
+            return;
+        }
+
+        String cacheKey = translationCache.phraseKey(
+                phrase.getId(), source.getLanguageCode(), target.getLanguageCode());
+        String cached = translationCache.get(cacheKey);
+        if (cached != null) {
+            item.setTranslatedText(cached);
+            item.setState(PhraseDisplayItem.TranslationUiState.READY);
+            listAdapter.notifyItemChanged(index);
+            return;
+        }
+
+        item.setState(PhraseDisplayItem.TranslationUiState.LOADING);
+        item.setErrorMessage(null);
+        listAdapter.notifyItemChanged(index);
+
+        translationManager.translate(
+                phrase.getBaseText(),
+                source,
+                target,
+                cacheKey,
+                new TranslationCallback() {
+                    @Override
+                    public void onSuccess(@NonNull String translatedText) {
+                        if (!isAdded() || index >= displayItems.size()) {
+                            return;
+                        }
+                        PhraseDisplayItem current = displayItems.get(index);
+                        if (!current.getPhrase().getId().equals(phrase.getId())) {
+                            return;
+                        }
+                        current.setTranslatedText(translatedText);
+                        current.setState(PhraseDisplayItem.TranslationUiState.READY);
+                        requireActivity().runOnUiThread(() -> listAdapter.notifyItemChanged(index));
+                    }
+
+                    @Override
+                    public void onProgress(@NonNull String message) {
+                        if (!isAdded()) {
+                            return;
+                        }
+                        requireActivity().runOnUiThread(() -> {
+                            PhraseDisplayItem current = displayItems.get(index);
+                            if (current.getPhrase().getId().equals(phrase.getId())
+                                    && current.getState() == PhraseDisplayItem.TranslationUiState.LOADING) {
+                                current.setErrorMessage(message);
+                                listAdapter.notifyItemChanged(index);
+                            }
+                        });
+                    }
+
+                    @Override
+                    public void onFailure(@NonNull String errorMessage) {
+                        if (!isAdded() || index >= displayItems.size()) {
+                            return;
+                        }
+                        PhraseDisplayItem current = displayItems.get(index);
+                        if (!current.getPhrase().getId().equals(phrase.getId())) {
+                            return;
+                        }
+                        current.setState(PhraseDisplayItem.TranslationUiState.ERROR);
+                        current.setErrorMessage(errorMessage);
+                        requireActivity().runOnUiThread(() -> listAdapter.notifyItemChanged(index));
+                    }
+                });
     }
 
     @NonNull

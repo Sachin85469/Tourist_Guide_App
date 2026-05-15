@@ -29,8 +29,6 @@ public final class LanguageRegistry {
         list.add(LanguageConfig.of("Bengali", "bn", TranslateLanguage.BENGALI));
         list.add(LanguageConfig.of("Telugu", "te", TranslateLanguage.TELUGU));
         list.add(LanguageConfig.of("Kannada", "kn", TranslateLanguage.KANNADA));
-        list.add(LanguageConfig.of("Malayalam", "ml", TranslateLanguage.MALAYALAM));
-        list.add(LanguageConfig.of("Punjabi", "pa", TranslateLanguage.PUNJABI));
         list.add(LanguageConfig.of("Urdu", "ur", TranslateLanguage.URDU));
 
         LANGUAGES = Collections.unmodifiableList(list);
