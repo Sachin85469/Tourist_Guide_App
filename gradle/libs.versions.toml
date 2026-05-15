@@ -4,7 +4,7 @@ junit = "4.13.2"
 junitVersion = "1.1.5"
 espressoCore = "3.5.1"
 appcompat = "1.6.1"
-material = "1.10.0"
+material = "1.11.0"
 activity = "1.8.0"
 constraintlayout = "2.1.4"
 glide = "4.16.0"
@@ -13,6 +13,7 @@ playServicesLocation = "21.0.1"
 places = "3.3.0"
 volley = "1.2.1"
 osmdroid = "6.1.18"
+mlkitTranslate = "17.0.3"
 firebaseBom = "32.7.0"
 playServicesAuth = "20.7.0"
 
@@ -35,6 +36,7 @@ firebase-auth = { group = "com.google.firebase", name = "firebase-auth" }
 firebase-firestore = { group = "com.google.firebase", name = "firebase-firestore" }
 firebase-messaging = { group = "com.google.firebase", name = "firebase-messaging" }
 play-services-auth = { group = "com.google.android.gms", name = "play-services-auth", version.ref = "playServicesAuth" }
+mlkit-translate = { group = "com.google.mlkit", name = "translate", version.ref = "mlkitTranslate" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

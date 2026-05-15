@@ -9,7 +9,7 @@
 
     <string name="back">Back</string>
     <string name="phrasebook_title">Travel Phrasebook</string>
-    <string name="phrasebook_search_hint">Search phrases in English, Marathi, or Hindi</string>
+    <string name="phrasebook_search_hint">Search phrases in any language</string>
     <string name="phrasebook_favorites_only">Show favorites only</string>
     <string name="phrasebook_empty_title">No phrases found</string>
     <string name="phrasebook_empty_message">Try another category or search term.</string>
@@ -17,10 +17,6 @@
     <string name="phrasebook_origin_firestore">Live from Firestore</string>
     <string name="phrasebook_origin_cache">Offline copy</string>
     <string name="phrasebook_origin_local">Built-in phrases</string>
-    <string name="phrasebook_marathi_label">Marathi</string>
-    <string name="phrasebook_hindi_label">Hindi</string>
-    <string name="phrasebook_speak_marathi">Marathi</string>
-    <string name="phrasebook_speak_hindi">Hindi</string>
     <string name="phrasebook_copy">Copy phrase</string>
     <string name="phrasebook_favorite">Favorite</string>
     <string name="phrasebook_copied">Phrase copied</string>
@@ -54,4 +50,19 @@
     <string name="communication_tap_to_speak">Tap to speak</string>
     <string name="communication_speak_again">Speak translation again</string>
     <string name="communication_you_said">You said</string>
+
+    <string name="reply_translator_title">Reply Translator</string>
+    <string name="tap_to_listen">Tap to Listen</string>
+    <string name="listening">Listening…</string>
+    <string name="translating">Translating…</string>
+    <string name="recognized_text">Recognized Text</string>
+    <string name="english_translation">English Translation</string>
+    <string name="speak_english">Speak English</string>
+    <string name="copy_translation">Copy</string>
+    <string name="mic_permission_required">Microphone permission is required for speech recognition.</string>
+    <string name="model_downloading">Downloading translation model…</string>
+    <string name="speech_not_recognized">Could not recognize speech. Please try again.</string>
+    <string name="translation_failed">Translation failed.</string>
+    <string name="tts_init_failed">Speech engine initialization failed.</string>
+    <string name="tts_voice_missing">Voice data not installed for %1$s.</string>
 </resources>

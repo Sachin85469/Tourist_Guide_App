@@ -1,16 +1,19 @@
 package com.arriva.touristguideapp.communication.tts;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.Handler;
 import android.os.Looper;
 import android.speech.tts.TextToSpeech;
 import android.speech.tts.UtteranceProgressListener;
 import android.util.Log;
+import android.widget.Toast;
 
 import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.arriva.touristguideapp.R;
 import com.arriva.touristguideapp.communication.languages.LanguageConfig;
 
 import java.util.Locale;
@@ -30,7 +33,9 @@ public class UniversalTtsHelper implements TextToSpeech.OnInitListener {
         void onSpeakingFinished(@Nullable String errorMessage);
     }
 
+    private final Context appContext;
     private final Handler mainHandler = new Handler(Looper.getMainLooper());
+
     @Nullable
     private TextToSpeech tts;
     private final AtomicBoolean ready = new AtomicBoolean(false);
@@ -38,14 +43,16 @@ public class UniversalTtsHelper implements TextToSpeech.OnInitListener {
     private SpeakCallback speakCallback;
 
     public UniversalTtsHelper(@NonNull Context context) {
-        tts = new TextToSpeech(context.getApplicationContext(), this);
+        appContext = context.getApplicationContext();
+        tts = new TextToSpeech(appContext, this);
     }
 
     @Override
     public void onInit(int status) {
         if (status != TextToSpeech.SUCCESS || tts == null) {
-            Log.e(TAG, "TTS init failed");
+            Log.e(TAG, "TTS init failed status=" + status);
             ready.set(false);
+            showToast(appContext.getString(R.string.tts_init_failed));
             return;
         }
         tts.setOnUtteranceProgressListener(new UtteranceProgressListener() {
@@ -75,22 +82,41 @@ public class UniversalTtsHelper implements TextToSpeech.OnInitListener {
     public void speak(@NonNull String text, @NonNull LanguageConfig language) {
         if (tts == null || !ready.get()) {
             notifyFinished("Text-to-speech is not ready yet");
+            showToast(appContext.getString(R.string.tts_init_failed));
             return;
         }
         if (text.trim().isEmpty()) {
             return;
         }
+
         stop();
         int result = tts.setLanguage(language.getTtsLocale());
         if (result == TextToSpeech.LANG_MISSING_DATA || result == TextToSpeech.LANG_NOT_SUPPORTED) {
             Log.w(TAG, "TTS missing for " + language.getDisplayName() + ", trying locale fallback");
             result = tts.setLanguage(Locale.forLanguageTag(language.getLanguageCode()));
             if (result == TextToSpeech.LANG_MISSING_DATA || result == TextToSpeech.LANG_NOT_SUPPORTED) {
+                showToast(appContext.getString(R.string.tts_voice_missing, language.getDisplayName()));
+                promptInstallTtsData();
                 notifyFinished("Voice data not installed for " + language.getDisplayName());
                 return;
             }
         }
+
         tts.speak(text, TextToSpeech.QUEUE_FLUSH, null, UTTERANCE_ID);
+    }
+
+    private void promptInstallTtsData() {
+        Intent installIntent = new Intent(TextToSpeech.Engine.ACTION_INSTALL_TTS_DATA);
+        installIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        try {
+            appContext.startActivity(installIntent);
+        } catch (Exception e) {
+            Log.e(TAG, "Failed to launch TTS installation activity", e);
+        }
+    }
+
+    private void showToast(@NonNull String message) {
+        mainHandler.post(() -> Toast.makeText(appContext, message, Toast.LENGTH_LONG).show());
     }
 
     @MainThread

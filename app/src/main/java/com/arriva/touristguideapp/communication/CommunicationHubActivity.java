@@ -26,6 +26,8 @@ import java.util.List;
  */
 public class CommunicationHubActivity extends AppCompatActivity implements CommunicationHost {
 
+    public static final String EXTRA_INITIAL_TAB = "initial_tab";
+
     private CommunicationPreferences preferences;
     private TranslationManager translationManager;
     private UniversalTtsHelper ttsHelper;
@@ -70,6 +72,11 @@ public class CommunicationHubActivity extends AppCompatActivity implements Commu
                     break;
             }
         }).attach();
+
+        int initialTab = getIntent().getIntExtra(EXTRA_INITIAL_TAB, 0);
+        if (initialTab > 0 && initialTab < 3) {
+            viewPager.setCurrentItem(initialTab, false);
+        }
     }
 
     @Override
