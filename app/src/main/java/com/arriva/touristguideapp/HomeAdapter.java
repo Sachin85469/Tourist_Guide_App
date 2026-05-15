@@ -32,6 +32,7 @@ public class HomeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private static final int TYPE_SECTION_HEADER = 3;
     private static final int TYPE_PLACE = 4;
     private static final int TYPE_HORIZONTAL_LIST = 6;
+    private static final int TYPE_PHRASEBOOK = 7;
 
     private List<HomeSection> sections;
     private List<Category> categories;
@@ -39,6 +40,7 @@ public class HomeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private OnItemClickListener placeClickListener;
     private CategoryAdapter.OnCategoryClickListener categoryClickListener;
     private View.OnClickListener planTripClickListener;
+    private View.OnClickListener phrasebookClickListener;
     private int lastPosition = -1;
 
     public HomeAdapter(List<HomeSection> sections, 
@@ -46,13 +48,15 @@ public class HomeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                        List<Place> topPicks,
                        OnItemClickListener placeClickListener,
                        CategoryAdapter.OnCategoryClickListener categoryClickListener,
-                       View.OnClickListener planTripClickListener) {
+                       View.OnClickListener planTripClickListener,
+                       View.OnClickListener phrasebookClickListener) {
         this.sections = sections;
         this.categories = categories;
         this.topPicks = topPicks;
         this.placeClickListener = placeClickListener;
         this.categoryClickListener = categoryClickListener;
         this.planTripClickListener = planTripClickListener;
+        this.phrasebookClickListener = phrasebookClickListener;
     }
 
     @Override
@@ -63,6 +67,7 @@ public class HomeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             case HomeSection.TYPE_CATEGORIES: return TYPE_CATEGORIES;
             case HomeSection.TYPE_TOP_PICKS: return TYPE_TOP_PICKS;
             case HomeSection.TYPE_PLAN_TRIP: return TYPE_PLAN_TRIP;
+            case HomeSection.TYPE_PHRASEBOOK: return TYPE_PHRASEBOOK;
             case HomeSection.TYPE_TRENDING:
             case HomeSection.TYPE_RECOMMENDED:
             case HomeSection.TYPE_RECENTLY_VIEWED:
@@ -87,6 +92,8 @@ public class HomeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 return new HorizontalViewHolder(inflater.inflate(R.layout.layout_home_horizontal_section, parent, false));
             case TYPE_PLAN_TRIP:
                 return new PlanTripViewHolder(inflater.inflate(R.layout.layout_home_plan_trip, parent, false));
+            case TYPE_PHRASEBOOK:
+                return new PhrasebookViewHolder(inflater.inflate(R.layout.layout_home_phrasebook, parent, false));
             case TYPE_SECTION_HEADER:
                 return new HeaderViewHolder(inflater.inflate(R.layout.layout_home_section_header, parent, false));
             case TYPE_PLACE:
@@ -114,6 +121,8 @@ public class HomeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             }
         } else if (holder instanceof PlanTripViewHolder) {
             ((PlanTripViewHolder) holder).bind(planTripClickListener);
+        } else if (holder instanceof PhrasebookViewHolder) {
+            ((PhrasebookViewHolder) holder).bind(phrasebookClickListener);
         } else if (holder instanceof HeaderViewHolder) {
             ((HeaderViewHolder) holder).bind(section.getTitle());
         } else if (holder instanceof PlaceViewHolder) {
@@ -204,6 +213,17 @@ public class HomeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         }
         void bind(View.OnClickListener listener) {
             btnPlanNow.setOnClickListener(listener);
+        }
+    }
+
+    static class PhrasebookViewHolder extends RecyclerView.ViewHolder {
+        View btnOpenPhrasebook;
+        PhrasebookViewHolder(View itemView) {
+            super(itemView);
+            btnOpenPhrasebook = itemView.findViewById(R.id.btnOpenPhrasebook);
+        }
+        void bind(View.OnClickListener listener) {
+            btnOpenPhrasebook.setOnClickListener(listener);
         }
     }
 

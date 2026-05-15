@@ -1,0 +1,285 @@
+{
+  "exportVersion": 1,
+  "collection": "phrasebook",
+  "schema": {
+    "documentIdField": "id",
+    "fields": "englishText, marathiText, hindiText, category",
+    "contract": "com.arriva.touristguideapp.data.phrasebook.PhrasebookFirestoreContract"
+  },
+  "notes": [
+    "Import with Firebase Admin SDK or PhrasebookMigrationHelper.migratePhrasesToFirestore().",
+    "Categories: Transport, Food, Emergency, Shopping, Greetings."
+  ],
+  "documents": [
+    {
+      "id": "transport_1",
+      "fields": {
+        "englishText": "Where is the railway station?",
+        "marathiText": "रेल्वे स्टेशन कुठे आहे?",
+        "hindiText": "रेलवे स्टेशन कहाँ है?",
+        "category": "Transport"
+      }
+    },
+    {
+      "id": "transport_2",
+      "fields": {
+        "englishText": "How much is the fare?",
+        "marathiText": "भाडे किती आहे?",
+        "hindiText": "किराया कितना है?",
+        "category": "Transport"
+      }
+    },
+    {
+      "id": "transport_3",
+      "fields": {
+        "englishText": "Please stop here.",
+        "marathiText": "कृपया येथे थांबा.",
+        "hindiText": "कृपया यहाँ रुकिए।",
+        "category": "Transport"
+      }
+    },
+    {
+      "id": "transport_4",
+      "fields": {
+        "englishText": "Which bus goes to the city center?",
+        "marathiText": "शहराच्या मध्यभागी कोणती बस जाते?",
+        "hindiText": "शहर के केंद्र में कौन सी बस जाती है?",
+        "category": "Transport"
+      }
+    },
+    {
+      "id": "transport_5",
+      "fields": {
+        "englishText": "I need a taxi.",
+        "marathiText": "मला टॅक्सी हवी आहे.",
+        "hindiText": "मुझे टैक्सी चाहिए।",
+        "category": "Transport"
+      }
+    },
+    {
+      "id": "transport_6",
+      "fields": {
+        "englishText": "How long will it take?",
+        "marathiText": "किती वेळ लागेल?",
+        "hindiText": "कितना समय लगेगा?",
+        "category": "Transport"
+      }
+    },
+    {
+      "id": "food_1",
+      "fields": {
+        "englishText": "I would like water, please.",
+        "marathiText": "मला पाणी हवे आहे, कृपया.",
+        "hindiText": "मुझे पानी चाहिए, कृपया।",
+        "category": "Food"
+      }
+    },
+    {
+      "id": "food_2",
+      "fields": {
+        "englishText": "What is today's special?",
+        "marathiText": "आजचा विशेष काय आहे?",
+        "hindiText": "आज का स्पेशल क्या है?",
+        "category": "Food"
+      }
+    },
+    {
+      "id": "food_3",
+      "fields": {
+        "englishText": "The bill, please.",
+        "marathiText": "बिल द्या, कृपया.",
+        "hindiText": "बिल दीजिए, कृपया।",
+        "category": "Food"
+      }
+    },
+    {
+      "id": "food_4",
+      "fields": {
+        "englishText": "Is this spicy?",
+        "marathiText": "हे तिखट आहे का?",
+        "hindiText": "क्या यह मसालेदार है?",
+        "category": "Food"
+      }
+    },
+    {
+      "id": "food_5",
+      "fields": {
+        "englishText": "I am vegetarian.",
+        "marathiText": "मी शाकाहारी आहे.",
+        "hindiText": "मैं शाकाहारी हूँ।",
+        "category": "Food"
+      }
+    },
+    {
+      "id": "food_6",
+      "fields": {
+        "englishText": "One tea, please.",
+        "marathiText": "एक चहा द्या.",
+        "hindiText": "एक चाय दीजिए।",
+        "category": "Food"
+      }
+    },
+    {
+      "id": "emergency_1",
+      "fields": {
+        "englishText": "Help!",
+        "marathiText": "मदत!",
+        "hindiText": "मदद!",
+        "category": "Emergency"
+      }
+    },
+    {
+      "id": "emergency_2",
+      "fields": {
+        "englishText": "Call the police.",
+        "marathiText": "पोलीसांना बोलावा.",
+        "hindiText": "पुलिस को बुलाइए।",
+        "category": "Emergency"
+      }
+    },
+    {
+      "id": "emergency_3",
+      "fields": {
+        "englishText": "I need a doctor.",
+        "marathiText": "मला डॉक्टर हवा आहे.",
+        "hindiText": "मुझे डॉक्टर चाहिए।",
+        "category": "Emergency"
+      }
+    },
+    {
+      "id": "emergency_4",
+      "fields": {
+        "englishText": "Where is the hospital?",
+        "marathiText": "रुग्णालय कुठे आहे?",
+        "hindiText": "अस्पताल कहाँ है?",
+        "category": "Emergency"
+      }
+    },
+    {
+      "id": "emergency_5",
+      "fields": {
+        "englishText": "I lost my passport.",
+        "marathiText": "माझा पासपोर्ट हरवला.",
+        "hindiText": "मेरा पासपोर्ट खो गया।",
+        "category": "Emergency"
+      }
+    },
+    {
+      "id": "emergency_6",
+      "fields": {
+        "englishText": "Call an ambulance.",
+        "marathiText": "अँब्युलन्स बोलावा.",
+        "hindiText": "एम्बुलेंस बुलाइए।",
+        "category": "Emergency"
+      }
+    },
+    {
+      "id": "shopping_1",
+      "fields": {
+        "englishText": "How much does this cost?",
+        "marathiText": "याची किंमत किती?",
+        "hindiText": "इसकी कीमत कितनी है?",
+        "category": "Shopping"
+      }
+    },
+    {
+      "id": "shopping_2",
+      "fields": {
+        "englishText": "Do you have a smaller size?",
+        "marathiText": "लहान साईज आहे का?",
+        "hindiText": "छोटा साइज है?",
+        "category": "Shopping"
+      }
+    },
+    {
+      "id": "shopping_3",
+      "fields": {
+        "englishText": "Can I get a discount?",
+        "marathiText": "सूट मिळेल का?",
+        "hindiText": "छूट मिल सकती है?",
+        "category": "Shopping"
+      }
+    },
+    {
+      "id": "shopping_4",
+      "fields": {
+        "englishText": "I will take this.",
+        "marathiText": "मी हे घेतो.",
+        "hindiText": "मैं यह लूँगा।",
+        "category": "Shopping"
+      }
+    },
+    {
+      "id": "shopping_5",
+      "fields": {
+        "englishText": "Do you accept card?",
+        "marathiText": "कार्ड स्वीकारता का?",
+        "hindiText": "कार्ड स्वीकारते हैं?",
+        "category": "Shopping"
+      }
+    },
+    {
+      "id": "shopping_6",
+      "fields": {
+        "englishText": "Where is the nearest market?",
+        "marathiText": "जवळचे बाजार कुठे आहे?",
+        "hindiText": "नज़दीकी बाज़ार कहाँ है?",
+        "category": "Shopping"
+      }
+    },
+    {
+      "id": "greetings_1",
+      "fields": {
+        "englishText": "Hello.",
+        "marathiText": "नमस्कार.",
+        "hindiText": "नमस्ते।",
+        "category": "Greetings"
+      }
+    },
+    {
+      "id": "greetings_2",
+      "fields": {
+        "englishText": "Thank you.",
+        "marathiText": "धन्यवाद.",
+        "hindiText": "धन्यवाद।",
+        "category": "Greetings"
+      }
+    },
+    {
+      "id": "greetings_3",
+      "fields": {
+        "englishText": "Good morning.",
+        "marathiText": "सुप्रभात.",
+        "hindiText": "सुप्रभात।",
+        "category": "Greetings"
+      }
+    },
+    {
+      "id": "greetings_4",
+      "fields": {
+        "englishText": "How are you?",
+        "marathiText": "तुम्ही कसे आहात?",
+        "hindiText": "आप कैसे हैं?",
+        "category": "Greetings"
+      }
+    },
+    {
+      "id": "greetings_5",
+      "fields": {
+        "englishText": "Nice to meet you.",
+        "marathiText": "तुम्हाला भेटून आनंद झाला.",
+        "hindiText": "आपसे मिलकर खुशी हुई।",
+        "category": "Greetings"
+      }
+    },
+    {
+      "id": "greetings_6",
+      "fields": {
+        "englishText": "Goodbye.",
+        "marathiText": "पुन्हा भेटू.",
+        "hindiText": "फिर मिलेंगे।",
+        "category": "Greetings"
+      }
+    }
+  ]
+}

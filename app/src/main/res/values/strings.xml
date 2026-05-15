@@ -6,4 +6,24 @@
     <string name="submit_review">Submit Review</string>
     <string name="retry">Retry</string>
     <string name="nearby_tourist_spots">Nearby Tourist Spots</string>
+
+    <string name="back">Back</string>
+    <string name="phrasebook_title">Travel Phrasebook</string>
+    <string name="phrasebook_search_hint">Search phrases in English, Marathi, or Hindi</string>
+    <string name="phrasebook_favorites_only">Show favorites only</string>
+    <string name="phrasebook_empty_title">No phrases found</string>
+    <string name="phrasebook_empty_message">Try another category or search term.</string>
+    <string name="phrasebook_error_generic">Could not load phrases. %1$s</string>
+    <string name="phrasebook_origin_firestore">Live from Firestore</string>
+    <string name="phrasebook_origin_cache">Offline copy</string>
+    <string name="phrasebook_origin_local">Built-in phrases</string>
+    <string name="phrasebook_marathi_label">Marathi</string>
+    <string name="phrasebook_hindi_label">Hindi</string>
+    <string name="phrasebook_speak_marathi">Marathi</string>
+    <string name="phrasebook_speak_hindi">Hindi</string>
+    <string name="phrasebook_copy">Copy phrase</string>
+    <string name="phrasebook_favorite">Favorite</string>
+    <string name="phrasebook_copied">Phrase copied</string>
+    <string name="phrasebook_home_title">Travel Phrasebook</string>
+    <string name="phrasebook_home_subtitle">Speak Marathi &amp; Hindi with locals</string>
 </resources>

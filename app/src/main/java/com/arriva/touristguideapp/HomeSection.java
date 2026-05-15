@@ -7,6 +7,7 @@ public class HomeSection {
     public static final String TYPE_CATEGORIES = "categories";
     public static final String TYPE_TOP_PICKS = "top_picks";
     public static final String TYPE_PLAN_TRIP = "plan_trip";
+    public static final String TYPE_PHRASEBOOK = "phrasebook";
     public static final String TYPE_TRENDING = "trending";
     public static final String TYPE_RECOMMENDED = "recommended";
     public static final String TYPE_RECENTLY_VIEWED = "recently_viewed";

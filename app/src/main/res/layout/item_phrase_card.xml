@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="12dp"
+    app:cardCornerRadius="20dp"
+    app:cardElevation="2dp"
+    app:strokeColor="@color/adaptive_card_stroke"
+    app:strokeWidth="1dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/tvPhraseCategory"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:textColor="@color/primary"
+                android:textSize="12sp"
+                android:textStyle="bold"
+                tools:text="Transport" />
+
+            <ImageButton
+                android:id="@+id/btnPhraseCopy"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="@string/phrasebook_copy"
+                android:src="@android:drawable/ic_menu_save"
+                app:tint="@color/text_secondary" />
+
+            <ImageButton
+                android:id="@+id/btnPhraseFavorite"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="@string/phrasebook_favorite"
+                android:src="@drawable/ic_favorite_border"
+                app:tint="@color/primary" />
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/tvPhraseEnglish"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:textColor="@color/adaptive_text_primary"
+            android:textSize="17sp"
+            android:textStyle="bold"
+            tools:text="Where is the railway station?" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginVertical="10dp"
+            android:background="@color/adaptive_divider" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/phrasebook_marathi_label"
+            android:textColor="@color/text_muted"
+            android:textSize="11sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/tvPhraseMarathi"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="2dp"
+            android:textColor="@color/adaptive_text_primary"
+            android:textSize="16sp"
+            tools:text="रेल्वे स्टेशन कुठे आहे?" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:text="@string/phrasebook_hindi_label"
+            android:textColor="@color/text_muted"
+            android:textSize="11sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/tvPhraseHindi"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="2dp"
+            android:textColor="@color/adaptive_text_primary"
+            android:textSize="16sp"
+            tools:text="रेलवे स्टेशन कहाँ है?" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="14dp"
+            android:orientation="horizontal">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnSpeakMarathi"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="6dp"
+                android:layout_weight="1"
+                android:text="@string/phrasebook_speak_marathi"
+                android:textAllCaps="false"
+                android:textSize="13sp"
+                app:cornerRadius="12dp"
+                app:icon="@drawable/ic_volume"
+                app:iconGravity="textStart"
+                app:iconPadding="6dp"
+                app:iconTint="@color/primary"
+                app:strokeColor="@color/adaptive_card_stroke" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnSpeakHindi"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="6dp"
+                android:layout_weight="1"
+                android:text="@string/phrasebook_speak_hindi"
+                android:textAllCaps="false"
+                android:textSize="13sp"
+                app:cornerRadius="12dp"
+                app:icon="@drawable/ic_volume"
+                app:iconGravity="textStart"
+                app:iconPadding="6dp"
+                app:iconTint="@color/primary"
+                app:strokeColor="@color/adaptive_card_stroke" />
+        </LinearLayout>
+    </LinearLayout>
+</com.google.android.material.card.MaterialCardView>
