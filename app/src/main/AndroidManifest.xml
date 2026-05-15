@@ -6,6 +6,7 @@
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
 
     <queries>
         <package android:name="com.google.android.apps.maps" />
@@ -91,6 +92,14 @@
         <activity
             android:name=".PlaceEditorActivity"
             android:exported="false" />
+        <activity
+            android:name=".PhrasebookActivity"
+            android:exported="false"
+            android:theme="@style/Theme.TouristGuideApp" />
+        <activity
+            android:name=".ReplyTranslatorActivity"
+            android:exported="false"
+            android:theme="@style/Theme.TouristGuideApp" />
     </application>
 
 </manifest>

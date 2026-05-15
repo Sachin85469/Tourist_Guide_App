@@ -402,6 +402,10 @@ public class MainActivity extends AppCompatActivity {
             v -> {
                 startActivity(new Intent(MainActivity.this, PlanTripActivity.class));
                 overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
+            },
+            v -> {
+                startActivity(new Intent(MainActivity.this, PhrasebookActivity.class));
+                overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
             }
         );
 
@@ -451,6 +455,7 @@ public class MainActivity extends AppCompatActivity {
             }});
         }
 
+        sections.add(new HomeSection(HomeSection.TYPE_PHRASEBOOK));
         sections.add(new HomeSection(HomeSection.TYPE_PLAN_TRIP));
         sections.add(new HomeSection(HomeSection.TYPE_ALL_PLACES_HEADER, "Browse All"));
         for (Place p : allPlaces) {
