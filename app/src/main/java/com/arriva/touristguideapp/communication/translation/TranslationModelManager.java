@@ -145,7 +145,7 @@ public class TranslationModelManager {
                 .continueWithTask(task -> {
                     inFlightDownloads.remove(code);
                     if (task.isSuccessful()) {
-                        return task;
+                        return Tasks.forResult(null);
                     }
                     Exception ex = task.getException();
                     return Tasks.forException(ex != null ? ex : new Exception("Download failed for " + code));
