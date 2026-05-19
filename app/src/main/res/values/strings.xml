@@ -27,6 +27,10 @@
     <string name="communication_tab_phrasebook">Phrasebook</string>
     <string name="communication_tab_translator">Translator</string>
     <string name="communication_tab_conversation">Conversation</string>
+    <string name="communication_tab_communicator">Communicator</string>
+    <string name="communication_conversation_mode">Conversation Mode</string>
+    <string name="communication_conversation_hint">Auto-translates your speech. Tap to start continuous listening.</string>
+    <string name="communication_save">Save</string>
     <string name="communication_source_language">Source language</string>
     <string name="communication_target_language">Target language</string>
     <string name="communication_input_hint">Type or speak text to translate…</string>
