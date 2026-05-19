@@ -8,6 +8,13 @@
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    <uses-permission android:name="android.permission.SEND_SMS" />
+    <uses-permission android:name="android.permission.CALL_PHONE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_LOCATION" />
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 
     <queries>
         <package android:name="com.google.android.apps.maps" />
@@ -105,6 +112,40 @@
             android:name=".ReplyTranslatorActivity"
             android:exported="false"
             android:theme="@style/Theme.TouristGuideApp" />
+
+        <!-- SOS Module Components -->
+        <activity android:name=".sos.ui.SOSOnboardingActivity" android:exported="false" />
+        <activity android:name=".sos.ui.SOSSettingsActivity" android:exported="false" />
+
+        <service
+            android:name=".sos.service.SOSForegroundService"
+            android:enabled="true"
+            android:exported="false"
+            android:foregroundServiceType="location" />
+
+        <service
+            android:name=".sos.service.FloatingSOSService"
+            android:enabled="true"
+            android:exported="false" />
+
+        <service
+            android:name=".sos.service.SOSAccessibilityService"
+            android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE"
+            android:exported="false"
+            android:label="Tourist Guide SOS Trigger">
+            <intent-filter>
+                <action android:name="android.accessibilityservice.AccessibilityService" />
+            </intent-filter>
+            <meta-data
+                android:name="android.accessibilityservice"
+                android:resource="@xml/sos_accessibility_config" />
+        </service>
+
+        <receiver android:name=".sos.receiver.BootReceiver" android:exported="false">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+            </intent-filter>
+        </receiver>
     </application>
 
 </manifest>

@@ -124,6 +124,9 @@ public class MainActivity extends AppCompatActivity {
 
         PerformanceTracker.endTimer("MAIN_ACTIVITY_INIT");
 
+        // Initialize SOS
+        com.arriva.touristguideapp.sos.manager.SOSManager.getInstance(this).initialize();
+
         bottomNavigationView.setSelectedItemId(R.id.nav_home);
         bottomNavigationView.setOnItemSelectedListener(new NavigationBarView.OnItemSelectedListener() {
             @Override
@@ -148,6 +151,10 @@ public class MainActivity extends AppCompatActivity {
             btnProfile.setOnClickListener(v -> {
                 startActivity(new Intent(MainActivity.this, ProfileActivity.class));
                 overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
+            });
+            btnProfile.setOnLongClickListener(v -> {
+                startActivity(new Intent(this, com.arriva.touristguideapp.sos.ui.SOSOnboardingActivity.class));
+                return true;
             });
         }
     }
@@ -548,15 +555,15 @@ public class MainActivity extends AppCompatActivity {
             ProfileUtils.fetchUserData(user.getUid(), new ProfileUtils.UserCallback() {
                 @Override
                 public void onUserLoaded(User userModel) {
-                    if (tvMainUserName != null) tvMainUserName.setText(userModel.getName());
-                    if (tvMainUserEmail != null) tvMainUserEmail.setText(userModel.getEmail());
+                    if (tvMainUserName != null) tvMainUserName.setText("Welcome, " + userModel.getName() + " 👋");
+                    if (tvMainUserEmail != null) tvMainUserEmail.setText("Explore the world with us");
                     ProfileUtils.loadAvatar(MainActivity.this, ivProfileIcon, userModel);
                 }
 
                 @Override
                 public void onError(Exception e) {
-                    if (tvMainUserName != null) tvMainUserName.setText(user.getDisplayName() != null ? user.getDisplayName() : "ExploreEase");
-                    if (tvMainUserEmail != null) tvMainUserEmail.setText(user.getEmail());
+                    if (tvMainUserName != null) tvMainUserName.setText("Welcome, " + (user.getDisplayName() != null ? user.getDisplayName() : "ExploreEase") + " 👋");
+                    if (tvMainUserEmail != null) tvMainUserEmail.setText("Explore the world with us");
                     ProfileUtils.loadAvatar(MainActivity.this, ivProfileIcon);
                 }
             });
@@ -567,5 +574,15 @@ public class MainActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         loadUserInfo();
+        
+        // Hide floating SOS button while app is in foreground
+        stopService(new Intent(this, com.arriva.touristguideapp.sos.service.FloatingSOSService.class));
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        // Restore floating SOS button when leaving app, if enabled
+        com.arriva.touristguideapp.sos.manager.SOSManager.getInstance(this).initialize();
     }
 }
