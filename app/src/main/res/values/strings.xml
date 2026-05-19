@@ -69,4 +69,22 @@
     <string name="translation_failed">Translation failed.</string>
     <string name="tts_init_failed">Speech engine initialization failed.</string>
     <string name="tts_voice_missing">Voice data not installed for %1$s.</string>
+
+    <!-- SOS Module -->
+    <string name="sos_accessibility_description">Enables Emergency SOS triggers using volume buttons.</string>
+    <string name="sos_setup_title">SOS Setup</string>
+    <string name="sos_onboarding_accessibility_msg">To enable volume button trigger, please enable Accessibility Service.</string>
+    <string name="sos_onboarding_overlay_msg">To show the floating button, please allow Overlay permission.</string>
+    <string name="sos_enable_accessibility">Enable Accessibility Service</string>
+    <string name="sos_allow_overlay">Allow Overlay Permission</string>
+    <string name="sos_continue_to_settings">Continue to Settings</string>
+    <string name="sos_settings_title">SOS Settings</string>
+    <string name="sos_emergency_contact_label">Emergency Contact Number</string>
+    <string name="sos_enter_phone_hint">Enter phone number</string>
+    <string name="sos_enable_volume_trigger">Enable Volume Button Trigger</string>
+    <string name="sos_enable_floating_button">Enable Floating SOS Button</string>
+    <string name="sos_call_after_sms">Call after sending SMS</string>
+    <string name="sos_save_settings">Save Settings</string>
+    <string name="sos_notification_title">SOS Protection Active</string>
+    <string name="sos_notification_channel_name">SOS Protection Active</string>
 </resources>

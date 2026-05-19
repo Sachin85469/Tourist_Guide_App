@@ -152,26 +152,20 @@ public class HomeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     }
 
     static class WelcomeViewHolder extends RecyclerView.ViewHolder {
-        TextView tvWelcomeUser;
         WelcomeViewHolder(View itemView) {
             super(itemView);
-            tvWelcomeUser = itemView.findViewById(R.id.tvWelcomeUser);
         }
         void bind() {
-            Context context = itemView.getContext();
-            FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-            String name = "Explorer";
+            View btnSOS = itemView.findViewById(R.id.btnLargeSOS);
+            if (btnSOS != null) {
+                btnSOS.setOnClickListener(v -> {
+                    com.arriva.touristguideapp.sos.ui.EmergencyDialog.showConfirmation(itemView.getContext());
+                });
 
-            if (user != null) {
-                name = user.getDisplayName();
-                if (TextUtils.isEmpty(name)) {
-                    // Try SharedPreferences as fallback
-                    SharedPreferences prefs = context.getSharedPreferences("UserPrefs", Context.MODE_PRIVATE);
-                    name = prefs.getString("user_display_name", "Explorer");
-                }
+                // Pulse Animation
+                Animation pulse = AnimationUtils.loadAnimation(itemView.getContext(), R.anim.pulse);
+                btnSOS.startAnimation(pulse);
             }
-            
-            tvWelcomeUser.setText("Welcome, " + name);
         }
     }
 

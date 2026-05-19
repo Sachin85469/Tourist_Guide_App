@@ -3,10 +3,11 @@
     android:id="@+id/tvHeaderTitle"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:paddingHorizontal="20dp"
-    android:paddingTop="24dp"
+    android:paddingHorizontal="24dp"
+    android:paddingTop="20dp"
     android:paddingBottom="8dp"
     android:text="Browse All"
     android:textColor="@color/text_primary"
-    android:textSize="18sp"
-    android:textStyle="bold" />
+    android:textSize="20sp"
+    android:textStyle="bold"
+    android:letterSpacing="-0.01" />
