@@ -16,9 +16,7 @@ public class CommunicationPagerAdapter extends FragmentStateAdapter {
     public Fragment createFragment(int position) {
         switch (position) {
             case 1:
-                return new TranslatorFragment();
-            case 2:
-                return new ConversationFragment();
+                return new CommunicatorFragment();
             case 0:
             default:
                 return new PhrasebookFragment();
@@ -27,6 +25,6 @@ public class CommunicationPagerAdapter extends FragmentStateAdapter {
 
     @Override
     public int getItemCount() {
-        return 3;
+        return 2;
     }
 }

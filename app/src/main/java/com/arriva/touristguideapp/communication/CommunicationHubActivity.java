@@ -60,21 +60,15 @@ public class CommunicationHubActivity extends AppCompatActivity implements Commu
         viewPager.setOffscreenPageLimit(2);
 
         new TabLayoutMediator(tabLayout, viewPager, (tab, position) -> {
-            switch (position) {
-                case 1:
-                    tab.setText(R.string.communication_tab_translator);
-                    break;
-                case 2:
-                    tab.setText(R.string.communication_tab_conversation);
-                    break;
-                default:
-                    tab.setText(R.string.communication_tab_phrasebook);
-                    break;
+            if (position == 1) {
+                tab.setText(R.string.communication_tab_communicator);
+            } else {
+                tab.setText(R.string.communication_tab_phrasebook);
             }
         }).attach();
 
         int initialTab = getIntent().getIntExtra(EXTRA_INITIAL_TAB, 0);
-        if (initialTab > 0 && initialTab < 3) {
+        if (initialTab == 1) {
             viewPager.setCurrentItem(initialTab, false);
         }
     }
