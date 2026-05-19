@@ -54,6 +54,7 @@ public class MainActivity extends AppCompatActivity {
     private View btnProfile;
     private ImageView ivProfileIcon;
     private BottomNavigationView bottomNavigationView;
+    private View fabAiChat;
     private ProgressBar progressBar;
     private View emptyStateContainer;
     private EditText searchBox;
@@ -88,9 +89,16 @@ public class MainActivity extends AppCompatActivity {
         bottomNavigationView = findViewById(R.id.bottom_navigation);
         tvMainUserName = findViewById(R.id.tvMainUserName);
         tvMainUserEmail = findViewById(R.id.tvMainUserEmail);
+        fabAiChat = findViewById(R.id.fabAiChat);
 
         // Profile Avatar and User Info Setup
         loadUserInfo();
+
+        if (fabAiChat != null) {
+            fabAiChat.setOnClickListener(v -> {
+                startActivity(new Intent(this, AiChatActivity.class));
+            });
+        }
 
         progressBar = findViewById(R.id.mainProgressBar);
         emptyStateContainer = findViewById(R.id.tvEmptyState);

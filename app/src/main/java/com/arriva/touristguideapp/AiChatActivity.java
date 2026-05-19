@@ -21,6 +21,7 @@ import com.google.ai.client.generativeai.GenerativeModel;
 import com.google.ai.client.generativeai.java.GenerativeModelFutures;
 import com.google.ai.client.generativeai.type.Content;
 import com.google.ai.client.generativeai.type.GenerateContentResponse;
+import com.google.ai.client.generativeai.type.RequestOptions;
 import com.google.android.material.card.MaterialCardView;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
@@ -74,7 +75,25 @@ public class AiChatActivity extends AppCompatActivity {
             Toast.makeText(this, "Please set your Gemini API key in strings.xml", Toast.LENGTH_LONG).show();
         }
 
-        GenerativeModel gm = new GenerativeModel("gemini-2.0-flash", apiKey);
+        // Define strict system instructions to limit the bot to tourism only
+        Content systemInstruction = new Content.Builder()
+                .addText("You are a specialized Tourism AI Assistant. " +
+                        "Your ONLY purpose is to answer queries related to tourism, travel, attractions, and local guide information. " +
+                        "Strictly refuse to answer ANY questions that are not related to tourism. " +
+                        "Do not perform basic math, solve equations, or answer general knowledge questions outside of travel. " +
+                        "If a user asks a non-tourism question, politely respond: 'I am sorry, but I can only assist with tourism-related queries.'")
+                .build();
+
+        GenerativeModel gm = new GenerativeModel(
+                "gemini-2.5-flash",
+                apiKey,
+                null, // generationConfig (3rd)
+                null, // safetySettings (4th)
+                new RequestOptions(), // requestOptions (5th)
+                null, // tools (6th)
+                null, // toolConfig (7th)
+                systemInstruction // systemInstruction (8th)
+        );
         model = GenerativeModelFutures.from(gm);
     }
 
