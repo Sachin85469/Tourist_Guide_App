@@ -99,6 +99,18 @@
                     android:textColor="#E1BEE7"
                     android:textSize="12sp" />
 
+                <!-- Real Firestore Rating (Requirement 2-4) -->
+                <TextView
+                    android:id="@+id/tvRating"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:text=""
+                    android:textColor="@color/rating_gold"
+                    android:textSize="12sp"
+                    android:textStyle="bold"
+                    android:visibility="gone" />
+
                 <TextView
                     android:id="@+id/txtBadge"
                     android:layout_width="wrap_content"
@@ -119,11 +131,6 @@
         <!-- Hidden fields for compatibility -->
         <TextView
             android:id="@+id/tvCity"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:visibility="gone" />
-        <TextView
-            android:id="@+id/tvRating"
             android:layout_width="0dp"
             android:layout_height="0dp"
             android:visibility="gone" />

@@ -13,13 +13,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Persists phrase catalog for offline use (base text only).
+ * Persists phrase catalog for offline use with pre-translated content.
  */
 public class PhrasebookCache {
 
     private static final String TAG = "PhrasebookCache";
     private static final String PREFS = "phrasebook_cache";
-    private static final String KEY_JSON = "phrases_json";
+    private static final String KEY_JSON = "phrases_json_v2"; // Increment version for schema change
 
     private final SharedPreferences prefs;
 
@@ -33,8 +33,9 @@ public class PhrasebookCache {
             for (Phrase phrase : phrases) {
                 JSONObject obj = new JSONObject();
                 obj.put("id", phrase.getId());
-                obj.put("baseText", phrase.getBaseText());
-                obj.put("baseLanguage", phrase.getBaseLanguage());
+                obj.put("en", phrase.getEnglishText());
+                obj.put("hi", phrase.getHindiText());
+                obj.put("mr", phrase.getMarathiText());
                 obj.put("category", phrase.getCategory());
                 array.put(obj);
             }
@@ -57,8 +58,9 @@ public class PhrasebookCache {
                 JSONObject obj = array.getJSONObject(i);
                 phrases.add(new Phrase(
                         obj.getString("id"),
-                        obj.getString("baseText"),
-                        obj.optString("baseLanguage", "en"),
+                        obj.getString("en"),
+                        obj.getString("hi"),
+                        obj.getString("mr"),
                         obj.getString("category")
                 ));
             }

@@ -45,9 +45,10 @@ public final class PhraseMapper {
         }
         return new Phrase(
                 dto.getId(),
-                dto.resolveBaseText(),
-                dto.resolveBaseLanguage(),
-                dto.getCategory().trim()
+                dto.getEnglishText() != null ? dto.getEnglishText() : "",
+                dto.getHindiText() != null ? dto.getHindiText() : "",
+                dto.getMarathiText() != null ? dto.getMarathiText() : "",
+                dto.getCategory() != null ? dto.getCategory().trim() : ""
         );
     }
 }

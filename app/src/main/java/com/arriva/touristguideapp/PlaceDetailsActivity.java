@@ -131,13 +131,22 @@ public class PlaceDetailsActivity extends AppCompatActivity {
             setupReviewUI();
             updateRatingSummary(avgRating, totalRatings);
             
-            // Add to Recently Viewed (Requirement 5)
+            // Add to Recently Viewed (Requirement 5 - Improved)
             Place currentPlace = new Place();
             currentPlace.setId(placeId);
             currentPlace.setName(name);
             currentPlace.setCategory(category);
             currentPlace.setImageUrl(imageUrl);
-            new com.arriva.touristguideapp.data.places.RecentlyViewedManager(this).addPlace(currentPlace);
+            currentPlace.setRating(avgRating);
+            currentPlace.setTotalRatings(totalRatings);
+            currentPlace.setTotalComments(intent.getLongExtra("totalComments", 0));
+            currentPlace.setBudget(budget);
+            currentPlace.setLatitude(lat);
+            currentPlace.setLongitude(lng);
+            currentPlace.setCity(intent.getStringExtra("city"));
+            currentPlace.setTag(intent.getStringExtra("tag"));
+            
+            new com.arriva.touristguideapp.data.places.RecentlyViewedManager(this).addRecentlyViewed(currentPlace);
 
             // Setup Nearby UI
             setupNearbyUI();

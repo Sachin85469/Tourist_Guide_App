@@ -55,6 +55,15 @@
     <string name="communication_speak_again">Speak translation again</string>
     <string name="communication_you_said">You said</string>
 
+    <string name="setup_title">Preparing language tools</string>
+    <string name="setup_message">This app requires:\n• Translation models\n• Speech recognition support\n• TTS language data\n\nThis will take a few moments over the internet.</string>
+    <string name="setup_btn_download">Download Now</string>
+    <string name="setup_preparing">Initializing setup…</string>
+    <string name="setup_complete">Setup complete! Language tools are ready for offline use.</string>
+    <string name="setup_error">Setup failed. Please check your internet connection and try again.</string>
+    <string name="setup_btn_finish">Start Using</string>
+    <string name="setup_btn_retry">Retry</string>
+
     <string name="reply_translator_title">Reply Translator</string>
     <string name="tap_to_listen">Tap to Listen</string>
     <string name="listening">Listening…</string>

@@ -37,7 +37,24 @@ public class TopPickAdapter extends RecyclerView.Adapter<TopPickAdapter.ViewHold
         public void bind(final Place place, final OnItemClickListener listener) {
             Context context = itemView.getContext();
             name.setText(place.getName());
-            rating.setText(place.getRating() + " ⭐");
+            
+            // Fix: REAL FIRESTORE RATINGS (Requirement 1-3)
+            if (rating != null) {
+                if (place.getTotalRatings() > 0) {
+                    rating.setText(String.format(java.util.Locale.getDefault(), "%.1f ⭐", place.getRating()));
+                    rating.setVisibility(View.VISIBLE);
+                    android.util.Log.d("TopPickAdapter", "CARD_REAL_RATING: " + place.getName() + " -> " + place.getRating());
+                    if (place.getRating() == 4.0) {
+                        android.util.Log.v("TopPickAdapter", "CARD_FAKE_RATING_DETECTED: potential static 4.0 for " + place.getName());
+                    }
+                } else {
+                    // Show "New" badge for spots without ratings instead of 0.0 (Requirement 3)
+                    rating.setText("New");
+                    rating.setVisibility(View.VISIBLE);
+                    android.util.Log.d("TopPickAdapter", "CARD_UNRATED: " + place.getName());
+                }
+            }
+
             budget.setText(place.getBudget());
             
             // Exclusively remote URLs via PlaceImageHelper

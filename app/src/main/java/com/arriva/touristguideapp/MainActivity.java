@@ -448,7 +448,7 @@ public class MainActivity extends AppCompatActivity {
             }
         }
 
-        List<Place> recent = recentlyViewedManager.getRecentPlaces();
+        List<Place> recent = recentlyViewedManager.getRecentlyViewed();
         if (!recent.isEmpty()) {
             sections.add(new HomeSection(HomeSection.TYPE_RECENTLY_VIEWED, "Recently Viewed") {{
                 setData(recent);
@@ -532,7 +532,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void openDetails(Place place) {
         if (place == null) return;
-        recentlyViewedManager.addPlace(place);
+        recentlyViewedManager.addRecentlyViewed(place);
         Intent intent = new Intent(MainActivity.this, PlaceDetailsActivity.class);
         PlaceIntentExtras.putPlaceDetails(intent, place);
         startActivity(intent);
@@ -563,9 +563,48 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    private void refreshRecentlyViewed() {
+        if (recentlyViewedManager == null || homeAdapter == null || sections == null) return;
+
+        List<Place> recent = recentlyViewedManager.getRecentlyViewed();
+        int existingIndex = -1;
+        for (int i = 0; i < sections.size(); i++) {
+            if (HomeSection.TYPE_RECENTLY_VIEWED.equals(sections.get(i).getType())) {
+                existingIndex = i;
+                break;
+            }
+        }
+
+        if (recent.isEmpty()) {
+            if (existingIndex != -1) {
+                sections.remove(existingIndex);
+                homeAdapter.notifyItemRemoved(existingIndex);
+            }
+        } else {
+            if (existingIndex != -1) {
+                sections.get(existingIndex).setData(recent);
+                homeAdapter.notifyItemChanged(existingIndex);
+            } else {
+                // Insert after Categories or Welcome if it doesn't exist
+                int insertIndex = 0;
+                for (int i = 0; i < sections.size(); i++) {
+                    String type = sections.get(i).getType();
+                    if (HomeSection.TYPE_CATEGORIES.equals(type) || HomeSection.TYPE_WELCOME.equals(type)) {
+                        insertIndex = i + 1;
+                    }
+                }
+                sections.add(insertIndex, new HomeSection(HomeSection.TYPE_RECENTLY_VIEWED, "Recently Viewed") {{
+                    setData(recent);
+                }});
+                homeAdapter.notifyItemInserted(insertIndex);
+            }
+        }
+    }
+
     @Override
     protected void onResume() {
         super.onResume();
         loadUserInfo();
+        refreshRecentlyViewed();
     }
 }

@@ -30,7 +30,7 @@ public final class PlaceDto {
     private static final String DEFAULT_CROWD = "Moderate";
     private static final String DEFAULT_BEST_TIME = "Day";
     private static final String DEFAULT_TAG = "Popular";
-    private static final double DEFAULT_RATING = 4.0;
+    private static final double DEFAULT_RATING = 0.0;
 
     private final String documentId;
     private final String name;
@@ -227,12 +227,18 @@ public final class PlaceDto {
         }
 
         double rating;
-        if (hasField(snap, PlacesFirestoreContract.FIELD_RATING_AVG)) {
+        // Priority: avgRating (Reviews) -> ratingAvg (Legacy/Migration) -> rating (Legacy)
+        if (hasField(snap, "avgRating")) {
+            rating = readOptionalDouble(snap, documentId, "avgRating", DEFAULT_RATING);
+            Log.d(TAG, "docId=" + documentId + " RATING_SOURCE: reviews (avgRating=" + rating + ")");
+        } else if (hasField(snap, PlacesFirestoreContract.FIELD_RATING_AVG)) {
             rating = readOptionalDouble(
                     snap, documentId, PlacesFirestoreContract.FIELD_RATING_AVG, DEFAULT_RATING);
+            Log.d(TAG, "docId=" + documentId + " RATING_SOURCE: migration (ratingAvg=" + rating + ")");
         } else {
             rating = readOptionalDouble(
                     snap, documentId, PlacesFirestoreContract.FIELD_RATING, DEFAULT_RATING);
+            Log.d(TAG, "docId=" + documentId + " RATING_SOURCE: fallback (rating=" + rating + ")");
         }
 
         long totalRatings = (long) readOptionalDouble(snap, documentId, "totalRatings", 0);

@@ -26,18 +26,36 @@ public class FavoriteAdapter extends RecyclerView.Adapter<FavoriteAdapter.ViewHo
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
         public ImageView image, favoriteIcon;
-        public TextView name;
+        public TextView name, rating;
 
         public ViewHolder(View view) {
             super(view);
             image = view.findViewById(R.id.favImage);
             name = view.findViewById(R.id.favName);
+            rating = view.findViewById(R.id.favRating);
             favoriteIcon = view.findViewById(R.id.favIcon);
         }
 
         public void bind(final Place place, final OnItemClickListener listener) {
             Context context = itemView.getContext();
             name.setText(place.getName());
+            
+            // Fix: REAL FIRESTORE RATINGS (Requirement 9)
+            if (rating != null) {
+                if (place.getTotalRatings() > 0) {
+                    rating.setText(String.format(java.util.Locale.getDefault(), "%.1f ⭐", place.getRating()));
+                    rating.setVisibility(View.VISIBLE);
+                    android.util.Log.d("FavoriteAdapter", "CARD_REAL_RATING: " + place.getName() + " -> " + place.getRating());
+                    if (place.getRating() == 4.0) {
+                        android.util.Log.v("FavoriteAdapter", "CARD_FAKE_RATING_DETECTED: potential static 4.0 for " + place.getName());
+                    }
+                } else {
+                    // Requirement 3: Show "New" badge instead of 0.0 or fake rating
+                    rating.setText("New");
+                    rating.setVisibility(View.VISIBLE);
+                    android.util.Log.d("FavoriteAdapter", "CARD_UNRATED: " + place.getName());
+                }
+            }
             
             // Exclusively remote URLs via PlaceImageHelper
             PlaceImageHelper.loadThumbnail(image, place);

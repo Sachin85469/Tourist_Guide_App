@@ -35,6 +35,7 @@ public class Place implements Serializable {
     private double distance = -1.0; // Distance from user in km
     private boolean isTopPick = false;
     private double searchScore = 0.0; // Runtime score for search/ranking
+    private long viewedAt; // Timestamp for recently viewed (Requirement)
 
     /** HTTPS image URL from Firestore. */
     @Nullable
@@ -155,6 +156,14 @@ public class Place implements Serializable {
 
     public void setSearchScore(double searchScore) {
         this.searchScore = searchScore;
+    }
+
+    public long getViewedAt() {
+        return viewedAt;
+    }
+
+    public void setViewedAt(long viewedAt) {
+        this.viewedAt = viewedAt;
     }
 
     public void setRating(double rating) {

@@ -7,10 +7,9 @@ import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import com.arriva.touristguideapp.communication.translation.TranslationCache;
-
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Loads phrases from Firestore with local fallback and offline disk cache.
@@ -27,7 +26,6 @@ public class PhrasebookRepository {
 
     public interface PhrasesListener {
         void onPhrasesLoaded(@NonNull List<Phrase> phrases, @NonNull DataOrigin origin);
-
         void onError(@NonNull String message);
     }
 
@@ -94,13 +92,8 @@ public class PhrasebookRepository {
                                       @Nullable String category,
                                       @Nullable String query,
                                       boolean favoritesOnly,
-                                      @NonNull java.util.Set<String> favoriteIds,
-                                      @NonNull TranslationCache translationCache,
-                                      @NonNull String targetLangCode) {
+                                      @NonNull Set<String> favoriteIds) {
         List<Phrase> filtered = new ArrayList<>();
-        String q = query != null ? query.trim() : "";
-        boolean hasQuery = !q.isEmpty();
-
         for (Phrase phrase : source) {
             if (favoritesOnly && !favoriteIds.contains(phrase.getId())) {
                 continue;
@@ -108,18 +101,7 @@ public class PhrasebookRepository {
             if (!phrase.matchesCategory(category)) {
                 continue;
             }
-            if (!hasQuery) {
-                filtered.add(phrase);
-                continue;
-            }
-            if (phrase.matchesBaseQuery(q)) {
-                filtered.add(phrase);
-                continue;
-            }
-            String cacheKey = translationCache.phraseKey(
-                    phrase.getId(), phrase.getBaseLanguage(), targetLangCode);
-            String translated = translationCache.get(cacheKey);
-            if (phrase.matchesTranslatedQuery(q, translated)) {
+            if (phrase.matchesQuery(query)) {
                 filtered.add(phrase);
             }
         }
