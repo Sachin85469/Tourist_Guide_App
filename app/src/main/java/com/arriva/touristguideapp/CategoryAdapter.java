@@ -1,6 +1,5 @@
 package com.arriva.touristguideapp;
 
-import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -44,13 +43,13 @@ public class CategoryAdapter extends RecyclerView.Adapter<CategoryAdapter.ViewHo
         boolean isSelected = position == selectedPosition;
         
         if (isSelected) {
-            holder.container.setBackgroundColor(ContextCompat.getColor(holder.itemView.getContext(), R.color.primary));
-            holder.categoryName.setTextColor(Color.WHITE);
-            holder.categoryIcon.setColorFilter(Color.WHITE);
+            holder.categoryName.setTextColor(ContextCompat.getColor(holder.itemView.getContext(), R.color.m3_on_primary_container));
+            holder.categoryIcon.setColorFilter(ContextCompat.getColor(holder.itemView.getContext(), R.color.m3_on_primary_container));
+            ((com.google.android.material.card.MaterialCardView) holder.itemView).setCardBackgroundColor(ContextCompat.getColor(holder.itemView.getContext(), R.color.m3_primary_container));
         } else {
-            holder.container.setBackgroundResource(R.drawable.category_bg);
-            holder.categoryName.setTextColor(ContextCompat.getColor(holder.itemView.getContext(), R.color.black));
-            holder.categoryIcon.setColorFilter(ContextCompat.getColor(holder.itemView.getContext(), R.color.primary));
+            holder.categoryName.setTextColor(ContextCompat.getColor(holder.itemView.getContext(), R.color.m3_on_surface_variant));
+            holder.categoryIcon.setColorFilter(ContextCompat.getColor(holder.itemView.getContext(), R.color.m3_primary));
+            ((com.google.android.material.card.MaterialCardView) holder.itemView).setCardBackgroundColor(ContextCompat.getColor(holder.itemView.getContext(), R.color.m3_surface_variant));
         }
 
         holder.itemView.setOnClickListener(v -> {

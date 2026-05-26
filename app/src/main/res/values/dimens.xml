@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Spacing System -->
+    <dimen name="spacing_tiny">4dp</dimen>
+    <dimen name="spacing_small">8dp</dimen>
+    <dimen name="spacing_medium">16dp</dimen>
+    <dimen name="spacing_large">24dp</dimen>
+    <dimen name="spacing_huge">32dp</dimen>
+
+    <!-- Screen Margins -->
+    <dimen name="screen_margin">16dp</dimen>
+    <dimen name="card_padding">16dp</dimen>
+
+    <!-- Corner Radii (Material 3 standard) -->
+    <dimen name="corner_radius_small">8dp</dimen>
+    <dimen name="corner_radius_medium">12dp</dimen>
+    <dimen name="corner_radius_large">16dp</dimen>
+    <dimen name="corner_radius_extra_large">24dp</dimen>
+    <dimen name="corner_radius_full">100dp</dimen>
+
+    <!-- Component Specific -->
+    <dimen name="search_bar_height">48dp</dimen>
+    <dimen name="button_height">52dp</dimen>
+    <dimen name="card_elevation_soft">2dp</dimen>
+    <dimen name="card_elevation_medium">4dp</dimen>
+    <dimen name="card_elevation_high">8dp</dimen>
+</resources>

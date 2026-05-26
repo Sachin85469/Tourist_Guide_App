@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="412dp"
+    android:height="240dp"
+    android:viewportWidth="412"
+    android:viewportHeight="240">
+    <!-- Base Gradient -->
+    <path
+        android:fillColor="@color/m3_primary"
+        android:pathData="M0,0H412V200C412,200 300,240 206,240C112,240 0,200 0,200V0Z" />
+    <!-- Secondary Gradient/Overlay for depth -->
+    <path
+        android:fillColor="#1AFFFFFF"
+        android:pathData="M0,0H412V160C412,160 320,200 206,200C92,200 0,160 0,160V0Z" />
+    <!-- Light highlight shape -->
+    <path
+        android:fillColor="#0DFFFFFF"
+        android:pathData="M-50,0 Q100,100 412,0 L412,0 L-50,0 Z" />
+</vector>

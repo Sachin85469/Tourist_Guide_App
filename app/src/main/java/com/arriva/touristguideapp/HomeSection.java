@@ -13,6 +13,7 @@ public class HomeSection {
     public static final String TYPE_RECENTLY_VIEWED = "recently_viewed";
     public static final String TYPE_ALL_PLACES_HEADER = "all_places_header";
     public static final String TYPE_PLACE = "place";
+    public static final String TYPE_MAP_PREVIEW = "map_preview";
 
     private String type;
     private String title;

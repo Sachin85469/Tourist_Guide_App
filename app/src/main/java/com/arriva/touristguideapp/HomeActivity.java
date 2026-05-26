@@ -48,7 +48,14 @@ public class HomeActivity extends AppCompatActivity {
         // AI Chatbot setup
         if (fabAiChat != null) {
             fabAiChat.setOnClickListener(v -> {
-                startActivity(new Intent(this, AiChatActivity.class));
+                try {
+                    android.util.Log.d("HomeActivity", "Navigating to AiChatActivity");
+                    startActivity(new Intent(this, AiChatActivity.class));
+                    overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
+                } catch (Exception e) {
+                    android.util.Log.e("HomeActivity", "Error opening AiChatActivity", e);
+                    Toast.makeText(this, "Unable to open assistant", Toast.LENGTH_SHORT).show();
+                }
             });
         }
 

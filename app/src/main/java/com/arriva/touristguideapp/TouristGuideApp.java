@@ -26,7 +26,7 @@ public class TouristGuideApp extends Application {
         Thread.setDefaultUncaughtExceptionHandler((thread, throwable) -> {
             android.util.Log.e("TouristGuideApp", "CRASH_RECOVERED: Uncaught exception in thread " + thread.getName(), throwable);
             // In a real app, send to Sentry/Crashlytics here
-            System.exit(1);
+            // System.exit(1); // Temporarily disabled to allow better debugging
         });
 
         FirebaseApp.initializeApp(this);

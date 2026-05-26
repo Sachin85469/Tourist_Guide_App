@@ -1,23 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
-    <item>
-        <shape>
-            <gradient
-                android:angle="45"
-                android:endColor="@color/purple_gradient_end"
-                android:startColor="@color/purple_gradient_start"
-                android:type="linear" />
-        </shape>
-    </item>
-    <item>
-        <rotate
-            android:fromDegrees="15"
-            android:pivotX="90%"
-            android:pivotY="10%">
-            <shape android:shape="oval">
-                <solid android:color="#26FFFFFF" />
-                <size android:width="200dp" android:height="200dp" />
-            </shape>
-        </rotate>
-    </item>
-</layer-list>
+<shape xmlns:android="http://schemas.android.com/apk/res/android">
+    <gradient
+        android:angle="135"
+        android:endColor="#4F378B"
+        android:startColor="@color/m3_primary"
+        android:type="linear" />
+    <corners android:radius="@dimen/corner_radius_extra_large" />
+</shape>

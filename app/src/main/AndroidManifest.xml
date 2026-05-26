@@ -29,6 +29,12 @@
             android:value="YOUR_API_KEY" />
 
         <activity
+            android:name=".AiChatActivity"
+            android:exported="false"
+            android:theme="@style/Theme.TouristGuideApp"
+            android:windowSoftInputMode="adjustResize" />
+
+        <activity
             android:name=".SplashActivity"
             android:exported="true"
             android:theme="@style/Theme.TouristGuideApp">
@@ -105,11 +111,6 @@
             android:name=".ReplyTranslatorActivity"
             android:exported="false"
             android:theme="@style/Theme.TouristGuideApp" />
-        <activity
-            android:name=".AiChatActivity"
-            android:exported="false"
-            android:theme="@style/Theme.TouristGuideApp"
-            android:windowSoftInputMode="adjustResize" />
     </application>
 
 </manifest>
