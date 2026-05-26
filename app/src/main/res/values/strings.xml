@@ -75,4 +75,35 @@
     <string name="ai_assistant_title">AI Travel Assistant</string>
     <string name="ai_input_hint">Ask me anything about your trip…</string>
     <string name="ai_initial_message">Hello! I am your AI travel assistant powered by Gemini. Ask me about local attractions, travel tips, or anything else!</string>
+
+    <!-- Communication Hub Setup -->
+    <string name="setup_title">Language Setup</string>
+    <string name="setup_message">To use offline translation and voice features, we need to download some language models (approx. 30MB).</string>
+    <string name="setup_btn_download">Download Now</string>
+    <string name="setup_complete">Setup Complete!</string>
+    <string name="setup_btn_finish">Finish</string>
+    <string name="setup_btn_retry">Retry</string>
+
+    <!-- SOS Service -->
+    <string name="sos_notification_title">SOS Safety Active</string>
+    <string name="sos_notification_channel_name">Emergency Monitoring</string>
+
+    <!-- Profile Section -->
+    <string name="profile_account_header">Account</string>
+    <string name="profile_edit_profile">Edit Profile</string>
+    <string name="profile_security">Security</string>
+
+    <string name="profile_preferences_header">Preferences</string>
+    <string name="profile_notifications">Notification Settings</string>
+    <string name="profile_language">Change Language</string>
+
+    <string name="profile_safety_support_header">Safety &amp; Support</string>
+    <string name="profile_sos_settings">SOS Settings</string>
+
+    <string name="profile_sign_out">Sign Out</string>
+    <string name="profile_placeholder_name">Premium User</string>
+    <string name="profile_placeholder_email">user@example.com</string>
+    <string name="profile_save">Save</string>
+    <string name="admin_dashboard">Admin Dashboard</string>
+    <string name="profile_update_name_hint">Update Name</string>
 </resources>

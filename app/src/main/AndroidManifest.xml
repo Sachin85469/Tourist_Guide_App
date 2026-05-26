@@ -110,6 +110,18 @@
             android:exported="false"
             android:theme="@style/Theme.TouristGuideApp"
             android:windowSoftInputMode="adjustResize" />
+        <activity
+            android:name=".SecurityActivity"
+            android:exported="false"
+            android:theme="@style/Theme.TouristGuideApp" />
+        <activity
+            android:name=".LanguageActivity"
+            android:exported="false"
+            android:theme="@style/Theme.TouristGuideApp" />
+        <activity
+            android:name=".SOSSettingsActivity"
+            android:exported="false"
+            android:theme="@style/Theme.TouristGuideApp" />
     </application>
 
 </manifest>
