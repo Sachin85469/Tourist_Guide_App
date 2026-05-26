@@ -105,11 +105,6 @@
             android:name=".ReplyTranslatorActivity"
             android:exported="false"
             android:theme="@style/Theme.TouristGuideApp" />
-        <activity
-            android:name=".AiChatActivity"
-            android:exported="false"
-            android:theme="@style/Theme.TouristGuideApp"
-            android:windowSoftInputMode="adjustResize" />
     </application>
 
 </manifest>

@@ -55,15 +55,6 @@
     <string name="communication_speak_again">Speak translation again</string>
     <string name="communication_you_said">You said</string>
 
-    <string name="setup_title">Preparing language tools</string>
-    <string name="setup_message">This app requires:\n• Translation models\n• Speech recognition support\n• TTS language data\n\nThis will take a few moments over the internet.</string>
-    <string name="setup_btn_download">Download Now</string>
-    <string name="setup_preparing">Initializing setup…</string>
-    <string name="setup_complete">Setup complete! Language tools are ready for offline use.</string>
-    <string name="setup_error">Setup failed. Please check your internet connection and try again.</string>
-    <string name="setup_btn_finish">Start Using</string>
-    <string name="setup_btn_retry">Retry</string>
-
     <string name="reply_translator_title">Reply Translator</string>
     <string name="tap_to_listen">Tap to Listen</string>
     <string name="listening">Listening…</string>
@@ -78,10 +69,4 @@
     <string name="translation_failed">Translation failed.</string>
     <string name="tts_init_failed">Speech engine initialization failed.</string>
     <string name="tts_voice_missing">Voice data not installed for %1$s.</string>
-
-    <!-- Gemini AI -->
-    <string name="gemini_api_key">AIzaSyCvjWTiuynuIPi2h4TBnIUYVD8roiejJGY</string>
-    <string name="ai_assistant_title">AI Travel Assistant</string>
-    <string name="ai_input_hint">Ask me anything about your trip…</string>
-    <string name="ai_initial_message">Hello! I am your AI travel assistant powered by Gemini. Ask me about local attractions, travel tips, or anything else!</string>
 </resources>

@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="20dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/sos_settings_title"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:layout_marginBottom="20dp"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/sos_emergency_contact_label" />
+
+        <EditText
+            android:id="@+id/et_emergency_contact"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/sos_enter_phone_hint"
+            android:inputType="phone"
+            android:autofillHints="phone"
+            android:layout_marginBottom="20dp" />
+
+        <androidx.appcompat.widget.SwitchCompat
+            android:id="@+id/sw_volume_trigger"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/sos_enable_volume_trigger"
+            android:layout_marginBottom="10dp" />
+
+        <androidx.appcompat.widget.SwitchCompat
+            android:id="@+id/sw_floating_button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/sos_enable_floating_button"
+            android:layout_marginBottom="10dp" />
+
+        <androidx.appcompat.widget.SwitchCompat
+            android:id="@+id/sw_call_after_sms"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/sos_call_after_sms"
+            android:layout_marginBottom="30dp" />
+
+        <Button
+            android:id="@+id/btn_save_settings"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/sos_save_settings" />
+    </LinearLayout>
+</ScrollView>
