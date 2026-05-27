@@ -36,6 +36,17 @@ public class CategoryAdapter extends RecyclerView.Adapter<CategoryAdapter.ViewHo
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         Category category = categories.get(position);
+        
+        // Premium Entrance Animation
+        holder.itemView.setAlpha(0f);
+        holder.itemView.setTranslationX(30f);
+        holder.itemView.animate()
+            .alpha(1f)
+            .translationX(0f)
+            .setDuration(300)
+            .setStartDelay(position * 50L)
+            .start();
+
         holder.categoryName.setText(category.getName());
         holder.categoryIcon.setImageResource(category.getIconResId());
         

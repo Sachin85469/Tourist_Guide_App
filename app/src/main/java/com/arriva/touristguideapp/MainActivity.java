@@ -51,6 +51,9 @@ public class MainActivity extends AppCompatActivity {
     private FusedLocationProviderClient fusedLocationClient;
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 1001;
     
+    private final android.os.Handler handler = new android.os.Handler(android.os.Looper.getMainLooper());
+    private Runnable reminderRunnable;
+
     private View btnProfile;
     private ImageView ivProfileIcon;
     private BottomNavigationView bottomNavigationView;
@@ -117,10 +120,11 @@ public class MainActivity extends AppCompatActivity {
 
         // Phase 10: Local Notification Reminder (Requirement 5)
         if (savedInstanceState == null) {
-            rvHome.postDelayed(() -> {
+            reminderRunnable = () -> {
                 com.arriva.touristguideapp.data.notifications.LocalNotificationHelper.showReminder(
-                    this, "Ready for Adventure?", "Explore the best hidden gems in Pune today!");
-            }, 5000);
+                    MainActivity.this, "Ready for Adventure?", "Explore the best hidden gems in Pune today!");
+            };
+            handler.postDelayed(reminderRunnable, 5000);
         }
         
         // Start with ProgressBar visible
@@ -141,11 +145,11 @@ public class MainActivity extends AppCompatActivity {
                     return true;
                 } else if (id == R.id.nav_favorites) {
                     startActivity(new Intent(MainActivity.this, FavoritesActivity.class));
-                    overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
+                    overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
                     return true;
                 } else if (id == R.id.nav_map) {
                     startActivity(new Intent(MainActivity.this, MapActivity.class));
-                    overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
+                    overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
                     return true;
                 }
                 return false;
@@ -158,6 +162,14 @@ public class MainActivity extends AppCompatActivity {
                 overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
             });
         }
+    }
+
+    @Override
+    protected void onDestroy() {
+        if (reminderRunnable != null) {
+            handler.removeCallbacks(reminderRunnable);
+        }
+        super.onDestroy();
     }
 
     @Override
@@ -236,7 +248,9 @@ public class MainActivity extends AppCompatActivity {
         if (text.isEmpty()) {
             sections.clear();
             addDefaultSections();
-            homeAdapter.notifyDataSetChanged();
+            if (homeAdapter != null) {
+                homeAdapter.updateSections(new ArrayList<>(sections));
+            }
             return;
         }
 
@@ -256,7 +270,9 @@ public class MainActivity extends AppCompatActivity {
             for (Place p : filteredList) {
                 sections.add(new HomeSection(HomeSection.TYPE_PLACE, p));
             }
-            homeAdapter.notifyDataSetChanged();
+            if (homeAdapter != null) {
+                homeAdapter.updateSections(new ArrayList<>(sections));
+            }
         }
     }
 
@@ -358,7 +374,7 @@ public class MainActivity extends AppCompatActivity {
 
         // Update UI
         if (homeAdapter != null) {
-            homeAdapter.notifyDataSetChanged();
+            homeAdapter.updateSections(new ArrayList<>(sections));
         }
     }
 
@@ -374,7 +390,7 @@ public class MainActivity extends AppCompatActivity {
         }
 
         if (homeAdapter != null) {
-            homeAdapter.notifyDataSetChanged();
+            homeAdapter.updateSections(new ArrayList<>(sections));
         }
         Toast.makeText(this, "Location unavailable, using default top picks", Toast.LENGTH_SHORT).show();
     }
@@ -421,6 +437,10 @@ public class MainActivity extends AppCompatActivity {
         rvHome.setAdapter(homeAdapter);
         rvHome.setItemViewCacheSize(20);
         rvHome.setHasFixedSize(true);
+        
+        // Premium Staggered Animation
+        android.view.animation.LayoutAnimationController animation = android.view.animation.AnimationUtils.loadLayoutAnimation(this, R.anim.layout_animation_fall_down);
+        rvHome.setLayoutAnimation(animation);
     }
 
     private void addDefaultSections() {
@@ -504,10 +524,12 @@ public class MainActivity extends AppCompatActivity {
             if (cachedUserLocation != null) {
                 updateTopPicksWithLocation(cachedUserLocation.getLatitude(), cachedUserLocation.getLongitude());
             } else {
-                sections.clear();
-                addDefaultSections();
-                if (homeAdapter != null) {
-                    homeAdapter.notifyDataSetChanged();
+                if (sections != null) {
+                    sections.clear();
+                    addDefaultSections();
+                    if (homeAdapter != null) {
+                        homeAdapter.updateSections(new ArrayList<>(sections));
+                    }
                 }
             }
 
@@ -543,8 +565,9 @@ public class MainActivity extends AppCompatActivity {
         recentlyViewedManager.addRecentlyViewed(place);
         Intent intent = new Intent(MainActivity.this, PlaceDetailsActivity.class);
         PlaceIntentExtras.putPlaceDetails(intent, place);
-        startActivity(intent);
-        overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
+        
+        androidx.core.app.ActivityOptionsCompat options = androidx.core.app.ActivityOptionsCompat.makeCustomAnimation(this, R.anim.slide_in_right, android.R.anim.fade_out);
+        startActivity(intent, options.toBundle());
     }
 
     private void loadUserInfo() {

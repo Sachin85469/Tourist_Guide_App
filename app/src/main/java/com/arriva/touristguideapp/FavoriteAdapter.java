@@ -7,6 +7,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.RecyclerView;
 import java.util.List;
 
@@ -22,11 +23,45 @@ public class FavoriteAdapter extends RecyclerView.Adapter<FavoriteAdapter.ViewHo
     public FavoriteAdapter(List<Place> favoriteList, OnItemClickListener listener) {
         this.favoriteList = favoriteList;
         this.listener = listener;
+        setHasStableIds(true);
+    }
+
+    public void updateList(List<Place> newList) {
+        DiffUtil.DiffResult diffResult = DiffUtil.calculateDiff(new DiffUtil.Callback() {
+            @Override
+            public int getOldListSize() {
+                return favoriteList.size();
+            }
+
+            @Override
+            public int getNewListSize() {
+                return newList.size();
+            }
+
+            @Override
+            public boolean areItemsTheSame(int oldItemPosition, int newItemPosition) {
+                return favoriteList.get(oldItemPosition).getId().equals(newList.get(newItemPosition).getId());
+            }
+
+            @Override
+            public boolean areContentsTheSame(int oldItemPosition, int newItemPosition) {
+                return favoriteList.get(oldItemPosition).equals(newList.get(newItemPosition));
+            }
+        });
+        this.favoriteList.clear();
+        this.favoriteList.addAll(newList);
+        diffResult.dispatchUpdatesTo(this);
+    }
+
+    @Override
+    public long getItemId(int position) {
+        return favoriteList.get(position).getId().hashCode();
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
         public ImageView image, favoriteIcon;
-        public TextView name, rating;
+        public TextView name, rating, location, category;
+        public View btnDirections, btnShare;
 
         public ViewHolder(View view) {
             super(view);
@@ -34,26 +69,27 @@ public class FavoriteAdapter extends RecyclerView.Adapter<FavoriteAdapter.ViewHo
             name = view.findViewById(R.id.favName);
             rating = view.findViewById(R.id.favRating);
             favoriteIcon = view.findViewById(R.id.favIcon);
+            location = view.findViewById(R.id.favLocation);
+            category = view.findViewById(R.id.favCategory);
+            btnDirections = view.findViewById(R.id.btnDirections);
+            btnShare = view.findViewById(R.id.btnShare);
         }
 
         public void bind(final Place place, final OnItemClickListener listener) {
             Context context = itemView.getContext();
             name.setText(place.getName());
             
+            if (location != null) location.setText(place.getCity());
+            if (category != null) category.setText(place.getCategory() != null ? place.getCategory().toUpperCase() : "");
+
             // Fix: REAL FIRESTORE RATINGS (Requirement 9)
             if (rating != null) {
                 if (place.getTotalRatings() > 0) {
-                    rating.setText(String.format(java.util.Locale.getDefault(), "%.1f ⭐", place.getRating()));
+                    rating.setText(String.format(java.util.Locale.getDefault(), "%.1f", place.getRating()));
                     rating.setVisibility(View.VISIBLE);
-                    android.util.Log.d("FavoriteAdapter", "CARD_REAL_RATING: " + place.getName() + " -> " + place.getRating());
-                    if (place.getRating() == 4.0) {
-                        android.util.Log.v("FavoriteAdapter", "CARD_FAKE_RATING_DETECTED: potential static 4.0 for " + place.getName());
-                    }
                 } else {
-                    // Requirement 3: Show "New" badge instead of 0.0 or fake rating
                     rating.setText("New");
                     rating.setVisibility(View.VISIBLE);
-                    android.util.Log.d("FavoriteAdapter", "CARD_UNRATED: " + place.getName());
                 }
             }
             
@@ -77,6 +113,11 @@ public class FavoriteAdapter extends RecyclerView.Adapter<FavoriteAdapter.ViewHo
                 boolean updated = FavoritesManager.isFavorite(context, place.getId());
                 favoriteIcon.setImageResource(updated ? R.drawable.ic_favorite : R.drawable.ic_favorite_border);
 
+                // notify activity to refresh if needed (e.g. update count)
+                if (context instanceof FavoritesActivity) {
+                    ((FavoritesActivity) context).updateCount();
+                }
+
                 // animation
                 favoriteIcon.setScaleX(0.7f);
                 favoriteIcon.setScaleY(0.7f);
@@ -86,6 +127,27 @@ public class FavoriteAdapter extends RecyclerView.Adapter<FavoriteAdapter.ViewHo
                     .scaleY(1f)
                     .setDuration(200);
             });
+
+            if (btnDirections != null) {
+                btnDirections.setOnClickListener(v -> {
+                    String uri = String.format(java.util.Locale.ENGLISH, "google.navigation:q=%f,%f", place.getLat(), place.getLng());
+                    android.content.Intent intent = new android.content.Intent(android.content.Intent.ACTION_VIEW, android.net.Uri.parse(uri));
+                    intent.setPackage("com.google.android.apps.maps");
+                    if (intent.resolveActivity(context.getPackageManager()) != null) {
+                        context.startActivity(intent);
+                    }
+                });
+            }
+
+            if (btnShare != null) {
+                btnShare.setOnClickListener(v -> {
+                    String shareText = "Check out this place in " + place.getCity() + ": " + place.getName();
+                    android.content.Intent intent = new android.content.Intent(android.content.Intent.ACTION_SEND);
+                    intent.setType("text/plain");
+                    intent.putExtra(android.content.Intent.EXTRA_TEXT, shareText);
+                    context.startActivity(android.content.Intent.createChooser(intent, "Share via"));
+                });
+            }
         }
     }
 

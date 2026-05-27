@@ -28,11 +28,10 @@ public class ProfileActivity extends AppCompatActivity {
     private static final int PICK_IMAGE_REQUEST = 1;
     private ImageView ivProfileImage;
     private TextView tvProfileName, tvProfileEmail;
-    private Chip chipLoginProvider;
     private MaterialCardView cardEditName;
     private EditText etEditName;
-    private Button btnSaveName, btnEditProfile, btnLogout, btnAdminDashboard;
-    private View btnBack, btnEditImage, dividerAdmin, btnNotificationHistory, btnNotificationSettings;
+    private Button btnSaveName;
+    private View btnEditProfileRow, btnLogoutRow, btnSOSSettingsRow, btnNotificationSettingsRow, btnSecurityRow, btnLanguageRow;
 
     private FirebaseAuth mAuth;
 
@@ -48,41 +47,51 @@ public class ProfileActivity extends AppCompatActivity {
         setupStats();
         applyAnimations();
 
-        btnBack.setOnClickListener(v -> finish());
-
-        btnNotificationHistory.setOnClickListener(v -> {
-            startActivity(new Intent(this, NotificationHistoryActivity.class));
-        });
-
-        btnNotificationSettings.setOnClickListener(v -> {
-            startActivity(new Intent(this, NotificationSettingsActivity.class));
-        });
-        
-        btnEditProfile.setOnClickListener(v -> {
-            if (cardEditName.getVisibility() == View.VISIBLE) {
-                cardEditName.setVisibility(View.GONE);
-            } else {
-                cardEditName.setVisibility(View.VISIBLE);
-                etEditName.setText(tvProfileName.getText().toString());
+        findViewById(R.id.btnEditProfile).setOnClickListener(v -> {
+            if (cardEditName != null) {
+                if (cardEditName.getVisibility() == View.VISIBLE) {
+                    cardEditName.setVisibility(View.GONE);
+                } else {
+                    cardEditName.setVisibility(View.VISIBLE);
+                    etEditName.setText(tvProfileName.getText().toString());
+                }
             }
         });
 
-        btnSaveName.setOnClickListener(v -> {
-            String newName = etEditName.getText().toString().trim();
-            if (!TextUtils.isEmpty(newName)) {
-                updateNameInFirestore(newName);
-            }
-        });
+        if (btnSOSSettingsRow != null) {
+            btnSOSSettingsRow.setOnClickListener(v -> {
+                startActivity(new Intent(this, com.arriva.touristguideapp.sos.ui.SOSSettingsActivity.class));
+            });
+        }
 
-        btnEditImage.setOnClickListener(v -> openGallery());
+        if (btnNotificationSettingsRow != null) {
+            btnNotificationSettingsRow.setOnClickListener(v -> {
+                startActivity(new Intent(this, NotificationSettingsActivity.class));
+            });
+        }
 
-        btnLogout.setOnClickListener(v -> {
-            mAuth.signOut();
-            Intent intent = new Intent(ProfileActivity.this, LoginActivity.class);
-            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-            startActivity(intent);
-            finish();
-        });
+        if (btnLogoutRow != null) {
+            btnLogoutRow.setOnClickListener(v -> {
+                mAuth.signOut();
+                Intent intent = new Intent(ProfileActivity.this, LoginActivity.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                startActivity(intent);
+                finish();
+            });
+        }
+
+        if (ivProfileImage != null) {
+            ivProfileImage.setOnClickListener(v -> openGallery());
+        }
+
+        if (btnSaveName != null) {
+            btnSaveName.setOnClickListener(v -> {
+                String newName = etEditName.getText().toString().trim();
+                if (!TextUtils.isEmpty(newName)) {
+                    updateNameInFirestore(newName);
+                }
+            });
+        }
     }
 
     private void updateNameInFirestore(String newName) {
@@ -116,40 +125,68 @@ public class ProfileActivity extends AppCompatActivity {
     }
 
     private void applyAnimations() {
-        findViewById(R.id.avatarContainer).setAlpha(0f);
-        findViewById(R.id.avatarContainer).setScaleX(0.5f);
-        findViewById(R.id.avatarContainer).setScaleY(0.5f);
-        findViewById(R.id.avatarContainer).animate().alpha(1f).scaleX(1f).scaleY(1f).setDuration(600).start();
+        if (findViewById(R.id.cardProfileImage) != null) {
+            findViewById(R.id.cardProfileImage).setAlpha(0f);
+            findViewById(R.id.cardProfileImage).setScaleX(0.5f);
+            findViewById(R.id.cardProfileImage).setScaleY(0.5f);
+            findViewById(R.id.cardProfileImage).animate().alpha(1f).scaleX(1f).scaleY(1f).setDuration(600).start();
+        }
 
-        findViewById(R.id.userInfo).setTranslationY(100f);
-        findViewById(R.id.userInfo).setAlpha(0f);
-        findViewById(R.id.userInfo).animate().translationY(0f).alpha(1f).setDuration(600).setStartDelay(200).start();
+        if (tvProfileName != null) {
+            tvProfileName.setTranslationY(100f);
+            tvProfileName.setAlpha(0f);
+            tvProfileName.animate().translationY(0f).alpha(1f).setDuration(600).setStartDelay(200).start();
+        }
 
-        findViewById(R.id.statsRow).setTranslationY(100f);
-        findViewById(R.id.statsRow).setAlpha(0f);
-        findViewById(R.id.statsRow).animate().translationY(0f).alpha(1f).setDuration(600).setStartDelay(400).start();
-
-        findViewById(R.id.cardActions).setTranslationY(100f);
-        findViewById(R.id.cardActions).setAlpha(0f);
-        findViewById(R.id.cardActions).animate().translationY(0f).alpha(1f).setDuration(600).setStartDelay(600).start();
+        if (findViewById(R.id.statsRow) != null) {
+            findViewById(R.id.statsRow).setTranslationY(100f);
+            findViewById(R.id.statsRow).setAlpha(0f);
+            findViewById(R.id.statsRow).animate().translationY(0f).alpha(1f).setDuration(600).setStartDelay(400).start();
+        }
     }
 
     private void initViews() {
         ivProfileImage = findViewById(R.id.ivProfileImage);
-        btnEditImage = findViewById(R.id.btnEditImage);
-        btnAdminDashboard = findViewById(R.id.btnAdminDashboard);
-        dividerAdmin = findViewById(R.id.dividerAdmin);
         tvProfileName = findViewById(R.id.tvProfileName);
         tvProfileEmail = findViewById(R.id.tvProfileEmail);
-        chipLoginProvider = findViewById(R.id.chipLoginProvider);
         cardEditName = findViewById(R.id.cardEditName);
         etEditName = findViewById(R.id.etEditName);
         btnSaveName = findViewById(R.id.btnSaveName);
-        btnEditProfile = findViewById(R.id.btnEditProfile);
-        btnLogout = findViewById(R.id.btnLogout);
-        btnBack = findViewById(R.id.btnBack);
-        btnNotificationHistory = findViewById(R.id.btnNotificationHistory);
-        btnNotificationSettings = findViewById(R.id.btnNotificationSettings);
+
+        btnEditProfileRow = findViewById(R.id.btnEditProfile);
+        btnSecurityRow = findViewById(R.id.btnSecurity);
+        btnNotificationSettingsRow = findViewById(R.id.btnNotificationSettings);
+        btnLanguageRow = findViewById(R.id.btnLanguage);
+        btnSOSSettingsRow = findViewById(R.id.btnSOSSettings);
+        btnLogoutRow = findViewById(R.id.btnLogoutRow);
+
+        setupSettingRow(btnEditProfileRow, R.drawable.ic_account, "Edit Profile", "Update your name and photo");
+        setupSettingRow(btnSecurityRow, R.drawable.ic_security, "Security", "Manage your account privacy");
+        setupSettingRow(btnNotificationSettingsRow, R.drawable.ic_notification, "Notifications", "Control alerts and sounds");
+        setupSettingRow(btnLanguageRow, R.drawable.ic_language, "Language", "Choose your preferred language");
+        setupSettingRow(btnSOSSettingsRow, R.drawable.ic_sos, "SOS Settings", "Manage emergency triggers");
+        setupSettingRow(btnLogoutRow, R.drawable.ic_logout, "Sign Out", "Safely log out of your account");
+
+        if (btnLanguageRow != null) {
+            btnLanguageRow.findViewById(R.id.settingActionIcon).setVisibility(View.GONE);
+            btnLanguageRow.findViewById(R.id.settingSwitch).setVisibility(View.GONE);
+        }
+
+        com.google.android.material.appbar.MaterialToolbar toolbar = findViewById(R.id.toolbar);
+        if (toolbar != null) {
+            toolbar.setNavigationOnClickListener(v -> finish());
+        }
+    }
+
+    private void setupSettingRow(View row, int iconRes, String title, String subtitle) {
+        if (row == null) return;
+        ImageView icon = row.findViewById(R.id.settingIcon);
+        TextView tvTitle = row.findViewById(R.id.settingTitle);
+        TextView tvSubtitle = row.findViewById(R.id.settingSubtitle);
+
+        if (icon != null) icon.setImageResource(iconRes);
+        if (tvTitle != null) tvTitle.setText(title);
+        if (tvSubtitle != null) tvSubtitle.setText(subtitle);
     }
 
     private void loadUserData() {
@@ -158,40 +195,19 @@ public class ProfileActivity extends AppCompatActivity {
 
         FirebaseUser user = mAuth.getCurrentUser();
         if (user != null) {
-            // Check Admin Status
-            ProfileUtils.checkAdminStatus(user.getUid(), isAdmin -> {
-                if (isAdmin) {
-                    btnAdminDashboard.setVisibility(View.VISIBLE);
-                    dividerAdmin.setVisibility(View.VISIBLE);
-                    btnAdminDashboard.setOnClickListener(v -> {
-                        Intent intent = new Intent(this, AdminDashboardActivity.class);
-                        startActivity(intent);
-                    });
-                }
-            });
-
             ProfileUtils.fetchUserData(user.getUid(), new ProfileUtils.UserCallback() {
                 @Override
                 public void onUserLoaded(User userModel) {
-                    tvProfileName.setText(userModel.getName());
-                    tvProfileEmail.setText(userModel.getEmail());
-
-                    String provider = "Email Account";
-                    for (UserInfo profile : user.getProviderData()) {
-                        if (profile.getProviderId().equals("google.com")) {
-                            provider = "Google Account";
-                        }
-                    }
-                    chipLoginProvider.setText(provider);
-
+                    if (tvProfileName != null) tvProfileName.setText(userModel.getName());
+                    if (tvProfileEmail != null) tvProfileEmail.setText(userModel.getEmail());
                     ProfileUtils.loadAvatar(ProfileActivity.this, ivProfileImage, userModel);
                 }
 
                 @Override
                 public void onError(Exception e) {
                     // Fallback to basic Auth info
-                    tvProfileName.setText(user.getDisplayName());
-                    tvProfileEmail.setText(user.getEmail());
+                    if (tvProfileName != null) tvProfileName.setText(user.getDisplayName());
+                    if (tvProfileEmail != null) tvProfileEmail.setText(user.getEmail());
                     ProfileUtils.loadAvatar(ProfileActivity.this, ivProfileImage);
                 }
             });

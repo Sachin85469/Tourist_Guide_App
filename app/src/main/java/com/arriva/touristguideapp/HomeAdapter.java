@@ -13,6 +13,7 @@ import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.LinearSnapHelper;
 import androidx.recyclerview.widget.RecyclerView;
@@ -57,6 +58,50 @@ public class HomeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         this.categoryClickListener = categoryClickListener;
         this.planTripClickListener = planTripClickListener;
         this.phrasebookClickListener = phrasebookClickListener;
+        setHasStableIds(true);
+    }
+
+    public void updateSections(List<HomeSection> newSections) {
+        DiffUtil.DiffResult diffResult = DiffUtil.calculateDiff(new DiffUtil.Callback() {
+            @Override
+            public int getOldListSize() {
+                return sections.size();
+            }
+
+            @Override
+            public int getNewListSize() {
+                return newSections.size();
+            }
+
+            @Override
+            public boolean areItemsTheSame(int oldItemPosition, int newItemPosition) {
+                HomeSection oldS = sections.get(oldItemPosition);
+                HomeSection newS = newSections.get(newItemPosition);
+                if (!oldS.getType().equals(newS.getType())) return false;
+                
+                if (HomeSection.TYPE_PLACE.equals(oldS.getType())) {
+                    return oldS.getSinglePlace().getId().equals(newS.getSinglePlace().getId());
+                }
+                return true; // Other sections are singleton types
+            }
+
+            @Override
+            public boolean areContentsTheSame(int oldItemPosition, int newItemPosition) {
+                return sections.get(oldItemPosition).equals(newSections.get(newItemPosition));
+            }
+        });
+        this.sections.clear();
+        this.sections.addAll(newSections);
+        diffResult.dispatchUpdatesTo(this);
+    }
+
+    @Override
+    public long getItemId(int position) {
+        HomeSection s = sections.get(position);
+        if (HomeSection.TYPE_PLACE.equals(s.getType())) {
+            return s.getSinglePlace().getId().hashCode();
+        }
+        return s.getType().hashCode();
     }
 
     @Override
@@ -127,8 +172,15 @@ public class HomeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     private void setAnimation(View viewToAnimate, int position) {
         if (position > lastPosition) {
-            Animation animation = AnimationUtils.loadAnimation(viewToAnimate.getContext(), R.anim.fade_in);
-            viewToAnimate.startAnimation(animation);
+            viewToAnimate.setAlpha(0f);
+            viewToAnimate.setTranslationY(50f);
+            viewToAnimate.animate()
+                .alpha(1f)
+                .translationY(0f)
+                .setDuration(400)
+                .setStartDelay(position % 5 * 50L)
+                .setInterpolator(new android.view.animation.DecelerateInterpolator())
+                .start();
             lastPosition = position;
         }
     }

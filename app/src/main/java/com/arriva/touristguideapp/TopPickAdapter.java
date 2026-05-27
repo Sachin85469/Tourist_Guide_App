@@ -99,6 +99,16 @@ public class TopPickAdapter extends RecyclerView.Adapter<TopPickAdapter.ViewHold
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         holder.bind(topPickList.get(position), listener);
+        
+        // Premium Entrance Animation
+        holder.itemView.setAlpha(0f);
+        holder.itemView.setTranslationX(50f);
+        holder.itemView.animate()
+            .alpha(1f)
+            .translationX(0f)
+            .setDuration(400)
+            .setStartDelay(position * 100L)
+            .start();
     }
 
     @Override

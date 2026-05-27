@@ -132,6 +132,14 @@ Allow overlay permission for floating SOS features.
 Emergency help available anytime during your trip.
 </string>
 
+    <string name="favorites_title">Saved Places</string>
+    <string name="favorites_count_format">%1$d items</string>
+    <string name="favorites_empty_title">Start Exploring ✨</string>
+    <string name="favorites_empty_msg">Save your favorite places to access them quickly later.</string>
+    <string name="favorites_explore_btn">Explore Places</string>
+    <string name="favorites_directions">Directions</string>
+    <string name="favorites_share">Share</string>
+
     <string name="home_ai_guide">AI Guide</string>
     <string name="home_action_translate">Translate</string>
     <string name="home_action_planner">Planner</string>

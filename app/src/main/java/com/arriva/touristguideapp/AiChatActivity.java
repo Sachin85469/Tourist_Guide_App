@@ -155,6 +155,7 @@ public class AiChatActivity extends AppCompatActivity {
         Futures.addCallback(response, new FutureCallback<GenerateContentResponse>() {
             @Override
             public void onSuccess(GenerateContentResponse result) {
+                if (isFinishing() || isDestroyed()) return;
                 runOnUiThread(() -> {
                     setThinkingState(false);
                     String resultText = Objects.requireNonNullElse(result.getText(), "I'm sorry, I couldn't generate a response.");
@@ -164,6 +165,7 @@ public class AiChatActivity extends AppCompatActivity {
 
             @Override
             public void onFailure(@NonNull Throwable t) {
+                if (isFinishing() || isDestroyed()) return;
                 runOnUiThread(() -> {
                     setThinkingState(false);
                     String error = "I'm having trouble connecting. Please try again.";
@@ -262,10 +264,26 @@ public class AiChatActivity extends AppCompatActivity {
         @Override
         public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
             ChatMessage message = messages.get(position);
+            
+            // Premium Entrance Animation
+            holder.itemView.setAlpha(0f);
+            holder.itemView.setTranslationY(20f);
+            holder.itemView.animate()
+                .alpha(1f)
+                .translationY(0f)
+                .setDuration(300)
+                .setStartDelay(position % 5 * 50L)
+                .start();
+
             if (holder instanceof UserViewHolder) {
                 ((UserViewHolder) holder).tvMessage.setText(message.text);
             } else if (holder instanceof AiViewHolder) {
                 ((AiViewHolder) holder).tvMessage.setText(message.text);
+            } else if (holder instanceof TypingViewHolder) {
+                View card = holder.itemView.findViewById(R.id.cardTyping);
+                if (card != null) {
+                    card.startAnimation(android.view.animation.AnimationUtils.loadAnimation(holder.itemView.getContext(), R.anim.pulse));
+                }
             }
         }
 

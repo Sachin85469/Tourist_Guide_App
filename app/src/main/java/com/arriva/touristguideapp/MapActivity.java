@@ -278,6 +278,7 @@ public class MapActivity extends AppCompatActivity {
                 }
 
                 runOnUiThread(() -> {
+                    if (isFinishing() || isDestroyed()) return;
                     map.getOverlays().removeIf(o -> o instanceof org.osmdroid.views.overlay.Marker && !((org.osmdroid.views.overlay.Marker)o).getTitle().equals(searchInput.getText().toString()));
                     for (int i = 0; i < points.size(); i++) {
                         addMarker(points.get(i), names.get(i), "Category: " + type, android.R.drawable.btn_star);
@@ -287,7 +288,10 @@ public class MapActivity extends AppCompatActivity {
 
             } catch (Exception e) {
                 e.printStackTrace();
-                runOnUiThread(() -> Toast.makeText(this, "Failed to load " + type, Toast.LENGTH_SHORT).show());
+                runOnUiThread(() -> {
+                    if (isFinishing() || isDestroyed()) return;
+                    Toast.makeText(this, "Failed to load " + type, Toast.LENGTH_SHORT).show();
+                });
             }
         }).start();
     }
@@ -395,7 +399,10 @@ public class MapActivity extends AppCompatActivity {
                         JSONArray p = coordinates.getJSONArray(i);
                         points.add(new GeoPoint(p.getDouble(1), p.getDouble(0)));
                     }
-                    runOnUiThread(() -> animateRoute(points));
+                    runOnUiThread(() -> {
+                        if (isFinishing() || isDestroyed()) return;
+                        animateRoute(points);
+                    });
                 }
             } catch (Exception e) {
                 e.printStackTrace();
@@ -434,6 +441,7 @@ public class MapActivity extends AppCompatActivity {
             final GeoPoint myLocation = locationOverlay.getMyLocation();
             if (myLocation != null) {
                 runOnUiThread(() -> {
+                    if (isFinishing() || isDestroyed()) return;
                     map.getController().animateTo(myLocation);
                     map.getController().setZoom(15.0);
                 });

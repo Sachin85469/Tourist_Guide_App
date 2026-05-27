@@ -28,6 +28,9 @@
         <item name="android:statusBarColor">@color/m3_background</item>
         <item name="android:windowLightStatusBar" tools:targetApi="m">true</item>
 
+        <!-- Window Animations -->
+        <item name="android:windowAnimationStyle">@style/AppAnimation.Activity</item>
+
         <!-- Typography Hierarchy -->
         <item name="textAppearanceHeadlineLarge">@style/TextAppearance.App.HeadlineLarge</item>
         <item name="textAppearanceTitleLarge">@style/TextAppearance.App.TitleLarge</item>
@@ -38,6 +41,14 @@
     </style>
 
     <style name="Theme.TouristGuideApp" parent="Base.Theme.TouristGuideApp" />
+
+    <!-- Activity Animations -->
+    <style name="AppAnimation.Activity" parent="@android:style/Animation.Activity">
+        <item name="android:activityOpenEnterAnimation">@anim/slide_in_right</item>
+        <item name="android:activityOpenExitAnimation">@android:transition/fade</item>
+        <item name="android:activityCloseEnterAnimation">@android:transition/fade</item>
+        <item name="android:activityCloseExitAnimation">@anim/slide_out_down</item>
+    </style>
 
     <!-- Typography Styles -->
     <style name="TextAppearance.App.HeadlineLarge" parent="TextAppearance.Material3.HeadlineLarge">
@@ -84,6 +95,9 @@
         <item name="cardCornerRadius">@dimen/corner_radius_large</item>
         <item name="cardElevation">@dimen/card_elevation_soft</item>
         <item name="contentPadding">@dimen/card_padding</item>
+        <item name="android:clickable">true</item>
+        <item name="android:focusable">true</item>
+        <item name="android:stateListAnimator">@animator/card_lift</item>
     </style>
 
     <style name="AppCard.Primary" parent="AppCard">

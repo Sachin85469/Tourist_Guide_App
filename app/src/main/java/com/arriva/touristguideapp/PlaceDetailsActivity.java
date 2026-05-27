@@ -161,6 +161,35 @@ public class PlaceDetailsActivity extends AppCompatActivity {
         setupNearbyUI();
 
         updateFavoriteIcon();
+        
+        animateEntrance();
+    }
+
+    private void animateEntrance() {
+        View content = findViewById(R.id.nsvPlaceDetails);
+        if (content != null) {
+            content.setAlpha(0f);
+            content.setTranslationY(100f);
+            content.animate()
+                .alpha(1f)
+                .translationY(0f)
+                .setDuration(600)
+                .setInterpolator(new android.view.animation.DecelerateInterpolator())
+                .start();
+        }
+        
+        View fab = findViewById(R.id.btnFavoriteDetails);
+        if (fab != null) {
+            fab.setScaleX(0f);
+            fab.setScaleY(0f);
+            fab.animate()
+                .scaleX(1f)
+                .scaleY(1f)
+                .setDuration(400)
+                .setStartDelay(400)
+                .setInterpolator(new android.view.animation.OvershootInterpolator())
+                .start();
+        }
     }
 
     private void setupExpandableDescription(String description) {

@@ -242,4 +242,30 @@ public class Place implements Serializable {
     public boolean hasRemoteGalleryImages() {
         return galleryImageUrls != null && !galleryImageUrls.isEmpty();
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Place place = (Place) o;
+        return Double.compare(place.latitude, latitude) == 0 &&
+                Double.compare(place.longitude, longitude) == 0 &&
+                Double.compare(place.rating, rating) == 0 &&
+                totalRatings == place.totalRatings &&
+                totalComments == place.totalComments &&
+                java.util.Objects.equals(id, place.id) &&
+                java.util.Objects.equals(name, place.name) &&
+                java.util.Objects.equals(city, place.city) &&
+                java.util.Objects.equals(category, place.category) &&
+                java.util.Objects.equals(description, place.description) &&
+                java.util.Objects.equals(budget, place.budget) &&
+                java.util.Objects.equals(crowdLevel, place.crowdLevel) &&
+                java.util.Objects.equals(bestTime, place.bestTime) &&
+                java.util.Objects.equals(imageUrl, place.imageUrl);
+    }
+
+    @Override
+    public int hashCode() {
+        return java.util.Objects.hash(id, name, city, category, description, budget, crowdLevel, bestTime, latitude, longitude, rating, totalRatings, totalComments, imageUrl);
+    }
 }

@@ -85,22 +85,49 @@ public class DiscoveryRepository {
 
     /**
      * Smart Recommendations based on rating, popularity, and distance.
+     * Diversity-aware: Avoids showing only one category.
      */
     public List<Place> getRecommendedPlaces(List<Place> allPlaces) {
-        List<Place> recommendations = new ArrayList<>(allPlaces);
-        for (Place p : recommendations) {
-            double score = (p.getRating() * 5);
-            score += (Math.min(p.getTotalRatings(), 100) / 5.0);
+        if (allPlaces == null || allPlaces.isEmpty()) return new ArrayList<>();
+
+        List<Place> candidates = new ArrayList<>(allPlaces);
+        for (Place p : candidates) {
+            double score = (p.getRating() * 10); // Higher weight for rating
+            score += (Math.min(p.getTotalRatings(), 500) / 10.0); // Popularity boost
             
-            // Distance penalty (closer is better)
+            // Proximity boost: closer is significantly better for recommendations
             if (p.getDistance() > 0) {
-                score += (100.0 / (p.getDistance() + 1));
+                if (p.getDistance() < 5) score += 50; // Very close
+                else if (p.getDistance() < 15) score += 25; // Nearby
+                else score += (100.0 / (p.getDistance() + 1));
             }
+
+            // New: Recently Added / Featured boost
+            if (p.isTopPick()) score += 30;
+            
             p.setSearchScore(score);
         }
         
-        Collections.sort(recommendations, (p1, p2) -> Double.compare(p2.getSearchScore(), p1.getSearchScore()));
-        Log.d(TAG, "RECOMMENDATION_GENERATED");
-        return recommendations.size() > 8 ? recommendations.subList(0, 8) : recommendations;
+        Collections.sort(candidates, (p1, p2) -> Double.compare(p2.getSearchScore(), p1.getSearchScore()));
+        
+        // Diversity logic: ensure we don't have only one category in top 5
+        List<Place> results = new ArrayList<>();
+        
+        for (Place p : candidates) {
+            if (results.size() >= 8) break;
+            
+            String cat = p.getCategory();
+            // Allow at most 2 items of the same category in the first 4 slots for variety
+            if (results.size() < 4) {
+                int count = 0;
+                for (Place r : results) if (r.getCategory().equals(cat)) count++;
+                if (count >= 2) continue;
+            }
+            
+            results.add(p);
+        }
+
+        Log.d(TAG, "RECOMMENDATIONS_GENERATED_WITH_DIVERSITY count=" + results.size());
+        return results;
     }
 }
