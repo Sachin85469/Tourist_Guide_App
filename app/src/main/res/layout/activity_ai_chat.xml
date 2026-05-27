@@ -134,28 +134,28 @@
 
                 <com.google.android.material.chip.Chip
                     android:id="@+id/chipPlanTrip"
-                    style="@style/Widget.Material3.Chip.Suggestion"
+                    style="@style/Widget.App.Chip.Suggestion"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Plan a Pune trip" />
 
                 <com.google.android.material.chip.Chip
                     android:id="@+id/chipFood"
-                    style="@style/Widget.Material3.Chip.Suggestion"
+                    style="@style/Widget.App.Chip.Suggestion"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Best food places" />
 
                 <com.google.android.material.chip.Chip
                     android:id="@+id/chipAttractions"
-                    style="@style/Widget.Material3.Chip.Suggestion"
+                    style="@style/Widget.App.Chip.Suggestion"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Nearby attractions" />
 
                 <com.google.android.material.chip.Chip
                     android:id="@+id/chipBudget"
-                    style="@style/Widget.Material3.Chip.Suggestion"
+                    style="@style/Widget.App.Chip.Suggestion"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Budget itinerary" />
