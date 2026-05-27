@@ -55,6 +55,15 @@
     <string name="communication_speak_again">Speak translation again</string>
     <string name="communication_you_said">You said</string>
 
+    <string name="setup_title">Preparing language tools</string>
+    <string name="setup_message">This app requires:\n• Translation models\n• Speech recognition support\n• TTS language data\n\nThis will take a few moments over the internet.</string>
+    <string name="setup_btn_download">Download Now</string>
+    <string name="setup_preparing">Initializing setup…</string>
+    <string name="setup_complete">Setup complete! Language tools are ready for offline use.</string>
+    <string name="setup_error">Setup failed. Please check your internet connection and try again.</string>
+    <string name="setup_btn_finish">Start Using</string>
+    <string name="setup_btn_retry">Retry</string>
+
     <string name="reply_translator_title">Reply Translator</string>
     <string name="tap_to_listen">Tap to Listen</string>
     <string name="listening">Listening…</string>
@@ -70,103 +79,9 @@
     <string name="tts_init_failed">Speech engine initialization failed.</string>
     <string name="tts_voice_missing">Voice data not installed for %1$s.</string>
 
-    <!-- AI Chat -->
-    <string name="ai_initial_message">Hello! I am your AI Tourism Assistant. How can I help you with your travel plans today?</string>
-
-    <!-- Language Setup -->
-    <string name="setup_title">Initial Setup</string>
-    <string name="setup_message">We need to download some language models for offline translation. This might take a few minutes.</string>
-    <string name="setup_btn_download">Download Now</string>
-    <string name="setup_complete">Setup Complete</string>
-    <string name="setup_btn_finish">Finish</string>
-    <string name="setup_btn_retry">Retry</string>
-
-    <!-- SOS Service -->
-    <string name="sos_notification_title">SOS Monitoring Active</string>
-    <string name="sos_notification_channel_name">SOS Service</string>
-
-    <!-- AI Chatbot -->
-    <string name="ai_assistant_title">AI Assistant</string>
-    <string name="ai_input_hint">Ask something&#8230;</string>
-
-    <!-- SOS Onboarding -->
-    <string name="sos_setup_title">Emergency SOS Setup</string>
-
-    <string name="sos_onboarding_accessibility_msg">
-        Enable accessibility service for volume button SOS trigger.
-    </string>
-
-    <string name="sos_enable_accessibility">
-        Enable Accessibility
-    </string>
-
-    <string name="sos_onboarding_overlay_msg">
-        Allow overlay permission for floating SOS button.
-    </string>
-
-    <string name="sos_allow_overlay">
-        Allow Overlay
-    </string>
-
-    <string name="sos_continue_to_settings">
-        Continue to Settings
-    </string>
-
-    <!-- SOS Settings -->
-    <string name="sos_settings_title">
-        SOS Settings
-    </string>
-
-    <string name="sos_emergency_contact_label">
-        Emergency Contact
-    </string>
-
-    <string name="sos_enter_phone_hint">
-        Enter phone number
-    </string>
-
-    <string name="sos_enable_volume_trigger">
-        Enable Volume Button Trigger
-    </string>
-
-    <string name="sos_enable_floating_button">
-        Enable Floating SOS Button
-    </string>
-
-    <string name="sos_call_after_sms">
-        Call after sending SMS
-    </string>
-
-    <string name="sos_save_settings">
-        Save Settings
-    </string>
-
-    <string name="sos_accessibility_description">
-        Accessibility service for SOS emergency trigger.
-    </string>
-
-    <!-- UI Foundation -->
-    <string name="empty_state_places_title">No places found</string>
-    <string name="empty_state_places_msg">Try adjusting your search filters to find what you\'re looking for.</string>
-    <!-- Home Screen -->
-    <string name="home_greeting_morning">Good Morning 👋</string>
-    <string name="home_greeting_afternoon">Good Afternoon ☀️</string>
-    <string name="home_greeting_evening">Good Evening 🌙</string>
-    <string name="home_title">Explore Pune Safely</string>
-    <string name="home_search_hint">Find attractions, get AI recommendations&#8230;</string>
-    <string name="home_quick_actions">Quick Actions</string>
-    <string name="home_action_nearby">Nearby</string>
-    <string name="home_action_translate">Translate</string>
-    <string name="home_action_planner">Planner</string>
-    <string name="home_action_sos">SOS</string>
-    <string name="home_categories">Categories</string>
-    <string name="home_see_all">See All</string>
-    <string name="home_featured_destinations">Featured Destinations</string>
-    <string name="home_explore_safely">Explore Safely</string>
-    <string name="home_sos_desc">Notify authorities instantly</string>
-    <string name="home_ai_guide">AI Guide</string>
-    <string name="home_map_title">Explore Nearby</string>
-    <string name="home_map_fullscreen">Full Map</string>
-    <string name="home_map_discovery">Discovery Map</string>
-    <string name="home_map_live">LIVE</string>
+    <!-- Gemini AI -->
+    <string name="gemini_api_key">AIzaSyCvjWTiuynuIPi2h4TBnIUYVD8roiejJGY</string>
+    <string name="ai_assistant_title">AI Travel Assistant</string>
+    <string name="ai_input_hint">Ask me anything about your trip…</string>
+    <string name="ai_initial_message">Hello! I am your AI travel assistant powered by Gemini. Ask me about local attractions, travel tips, or anything else!</string>
 </resources>

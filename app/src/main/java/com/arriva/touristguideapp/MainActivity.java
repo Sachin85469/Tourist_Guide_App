@@ -54,6 +54,7 @@ public class MainActivity extends AppCompatActivity {
     private View btnProfile;
     private ImageView ivProfileIcon;
     private BottomNavigationView bottomNavigationView;
+    private View fabAiChat;
     private ProgressBar progressBar;
     private View emptyStateContainer;
     private EditText searchBox;
@@ -76,15 +77,10 @@ public class MainActivity extends AppCompatActivity {
         PerformanceTracker.startTimer("MAIN_ACTIVITY_INIT");
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        Log.d(TAG, "MainActivity onCreate: layout inflated");
 
         // Initialize Places SDK
-        try {
-            if (!Places.isInitialized()) {
-                Places.initialize(getApplicationContext(), "YOUR_API_KEY");
-            }
-        } catch (Exception e) {
-            Log.e(TAG, "Error initializing Places SDK", e);
+        if (!Places.isInitialized()) {
+            Places.initialize(getApplicationContext(), "YOUR_API_KEY");
         }
 
         rvHome = findViewById(R.id.rvHome);
@@ -93,12 +89,16 @@ public class MainActivity extends AppCompatActivity {
         bottomNavigationView = findViewById(R.id.bottom_navigation);
         tvMainUserName = findViewById(R.id.tvMainUserName);
         tvMainUserEmail = findViewById(R.id.tvMainUserEmail);
-
-        if (rvHome == null) Log.e(TAG, "rvHome is NULL!");
-        if (bottomNavigationView == null) Log.e(TAG, "bottomNavigationView is NULL!");
+        fabAiChat = findViewById(R.id.fabAiChat);
 
         // Profile Avatar and User Info Setup
         loadUserInfo();
+
+        if (fabAiChat != null) {
+            fabAiChat.setOnClickListener(v -> {
+                startActivity(new Intent(this, AiChatActivity.class));
+            });
+        }
 
         progressBar = findViewById(R.id.mainProgressBar);
         emptyStateContainer = findViewById(R.id.tvEmptyState);
@@ -111,7 +111,6 @@ public class MainActivity extends AppCompatActivity {
         setupHomeSections();
         setupSearch();
         setupVoiceSearch();
-        setupAiChat();
 
         // Handle Notification Intent
         handleNotificationIntent(getIntent());
@@ -179,25 +178,6 @@ public class MainActivity extends AppCompatActivity {
             if ("trending".equals(type)) {
                 // Scroll to trending section or open a trending activity
             }
-        }
-    }
-
-    private void setupAiChat() {
-        View fabAiChat = findViewById(R.id.fabAiChat);
-        if (fabAiChat != null) {
-            fabAiChat.setOnClickListener(v -> {
-                try {
-                    Log.d(TAG, "Navigating to AiChatActivity");
-                    Intent intent = new Intent(MainActivity.this, AiChatActivity.class);
-                    startActivity(intent);
-                    overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
-                } catch (Exception e) {
-                    Log.e(TAG, "Error opening AiChatActivity", e);
-                    Toast.makeText(this, "Unable to open assistant", Toast.LENGTH_SHORT).show();
-                }
-            });
-        } else {
-            Log.e(TAG, "fabAiChat not found in layout");
         }
     }
 
@@ -444,21 +424,22 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void addDefaultSections() {
-        // 1. Quick Actions Grid (SOS + Services) - High Priority
         sections.add(new HomeSection(HomeSection.TYPE_WELCOME));
-
-        // 2. Featured Destinations - Horizontal
-        if (topPicks != null && !topPicks.isEmpty()) {
-            sections.add(new HomeSection(HomeSection.TYPE_TOP_PICKS, "Featured Destinations"));
+        sections.add(new HomeSection(HomeSection.TYPE_CATEGORIES));
+        
+        // Phase 6: Recent Searches (if search box is empty)
+        List<String> history = searchHistoryManager.getHistory();
+        if (!history.isEmpty()) {
+            // We could show this as a special section or just log it for now
+            // To keep UI clean, we'll just log and maybe add a UI later if requested
+            Log.d(TAG, "Recent Searches available: " + history.size());
         }
 
-        // 3. Mini Map Integration
-        sections.add(new HomeSection(HomeSection.TYPE_MAP_PREVIEW));
+        if (topPicks != null && !topPicks.isEmpty()) {
+            sections.add(new HomeSection(HomeSection.TYPE_TOP_PICKS, "Top Picks Near You"));
+        }
 
-        // 4. Categories Chips
-        sections.add(new HomeSection(HomeSection.TYPE_CATEGORIES));
-
-        // 5. Trending & Recommendations
+        // Phase 6: Trending & Recommendations
         if (allPlaces != null && !allPlaces.isEmpty()) {
             List<Place> trending = discoveryRepository.getTrendingPlaces(allPlaces);
             if (!trending.isEmpty()) {
@@ -475,16 +456,16 @@ public class MainActivity extends AppCompatActivity {
             }
         }
 
-        // 6. Recently Viewed
-        List<Place> recent = recentlyViewedManager.getRecentPlaces();
-        if (recent != null && !recent.isEmpty()) {
-            sections.add(new HomeSection(HomeSection.TYPE_RECENTLY_VIEWED, "Continue Exploring") {{
+        List<Place> recent = recentlyViewedManager.getRecentlyViewed();
+        if (!recent.isEmpty()) {
+            sections.add(new HomeSection(HomeSection.TYPE_RECENTLY_VIEWED, "Recently Viewed") {{
                 setData(recent);
             }});
         }
 
-        // 7. Browse All
-        sections.add(new HomeSection(HomeSection.TYPE_ALL_PLACES_HEADER, "Discover All Spots"));
+        sections.add(new HomeSection(HomeSection.TYPE_PHRASEBOOK));
+        sections.add(new HomeSection(HomeSection.TYPE_PLAN_TRIP));
+        sections.add(new HomeSection(HomeSection.TYPE_ALL_PLACES_HEADER, "Browse All"));
         for (Place p : allPlaces) {
             sections.add(new HomeSection(HomeSection.TYPE_PLACE, p));
         }
@@ -559,7 +540,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void openDetails(Place place) {
         if (place == null) return;
-        recentlyViewedManager.addPlace(place);
+        recentlyViewedManager.addRecentlyViewed(place);
         Intent intent = new Intent(MainActivity.this, PlaceDetailsActivity.class);
         PlaceIntentExtras.putPlaceDetails(intent, place);
         startActivity(intent);
@@ -569,19 +550,6 @@ public class MainActivity extends AppCompatActivity {
     private void loadUserInfo() {
         // Load local avatar immediately from SharedPreferences for better UX (Requirement 4)
         ProfileUtils.loadAvatar(this, ivProfileIcon);
-
-        // Update Greeting based on time
-        TextView tvGreeting = findViewById(R.id.tvGreeting);
-        if (tvGreeting != null) {
-            int hour = java.util.Calendar.getInstance().get(java.util.Calendar.HOUR_OF_DAY);
-            if (hour >= 5 && hour < 12) {
-                tvGreeting.setText(R.string.home_greeting_morning);
-            } else if (hour >= 12 && hour < 17) {
-                tvGreeting.setText(R.string.home_greeting_afternoon);
-            } else {
-                tvGreeting.setText(R.string.home_greeting_evening);
-            }
-        }
 
         com.google.firebase.auth.FirebaseUser user = com.google.firebase.auth.FirebaseAuth.getInstance().getCurrentUser();
         if (user != null) {
@@ -603,9 +571,48 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    private void refreshRecentlyViewed() {
+        if (recentlyViewedManager == null || homeAdapter == null || sections == null) return;
+
+        List<Place> recent = recentlyViewedManager.getRecentlyViewed();
+        int existingIndex = -1;
+        for (int i = 0; i < sections.size(); i++) {
+            if (HomeSection.TYPE_RECENTLY_VIEWED.equals(sections.get(i).getType())) {
+                existingIndex = i;
+                break;
+            }
+        }
+
+        if (recent.isEmpty()) {
+            if (existingIndex != -1) {
+                sections.remove(existingIndex);
+                homeAdapter.notifyItemRemoved(existingIndex);
+            }
+        } else {
+            if (existingIndex != -1) {
+                sections.get(existingIndex).setData(recent);
+                homeAdapter.notifyItemChanged(existingIndex);
+            } else {
+                // Insert after Categories or Welcome if it doesn't exist
+                int insertIndex = 0;
+                for (int i = 0; i < sections.size(); i++) {
+                    String type = sections.get(i).getType();
+                    if (HomeSection.TYPE_CATEGORIES.equals(type) || HomeSection.TYPE_WELCOME.equals(type)) {
+                        insertIndex = i + 1;
+                    }
+                }
+                sections.add(insertIndex, new HomeSection(HomeSection.TYPE_RECENTLY_VIEWED, "Recently Viewed") {{
+                    setData(recent);
+                }});
+                homeAdapter.notifyItemInserted(insertIndex);
+            }
+        }
+    }
+
     @Override
     protected void onResume() {
         super.onResume();
         loadUserInfo();
+        refreshRecentlyViewed();
     }
 }
