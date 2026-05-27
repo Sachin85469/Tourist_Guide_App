@@ -84,4 +84,64 @@
     <string name="ai_assistant_title">AI Travel Assistant</string>
     <string name="ai_input_hint">Ask me anything about your trip…</string>
     <string name="ai_initial_message">Hello! I am your AI travel assistant powered by Gemini. Ask me about local attractions, travel tips, or anything else!</string>
+
+    <!-- SOS Service Strings -->
+    <string name="sos_notification_title">SOS Protection Active</string>
+    <string name="sos_notification_channel_name">SOS Protection Service</string>
+
+    <string name="home_greeting_morning">Good Morning 👋</string>
+    <string name="home_title">Smart Tourist Guide &amp; Safety Assistant</string>
+    <string name="home_search_hint">Find attractions, get AI recommendations&#8230;</string>
+
+    <string name="empty_state_places_title">No Places Available</string>
+    <string name="empty_state_places_msg">Try exploring nearby attractions.</string>
+
+    <string name="sos_setup_title">Emergency SOS Setup</string>
+
+    <string name="sos_onboarding_accessibility_msg">
+Enable accessibility permissions for emergency actions.
+</string>
+
+    <string name="sos_enable_accessibility">Enable Accessibility</string>
+
+    <string name="sos_onboarding_overlay_msg">
+Allow overlay permission for floating SOS features.
+</string>
+
+    <string name="sos_allow_overlay">Allow Overlay Permission</string>
+
+    <string name="sos_continue_to_settings">Continue to Settings</string>
+
+    <string name="sos_settings_title">SOS Settings</string>
+
+    <string name="sos_emergency_contact_label">Emergency Contact</string>
+
+    <string name="sos_enter_phone_hint">Enter emergency phone number</string>
+
+    <string name="sos_enable_volume_trigger">Enable Volume Button Trigger</string>
+
+    <string name="sos_enable_floating_button">Enable Floating SOS Button</string>
+
+    <string name="sos_call_after_sms">Call after sending SOS SMS</string>
+
+    <string name="sos_save_settings">Save Settings</string>
+
+    <string name="home_explore_safely">Explore Safely</string>
+
+    <string name="home_sos_desc">
+Emergency help available anytime during your trip.
+</string>
+
+    <string name="home_ai_guide">AI Guide</string>
+    <string name="home_action_translate">Translate</string>
+    <string name="home_action_planner">Planner</string>
+    <string name="home_action_nearby">Nearby</string>
+    <string name="home_categories">Categories</string>
+    <string name="home_featured_destinations">Featured Destinations</string>
+    <string name="home_see_all">See All</string>
+    <string name="home_map_title">Interactive Map</string>
+    <string name="home_map_fullscreen">Fullscreen</string>
+    <string name="home_map_discovery">Discovery</string>
+    <string name="home_map_live">Live</string>
+    <string name="sos_accessibility_description">Emergency SOS accessibility service for physical button triggers.</string>
 </resources>
