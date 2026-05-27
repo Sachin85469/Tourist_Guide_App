@@ -54,6 +54,14 @@
                         android:text="@string/home_title"
                         android:textAppearance="@style/TextAppearance.App.HeadlineLarge"
                         android:textColor="@color/white" />
+
+                    <TextView
+                        android:id="@+id/tvMainUserEmail"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textAppearance="@style/TextAppearance.App.BodySmall"
+                        android:textColor="#B3FFFFFF"
+                        tools:text="user@example.com" />
                 </LinearLayout>
 
                 <com.google.android.material.imageview.ShapeableImageView
