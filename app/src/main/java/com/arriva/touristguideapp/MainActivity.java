@@ -77,9 +77,11 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        Log.d("APP_DEBUG", "MainActivity started");
         PerformanceTracker.startTimer("MAIN_ACTIVITY_INIT");
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        Log.d("APP_DEBUG", "Layout loaded");
 
         // Initialize Places SDK
         if (!Places.isInitialized()) {
@@ -441,6 +443,7 @@ public class MainActivity extends AppCompatActivity {
         // Premium Staggered Animation
         android.view.animation.LayoutAnimationController animation = android.view.animation.AnimationUtils.loadLayoutAnimation(this, R.anim.layout_animation_fall_down);
         rvHome.setLayoutAnimation(animation);
+        Log.d("APP_DEBUG", "RecyclerView initialized");
     }
 
     private void addDefaultSections() {
@@ -520,6 +523,7 @@ public class MainActivity extends AppCompatActivity {
 
             allPlaces.clear();
             allPlaces.addAll(places);
+            Log.d("APP_DEBUG", "Data loaded, count=" + places.size());
 
             if (cachedUserLocation != null) {
                 updateTopPicksWithLocation(cachedUserLocation.getLatitude(), cachedUserLocation.getLongitude());
