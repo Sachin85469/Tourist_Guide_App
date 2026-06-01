@@ -17,6 +17,8 @@ public class Review implements Serializable {
     private String userName;
     @Nullable
     private String userPhotoUrl;
+    private String placeId;
+    private String placeName;
     private float rating;
     private String comment;
     private String status = STATUS_ACTIVE;
@@ -46,6 +48,12 @@ public class Review implements Serializable {
     @Nullable
     public String getUserPhotoUrl() { return userPhotoUrl; }
     public void setUserPhotoUrl(@Nullable String userPhotoUrl) { this.userPhotoUrl = userPhotoUrl; }
+
+    public String getPlaceId() { return placeId; }
+    public void setPlaceId(String placeId) { this.placeId = placeId; }
+
+    public String getPlaceName() { return placeName; }
+    public void setPlaceName(String placeName) { this.placeName = placeName; }
 
     public float getRating() { return rating; }
     public void setRating(float rating) { this.rating = rating; }

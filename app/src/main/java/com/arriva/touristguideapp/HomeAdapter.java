@@ -33,6 +33,8 @@ public class HomeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private static final int TYPE_PLACE = 4;
     private static final int TYPE_WELCOME = 5;
     private static final int TYPE_HORIZONTAL_LIST = 6;
+    private static final int TYPE_PHRASEBOOK = 7;
+    private static final int TYPE_PLAN_TRIP = 9;
     private static final int TYPE_MAP_PREVIEW = 8;
 
     private List<HomeSection> sections;
@@ -116,6 +118,8 @@ public class HomeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             case HomeSection.TYPE_RECENTLY_VIEWED:
                 return TYPE_HORIZONTAL_LIST;
             case HomeSection.TYPE_MAP_PREVIEW: return TYPE_MAP_PREVIEW;
+            case HomeSection.TYPE_PHRASEBOOK: return TYPE_PHRASEBOOK;
+            case HomeSection.TYPE_PLAN_TRIP: return TYPE_PLAN_TRIP;
             case HomeSection.TYPE_ALL_PLACES_HEADER: return TYPE_SECTION_HEADER;
             case HomeSection.TYPE_PLACE: return TYPE_PLACE;
             default: return -1;
@@ -136,6 +140,10 @@ public class HomeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 return new HorizontalViewHolder(inflater.inflate(R.layout.layout_home_horizontal_section, parent, false));
             case TYPE_MAP_PREVIEW:
                 return new MapPreviewViewHolder(inflater.inflate(R.layout.layout_home_map_preview, parent, false));
+            case TYPE_PHRASEBOOK:
+                return new PhrasebookViewHolder(inflater.inflate(R.layout.layout_home_phrasebook, parent, false));
+            case TYPE_PLAN_TRIP:
+                return new PlanTripViewHolder(inflater.inflate(R.layout.layout_home_plan_trip, parent, false));
             case TYPE_SECTION_HEADER:
                 return new HeaderViewHolder(inflater.inflate(R.layout.layout_home_section_header, parent, false));
             case TYPE_PLACE:
@@ -149,8 +157,6 @@ public class HomeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
         HomeSection section = sections.get(position);
         
-        setAnimation(holder.itemView, position);
-
         if (holder instanceof WelcomeViewHolder) {
             ((WelcomeViewHolder) holder).bind();
         } else if (holder instanceof CategoriesViewHolder) {
@@ -165,23 +171,12 @@ public class HomeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             ((HeaderViewHolder) holder).bind(section.getTitle());
         } else if (holder instanceof MapPreviewViewHolder) {
             ((MapPreviewViewHolder) holder).bind();
+        } else if (holder instanceof PhrasebookViewHolder) {
+            ((PhrasebookViewHolder) holder).bind(phrasebookClickListener);
+        } else if (holder instanceof PlanTripViewHolder) {
+            ((PlanTripViewHolder) holder).bind(planTripClickListener);
         } else if (holder instanceof PlaceViewHolder) {
             ((PlaceViewHolder) holder).bind(section.getSinglePlace(), position, placeClickListener);
-        }
-    }
-
-    private void setAnimation(View viewToAnimate, int position) {
-        if (position > lastPosition) {
-            viewToAnimate.setAlpha(0f);
-            viewToAnimate.setTranslationY(50f);
-            viewToAnimate.animate()
-                .alpha(1f)
-                .translationY(0f)
-                .setDuration(400)
-                .setStartDelay(position % 5 * 50L)
-                .setInterpolator(new android.view.animation.DecelerateInterpolator())
-                .start();
-            lastPosition = position;
         }
     }
 

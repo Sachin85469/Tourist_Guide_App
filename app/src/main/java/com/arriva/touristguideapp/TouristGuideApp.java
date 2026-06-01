@@ -24,9 +24,9 @@ public class TouristGuideApp extends Application {
         
         // Global Crash Handler Simulation (Requirement 4)
         Thread.setDefaultUncaughtExceptionHandler((thread, throwable) -> {
-            android.util.Log.e("TouristGuideApp", "CRASH_RECOVERED: Uncaught exception in thread " + thread.getName(), throwable);
-            // In a real app, send to Sentry/Crashlytics here
-            // System.exit(1); // Temporarily disabled to allow better debugging
+            android.util.Log.e("TouristGuideApp", "CRASH_DETECTED in thread " + thread.getName(), throwable);
+            // Re-throw or exit to prevent zombie state
+            System.exit(1);
         });
 
         FirebaseApp.initializeApp(this);

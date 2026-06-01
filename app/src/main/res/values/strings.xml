@@ -152,4 +152,17 @@ Emergency help available anytime during your trip.
     <string name="home_map_discovery">Discovery</string>
     <string name="home_map_live">Live</string>
     <string name="sos_accessibility_description">Emergency SOS accessibility service for physical button triggers.</string>
+
+    <!-- Onboarding Strings -->
+    <string name="onboarding_login_subtitle">Continue your journey with ExploreEase</string>
+    <string name="onboarding_signup_subtitle">Discover places, plan trips, and travel safely</string>
+    <string name="onboarding_login_title">Login</string>
+    <string name="onboarding_signup_title">Join ExploreEase</string>
+    <string name="onboarding_create_account">New user? Create Account</string>
+    <string name="onboarding_btn_create_account">Create Account</string>
+    <string name="onboarding_already_have_account">Already have an account? Login</string>
+    <string name="onboarding_feature_discover">Discover Attractions</string>
+    <string name="onboarding_feature_planner">Smart Trip Planner</string>
+    <string name="onboarding_feature_sos">Emergency SOS</string>
+    <string name="onboarding_feature_translation">Translation Support</string>
 </resources>

@@ -20,7 +20,7 @@ public class FavoritesManager {
         boolean current = prefs.getBoolean(placeId, false);
         boolean next = !current;
         prefs.edit().putBoolean(placeId, next).apply();
-        
+
         if (next) {
             new com.arriva.touristguideapp.data.analytics.AnalyticsRepository().trackFavoriteAdded(placeId);
         }
