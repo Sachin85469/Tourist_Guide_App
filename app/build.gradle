@@ -79,6 +79,7 @@ dependencies {
     implementation libs.firebase.auth
     implementation libs.firebase.firestore
     implementation libs.firebase.messaging
+    implementation 'com.google.firebase:firebase-storage'
     implementation libs.play.services.auth
 
     testImplementation libs.junit
