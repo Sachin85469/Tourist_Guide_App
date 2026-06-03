@@ -73,6 +73,7 @@
     <string name="emergency_sos_title">आपातकालीन एसओएस</string>
     <string name="sos_triggering_countdown">%1$d सेकंड में एसओएस ट्रिगर हो रहा है...</string>
     <string name="cancel">रद्द करें</string>
+    <string name="ok">ठीक है</string>
 
     <!-- Empty States Messages -->
     <string name="no_reviews_yet">अभी तक कोई समीक्षा नहीं है</string>

@@ -1,5 +1,6 @@
 package com.arriva.touristguideapp
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
@@ -101,16 +102,82 @@ class NotificationHistoryActivity : BaseActivity() {
     private fun showNotificationDetailsDialog(notification: NotificationModel) {
         // Mark as read in repository
         repository.markAsRead(notification.id)
-        
+
         // Update local status and refresh
         notification.isRead = true
         adapter.notifyDataSetChanged()
 
-        AlertDialog.Builder(this)
-            .setTitle(notification.title)
-            .setMessage(notification.message)
-            .setPositiveButton(R.string.cancel, null)
-            .show()
+        // Handle deep linking based on notification type
+        handleNotificationClick(notification)
+    }
+
+    private fun handleNotificationClick(notification: NotificationModel) {
+        when (notification.type) {
+            NotificationModel.TYPE_TRIP -> {
+                // Navigate to Trip Details
+                val tripId = notification.dataId
+                if (!tripId.isNullOrEmpty()) {
+                    val intent = Intent(this, TripDetailsActivity::class.java)
+                    intent.putExtra(TripDetailsActivity.EXTRA_TRIP_ID, tripId)
+                    startActivity(intent)
+                } else {
+                    // If no specific trip ID, go to trip history
+                    startActivity(Intent(this, TripHistoryActivity::class.java))
+                }
+            }
+            NotificationModel.TYPE_FAVORITE -> {
+                // Navigate to Destination Details
+                val placeId = notification.dataId
+                if (!placeId.isNullOrEmpty()) {
+                    // Try to find the place in the catalog
+                    com.arriva.touristguideapp.data.places.PlaceRepository().fetchPublishedPlaces { places, _, _ ->
+                        val place = places.find { it.id == placeId }
+                        if (place != null) {
+                            val intent = Intent(this, PlaceDetailsActivity::class.java)
+                            PlaceIntentExtras.putPlaceDetails(intent, place)
+                            startActivity(intent)
+                        } else {
+                            // Fallback to favorites
+                            startActivity(Intent(this, FavoritesActivity::class.java))
+                        }
+                    }
+                } else {
+                    startActivity(Intent(this, FavoritesActivity::class.java))
+                }
+            }
+            NotificationModel.TYPE_REVIEW -> {
+                // Navigate to My Reviews
+                startActivity(Intent(this, MyReviewsActivity::class.java))
+            }
+            NotificationModel.TYPE_SOS -> {
+                // Navigate to SOS History
+                startActivity(Intent(this, com.arriva.touristguideapp.sos.ui.SOSHistoryActivity::class.java))
+            }
+            NotificationModel.TYPE_SYSTEM -> {
+                // For system notifications (like profile updates), go to profile
+                if (notification.title.contains("Profile", ignoreCase = true)) {
+                    startActivity(Intent(this, ProfileActivity::class.java))
+                } else {
+                    // Show dialog for other system notifications
+                    AlertDialog.Builder(this)
+                        .setTitle(notification.title)
+                        .setMessage(notification.message)
+                        .setPositiveButton(R.string.ok, null)
+                        .show()
+                    return
+                }
+            }
+            else -> {
+                // Default: show dialog
+                AlertDialog.Builder(this)
+                    .setTitle(notification.title)
+                    .setMessage(notification.message)
+                    .setPositiveButton(R.string.ok, null)
+                    .show()
+                return
+            }
+        }
+        finish()
     }
 
     private fun deleteNotification(notification: NotificationModel) {

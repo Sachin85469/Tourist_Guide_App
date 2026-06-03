@@ -73,14 +73,17 @@ public class MapActivity extends BaseActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        android.util.Log.d("MAP_DEBUG", "Activity Created");
 
         // Load OSM config
         Configuration.getInstance().load(
                 getApplicationContext(),
                 getSharedPreferences("osm", MODE_PRIVATE)
         );
+        android.util.Log.d("MAP_DEBUG", "OSM Initialized");
 
         setContentView(R.layout.activity_map);
+        android.util.Log.d("MAP_DEBUG", "Layout Loaded");
 
         // Initialize UI
         searchInput = findViewById(R.id.searchInput);
@@ -96,14 +99,21 @@ public class MapActivity extends BaseActivity {
 
         // Initialize Map
         map = findViewById(R.id.map);
-        map.setTileSource(TileSourceFactory.MAPNIK);
-        map.setMultiTouchControls(true);
+        if (map != null) {
+            android.util.Log.d("MAP_DEBUG", "MapView Found");
+            map.setTileSource(TileSourceFactory.MAPNIK);
+            android.util.Log.d("MAP_DEBUG", "Tile Source Applied");
+            map.setMultiTouchControls(true);
 
-        IMapController controller = map.getController();
-        controller.setZoom(15.0);
+            IMapController controller = map.getController();
+            controller.setZoom(15.0);
 
-        GeoPoint startPoint = new GeoPoint(18.5204, 73.8567);
-        controller.setCenter(startPoint);
+            GeoPoint startPoint = new GeoPoint(18.5204, 73.8567);
+            controller.setCenter(startPoint);
+            android.util.Log.d("MAP_DEBUG", "Map Ready");
+        } else {
+            android.util.Log.e("MAP_DEBUG", "MapView is NULL! Check layout R.layout.activity_map");
+        }
 
         // Search bar animation
         searchInput.setOnFocusChangeListener((v, hasFocus) -> {
@@ -472,7 +482,11 @@ public class MapActivity extends BaseActivity {
     @Override
     public void onResume() {
         super.onResume();
-        if (map != null) map.onResume();
+        android.util.Log.d("MAP_DEBUG", "Activity Resumed");
+        if (map != null) {
+            map.onResume();
+            android.util.Log.d("MAP_DEBUG", "MapView Resumed");
+        }
         if (locationOverlay != null) locationOverlay.enableMyLocation();
         loadProfileImage(); // Refresh in case name/photo changed
     }

@@ -211,9 +211,34 @@ class PlaceDetailsActivity : BaseActivity() {
             btnFavorite?.animate()?.scaleX(1f)?.scaleY(1f)?.setDuration(150)
         }
 
+        val wasFavorite = FavoritesManager.isFavorite(this, place.id)
         FavoritesManager.toggleFavorite(this, place)
         val isFav = FavoritesManager.isFavorite(this, place.id)
         updateFavoriteIcon(isFav)
+
+        // Generate notification for favorite change
+        try {
+            val notifTitle = if (isFav) "Destination Saved" else "Destination Removed"
+            val notifMessage = if (isFav) {
+                "${place.name} was added to your favorites."
+            } else {
+                "${place.name} was removed from your favorites."
+            }
+            val notif = com.arriva.touristguideapp.data.notifications.NotificationModel(
+                java.util.UUID.randomUUID().toString(),
+                notifTitle,
+                notifMessage,
+                com.arriva.touristguideapp.data.notifications.NotificationModel.TYPE_FAVORITE,
+                place.id,
+                System.currentTimeMillis()
+            ).apply {
+                userId = com.google.firebase.auth.FirebaseAuth.getInstance().currentUser?.uid ?: ""
+                isRead = false
+            }
+            com.arriva.touristguideapp.data.notifications.NotificationRepository(this).saveToHistory(notif)
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
     }
 
     private fun setupReviewUI() {

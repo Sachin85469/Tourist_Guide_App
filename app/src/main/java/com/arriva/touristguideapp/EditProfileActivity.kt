@@ -352,6 +352,23 @@ class EditProfileActivity : BaseActivity() {
                 // Save user profile
                 repository.saveUserProfile(user)
 
+                // Generate profile update notification
+                try {
+                    val notif = com.arriva.touristguideapp.data.notifications.NotificationModel(
+                        java.util.UUID.randomUUID().toString(),
+                        "Profile Updated",
+                        "Your profile information was updated successfully.",
+                        com.arriva.touristguideapp.data.notifications.NotificationModel.TYPE_SYSTEM,
+                        System.currentTimeMillis()
+                    ).apply {
+                        userId = auth.currentUser?.uid ?: ""
+                        isRead = false
+                    }
+                    com.arriva.touristguideapp.data.notifications.NotificationRepository(this@EditProfileActivity).saveToHistory(notif)
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                }
+
                 Toast.makeText(this@EditProfileActivity, "Profile saved successfully", Toast.LENGTH_SHORT).show()
                 setResult(RESULT_OK)
                 finish()
