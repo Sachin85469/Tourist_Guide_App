@@ -186,7 +186,48 @@ public class LoginActivity extends BaseActivity {
                 });
     }
 
+    private void recordLoginSession() {
+        FirebaseUser user = mAuth.getCurrentUser();
+        if (user == null) return;
+
+        String uid = user.getUid();
+        String deviceId = BaseActivity.getDeviceId(this);
+        String deviceName = android.os.Build.MANUFACTURER + " " + android.os.Build.MODEL;
+        long timestamp = System.currentTimeMillis();
+
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+        // 1. Record device
+        java.util.Map<String, Object> deviceData = new java.util.HashMap<>();
+        deviceData.put("deviceId", deviceId);
+        deviceData.put("deviceName", deviceName);
+        deviceData.put("lastActiveTime", timestamp);
+
+        db.collection("users")
+                .document(uid)
+                .collection("devices")
+                .document(deviceId)
+                .set(deviceData);
+
+        // 2. Log login history
+        java.text.SimpleDateFormat dateFormat = new java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.getDefault());
+        java.text.SimpleDateFormat timeFormat = new java.text.SimpleDateFormat("HH:mm:ss", java.util.Locale.getDefault());
+        java.util.Date now = new java.util.Date(timestamp);
+
+        java.util.Map<String, Object> historyData = new java.util.HashMap<>();
+        historyData.put("date", dateFormat.format(now));
+        historyData.put("time", timeFormat.format(now));
+        historyData.put("device", deviceName);
+        historyData.put("timestamp", timestamp);
+
+        db.collection("users")
+                .document(uid)
+                .collection("login_history")
+                .add(historyData);
+    }
+
     private void navigateToMap() {
+        recordLoginSession();
         Intent intent = new Intent(LoginActivity.this, MapActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         startActivity(intent);

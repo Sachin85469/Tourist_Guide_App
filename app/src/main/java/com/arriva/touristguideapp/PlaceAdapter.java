@@ -151,10 +151,14 @@ public class PlaceAdapter extends RecyclerView.Adapter<PlaceAdapter.ViewHolder> 
 
             btnFavorite.setOnClickListener(v -> {
                 // Toggle favorite state
-                FavoritesManager.toggleFavorite(context, place.getId());
+                FavoritesManager.toggleFavorite(context, place);
                 
                 // Immediately update UI
                 updateFavoriteIcon(context, place.getId());
+
+                if (context instanceof MainActivity) {
+                    ((MainActivity) context).refreshQuickStatsOnly();
+                }
 
                 // Smooth heart animation
                 v.animate()

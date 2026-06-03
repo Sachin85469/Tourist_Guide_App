@@ -205,7 +205,7 @@ public class HomeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 boolean isFav = FavoritesManager.isFavorite(context, place.getId());
                 btnFavorite.setImageResource(isFav ? R.drawable.ic_favorite : R.drawable.ic_favorite_border);
                 btnFavorite.setOnClickListener(v -> {
-                    FavoritesManager.toggleFavorite(context, place.getId());
+                    FavoritesManager.toggleFavorite(context, place);
                     boolean updated = FavoritesManager.isFavorite(context, place.getId());
                     btnFavorite.setImageResource(updated ? R.drawable.ic_favorite : R.drawable.ic_favorite_border);
                     
@@ -356,9 +356,13 @@ public class HomeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             });
 
             btnFavorite.setOnClickListener(v -> {
-                FavoritesManager.toggleFavorite(context, place.getId());
+                FavoritesManager.toggleFavorite(context, place);
                 boolean updated = FavoritesManager.isFavorite(context, place.getId());
                 btnFavorite.setImageResource(updated ? R.drawable.ic_favorite : R.drawable.ic_favorite_border);
+
+                if (context instanceof MainActivity) {
+                    ((MainActivity) context).refreshQuickStatsOnly();
+                }
 
                 // Animation
                 btnFavorite.setScaleX(0.7f);

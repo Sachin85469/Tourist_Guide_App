@@ -353,6 +353,7 @@ class EditProfileActivity : BaseActivity() {
                 repository.saveUserProfile(user)
 
                 Toast.makeText(this@EditProfileActivity, "Profile saved successfully", Toast.LENGTH_SHORT).show()
+                setResult(RESULT_OK)
                 finish()
             } catch (e: Exception) {
                 Toast.makeText(this@EditProfileActivity, "Failed to save: ${e.message}", Toast.LENGTH_SHORT).show()

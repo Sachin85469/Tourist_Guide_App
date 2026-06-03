@@ -10,11 +10,17 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
+import com.arriva.touristguideapp.profile.ProfileActivityItem
+import com.arriva.touristguideapp.profile.ProfileActivityTracker
+import com.arriva.touristguideapp.sos.manager.SOSPreferences
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 class ProfileRepository(private val context: Context) {
 
@@ -96,31 +102,195 @@ class ProfileRepository(private val context: Context) {
     }
 
     /**
-     * Gets statistics for the profile screen.
+     * Gets statistics for the profile screen (one-shot flow emission).
      */
     fun getStats(): Flow<Map<String, Long>> = flow {
-        val uid = getUid() ?: return@flow
+        emit(fetchStats())
+    }
+
+    /**
+     * Loads live dashboard counts from Firestore (and local notification cache).
+     */
+    suspend fun fetchStats(): Map<String, Long> = withContext(Dispatchers.IO) {
+        val uid = getUid() ?: return@withContext emptyMap()
         val stats = mutableMapOf<String, Long>()
 
-        // 1. Saved Places (Favorites) count
-        val favorites = favPrefs.all.filter { it.value is Boolean && it.value as Boolean }.size.toLong()
+        var favorites: Long = 0
+        try {
+            val querySnapshot = db.collection("favorites")
+                .whereEqualTo("userId", uid)
+                .get()
+                .await()
+            favorites = querySnapshot.size().toLong()
+
+            val editor = favPrefs.edit()
+            val allEntries = favPrefs.all
+            for ((key, value) in allEntries) {
+                if (value is Boolean) {
+                    editor.remove(key)
+                }
+            }
+            for (doc in querySnapshot.documents) {
+                val destId = doc.getString("destinationId")
+                if (destId != null) {
+                    editor.putBoolean(destId, true)
+                }
+            }
+            editor.apply()
+        } catch (e: Exception) {
+            favorites = favPrefs.all.filter { it.value is Boolean && it.value as Boolean }.size.toLong()
+        }
         stats["favorites"] = favorites
 
-        // 2. Reviews count
-        val reviewsQuery = db.collection("reviews")
-            .whereEqualTo("userId", uid)
-            .get()
-            .await()
-        stats["reviews"] = reviewsQuery.size().toLong()
+        try {
+            val reviewsQuery = db.collection("reviews")
+                .whereEqualTo("userId", uid)
+                .get()
+                .await()
+            stats["reviews"] = reviewsQuery.size().toLong()
+        } catch (e: Exception) {
+            stats["reviews"] = 0L
+        }
 
-        // 3. Trips count
-        val tripsQuery = db.collection("trips")
-            .whereEqualTo("userId", uid)
-            .get()
-            .await()
-        stats["trips"] = tripsQuery.size().toLong()
+        try {
+            val tripsQuery = db.collection("trips")
+                .whereEqualTo("userId", uid)
+                .get()
+                .await()
+            stats["trips"] = tripsQuery.size().toLong()
+        } catch (e: Exception) {
+            stats["trips"] = 0L
+        }
 
-        emit(stats)
+        stats["notifications"] = com.arriva.touristguideapp.data.notifications.NotificationRepository(context)
+            .getNotifications()
+            .size
+            .toLong()
+
+        stats
+    }
+
+    /**
+     * Recent activity from the local action tracker (newest first), with Firestore fallback if empty.
+     */
+    suspend fun getRecentActivity(limit: Int = 15): List<ProfileActivityItem> = withContext(Dispatchers.IO) {
+        val tracked = ProfileActivityTracker.getRecentEvents(context, limit)
+        if (tracked.isNotEmpty()) {
+            return@withContext tracked
+        }
+
+        val uid = getUid() ?: return@withContext emptyList()
+        val items = mutableListOf<ProfileActivityItem>()
+
+        try {
+            val reviews = db.collection("reviews")
+                .whereEqualTo("userId", uid)
+                .get()
+                .await()
+            for (doc in reviews.documents) {
+                val placeName = doc.getString("placeName")
+                    ?: doc.getString("destinationName")
+                    ?: "a destination"
+                val timestamp = reviewTimestamp(doc)
+                items.add(
+                    ProfileActivityItem(
+                        description = "Reviewed $placeName",
+                        timestamp = timestamp,
+                        type = ProfileActivityItem.Type.REVIEW
+                    )
+                )
+            }
+        } catch (e: Exception) {
+            // Skip reviews on query failure
+        }
+
+        try {
+            val favorites = db.collection("favorites")
+                .whereEqualTo("userId", uid)
+                .get()
+                .await()
+            for (doc in favorites.documents) {
+                val name = doc.getString("destinationName") ?: "a destination"
+                val savedAt = doc.getLong("savedAt") ?: 0L
+                items.add(
+                    ProfileActivityItem(
+                        description = "Saved $name",
+                        timestamp = savedAt,
+                        type = ProfileActivityItem.Type.FAVORITE
+                    )
+                )
+            }
+        } catch (e: Exception) {
+            // Skip favorites on query failure
+        }
+
+        try {
+            val trips = db.collection("trips")
+                .whereEqualTo("userId", uid)
+                .get()
+                .await()
+            for (doc in trips.documents) {
+                val tripName = doc.getString("title")
+                    ?: doc.getString("destinationName")
+                    ?: doc.getString("location")
+                    ?: "Trip"
+                val timestamp = tripTimestamp(doc)
+                items.add(
+                    ProfileActivityItem(
+                        description = "Created $tripName Trip",
+                        timestamp = timestamp,
+                        type = ProfileActivityItem.Type.TRIP
+                    )
+                )
+            }
+        } catch (e: Exception) {
+            // Skip trips on query failure
+        }
+
+        val sosPrefs = SOSPreferences(context)
+        val dateTimeFormat = SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault())
+        val dateOnlyFormat = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
+        for (event in sosPrefs.sosEvents) {
+            var timestamp = 0L
+            val date = event.date
+            val time = event.time
+            if (!date.isNullOrBlank() && !time.isNullOrBlank()) {
+                timestamp = dateTimeFormat.parse("$date $time")?.time ?: 0L
+            } else if (!date.isNullOrBlank()) {
+                timestamp = dateOnlyFormat.parse(date)?.time ?: 0L
+            }
+            items.add(
+                ProfileActivityItem(
+                    description = "Activated SOS",
+                    timestamp = timestamp,
+                    type = ProfileActivityItem.Type.SOS
+                )
+            )
+        }
+
+        items
+            .sortedByDescending { it.timestamp }
+            .take(limit)
+    }
+
+    private fun reviewTimestamp(doc: com.google.firebase.firestore.DocumentSnapshot): Long {
+        val ts = doc.getTimestamp("createdAt")
+        if (ts != null) return ts.toDate().time
+        val date = doc.getDate("createdAt")
+        if (date != null) return date.time
+        val updated = doc.getTimestamp("updatedAt")
+        if (updated != null) return updated.toDate().time
+        return doc.getDate("updatedAt")?.time ?: 0L
+    }
+
+    private fun tripTimestamp(doc: com.google.firebase.firestore.DocumentSnapshot): Long {
+        val created = doc.getTimestamp("createdAt")
+        if (created != null) return created.toDate().time
+        val date = doc.getDate("createdAt")
+        if (date != null) return date.time
+        val updated = doc.getTimestamp("updatedAt")
+        if (updated != null) return updated.toDate().time
+        return doc.getDate("updatedAt")?.time ?: 0L
     }
 
     /**
@@ -140,24 +310,14 @@ class ProfileRepository(private val context: Context) {
      * Checks if a place is favorited.
      */
     fun isFavorite(placeId: String): Boolean {
-        return favPrefs.getBoolean(placeId, false)
+        return com.arriva.touristguideapp.FavoritesManager.isFavorite(context, placeId)
     }
 
     /**
      * Toggles favorite status.
      */
     fun toggleFavorite(place: Place) {
-        val current = isFavorite(place.id)
-        favPrefs.edit().putBoolean(place.id, !current).apply()
-        
-        // Sync with Firestore if user logged in
-        val uid = getUid() ?: return
-        val favRef = db.collection("users").document(uid).collection("favorites").document(place.id)
-        if (!current) {
-            favRef.set(place).addOnFailureListener { /* Handle sync failure */ }
-        } else {
-            favRef.delete()
-        }
+        com.arriva.touristguideapp.FavoritesManager.toggleFavorite(context, place)
     }
 
     /**
@@ -175,13 +335,31 @@ class ProfileRepository(private val context: Context) {
         }
 
         // Delete favorites
-        val favorites = db.collection("users").document(uid).collection("favorites").get().await()
-        for (doc in favorites) {
-            doc.reference.delete()
+        try {
+            val favoritesQuery = db.collection("favorites").whereEqualTo("userId", uid).get().await()
+            for (doc in favoritesQuery) {
+                doc.reference.delete()
+            }
+        } catch (e: Exception) {
+            // Ignore if fails
+        }
+
+        // Delete trips
+        try {
+            val trips = db.collection("trips").whereEqualTo("userId", uid).get().await()
+            for (doc in trips) {
+                doc.reference.delete()
+            }
+        } catch (e: Exception) {
+            // Ignore if trips deletion fails
         }
 
         // Delete user document
         db.collection("users").document(uid).delete().await()
+
+        // Clear local caches
+        favPrefs.edit().clear().apply()
+        profileCachePrefs.edit().clear().apply()
 
         // 2. Delete Profile Image
         try {

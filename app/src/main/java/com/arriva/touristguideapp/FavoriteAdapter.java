@@ -61,7 +61,7 @@ public class FavoriteAdapter extends RecyclerView.Adapter<FavoriteAdapter.ViewHo
     public static class ViewHolder extends RecyclerView.ViewHolder {
         public ImageView image, favoriteIcon;
         public TextView name, rating, location, category;
-        public View btnDirections, btnShare;
+        public View btnPlanTrip, btnShare;
 
         public ViewHolder(View view) {
             super(view);
@@ -71,7 +71,7 @@ public class FavoriteAdapter extends RecyclerView.Adapter<FavoriteAdapter.ViewHo
             favoriteIcon = view.findViewById(R.id.favIcon);
             location = view.findViewById(R.id.favLocation);
             category = view.findViewById(R.id.favCategory);
-            btnDirections = view.findViewById(R.id.btnDirections);
+            btnPlanTrip = view.findViewById(R.id.btnPlanTrip);
             btnShare = view.findViewById(R.id.btnShare);
         }
 
@@ -109,7 +109,7 @@ public class FavoriteAdapter extends RecyclerView.Adapter<FavoriteAdapter.ViewHo
             });
 
             favoriteIcon.setOnClickListener(v -> {
-                FavoritesManager.toggleFavorite(context, place.getId());
+                FavoritesManager.toggleFavorite(context, place);
                 boolean updated = FavoritesManager.isFavorite(context, place.getId());
                 favoriteIcon.setImageResource(updated ? R.drawable.ic_favorite : R.drawable.ic_favorite_border);
 
@@ -128,14 +128,10 @@ public class FavoriteAdapter extends RecyclerView.Adapter<FavoriteAdapter.ViewHo
                     .setDuration(200);
             });
 
-            if (btnDirections != null) {
-                btnDirections.setOnClickListener(v -> {
-                    String uri = String.format(java.util.Locale.ENGLISH, "google.navigation:q=%f,%f", place.getLat(), place.getLng());
-                    android.content.Intent intent = new android.content.Intent(android.content.Intent.ACTION_VIEW, android.net.Uri.parse(uri));
-                    intent.setPackage("com.google.android.apps.maps");
-                    if (intent.resolveActivity(context.getPackageManager()) != null) {
-                        context.startActivity(intent);
-                    }
+            if (btnPlanTrip != null) {
+                btnPlanTrip.setOnClickListener(v -> {
+                    android.content.Intent intent = new android.content.Intent(context, PlanTripActivity.class);
+                    context.startActivity(intent);
                 });
             }
 

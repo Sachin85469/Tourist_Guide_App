@@ -14,9 +14,11 @@ import com.arriva.touristguideapp.BaseActivity
 import com.arriva.touristguideapp.R
 import com.arriva.touristguideapp.data.sos.SOSContact
 import com.arriva.touristguideapp.data.sos.SOSRepository
+import com.arriva.touristguideapp.sos.manager.SOSMessageBuilder
 import com.arriva.touristguideapp.sos.manager.SOSPreferences
 import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.textfield.TextInputEditText
+import com.google.android.material.textfield.TextInputLayout
 import kotlinx.coroutines.launch
 import java.util.UUID
 
@@ -53,6 +55,8 @@ class SOSSettingsActivity : BaseActivity() {
         rvContacts.adapter = adapter
 
         updateEmptyState()
+
+        setupEmergencyMessageSection()
 
         // Bind preference switches
         val swSendSms = findViewById<SwitchCompat>(R.id.sw_send_sms)
@@ -139,6 +143,45 @@ class SOSSettingsActivity : BaseActivity() {
             } catch (e: Exception) {
                 // Ignore background sync errors
             }
+        }
+    }
+
+    private fun setupEmergencyMessageSection() {
+        val tilMessage = findViewById<TextInputLayout>(R.id.til_sos_message)
+        val etMessage = findViewById<TextInputEditText>(R.id.et_sos_message)
+
+        etMessage.setText(preferences.sosMessageTemplate)
+
+        findViewById<View>(R.id.btn_save_sos_message).setOnClickListener {
+            tilMessage.error = null
+            val text = etMessage.text?.toString()?.trim().orEmpty()
+
+            if (SOSMessageBuilder.isTemplateEmpty(text)) {
+                val defaultMessage = preferences.defaultSosMessageTemplate
+                preferences.clearCustomSosMessageTemplate()
+                etMessage.setText(defaultMessage)
+                Toast.makeText(this, R.string.sos_message_empty_error, Toast.LENGTH_LONG).show()
+                return@setOnClickListener
+            }
+
+            if (!SOSMessageBuilder.isTemplateValidForSave(this, text)) {
+                tilMessage.error = getString(
+                    R.string.sos_message_too_long,
+                    SOSMessageBuilder.MAX_SMS_PARTS
+                )
+                return@setOnClickListener
+            }
+
+            preferences.customSosMessageTemplate = text
+            Toast.makeText(this, R.string.sos_message_saved, Toast.LENGTH_SHORT).show()
+        }
+
+        findViewById<View>(R.id.btn_restore_sos_message).setOnClickListener {
+            tilMessage.error = null
+            val defaultMessage = preferences.defaultSosMessageTemplate
+            preferences.clearCustomSosMessageTemplate()
+            etMessage.setText(defaultMessage)
+            Toast.makeText(this, R.string.sos_message_restored, Toast.LENGTH_SHORT).show()
         }
     }
 

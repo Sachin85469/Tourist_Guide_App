@@ -15,13 +15,25 @@ public class LocationHelper {
     private final Context context;
     private final FusedLocationProviderClient client;
 
+    public static class LocationResult {
+        public final String mapsLink;
+        public final Double latitude;
+        public final Double longitude;
+
+        public LocationResult(String mapsLink, Double latitude, Double longitude) {
+            this.mapsLink = mapsLink;
+            this.latitude = latitude;
+            this.longitude = longitude;
+        }
+    }
+
     public LocationHelper(Context context) {
         this.context = context;
         this.client = LocationServices.getFusedLocationProviderClient(context);
     }
 
     public interface LocationCallback {
-        void onLocationResult(String mapsLink);
+        void onLocationResult(LocationResult result);
     }
 
     public void getLastLocation(LocationCallback callback) {
@@ -69,8 +81,9 @@ public class LocationHelper {
         }
     }
 
-    private String formatLocation(Location location) {
+    private LocationResult formatLocation(Location location) {
         if (location == null) return null;
-        return "https://maps.google.com/?q=" + location.getLatitude() + "," + location.getLongitude();
+        String link = "https://maps.google.com/?q=" + location.getLatitude() + "," + location.getLongitude();
+        return new LocationResult(link, location.getLatitude(), location.getLongitude());
     }
 }

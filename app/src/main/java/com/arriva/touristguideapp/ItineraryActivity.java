@@ -205,8 +205,26 @@ public class ItineraryActivity extends BaseActivity {
 
         Trip trip = new Trip();
         trip.setTitle(title);
+        String location = selectedPlacesList.isEmpty() ? "" : selectedPlacesList.get(0).getCity();
+        trip.setDestinationName(location == null || location.trim().isEmpty() ? title : location);
+        trip.setLocation(location == null ? "" : location);
         trip.setStatus("planned");
         trip.setPlaces(selectedPlacesList);
+
+        List<String> activities = new ArrayList<>();
+        for (Place place : selectedPlacesList) {
+            if (place.getName() != null && !place.getName().trim().isEmpty()) {
+                activities.add("Visit " + place.getName());
+            }
+            if ((trip.getImageUrl() == null || trip.getImageUrl().trim().isEmpty())
+                    && place.getImageUrl() != null
+                    && !place.getImageUrl().trim().isEmpty()) {
+                trip.setImageUrl(place.getImageUrl());
+            }
+        }
+        trip.setActivities(activities);
+        trip.setNotes("Generated from the trip planner.");
+        trip.setBudget("");
         
         Calendar cal = Calendar.getInstance();
         trip.setStartDate(cal.getTime());
@@ -224,6 +242,19 @@ public class ItineraryActivity extends BaseActivity {
             }
             if (task.isSuccessful()) {
                 Toast.makeText(ItineraryActivity.this, "Trip saved to history!", Toast.LENGTH_SHORT).show();
+
+                String tripLabel = trip.getTitle();
+                if (tripLabel == null || tripLabel.trim().isEmpty()) {
+                    tripLabel = trip.getDestinationName();
+                }
+                if (tripLabel == null || tripLabel.trim().isEmpty()) {
+                    tripLabel = "Trip";
+                }
+                com.arriva.touristguideapp.profile.ProfileActivityTracker.log(
+                        ItineraryActivity.this,
+                        com.arriva.touristguideapp.profile.ProfileActivityTracker.Action.TRIP_CREATED,
+                        tripLabel
+                );
                 
                 // Generate trip notification
                 notificationRepository.addNotification(

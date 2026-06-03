@@ -34,7 +34,7 @@ public final class PlaceImageHelper {
      */
     public static void loadThumbnail(@NonNull ImageView imageView, @NonNull Place place) {
         String id = place.getId() != null ? place.getId() : "?";
-        
+
         String url = trimToNull(place.getImageUrl());
 
         if (url == null) {
