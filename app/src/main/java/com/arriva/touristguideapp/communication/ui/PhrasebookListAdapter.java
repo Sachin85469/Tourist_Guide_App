@@ -7,7 +7,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
-import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -26,18 +25,17 @@ import java.util.List;
 public class PhrasebookListAdapter extends RecyclerView.Adapter<PhrasebookListAdapter.PhraseViewHolder> {
 
     public interface PhraseActionListener {
-        void onSpeak(@NonNull Phrase phrase, @NonNull String textToSpeak);
-
+        void onSpeak(@NonNull Phrase phrase, @NonNull String textToSpeak, @NonNull String language);
         void onFavoriteToggled();
-
-        void onRetryTranslation(@NonNull Phrase phrase);
     }
 
-    private final List<PhraseDisplayItem> items = new ArrayList<>();
+    private final List<Phrase> items = new ArrayList<>();
     private final CommunicationPreferences preferences;
     private final PhraseActionListener listener;
     @Nullable
     private String speakingPhraseId;
+    @NonNull
+    private String selectedLanguage = "Marathi";
 
     public PhrasebookListAdapter(@NonNull CommunicationPreferences preferences,
                                  @NonNull PhraseActionListener listener) {
@@ -45,7 +43,8 @@ public class PhrasebookListAdapter extends RecyclerView.Adapter<PhrasebookListAd
         this.listener = listener;
     }
 
-    public void submitItems(@NonNull List<PhraseDisplayItem> newItems) {
+    public void submitItems(@NonNull List<Phrase> newItems, @NonNull String language) {
+        this.selectedLanguage = language;
         items.clear();
         items.addAll(newItems);
         notifyDataSetChanged();
@@ -66,7 +65,7 @@ public class PhrasebookListAdapter extends RecyclerView.Adapter<PhrasebookListAd
 
     @Override
     public void onBindViewHolder(@NonNull PhraseViewHolder holder, int position) {
-        holder.bind(items.get(position), preferences, listener, speakingPhraseId);
+        holder.bind(items.get(position), selectedLanguage, preferences, listener, speakingPhraseId);
     }
 
     @Override
@@ -78,34 +77,48 @@ public class PhrasebookListAdapter extends RecyclerView.Adapter<PhrasebookListAd
         private final TextView tvOriginal;
         private final TextView tvTranslated;
         private final TextView tvCategory;
-        private final TextView tvTranslationError;
-        private final ProgressBar progressTranslation;
         private final ImageButton btnFavorite;
         private final ImageButton btnCopy;
         private final MaterialButton btnSpeak;
-        private final MaterialButton btnRetryTranslation;
 
         PhraseViewHolder(@NonNull View itemView) {
             super(itemView);
             tvOriginal = itemView.findViewById(R.id.tvPhraseOriginal);
             tvTranslated = itemView.findViewById(R.id.tvPhraseTranslated);
             tvCategory = itemView.findViewById(R.id.tvPhraseCategory);
-            tvTranslationError = itemView.findViewById(R.id.tvPhraseTranslationError);
-            progressTranslation = itemView.findViewById(R.id.progressPhraseTranslation);
             btnFavorite = itemView.findViewById(R.id.btnPhraseFavorite);
             btnCopy = itemView.findViewById(R.id.btnPhraseCopy);
             btnSpeak = itemView.findViewById(R.id.btnPhraseSpeak);
-            btnRetryTranslation = itemView.findViewById(R.id.btnPhraseRetryTranslation);
+
+            // Ensure loaders and errors are hidden for Phrasebook
+            View progress = itemView.findViewById(R.id.progressPhraseTranslation);
+            if (progress != null) progress.setVisibility(View.GONE);
+            View error = itemView.findViewById(R.id.tvPhraseTranslationError);
+            if (error != null) error.setVisibility(View.GONE);
+            View retry = itemView.findViewById(R.id.btnPhraseRetryTranslation);
+            if (retry != null) retry.setVisibility(View.GONE);
+            View voiceSelect = itemView.findViewById(R.id.btnPhraseVoiceSelect);
+            if (voiceSelect != null) voiceSelect.setVisibility(View.GONE);
         }
 
-        void bind(@NonNull PhraseDisplayItem item,
+        void bind(@NonNull Phrase phrase,
+                  @NonNull String selectedLanguage,
                   @NonNull CommunicationPreferences preferences,
                   @NonNull PhraseActionListener listener,
                   @Nullable String speakingPhraseId) {
             Context context = itemView.getContext();
-            Phrase phrase = item.getPhrase();
-            tvOriginal.setText(phrase.getBaseText());
+            
+            tvOriginal.setText(phrase.getEnglish());
             tvCategory.setText(phrase.getCategory());
+            
+            // Unified translation logic as requested
+            String translation;
+            if (selectedLanguage.equals("Hindi")) {
+                translation = phrase.getHindi();
+            } else {
+                translation = phrase.getMarathi();
+            }
+            tvTranslated.setText(translation);
 
             btnFavorite.setImageResource(preferences.isFavorite(phrase.getId())
                     ? R.drawable.ic_favorite
@@ -115,60 +128,18 @@ public class PhrasebookListAdapter extends RecyclerView.Adapter<PhrasebookListAd
                 listener.onFavoriteToggled();
             });
 
-            switch (item.getState()) {
-                case LOADING:
-                    progressTranslation.setVisibility(View.VISIBLE);
-                    tvTranslated.setVisibility(View.GONE);
-                    tvTranslationError.setVisibility(View.GONE);
-                    btnRetryTranslation.setVisibility(View.GONE);
-                    break;
-                case ERROR:
-                    progressTranslation.setVisibility(View.GONE);
-                    tvTranslated.setVisibility(View.GONE);
-                    tvTranslationError.setVisibility(View.VISIBLE);
-                    tvTranslationError.setText(item.getErrorMessage() != null
-                            ? item.getErrorMessage()
-                            : context.getString(R.string.communication_translation_failed));
-                    btnRetryTranslation.setVisibility(View.VISIBLE);
-                    btnRetryTranslation.setOnClickListener(v -> listener.onRetryTranslation(phrase));
-                    break;
-                case READY:
-                    progressTranslation.setVisibility(View.GONE);
-                    tvTranslationError.setVisibility(View.GONE);
-                    btnRetryTranslation.setVisibility(View.GONE);
-                    tvTranslated.setVisibility(View.VISIBLE);
-                    tvTranslated.setText(item.getTranslatedText() != null
-                            ? item.getTranslatedText()
-                            : phrase.getBaseText());
-                    break;
-                default:
-                    progressTranslation.setVisibility(View.GONE);
-                    tvTranslationError.setVisibility(View.GONE);
-                    btnRetryTranslation.setVisibility(View.GONE);
-                    tvTranslated.setVisibility(View.VISIBLE);
-                    tvTranslated.setText("…");
-                    break;
-            }
-
             boolean speaking = phrase.getId().equals(speakingPhraseId);
             btnSpeak.setBackgroundColor(context.getColor(
                     speaking ? R.color.primary_light : R.color.white));
 
-            btnSpeak.setOnClickListener(v -> {
-                String text = item.getTranslatedText() != null && item.getState() == PhraseDisplayItem.TranslationUiState.READY
-                        ? item.getTranslatedText()
-                        : phrase.getBaseText();
-                listener.onSpeak(phrase, text);
-            });
+            // Speak currently visible text
+            btnSpeak.setOnClickListener(v -> listener.onSpeak(phrase, translation, selectedLanguage));
 
             btnCopy.setOnClickListener(v -> {
-                String copy = phrase.getBaseText();
-                if (item.getTranslatedText() != null) {
-                    copy = copy + "\n" + item.getTranslatedText();
-                }
+                String copyText = phrase.getEnglish() + "\n" + translation;
                 ClipboardManager clipboard = (ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
                 if (clipboard != null) {
-                    clipboard.setPrimaryClip(ClipData.newPlainText("phrase", copy));
+                    clipboard.setPrimaryClip(ClipData.newPlainText("phrase", copyText));
                     Toast.makeText(context, R.string.phrasebook_copied, Toast.LENGTH_SHORT).show();
                 }
             });

@@ -85,6 +85,17 @@ public class TranslationManager {
             }
         }
 
+        // Priority 1: Tourist Dictionary (Curated phrases)
+        String curated = TouristPhraseDictionary.lookup(trimmed, source.getLanguageCode(), target.getLanguageCode());
+        if (curated != null) {
+            Log.d(TAG, "tourist dictionary hit: " + trimmed + " -> " + curated);
+            if (cacheKey != null) {
+                cache.put(cacheKey, curated);
+            }
+            callback.onSuccess(curated);
+            return;
+        }
+
         final int token = operationToken.incrementAndGet();
         final String pair = pairKey(source, target);
         Log.i(TAG, "translation requested " + pair + " len=" + trimmed.length());

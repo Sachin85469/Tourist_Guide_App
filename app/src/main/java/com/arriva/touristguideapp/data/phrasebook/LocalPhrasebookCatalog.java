@@ -7,80 +7,78 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
- * Bundled fallback phrases (base language only).
+ * Bundled phrases with pre-translated English, Hindi, and Marathi content.
  */
 public class LocalPhrasebookCatalog {
-
-    private static final String BASE_LANG = "en";
 
     @NonNull
     public List<Phrase> getAllPhrases() {
         List<Phrase> phrases = new ArrayList<>();
+        phrases.addAll(greetingPhrases());
         phrases.addAll(transportPhrases());
         phrases.addAll(foodPhrases());
-        phrases.addAll(emergencyPhrases());
         phrases.addAll(shoppingPhrases());
-        phrases.addAll(greetingPhrases());
+        phrases.addAll(emergencyPhrases());
         return phrases;
+    }
+
+    private List<Phrase> greetingPhrases() {
+        return Arrays.asList(
+                phrase("g1", "Hello", "नमस्ते", "नमस्कार", PhrasebookFirestoreContract.CATEGORY_GREETINGS),
+                phrase("g2", "Thank you", "धन्यवाद", "धन्यवाद", PhrasebookFirestoreContract.CATEGORY_GREETINGS),
+                phrase("g3", "Good morning", "शुभ प्रभात", "शुभ सकाळ", PhrasebookFirestoreContract.CATEGORY_GREETINGS),
+                phrase("g4", "How are you?", "आप कैसे हैं?", "तुम्ही कसे आहात?", PhrasebookFirestoreContract.CATEGORY_GREETINGS),
+                phrase("g5", "Nice to meet you", "आपसे मिलकर खुशी हुई", "तुम्हाला भेटून आनंद झाला", PhrasebookFirestoreContract.CATEGORY_GREETINGS),
+                phrase("g6", "Goodbye", "अलविदा", "पुन्हा भेटू", PhrasebookFirestoreContract.CATEGORY_GREETINGS)
+        );
     }
 
     private List<Phrase> transportPhrases() {
         return Arrays.asList(
-                phrase("transport_1", "Where is the railway station?", PhrasebookFirestoreContract.CATEGORY_TRANSPORT),
-                phrase("transport_2", "How much is the fare?", PhrasebookFirestoreContract.CATEGORY_TRANSPORT),
-                phrase("transport_3", "Please stop here.", PhrasebookFirestoreContract.CATEGORY_TRANSPORT),
-                phrase("transport_4", "Which bus goes to the city center?", PhrasebookFirestoreContract.CATEGORY_TRANSPORT),
-                phrase("transport_5", "I need a taxi.", PhrasebookFirestoreContract.CATEGORY_TRANSPORT),
-                phrase("transport_6", "How long will it take?", PhrasebookFirestoreContract.CATEGORY_TRANSPORT)
+                phrase("t1", "Where is the railway station?", "रेलवे स्टेशन कहाँ है?", "रेल्वे स्टेशन कुठे आहे?", PhrasebookFirestoreContract.CATEGORY_TRANSPORT),
+                phrase("t2", "How much is the fare?", "किराया कितना है?", "भाडे किती आहे?", PhrasebookFirestoreContract.CATEGORY_TRANSPORT),
+                phrase("t3", "Please stop here", "कृपया यहाँ रुकिए", "कृपया इथे थांबा", PhrasebookFirestoreContract.CATEGORY_TRANSPORT),
+                phrase("t4", "Which bus goes to city center?", "शहर के केंद्र में कौन सी बस जाती है?", "कोणती बस शहराच्या मध्यभागी जाते?", PhrasebookFirestoreContract.CATEGORY_TRANSPORT),
+                phrase("t5", "I need a taxi", "मुझे एक टैक्सी चाहिए", "मला टॅक्सी हवी आहे", PhrasebookFirestoreContract.CATEGORY_TRANSPORT),
+                phrase("t6", "How long will it take?", "इसमें कितना समय लगेगा?", "किती वेळ लागेल?", PhrasebookFirestoreContract.CATEGORY_TRANSPORT)
         );
     }
 
     private List<Phrase> foodPhrases() {
         return Arrays.asList(
-                phrase("food_1", "I would like water, please.", PhrasebookFirestoreContract.CATEGORY_FOOD),
-                phrase("food_2", "What is today's special?", PhrasebookFirestoreContract.CATEGORY_FOOD),
-                phrase("food_3", "The bill, please.", PhrasebookFirestoreContract.CATEGORY_FOOD),
-                phrase("food_4", "Is this spicy?", PhrasebookFirestoreContract.CATEGORY_FOOD),
-                phrase("food_5", "I am vegetarian.", PhrasebookFirestoreContract.CATEGORY_FOOD),
-                phrase("food_6", "One tea, please.", PhrasebookFirestoreContract.CATEGORY_FOOD)
-        );
-    }
-
-    private List<Phrase> emergencyPhrases() {
-        return Arrays.asList(
-                phrase("emergency_1", "Help!", PhrasebookFirestoreContract.CATEGORY_EMERGENCY),
-                phrase("emergency_2", "Call the police.", PhrasebookFirestoreContract.CATEGORY_EMERGENCY),
-                phrase("emergency_3", "I need a doctor.", PhrasebookFirestoreContract.CATEGORY_EMERGENCY),
-                phrase("emergency_4", "Where is the hospital?", PhrasebookFirestoreContract.CATEGORY_EMERGENCY),
-                phrase("emergency_5", "I lost my passport.", PhrasebookFirestoreContract.CATEGORY_EMERGENCY),
-                phrase("emergency_6", "Call an ambulance.", PhrasebookFirestoreContract.CATEGORY_EMERGENCY)
+                phrase("f1", "I would like water", "मुझे पानी चाहिए", "मला पाणी हवे आहे", PhrasebookFirestoreContract.CATEGORY_FOOD),
+                phrase("f2", "What is today's special?", "आज का विशेष क्या है?", "आजचे विशेष काय आहे?", PhrasebookFirestoreContract.CATEGORY_FOOD),
+                phrase("f3", "The bill, please", "बिल, कृपया", "बिल, कृपया", PhrasebookFirestoreContract.CATEGORY_FOOD),
+                phrase("f4", "Is this spicy?", "क्या यह तीखा है?", "हे तिखट आहे का?", PhrasebookFirestoreContract.CATEGORY_FOOD),
+                phrase("f5", "I am vegetarian", "मैं शाकाहारी हूँ", "मी शाकाहारी आहे", PhrasebookFirestoreContract.CATEGORY_FOOD),
+                phrase("f6", "One tea, please", "एक चाय, कृपया", "एक चहा, कृपया", PhrasebookFirestoreContract.CATEGORY_FOOD)
         );
     }
 
     private List<Phrase> shoppingPhrases() {
         return Arrays.asList(
-                phrase("shopping_1", "How much does this cost?", PhrasebookFirestoreContract.CATEGORY_SHOPPING),
-                phrase("shopping_2", "Do you have a smaller size?", PhrasebookFirestoreContract.CATEGORY_SHOPPING),
-                phrase("shopping_3", "Can I get a discount?", PhrasebookFirestoreContract.CATEGORY_SHOPPING),
-                phrase("shopping_4", "I will take this.", PhrasebookFirestoreContract.CATEGORY_SHOPPING),
-                phrase("shopping_5", "Do you accept card?", PhrasebookFirestoreContract.CATEGORY_SHOPPING),
-                phrase("shopping_6", "Where is the nearest market?", PhrasebookFirestoreContract.CATEGORY_SHOPPING)
+                phrase("s1", "How much does this cost?", "इसकी कीमत क्या है?", "याची किंमत काय आहे?", PhrasebookFirestoreContract.CATEGORY_SHOPPING),
+                phrase("s2", "Do you have a smaller size?", "क्या आपके पास छोटा साइज है?", "तुमच्याकडे लहान साईझ आहे का?", PhrasebookFirestoreContract.CATEGORY_SHOPPING),
+                phrase("s3", "Can I get a discount?", "क्या मुझे छूट मिल सकती है?", "मला सवलत मिळेल का?", PhrasebookFirestoreContract.CATEGORY_SHOPPING),
+                phrase("s4", "I will take this", "मैं यह लूँगा", "मी हे घेईन", PhrasebookFirestoreContract.CATEGORY_SHOPPING),
+                phrase("s5", "Do you accept card?", "क्या आप कार्ड स्वीकार करते हैं?", "तुम्ही कार्ड स्वीकारता का?", PhrasebookFirestoreContract.CATEGORY_SHOPPING),
+                phrase("s6", "Where is the market?", "बाजार कहाँ है?", "बाजार कुठे आहे?", PhrasebookFirestoreContract.CATEGORY_SHOPPING)
         );
     }
 
-    private List<Phrase> greetingPhrases() {
+    private List<Phrase> emergencyPhrases() {
         return Arrays.asList(
-                phrase("greetings_1", "Hello.", PhrasebookFirestoreContract.CATEGORY_GREETINGS),
-                phrase("greetings_2", "Thank you.", PhrasebookFirestoreContract.CATEGORY_GREETINGS),
-                phrase("greetings_3", "Good morning.", PhrasebookFirestoreContract.CATEGORY_GREETINGS),
-                phrase("greetings_4", "How are you?", PhrasebookFirestoreContract.CATEGORY_GREETINGS),
-                phrase("greetings_5", "Nice to meet you.", PhrasebookFirestoreContract.CATEGORY_GREETINGS),
-                phrase("greetings_6", "Goodbye.", PhrasebookFirestoreContract.CATEGORY_GREETINGS)
+                phrase("e1", "Help!", "मदद!", "मदत!", PhrasebookFirestoreContract.CATEGORY_EMERGENCY),
+                phrase("e2", "Call the police", "पुलिस को बुलाओ", "पोलीस बोलवा", PhrasebookFirestoreContract.CATEGORY_EMERGENCY),
+                phrase("e3", "I need a doctor", "मुझे डॉक्टर की जरूरत है", "मला डॉक्टरची गरज आहे", PhrasebookFirestoreContract.CATEGORY_EMERGENCY),
+                phrase("e4", "Where is the hospital?", "अस्पताल कहाँ है?", "रुग्णालय कुठे आहे?", PhrasebookFirestoreContract.CATEGORY_EMERGENCY),
+                phrase("e5", "I lost my passport", "मेरा पासपोर्ट खो गया है", "माझा पासपोर्ट हरवला आहे", PhrasebookFirestoreContract.CATEGORY_EMERGENCY),
+                phrase("e6", "Call an ambulance", "एम्बुलेंस बुलाओ", "रुग्णवाहिका बोलवा", PhrasebookFirestoreContract.CATEGORY_EMERGENCY)
         );
     }
 
     @NonNull
-    private static Phrase phrase(@NonNull String id, @NonNull String baseText, @NonNull String category) {
-        return new Phrase(id, baseText, BASE_LANG, category);
+    private static Phrase phrase(@NonNull String id, @NonNull String en, @NonNull String hi, @NonNull String mr, @NonNull String category) {
+        return new Phrase(id, en, hi, mr, category);
     }
 }

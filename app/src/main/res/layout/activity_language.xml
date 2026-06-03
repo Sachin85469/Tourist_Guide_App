@@ -4,33 +4,33 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="@color/bg_light">
+    android:background="#F5F5F5">
 
     <com.google.android.material.appbar.AppBarLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
-        <androidx.appcompat.widget.Toolbar
+        <com.google.android.material.appbar.MaterialToolbar
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
             android:background="@color/white"
             app:title="Change Language"
-            app:navigationIcon="@android:drawable/ic_menu_revert" />
+            app:navigationIcon="@drawable/ic_back" />
     </com.google.android.material.appbar.AppBarLayout>
 
     <RadioGroup
-        android:id="@+id/rgLanguage"
+        android:id="@+id/rgLanguages"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="16dp">
+        android:padding="16dp"
+        android:layout_marginTop="16dp">
 
         <RadioButton
             android:id="@+id/rbEnglish"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="English"
-            android:checked="true"
             android:textSize="16sp"
             android:padding="12dp" />
 
@@ -49,6 +49,22 @@
             android:text="Marathi (मराठी)"
             android:textSize="16sp"
             android:padding="12dp" />
+
+        <RadioButton
+            android:id="@+id/rbKannada"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Kannada (ಕನ್ನಡ)"
+            android:textSize="16sp"
+            android:padding="12dp" />
     </RadioGroup>
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnApplyLanguage"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="16dp"
+        android:text="Apply Language"
+        android:padding="12dp" />
 
 </LinearLayout>

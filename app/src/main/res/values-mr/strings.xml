@@ -1,0 +1,20 @@
+<resources>
+    <string name="app_name">टूरिस्ट गाइड ऐप</string>
+    <string name="home">होम</string>
+    <string name="profile">प्रोफाइल</string>
+    <string name="favorites">आवडते</string>
+    <string name="trip_planner">ट्रिप प्लॅनर</string>
+    <string name="notifications">सूचना</string>
+    <string name="sos">एसओएस</string>
+    <string name="language">भाषा</string>
+    <string name="settings">सेटिंग्ज</string>
+    <string name="security">सुरक्षा</string>
+    <string name="edit_profile">प्रोफाइल संपादित करा</string>
+    <string name="sign_out">साइन आउट</string>
+    <string name="login">लॉगिन</string>
+    <string name="create_account">खाते तयार करा</string>
+    <string name="discover_attractions">आकर्षणे शोधा</string>
+    <string name="plan_smart_trips">स्मार्ट ट्रिप प्लॅन करा</string>
+    <string name="stay_safe_sos">एसओएस सह सुरक्षित रहा</string>
+    <string name="favorites_count_format">%1$d आवडते</string>
+</resources>

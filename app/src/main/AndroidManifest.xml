@@ -119,7 +119,7 @@
             android:exported="false"
             android:theme="@style/Theme.TouristGuideApp" />
         <activity
-            android:name=".SOSSettingsActivity"
+            android:name=".sos.ui.SOSSettingsActivity"
             android:exported="false"
             android:theme="@style/Theme.TouristGuideApp" />
     </application>

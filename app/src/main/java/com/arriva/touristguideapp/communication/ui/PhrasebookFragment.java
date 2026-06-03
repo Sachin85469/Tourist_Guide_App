@@ -8,6 +8,8 @@ import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.Spinner;
@@ -24,10 +26,6 @@ import com.arriva.touristguideapp.R;
 import com.arriva.touristguideapp.communication.CommunicationHost;
 import com.arriva.touristguideapp.communication.CommunicationPreferences;
 import com.arriva.touristguideapp.communication.languages.LanguageConfig;
-import com.arriva.touristguideapp.communication.languages.LanguageRegistry;
-import com.arriva.touristguideapp.communication.translation.TranslationCallback;
-import com.arriva.touristguideapp.communication.translation.TranslationCache;
-import com.arriva.touristguideapp.communication.translation.TranslationManager;
 import com.arriva.touristguideapp.data.phrasebook.Phrase;
 import com.arriva.touristguideapp.data.phrasebook.PhrasebookFirestoreContract;
 import com.arriva.touristguideapp.data.phrasebook.PhrasebookRepository;
@@ -36,33 +34,31 @@ import com.google.android.material.button.MaterialButton;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
+import java.util.Locale;
 import java.util.Set;
 
 public class PhrasebookFragment extends Fragment {
 
-    private static final long SEARCH_DEBOUNCE_MS = 300L;
+    private static final long SEARCH_DEBOUNCE_MS = 100L;
 
     private CommunicationHost host;
     private PhrasebookRepository repository;
-    private TranslationManager translationManager;
-    private TranslationCache translationCache;
     private CommunicationPreferences preferences;
 
     private final List<Phrase> allPhrases = new ArrayList<>();
-    private final List<PhraseDisplayItem> displayItems = new ArrayList<>();
     private String selectedCategory = PhrasebookFirestoreContract.CATEGORY_ALL;
     private String searchQuery = "";
     private boolean favoritesOnly;
+    
+    // Unified selectedLanguage variable as requested
+    private String selectedLanguage = "Marathi"; 
 
     private final Handler debounceHandler = new Handler(Looper.getMainLooper());
     private Runnable pendingSearchRunnable;
 
     private PhrasebookListAdapter listAdapter;
     private PhrasebookCategoryAdapter categoryAdapter;
-    private LanguageSelectorHelper languageSelectorHelper;
 
     @Nullable
     private String speakingPhraseId;
@@ -88,60 +84,59 @@ public class PhrasebookFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         repository = new PhrasebookRepository(requireContext());
-        translationManager = host.getTranslationManager();
-        translationCache = translationManager.getCache();
         preferences = host.getCommunicationPreferences();
 
+        initUi(view);
+        loadPhrases();
+    }
+
+    private void initUi(View view) {
         ProgressBar progressBar = view.findViewById(R.id.phrasebookProgress);
-        View emptyState = view.findViewById(R.id.phrasebookEmptyState);
         View errorState = view.findViewById(R.id.phrasebookErrorState);
-        TextView tvError = view.findViewById(R.id.tvPhrasebookError);
         MaterialButton btnRetry = view.findViewById(R.id.btnPhrasebookRetry);
         RecyclerView rvPhrases = view.findViewById(R.id.rvPhrases);
         RecyclerView rvCategories = view.findViewById(R.id.rvPhraseCategories);
         EditText etSearch = view.findViewById(R.id.etPhraseSearch);
         SwitchCompat switchFavorites = view.findViewById(R.id.switchFavoritesOnly);
-        View langPanel = view.findViewById(R.id.languageSelector);
-        Spinner spinnerSource = langPanel.findViewById(R.id.spinnerSourceLanguage);
-        Spinner spinnerTarget = langPanel.findViewById(R.id.spinnerTargetLanguage);
-        MaterialButton btnSwap = langPanel.findViewById(R.id.btnSwapLanguages);
+        
+        // Setup dedicated Language Selector for Phrasebook
+        Spinner spinnerLanguage = view.findViewById(R.id.spinnerPhrasebookLanguage);
+        setupLanguageSpinner(spinnerLanguage);
 
+        // Unified list adapter with instant switching logic
         listAdapter = new PhrasebookListAdapter(preferences, new PhrasebookListAdapter.PhraseActionListener() {
             @Override
-            public void onSpeak(@NonNull Phrase phrase, @NonNull String textToSpeak) {
+            public void onSpeak(@NonNull Phrase phrase, @NonNull String textToSpeak, @NonNull String language) {
                 speakingPhraseId = phrase.getId();
                 listAdapter.setSpeakingPhraseId(speakingPhraseId);
                 preferences.recordPhrasePlayed(phrase.getId());
-                host.getTtsHelper().speak(textToSpeak, host.getTargetLanguage());
+                
+                // Unified TTS logic as requested
+                Locale locale;
+                if (language.equals("Hindi")) {
+                    locale = new Locale("hi");
+                } else {
+                    locale = new Locale("mr");
+                }
+                
+                // Dummy config for TTS helper (it only uses the locale part here)
+                LanguageConfig ttsLang = new LanguageConfig(language, "", "", "", locale, "");
+                host.getTtsHelper().speak(textToSpeak, ttsLang);
             }
 
             @Override
             public void onFavoriteToggled() {
-                applyFiltersAndTranslate();
-            }
-
-            @Override
-            public void onRetryTranslation(@NonNull Phrase phrase) {
-                retryPhraseTranslation(phrase);
+                applyFilters();
             }
         });
         rvPhrases.setLayoutManager(new LinearLayoutManager(requireContext()));
         rvPhrases.setAdapter(listAdapter);
 
         setupCategories(rvCategories);
-        languageSelectorHelper = new LanguageSelectorHelper(host, this::onLanguagePairChanged);
-        languageSelectorHelper.bind(spinnerSource, spinnerTarget, btnSwap);
-
-        if (host instanceof com.arriva.touristguideapp.communication.CommunicationHubActivity) {
-            ((com.arriva.touristguideapp.communication.CommunicationHubActivity) host)
-                    .addLanguageChangeListener(this::onLanguagePairChanged);
-        }
 
         etSearch.addTextChangedListener(new TextWatcher() {
             @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-            }
-
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 if (pendingSearchRunnable != null) {
@@ -149,28 +144,24 @@ public class PhrasebookFragment extends Fragment {
                 }
                 pendingSearchRunnable = () -> {
                     searchQuery = s != null ? s.toString() : "";
-                    applyFiltersAndTranslate();
+                    applyFilters();
                 };
                 debounceHandler.postDelayed(pendingSearchRunnable, SEARCH_DEBOUNCE_MS);
             }
-
             @Override
-            public void afterTextChanged(Editable s) {
-            }
+            public void afterTextChanged(Editable s) {}
         });
 
         switchFavorites.setOnCheckedChangeListener((button, checked) -> {
             favoritesOnly = checked;
-            applyFiltersAndTranslate();
+            applyFilters();
         });
 
-        btnRetry.setOnClickListener(v -> loadPhrases(progressBar, errorState, tvError));
+        btnRetry.setOnClickListener(v -> loadPhrases());
 
         host.getTtsHelper().setSpeakCallback(new com.arriva.touristguideapp.communication.tts.UniversalTtsHelper.SpeakCallback() {
             @Override
-            public void onSpeakingStarted() {
-            }
-
+            public void onSpeakingStarted() {}
             @Override
             public void onSpeakingFinished(@Nullable String errorMessage) {
                 speakingPhraseId = null;
@@ -179,8 +170,28 @@ public class PhrasebookFragment extends Fragment {
                 }
             }
         });
+    }
 
-        loadPhrases(progressBar, errorState, tvError);
+    private void setupLanguageSpinner(Spinner spinner) {
+        if (spinner == null) return;
+        String[] languages = {"Marathi", "Hindi"};
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(requireContext(), android.R.layout.simple_spinner_item, languages);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinner.setAdapter(adapter);
+        
+        // Default: Marathi
+        spinner.setSelection(0); 
+
+        spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                // Instantly update selectedLanguage and refresh UI
+                selectedLanguage = languages[position];
+                applyFilters();
+            }
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {}
+        });
     }
 
     private void setupCategories(@NonNull RecyclerView rvCategories) {
@@ -190,202 +201,66 @@ public class PhrasebookFragment extends Fragment {
         rvCategories.setLayoutManager(new LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false));
         categoryAdapter = new PhrasebookCategoryAdapter(category -> {
             selectedCategory = category;
-            applyFiltersAndTranslate();
+            applyFilters();
         });
         categoryAdapter.setCategories(chips, selectedCategory);
         rvCategories.setAdapter(categoryAdapter);
     }
 
-    private void loadPhrases(@NonNull ProgressBar progressBar,
-                             @NonNull View errorState,
-                             @NonNull TextView tvError) {
-        progressBar.setVisibility(View.VISIBLE);
-        errorState.setVisibility(View.GONE);
+    private void loadPhrases() {
+        View progressBar = requireView().findViewById(R.id.phrasebookProgress);
+        View errorState = requireView().findViewById(R.id.phrasebookErrorState);
+        if (progressBar != null) progressBar.setVisibility(View.VISIBLE);
+        if (errorState != null) errorState.setVisibility(View.GONE);
+
         repository.startListening(new PhrasebookRepository.PhrasesListener() {
             @Override
             public void onPhrasesLoaded(@NonNull List<Phrase> phrases, @NonNull PhrasebookRepository.DataOrigin origin) {
-                if (!isAdded()) {
-                    return;
-                }
+                if (!isAdded()) return;
                 requireActivity().runOnUiThread(() -> {
                     allPhrases.clear();
                     allPhrases.addAll(phrases);
-                    progressBar.setVisibility(View.GONE);
-                    applyFiltersAndTranslate();
+                    if (progressBar != null) progressBar.setVisibility(View.GONE);
+                    applyFilters();
                 });
             }
 
             @Override
             public void onError(@NonNull String message) {
-                if (!isAdded()) {
-                    return;
-                }
+                if (!isAdded()) return;
                 requireActivity().runOnUiThread(() -> {
                     if (allPhrases.isEmpty()) {
-                        progressBar.setVisibility(View.GONE);
-                        errorState.setVisibility(View.VISIBLE);
-                        tvError.setText(getString(R.string.phrasebook_error_generic, message));
+                        if (progressBar != null) progressBar.setVisibility(View.GONE);
+                        if (errorState != null) errorState.setVisibility(View.VISIBLE);
                     }
                 });
             }
         });
     }
 
-    private void onLanguagePairChanged() {
-        applyFiltersAndTranslate();
-    }
-
-    private void applyFiltersAndTranslate() {
-        if (!isAdded()) {
-            return;
-        }
+    private void applyFilters() {
+        if (!isAdded()) return;
         Set<String> favoriteIds = preferences.getFavoriteIds();
         List<Phrase> filtered = PhrasebookRepository.filter(
                 allPhrases,
                 selectedCategory,
                 searchQuery,
                 favoritesOnly,
-                favoriteIds,
-                translationCache,
-                host.getTargetLanguage().getLanguageCode());
+                favoriteIds);
 
-        if (!searchQuery.trim().isEmpty() || favoritesOnly) {
-            rebuildDisplayItems(filtered);
-        } else {
-            rebuildDisplayItems(orderWithRecent(filtered));
-        }
-
-        listAdapter.submitItems(displayItems);
-        View emptyState = requireView().findViewById(R.id.phrasebookEmptyState);
+        // Instant refresh using selectedLanguage
+        listAdapter.submitItems(filtered, selectedLanguage);
+        
         RecyclerView rvPhrases = requireView().findViewById(R.id.rvPhrases);
-        boolean empty = displayItems.isEmpty();
-        rvPhrases.setVisibility(empty ? View.GONE : View.VISIBLE);
-        emptyState.setVisibility(empty ? View.VISIBLE : View.GONE);
-
-        translateAllVisible();
-    }
-
-    private void rebuildDisplayItems(@NonNull List<Phrase> phrases) {
-        displayItems.clear();
-        for (Phrase phrase : phrases) {
-            displayItems.add(new PhraseDisplayItem(phrase));
-        }
-    }
-
-    private void translateAllVisible() {
-        LanguageConfig target = host.getTargetLanguage();
-        for (int i = 0; i < displayItems.size(); i++) {
-            translatePhraseAtIndex(i, displayItems.get(i).getPhrase(), target);
-        }
-    }
-
-    private void retryPhraseTranslation(@NonNull Phrase phrase) {
-        LanguageConfig target = host.getTargetLanguage();
-        for (int i = 0; i < displayItems.size(); i++) {
-            if (displayItems.get(i).getPhrase().getId().equals(phrase.getId())) {
-                translatePhraseAtIndex(i, phrase, target);
-                return;
-            }
-        }
-    }
-
-    private void translatePhraseAtIndex(int index,
-                                        @NonNull Phrase phrase,
-                                        @NonNull LanguageConfig target) {
-        PhraseDisplayItem item = displayItems.get(index);
-        LanguageConfig source = LanguageRegistry.requireFromCode(phrase.getBaseLanguage());
-
-        if (source.getLanguageCode().equals(target.getLanguageCode())) {
-            item.setTranslatedText(phrase.getBaseText());
-            item.setState(PhraseDisplayItem.TranslationUiState.READY);
-            listAdapter.notifyItemChanged(index);
-            return;
+        if (rvPhrases != null) {
+            rvPhrases.scheduleLayoutAnimation();
+            rvPhrases.setVisibility(filtered.isEmpty() ? View.GONE : View.VISIBLE);
         }
 
-        String cacheKey = translationCache.phraseKey(
-                phrase.getId(), source.getLanguageCode(), target.getLanguageCode());
-        String cached = translationCache.get(cacheKey);
-        if (cached != null) {
-            item.setTranslatedText(cached);
-            item.setState(PhraseDisplayItem.TranslationUiState.READY);
-            listAdapter.notifyItemChanged(index);
-            return;
+        View emptyState = requireView().findViewById(R.id.phrasebookEmptyState);
+        if (emptyState != null) {
+            emptyState.setVisibility(filtered.isEmpty() ? View.VISIBLE : View.GONE);
         }
-
-        item.setState(PhraseDisplayItem.TranslationUiState.LOADING);
-        item.setErrorMessage(null);
-        listAdapter.notifyItemChanged(index);
-
-        translationManager.translate(
-                phrase.getBaseText(),
-                source,
-                target,
-                cacheKey,
-                new TranslationCallback() {
-                    @Override
-                    public void onSuccess(@NonNull String translatedText) {
-                        if (!isAdded() || index >= displayItems.size()) {
-                            return;
-                        }
-                        PhraseDisplayItem current = displayItems.get(index);
-                        if (!current.getPhrase().getId().equals(phrase.getId())) {
-                            return;
-                        }
-                        current.setTranslatedText(translatedText);
-                        current.setState(PhraseDisplayItem.TranslationUiState.READY);
-                        requireActivity().runOnUiThread(() -> listAdapter.notifyItemChanged(index));
-                    }
-
-                    @Override
-                    public void onProgress(@NonNull String message) {
-                        if (!isAdded()) {
-                            return;
-                        }
-                        requireActivity().runOnUiThread(() -> {
-                            PhraseDisplayItem current = displayItems.get(index);
-                            if (current.getPhrase().getId().equals(phrase.getId())
-                                    && current.getState() == PhraseDisplayItem.TranslationUiState.LOADING) {
-                                current.setErrorMessage(message);
-                                listAdapter.notifyItemChanged(index);
-                            }
-                        });
-                    }
-
-                    @Override
-                    public void onFailure(@NonNull String errorMessage) {
-                        if (!isAdded() || index >= displayItems.size()) {
-                            return;
-                        }
-                        PhraseDisplayItem current = displayItems.get(index);
-                        if (!current.getPhrase().getId().equals(phrase.getId())) {
-                            return;
-                        }
-                        current.setState(PhraseDisplayItem.TranslationUiState.ERROR);
-                        current.setErrorMessage(errorMessage);
-                        requireActivity().runOnUiThread(() -> listAdapter.notifyItemChanged(index));
-                    }
-                });
-    }
-
-    @NonNull
-    private List<Phrase> orderWithRecent(@NonNull List<Phrase> phrases) {
-        List<String> recentIds = preferences.getRecentPhraseIds();
-        if (recentIds.isEmpty()) {
-            return phrases;
-        }
-        Map<String, Phrase> byId = new LinkedHashMap<>();
-        for (Phrase phrase : phrases) {
-            byId.put(phrase.getId(), phrase);
-        }
-        List<Phrase> ordered = new ArrayList<>();
-        for (String id : recentIds) {
-            Phrase recent = byId.remove(id);
-            if (recent != null) {
-                ordered.add(recent);
-            }
-        }
-        ordered.addAll(byId.values());
-        return ordered;
     }
 
     @Override

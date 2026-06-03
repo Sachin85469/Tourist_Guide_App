@@ -4,60 +4,234 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
-    android:paddingHorizontal="20dp"
-    android:paddingTop="12dp"
-    android:paddingBottom="24dp">
+    android:paddingHorizontal="@dimen/screen_margin"
+    android:paddingTop="20dp"
+    android:paddingBottom="8dp">
 
-    <!-- Welcome Card - Premium Gradient -->
-    <com.google.android.material.card.MaterialCardView
-        android:id="@+id/cardWelcome"
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Quick Actions"
+        android:textAppearance="@style/TextAppearance.App.TitleMedium"
+        android:textColor="@color/m3_on_surface"
+        android:layout_marginBottom="12dp"/>
+
+    <GridLayout
         android:layout_width="match_parent"
-        android:layout_height="160dp"
-        app:cardCornerRadius="32dp"
-        app:cardElevation="10dp"
-        app:strokeWidth="0dp">
+        android:layout_height="wrap_content"
+        android:columnCount="2"
+        android:rowCount="3"
+        android:alignmentMode="alignMargins"
+        android:columnOrderPreserved="false">
 
-        <RelativeLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:background="@drawable/bg_premium_gradient"
-            android:padding="32dp">
-
+        <!-- Emergency SOS Card (Row 1, Col 1) -->
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/btnLargeSOS"
+            android:layout_width="0dp"
+            android:layout_height="76dp"
+            android:layout_columnWeight="1"
+            android:layout_margin="5dp"
+            app:cardCornerRadius="16dp"
+            app:cardElevation="2dp"
+            app:cardBackgroundColor="#FFEBEB"
+            app:strokeWidth="0dp"
+            android:clickable="true"
+            android:focusable="true">
             <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_centerVertical="true"
-                android:orientation="vertical">
-
-                <TextView
-                    android:id="@+id/tvWelcomeUser"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Welcome, Explorer"
-                    android:textColor="@color/white"
-                    android:textSize="24sp"
-                    android:textStyle="bold" />
-
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:padding="12dp">
+                <ImageView
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:src="@drawable/ic_sos"
+                    app:tint="#D32F2F" />
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="6dp"
-                    android:text="Ready for a luxury trip today?"
-                    android:textColor="#CCFFFFFF"
-                    android:alpha="0.9"
-                    android:textSize="15sp" />
+                    android:layout_marginStart="10dp"
+                    android:text="SOS Alert"
+                    android:textStyle="bold"
+                    android:textColor="#C62828"
+                    android:textSize="14sp" />
             </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
 
-            <ImageView
-                android:layout_width="90dp"
-                android:layout_height="90dp"
-                android:layout_alignParentEnd="true"
-                android:layout_centerVertical="true"
-                android:alpha="0.15"
-                android:src="@android:drawable/ic_menu_send"
-                app:tint="@color/white" />
+        <!-- AI Assistant Card (Row 1, Col 2) -->
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/btnAiAssistant"
+            android:layout_width="0dp"
+            android:layout_height="76dp"
+            android:layout_columnWeight="1"
+            android:layout_margin="5dp"
+            app:cardCornerRadius="16dp"
+            app:cardElevation="2dp"
+            app:cardBackgroundColor="#F3E5F5"
+            app:strokeWidth="0dp"
+            android:clickable="true"
+            android:focusable="true">
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:padding="12dp">
+                <ImageView
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:src="@drawable/ic_robot_assistant" />
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="10dp"
+                    android:text="AI Guide"
+                    android:textStyle="bold"
+                    android:textColor="#6A1B9A"
+                    android:textSize="14sp" />
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
 
-        </RelativeLayout>
-    </com.google.android.material.card.MaterialCardView>
+        <!-- Translator Card (Row 2, Col 1) -->
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/btnTranslate"
+            android:layout_width="0dp"
+            android:layout_height="76dp"
+            android:layout_columnWeight="1"
+            android:layout_margin="5dp"
+            app:cardCornerRadius="16dp"
+            app:cardElevation="2dp"
+            app:cardBackgroundColor="#E3F2FD"
+            app:strokeWidth="0dp"
+            android:clickable="true"
+            android:focusable="true">
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:padding="12dp">
+                <ImageView
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:src="@drawable/ic_language"
+                    app:tint="#1565C0" />
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="10dp"
+                    android:text="Translator"
+                    android:textStyle="bold"
+                    android:textColor="#1565C0"
+                    android:textSize="14sp" />
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
 
+        <!-- Plan Trip Card (Row 2, Col 2) -->
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/btnPlanner"
+            android:layout_width="0dp"
+            android:layout_height="76dp"
+            android:layout_columnWeight="1"
+            android:layout_margin="5dp"
+            app:cardCornerRadius="16dp"
+            app:cardElevation="2dp"
+            app:cardBackgroundColor="#E8F5E9"
+            app:strokeWidth="0dp"
+            android:clickable="true"
+            android:focusable="true">
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:padding="12dp">
+                <ImageView
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:src="@drawable/ic_trip"
+                    app:tint="#2E7D32" />
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="10dp"
+                    android:text="Plan Trip"
+                    android:textStyle="bold"
+                    android:textColor="#2E7D32"
+                    android:textSize="14sp" />
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- Explore Nearby Card (Row 3, Col 1) -->
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/btnNearby"
+            android:layout_width="0dp"
+            android:layout_height="76dp"
+            android:layout_columnWeight="1"
+            android:layout_margin="5dp"
+            app:cardCornerRadius="16dp"
+            app:cardElevation="2dp"
+            app:cardBackgroundColor="#FFF3E0"
+            app:strokeWidth="0dp"
+            android:clickable="true"
+            android:focusable="true">
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:padding="12dp">
+                <ImageView
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:src="@drawable/ic_location"
+                    app:tint="#EF6C00" />
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="10dp"
+                    android:text="Explore Nearby"
+                    android:textStyle="bold"
+                    android:textColor="#EF6C00"
+                    android:textSize="14sp" />
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- Phrasebook Card (Row 3, Col 2) -->
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/btnPhrasebook"
+            android:layout_width="0dp"
+            android:layout_height="76dp"
+            android:layout_columnWeight="1"
+            android:layout_margin="5dp"
+            app:cardCornerRadius="16dp"
+            app:cardElevation="2dp"
+            app:cardBackgroundColor="#E0F7FA"
+            app:strokeWidth="0dp"
+            android:clickable="true"
+            android:focusable="true">
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:padding="12dp">
+                <ImageView
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:src="@android:drawable/ic_menu_agenda"
+                    app:tint="#00838F" />
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="10dp"
+                    android:text="Phrasebook"
+                    android:textStyle="bold"
+                    android:textColor="#00838F"
+                    android:textSize="14sp" />
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+    </GridLayout>
 </LinearLayout>

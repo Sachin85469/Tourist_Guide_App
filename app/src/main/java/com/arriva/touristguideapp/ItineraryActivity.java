@@ -10,6 +10,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import com.arriva.touristguideapp.data.places.PlaceRepository;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -18,58 +19,81 @@ public class ItineraryActivity extends AppCompatActivity {
     private RecyclerView rvItinerary;
     private ItineraryAdapter adapter;
     private TextView tvTitle;
+    private PlaceRepository placeRepository;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_itinerary);
 
-        ImageView btnBack = findViewById(R.id.btnItineraryBack);
-        btnBack.setOnClickListener(v -> finish());
+        placeRepository = new PlaceRepository();
+        
+        androidx.appcompat.widget.Toolbar toolbar = findViewById(R.id.toolbar);
+        if (toolbar != null) {
+            toolbar.setNavigationOnClickListener(v -> finish());
+        }
 
         tvTitle = findViewById(R.id.tvItineraryTitle);
         rvItinerary = findViewById(R.id.rvItinerary);
         rvItinerary.setLayoutManager(new LinearLayoutManager(this));
 
         boolean isQuickPlan = getIntent().getBooleanExtra("isQuickPlan", false);
-        List<DayPlan> plan;
 
         if (isQuickPlan) {
             String customTitle = getIntent().getStringExtra("title");
             String quickPlanText = getIntent().getStringExtra("quickPlanText");
             if (tvTitle != null && customTitle != null) tvTitle.setText(customTitle);
             
-            plan = new ArrayList<>();
+            List<DayPlan> plan = new ArrayList<>();
             plan.add(new DayPlan("Your Selection", quickPlanText));
+            adapter = new ItineraryAdapter(plan);
+            rvItinerary.setAdapter(adapter);
         } else {
             int days = getIntent().getIntExtra("days", 1);
             String type = getIntent().getStringExtra("type");
-            plan = generatePlan(days, type);
+            loadAndGeneratePlan(days, type);
         }
-
-        adapter = new ItineraryAdapter(plan);
-        rvItinerary.setAdapter(adapter);
     }
 
-    private List<DayPlan> generatePlan(int days, String type) {
+    private void loadAndGeneratePlan(int days, String type) {
+        placeRepository.fetchPublishedPlaces((places, origin, message) -> {
+            List<DayPlan> plan = generateSmartPlan(places, days, type);
+            adapter = new ItineraryAdapter(plan);
+            rvItinerary.setAdapter(adapter);
+        });
+    }
+
+    private List<DayPlan> generateSmartPlan(List<Place> allPlaces, int days, String type) {
         List<DayPlan> plan = new ArrayList<>();
+        List<Place> filtered = new ArrayList<>();
+        
+        if (type.equalsIgnoreCase("Nature")) {
+            for (Place p : allPlaces) if (p.getCategory().equalsIgnoreCase("Nature")) filtered.add(p);
+        } else if (type.equalsIgnoreCase("Food")) {
+            for (Place p : allPlaces) if (p.getCategory().equalsIgnoreCase("Food")) filtered.add(p);
+        } else {
+            filtered.addAll(allPlaces);
+        }
+        
+        // Sort by rating to pick the best ones
+        filtered.sort((p1, p2) -> Double.compare(p2.getRating(), p1.getRating()));
+
+        int placesPerDay = 3;
+        int currentIdx = 0;
 
         for (int i = 1; i <= days; i++) {
-            String places = "";
-            if (type.equalsIgnoreCase("Nature")) {
-                if (i == 1) places = "- Sinhagad Fort\n- Khadakwasla Dam\n- Pu La Deshpande Garden";
-                else if (i == 2) places = "- Mulshi Lake\n- Tamhini Ghat\n- Vetal Tekdi";
-                else places = "- Lohagad Fort\n- Pawna Lake\n- Lonavala Points";
-            } else if (type.equalsIgnoreCase("Food")) {
-                if (i == 1) places = "- FC Road (Street Food)\n- JM Road (Breakfast)\n- Shaniwar Peth (Traditional)";
-                else if (i == 2) places = "- Camp Area (Bakeries)\n- Koregaon Park (Cafes)\n- MG Road (Irani Chai)";
-                else places = "- Kothrud (Local Snacks)\n- Deccan (Misal Pav)\n- Viman Nagar (Dining)";
-            } else { // Mixed
-                if (i == 1) places = "- Shaniwar Wada\n- Dagdusheth Halwai Ganpati\n- Laxmi Road Shopping";
-                else if (i == 2) places = "- Aga Khan Palace\n- Osho Garden\n- Koregaon Park Dinner";
-                else places = "- Pataleshwar Caves\n- Parvati Hill\n- Saras Baug";
+            StringBuilder dayPlaces = new StringBuilder();
+            for (int j = 0; j < placesPerDay && currentIdx < filtered.size(); j++) {
+                Place p = filtered.get(currentIdx++);
+                dayPlaces.append("• ").append(p.getName()).append(" (").append(p.getCategory()).append(")\n");
+                dayPlaces.append("  ").append(p.getRating()).append(" ⭐ | ").append(p.getCity()).append("\n\n");
             }
-            plan.add(new DayPlan("Day " + i, places));
+            
+            if (dayPlaces.length() == 0) {
+                dayPlaces.append("No more spots found for this category. Explore the main map for more!");
+            }
+            
+            plan.add(new DayPlan("Day " + i, dayPlaces.toString().trim()));
         }
         return plan;
     }

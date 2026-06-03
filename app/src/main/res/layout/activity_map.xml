@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/adaptive_bg">
+    android:background="@color/m3_background">
 
     <org.osmdroid.views.MapView
         android:id="@+id/map"
@@ -15,18 +16,15 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:paddingTop="40dp">
+        android:paddingTop="48dp">
 
         <!-- Floating Translucent Search Bar -->
         <com.google.android.material.card.MaterialCardView
+            style="@style/FloatingSearchBar"
             android:layout_width="match_parent"
             android:layout_height="56dp"
             android:layout_marginHorizontal="20dp"
-            app:cardCornerRadius="28dp"
-            app:cardElevation="8dp"
-            app:cardBackgroundColor="@color/adaptive_glass_surface"
-            app:strokeWidth="1dp"
-            app:strokeColor="@color/adaptive_divider">
+            app:cardBackgroundColor="#E6FFFFFF">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -35,13 +33,12 @@
                 android:orientation="horizontal"
                 android:paddingHorizontal="16dp">
 
-                <ImageButton
+                <ImageView
                     android:id="@+id/searchBtn"
-                    android:layout_width="40dp"
-                    android:layout_height="40dp"
-                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
                     android:src="@android:drawable/ic_menu_search"
-                    app:tint="@color/primary" />
+                    app:tint="@color/m3_primary" />
 
                 <EditText
                     android:id="@+id/searchInput"
@@ -49,41 +46,35 @@
                     android:layout_height="match_parent"
                     android:layout_weight="1"
                     android:background="@android:color/transparent"
-                    android:hint="Discover premium spots..."
+                    android:hint="Search premium spots..."
                     android:paddingHorizontal="12dp"
-                    android:textColor="@color/adaptive_text_primary"
-                    android:textColorHint="@color/adaptive_text_muted"
-                    android:textSize="16sp" />
+                    android:textAppearance="@style/TextAppearance.App.BodyMedium"
+                    android:textColor="@color/m3_on_surface"
+                    android:textColorHint="@color/m3_outline" />
 
                 <ImageView
                     android:id="@+id/micBtn"
-                    android:layout_width="36dp"
-                    android:layout_height="36dp"
-                    android:background="@drawable/bg_premium_gradient"
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:background="@drawable/bg_favorite_circle"
+                    android:backgroundTint="@color/m3_primary_container"
                     android:padding="8dp"
-                    android:src="@android:drawable/ic_menu_directions"
-                    app:tint="@color/white" />
+                    android:src="@android:drawable/ic_btn_speak_now"
+                    app:tint="@color/m3_primary" />
 
-                <com.google.android.material.card.MaterialCardView
-                    android:id="@+id/btnProfile"
-                    android:layout_width="36dp"
-                    android:layout_height="36dp"
+                <com.google.android.material.imageview.ShapeableImageView
+                    android:id="@+id/ivProfileIcon"
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
                     android:layout_marginStart="8dp"
-                    app:cardCornerRadius="18dp"
-                    app:cardElevation="0dp"
-                    app:strokeWidth="1dp"
-                    app:strokeColor="@color/adaptive_divider">
-                    <ImageView
-                        android:id="@+id/ivProfileIcon"
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:scaleType="centerCrop"
-                        android:src="@android:drawable/ic_menu_myplaces" />
-                </com.google.android.material.card.MaterialCardView>
+                    android:src="@android:drawable/ic_menu_gallery"
+                    app:shapeAppearanceOverlay="@style/CircleImage"
+                    app:strokeColor="@color/m3_outline_variant"
+                    app:strokeWidth="1dp" />
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
-        <!-- Horizontal Premium Filters -->
+        <!-- Horizontal Filter Chips -->
         <HorizontalScrollView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -92,101 +83,66 @@
             android:paddingHorizontal="20dp"
             android:scrollbars="none">
 
-            <LinearLayout
+            <com.google.android.material.chip.ChipGroup
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:paddingBottom="8dp">
+                app:singleLine="true"
+                app:chipSpacingHorizontal="8dp">
 
-                <com.google.android.material.button.MaterialButton
+                <com.google.android.material.chip.Chip
                     android:id="@+id/btnAtm"
-                    style="@style/Widget.MaterialComponents.Button.UnelevatedButton"
+                    style="@style/Widget.Material3.Chip.Filter"
                     android:layout_width="wrap_content"
-                    android:layout_height="44dp"
-                    android:layout_marginEnd="10dp"
+                    android:layout_height="wrap_content"
                     android:text="ATM"
-                    android:textAllCaps="false"
-                    android:textColor="@color/primary"
-                    app:backgroundTint="@color/adaptive_surface"
-                    app:cornerRadius="22dp"
-                    app:rippleColor="@color/adaptive_primary_light"
-                    app:strokeColor="@color/adaptive_divider"
-                    app:strokeWidth="1dp" />
+                    app:chipIcon="@android:drawable/ic_menu_info_details" />
 
-                <com.google.android.material.button.MaterialButton
+                <com.google.android.material.chip.Chip
                     android:id="@+id/btnCafe"
-                    style="@style/Widget.MaterialComponents.Button.UnelevatedButton"
+                    style="@style/Widget.Material3.Chip.Filter"
                     android:layout_width="wrap_content"
-                    android:layout_height="44dp"
-                    android:layout_marginEnd="10dp"
+                    android:layout_height="wrap_content"
                     android:text="Cafe"
-                    android:textAllCaps="false"
-                    android:textColor="@color/primary"
-                    app:backgroundTint="@color/adaptive_surface"
-                    app:cornerRadius="22dp"
-                    app:strokeColor="@color/adaptive_divider"
-                    app:strokeWidth="1dp" />
+                    app:chipIcon="@android:drawable/ic_menu_view" />
 
-                <com.google.android.material.button.MaterialButton
+                <com.google.android.material.chip.Chip
                     android:id="@+id/btnRestaurant"
-                    style="@style/Widget.MaterialComponents.Button.UnelevatedButton"
+                    style="@style/Widget.Material3.Chip.Filter"
                     android:layout_width="wrap_content"
-                    android:layout_height="44dp"
-                    android:layout_marginEnd="10dp"
+                    android:layout_height="wrap_content"
                     android:text="Food"
-                    android:textAllCaps="false"
-                    android:textColor="@color/primary"
-                    app:backgroundTint="@color/adaptive_surface"
-                    app:cornerRadius="22dp"
-                    app:strokeColor="@color/adaptive_divider"
-                    app:strokeWidth="1dp" />
+                    app:chipIcon="@android:drawable/ic_menu_gallery" />
 
-                <com.google.android.material.button.MaterialButton
+                <com.google.android.material.chip.Chip
                     android:id="@+id/btnBank"
-                    style="@style/Widget.MaterialComponents.Button.UnelevatedButton"
+                    style="@style/Widget.Material3.Chip.Filter"
                     android:layout_width="wrap_content"
-                    android:layout_height="44dp"
-                    android:layout_marginEnd="10dp"
+                    android:layout_height="wrap_content"
                     android:text="Bank"
-                    android:textAllCaps="false"
-                    android:textColor="@color/primary"
-                    app:backgroundTint="@color/adaptive_surface"
-                    app:cornerRadius="22dp"
-                    app:strokeColor="@color/adaptive_divider"
-                    app:strokeWidth="1dp" />
+                    app:chipIcon="@android:drawable/ic_lock_lock" />
 
-                <com.google.android.material.button.MaterialButton
+                <com.google.android.material.chip.Chip
                     android:id="@+id/btnFuel"
-                    style="@style/Widget.MaterialComponents.Button.UnelevatedButton"
+                    style="@style/Widget.Material3.Chip.Filter"
                     android:layout_width="wrap_content"
-                    android:layout_height="44dp"
-                    android:layout_marginEnd="10dp"
+                    android:layout_height="wrap_content"
                     android:text="Fuel"
-                    android:textAllCaps="false"
-                    android:textColor="@color/primary"
-                    app:backgroundTint="@color/adaptive_surface"
-                    app:cornerRadius="22dp"
-                    app:strokeColor="@color/adaptive_divider"
-                    app:strokeWidth="1dp" />
-            </LinearLayout>
+                    app:chipIcon="@android:drawable/ic_menu_compass" />
+            </com.google.android.material.chip.ChipGroup>
         </HorizontalScrollView>
     </LinearLayout>
 
-    <!-- Hidden Go Button (Kept for logic compatibility) -->
-    <Button
-        android:id="@+id/btnDirections"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:visibility="gone" />
+    <!-- Hidden Go Button (Logic compatibility) -->
+    <Button android:id="@+id/btnDirections" android:layout_width="0dp" android:layout_height="0dp" android:visibility="gone" />
 
     <!-- Bottom Sheet -->
     <com.google.android.material.card.MaterialCardView
         android:id="@+id/bottomSheet"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:cardCornerRadius="32dp"
-        app:cardElevation="24dp"
-        app:cardBackgroundColor="@color/adaptive_surface"
+        app:cardCornerRadius="28dp"
+        app:cardElevation="16dp"
+        app:cardBackgroundColor="@color/white"
         app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior"
         app:behavior_hideable="true"
         app:behavior_peekHeight="0dp"
@@ -199,42 +155,61 @@
             android:padding="24dp">
 
             <View
-                android:layout_width="40dp"
+                android:layout_width="32dp"
                 android:layout_height="4dp"
                 android:layout_gravity="center_horizontal"
-                android:background="@color/adaptive_divider"
-                android:layout_marginBottom="20dp"/>
+                android:background="@color/m3_outline_variant"
+                android:layout_marginBottom="24dp"/>
 
             <TextView
                 android:id="@+id/placeName"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:textSize="24sp"
-                android:textStyle="bold"
-                android:textColor="@color/adaptive_text_primary"
-                android:text="Luxury Place"/>
+                android:textAppearance="@style/TextAppearance.App.TitleLarge"
+                android:textColor="@color/m3_on_surface"
+                tools:text="Shaniwar Wada"/>
 
             <TextView
                 android:id="@+id/placeDetails"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
-                android:textSize="15sp"
-                android:textColor="@color/adaptive_text_secondary"
-                android:text="Premium details about this location."/>
+                android:textAppearance="@style/TextAppearance.App.BodyMedium"
+                android:textColor="@color/m3_on_surface_variant"
+                tools:text="Yerwada, Pune • 4.8 ⭐"/>
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnSheetGo"
+                style="@style/AppButton"
                 android:layout_width="match_parent"
-                android:layout_height="56dp"
+                android:layout_height="60dp"
                 android:layout_marginTop="24dp"
-                android:text="Get Premium Directions"
-                android:textAllCaps="false"
-                android:textStyle="bold"
-                app:cornerRadius="16dp"
-                app:backgroundTint="@color/primary" />
+                android:text="Get Directions" />
 
         </LinearLayout>
+    </com.google.android.material.card.MaterialCardView>
+
+    <!-- Floating Navigation Container -->
+    <com.google.android.material.card.MaterialCardView
+        android:layout_width="match_parent"
+        android:layout_height="72dp"
+        android:layout_marginHorizontal="24dp"
+        android:layout_marginBottom="24dp"
+        android:layout_gravity="bottom"
+        app:cardCornerRadius="36dp"
+        app:cardElevation="12dp"
+        app:cardBackgroundColor="#F2FFFFFF"
+        app:strokeWidth="1dp"
+        app:strokeColor="@color/m3_outline_variant">
+
+        <com.google.android.material.bottomnavigation.BottomNavigationView
+            android:id="@+id/bottom_navigation"
+            style="@style/AppBottomNavigation"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            app:elevation="0dp"
+            app:labelVisibilityMode="unlabeled"
+            app:menu="@menu/bottom_nav_menu" />
     </com.google.android.material.card.MaterialCardView>
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

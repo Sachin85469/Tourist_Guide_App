@@ -16,7 +16,7 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
- * Uploads bundled base-text phrases into Firestore {@link PhrasebookFirestoreContract#COLLECTION_PHRASEBOOK}.
+ * Uploads bundled phrases with translations into Firestore.
  */
 public final class PhrasebookMigrationHelper {
 
@@ -46,8 +46,9 @@ public final class PhrasebookMigrationHelper {
 
         for (Phrase phrase : phrases) {
             Map<String, Object> fields = new HashMap<>();
-            fields.put(PhrasebookFirestoreContract.FIELD_BASE_TEXT, phrase.getBaseText());
-            fields.put(PhrasebookFirestoreContract.FIELD_BASE_LANGUAGE, phrase.getBaseLanguage());
+            fields.put(PhrasebookFirestoreContract.FIELD_ENGLISH_TEXT, phrase.getEnglishText());
+            fields.put(PhrasebookFirestoreContract.FIELD_HINDI_TEXT, phrase.getHindiText());
+            fields.put(PhrasebookFirestoreContract.FIELD_MARATHI_TEXT, phrase.getMarathiText());
             fields.put(PhrasebookFirestoreContract.FIELD_CATEGORY, phrase.getCategory());
 
             db.collection(PhrasebookFirestoreContract.COLLECTION_PHRASEBOOK)

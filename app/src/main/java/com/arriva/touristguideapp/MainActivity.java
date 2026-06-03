@@ -51,14 +51,19 @@ public class MainActivity extends AppCompatActivity {
     private FusedLocationProviderClient fusedLocationClient;
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 1001;
     
+    private final android.os.Handler handler = new android.os.Handler(android.os.Looper.getMainLooper());
+    private Runnable reminderRunnable;
+
     private View btnProfile;
     private ImageView ivProfileIcon;
     private BottomNavigationView bottomNavigationView;
+    private View fabAiChat;
     private ProgressBar progressBar;
     private View emptyStateContainer;
     private EditText searchBox;
     private ImageView btnVoiceSearch;
-    private TextView tvMainUserName, tvMainUserEmail;
+    private TextView tvMainUserName, tvMainUserEmail, tvQuickStats;
+    private String resolvedCity = "Pune";
 
     private PlaceRepository placeRepository;
     private com.arriva.touristguideapp.data.analytics.AnalyticsRepository analyticsRepository;
@@ -73,9 +78,11 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        Log.d("APP_DEBUG", "MainActivity started");
         PerformanceTracker.startTimer("MAIN_ACTIVITY_INIT");
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        Log.d("APP_DEBUG", "Layout loaded");
 
         // Initialize Places SDK
         if (!Places.isInitialized()) {
@@ -88,9 +95,18 @@ public class MainActivity extends AppCompatActivity {
         bottomNavigationView = findViewById(R.id.bottom_navigation);
         tvMainUserName = findViewById(R.id.tvMainUserName);
         tvMainUserEmail = findViewById(R.id.tvMainUserEmail);
+        tvQuickStats = findViewById(R.id.tvQuickStats);
+        fabAiChat = findViewById(R.id.fabAiChat);
 
         // Profile Avatar and User Info Setup
         loadUserInfo();
+        refreshQuickStatsOnly();
+
+        if (fabAiChat != null) {
+            fabAiChat.setOnClickListener(v -> {
+                startActivity(new Intent(this, AiChatActivity.class));
+            });
+        }
 
         progressBar = findViewById(R.id.mainProgressBar);
         emptyStateContainer = findViewById(R.id.tvEmptyState);
@@ -109,10 +125,11 @@ public class MainActivity extends AppCompatActivity {
 
         // Phase 10: Local Notification Reminder (Requirement 5)
         if (savedInstanceState == null) {
-            rvHome.postDelayed(() -> {
+            reminderRunnable = () -> {
                 com.arriva.touristguideapp.data.notifications.LocalNotificationHelper.showReminder(
-                    this, "Ready for Adventure?", "Explore the best hidden gems in Pune today!");
-            }, 5000);
+                    MainActivity.this, "Ready for Adventure?", "Explore the best hidden gems in Pune today!");
+            };
+            handler.postDelayed(reminderRunnable, 5000);
         }
         
         // Start with ProgressBar visible
@@ -133,11 +150,11 @@ public class MainActivity extends AppCompatActivity {
                     return true;
                 } else if (id == R.id.nav_favorites) {
                     startActivity(new Intent(MainActivity.this, FavoritesActivity.class));
-                    overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
+                    overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
                     return true;
                 } else if (id == R.id.nav_map) {
                     startActivity(new Intent(MainActivity.this, MapActivity.class));
-                    overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
+                    overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
                     return true;
                 }
                 return false;
@@ -150,6 +167,14 @@ public class MainActivity extends AppCompatActivity {
                 overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
             });
         }
+    }
+
+    @Override
+    protected void onDestroy() {
+        if (reminderRunnable != null) {
+            handler.removeCallbacks(reminderRunnable);
+        }
+        super.onDestroy();
     }
 
     @Override
@@ -228,7 +253,9 @@ public class MainActivity extends AppCompatActivity {
         if (text.isEmpty()) {
             sections.clear();
             addDefaultSections();
-            homeAdapter.notifyDataSetChanged();
+            if (homeAdapter != null) {
+                homeAdapter.updateSections(new ArrayList<>(sections));
+            }
             return;
         }
 
@@ -248,7 +275,9 @@ public class MainActivity extends AppCompatActivity {
             for (Place p : filteredList) {
                 sections.add(new HomeSection(HomeSection.TYPE_PLACE, p));
             }
-            homeAdapter.notifyDataSetChanged();
+            if (homeAdapter != null) {
+                homeAdapter.updateSections(new ArrayList<>(sections));
+            }
         }
     }
 
@@ -314,6 +343,21 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void updateTopPicksWithLocation(double userLat, double userLng) {
+        // Geocode city name dynamically
+        try {
+            android.location.Geocoder geocoder = new android.location.Geocoder(this, Locale.getDefault());
+            List<android.location.Address> addresses = geocoder.getFromLocation(userLat, userLng, 1);
+            if (addresses != null && !addresses.isEmpty()) {
+                String city = addresses.get(0).getLocality();
+                if (city != null && !city.trim().isEmpty()) {
+                    resolvedCity = city;
+                }
+            }
+        } catch (Exception e) {
+            Log.e(TAG, "Geocoder failed", e);
+        }
+        refreshQuickStatsOnly();
+
         // Calculate distances for all places using LocationUtils
         for (Place place : allPlaces) {
             if (place.getLat() != 0 && place.getLng() != 0) {
@@ -350,7 +394,7 @@ public class MainActivity extends AppCompatActivity {
 
         // Update UI
         if (homeAdapter != null) {
-            homeAdapter.notifyDataSetChanged();
+            homeAdapter.updateSections(new ArrayList<>(sections));
         }
     }
 
@@ -366,7 +410,7 @@ public class MainActivity extends AppCompatActivity {
         }
 
         if (homeAdapter != null) {
-            homeAdapter.notifyDataSetChanged();
+            homeAdapter.updateSections(new ArrayList<>(sections));
         }
         Toast.makeText(this, "Location unavailable, using default top picks", Toast.LENGTH_SHORT).show();
     }
@@ -413,50 +457,21 @@ public class MainActivity extends AppCompatActivity {
         rvHome.setAdapter(homeAdapter);
         rvHome.setItemViewCacheSize(20);
         rvHome.setHasFixedSize(true);
+        
+        // Premium Staggered Animation
+        android.view.animation.LayoutAnimationController animation = android.view.animation.AnimationUtils.loadLayoutAnimation(this, R.anim.layout_animation_fall_down);
+        rvHome.setLayoutAnimation(animation);
+        Log.d("APP_DEBUG", "RecyclerView initialized");
     }
 
     private void addDefaultSections() {
         sections.add(new HomeSection(HomeSection.TYPE_WELCOME));
-        sections.add(new HomeSection(HomeSection.TYPE_CATEGORIES));
         
-        // Phase 6: Recent Searches (if search box is empty)
-        List<String> history = searchHistoryManager.getHistory();
-        if (!history.isEmpty()) {
-            // We could show this as a special section or just log it for now
-            // To keep UI clean, we'll just log and maybe add a UI later if requested
-            Log.d(TAG, "Recent Searches available: " + history.size());
-        }
-
-        if (topPicks != null && !topPicks.isEmpty()) {
-            sections.add(new HomeSection(HomeSection.TYPE_TOP_PICKS, "Top Picks Near You"));
-        }
-
-        // Phase 6: Trending & Recommendations
+        // Add Featured Carousel if data is available
         if (allPlaces != null && !allPlaces.isEmpty()) {
-            List<Place> trending = discoveryRepository.getTrendingPlaces(allPlaces);
-            if (!trending.isEmpty()) {
-                sections.add(new HomeSection(HomeSection.TYPE_TRENDING, "Trending Now") {{
-                    setData(trending);
-                }});
-            }
-
-            List<Place> recommendations = discoveryRepository.getRecommendedPlaces(allPlaces);
-            if (!recommendations.isEmpty()) {
-                sections.add(new HomeSection(HomeSection.TYPE_RECOMMENDED, "Recommended for You") {{
-                    setData(recommendations);
-                }});
-            }
+            sections.add(new HomeSection(HomeSection.TYPE_FEATURED_CAROUSEL, allPlaces.get(0)));
         }
 
-        List<Place> recent = recentlyViewedManager.getRecentPlaces();
-        if (!recent.isEmpty()) {
-            sections.add(new HomeSection(HomeSection.TYPE_RECENTLY_VIEWED, "Recently Viewed") {{
-                setData(recent);
-            }});
-        }
-
-        sections.add(new HomeSection(HomeSection.TYPE_PHRASEBOOK));
-        sections.add(new HomeSection(HomeSection.TYPE_PLAN_TRIP));
         sections.add(new HomeSection(HomeSection.TYPE_ALL_PLACES_HEADER, "Browse All"));
         for (Place p : allPlaces) {
             sections.add(new HomeSection(HomeSection.TYPE_PLACE, p));
@@ -492,14 +507,17 @@ public class MainActivity extends AppCompatActivity {
 
             allPlaces.clear();
             allPlaces.addAll(places);
+            Log.d("APP_DEBUG", "Data loaded, count=" + places.size());
 
             if (cachedUserLocation != null) {
                 updateTopPicksWithLocation(cachedUserLocation.getLatitude(), cachedUserLocation.getLongitude());
             } else {
-                sections.clear();
-                addDefaultSections();
-                if (homeAdapter != null) {
-                    homeAdapter.notifyDataSetChanged();
+                if (sections != null) {
+                    sections.clear();
+                    addDefaultSections();
+                    if (homeAdapter != null) {
+                        homeAdapter.updateSections(new ArrayList<>(sections));
+                    }
                 }
             }
 
@@ -532,11 +550,12 @@ public class MainActivity extends AppCompatActivity {
 
     private void openDetails(Place place) {
         if (place == null) return;
-        recentlyViewedManager.addPlace(place);
+        recentlyViewedManager.addRecentlyViewed(place);
         Intent intent = new Intent(MainActivity.this, PlaceDetailsActivity.class);
         PlaceIntentExtras.putPlaceDetails(intent, place);
-        startActivity(intent);
-        overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
+        
+        androidx.core.app.ActivityOptionsCompat options = androidx.core.app.ActivityOptionsCompat.makeCustomAnimation(this, R.anim.slide_in_right, android.R.anim.fade_out);
+        startActivity(intent, options.toBundle());
     }
 
     private void loadUserInfo() {
@@ -548,14 +567,14 @@ public class MainActivity extends AppCompatActivity {
             ProfileUtils.fetchUserData(user.getUid(), new ProfileUtils.UserCallback() {
                 @Override
                 public void onUserLoaded(User userModel) {
-                    if (tvMainUserName != null) tvMainUserName.setText(userModel.getName());
+                    if (tvMainUserName != null) tvMainUserName.setText(formatName(userModel.getName()));
                     if (tvMainUserEmail != null) tvMainUserEmail.setText(userModel.getEmail());
                     ProfileUtils.loadAvatar(MainActivity.this, ivProfileIcon, userModel);
                 }
 
                 @Override
                 public void onError(Exception e) {
-                    if (tvMainUserName != null) tvMainUserName.setText(user.getDisplayName() != null ? user.getDisplayName() : "ExploreEase");
+                    if (tvMainUserName != null) tvMainUserName.setText(user.getDisplayName() != null ? formatName(user.getDisplayName()) : "Traveler");
                     if (tvMainUserEmail != null) tvMainUserEmail.setText(user.getEmail());
                     ProfileUtils.loadAvatar(MainActivity.this, ivProfileIcon);
                 }
@@ -563,9 +582,44 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    private String formatName(String name) {
+        if (name == null || name.trim().isEmpty()) return "Traveler";
+        String first = name.trim().split("\\s+")[0];
+        if (first.isEmpty()) return "Traveler";
+        return first.substring(0, 1).toUpperCase() + first.substring(1).toLowerCase();
+    }
+
+    public void refreshQuickStatsOnly() {
+        int favoritesCount = FavoritesManager.getFavoritesCount(this);
+        com.google.firebase.auth.FirebaseUser user = com.google.firebase.auth.FirebaseAuth.getInstance().getCurrentUser();
+        if (user != null) {
+            com.google.firebase.firestore.FirebaseFirestore.getInstance().collection("trips")
+                .whereEqualTo("userId", user.getUid())
+                .get()
+                .addOnCompleteListener(task -> {
+                    int tripsCount = 0;
+                    if (task.isSuccessful() && task.getResult() != null) {
+                        tripsCount = task.getResult().size();
+                    }
+                    if (tvQuickStats != null) {
+                        tvQuickStats.setText(resolvedCity + " | " + favoritesCount + " Favorites | " + tripsCount + " Trips");
+                    }
+                });
+        } else {
+            if (tvQuickStats != null) {
+                tvQuickStats.setText(resolvedCity + " | " + favoritesCount + " Favorites | 0 Trips");
+            }
+        }
+    }
+
+    private void refreshRecentlyViewed() {
+        // No-op as recently viewed card is removed from Home screen
+    }
+
     @Override
     protected void onResume() {
         super.onResume();
         loadUserInfo();
+        refreshQuickStatsOnly();
     }
 }

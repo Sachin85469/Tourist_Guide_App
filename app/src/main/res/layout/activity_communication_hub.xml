@@ -1,55 +1,61 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/adaptive_bg">
+    android:background="@color/m3_background">
 
-    <RelativeLayout
-        android:id="@+id/communicationHeader"
+    <com.google.android.material.appbar.AppBarLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/adaptive_surface"
-        android:elevation="2dp"
-        android:padding="16dp"
-        app:layout_constraintTop_toTopOf="parent">
+        android:background="@color/white"
+        app:elevation="0dp">
 
-        <ImageButton
-            android:id="@+id/btnCommunicationBack"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:contentDescription="@string/back"
-            android:src="@android:drawable/ic_menu_revert"
-            app:tint="@color/adaptive_text_primary" />
+        <androidx.appcompat.widget.Toolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize">
 
-        <TextView
-            android:layout_width="wrap_content"
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginEnd="16dp">
+
+                <ImageButton
+                    android:id="@+id/btnCommunicationBack"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:layout_centerVertical="true"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:src="@drawable/ic_back"
+                    app:tint="@color/m3_on_surface" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerInParent="true"
+                    android:text="@string/communication_hub_title"
+                    android:textAppearance="@style/TextAppearance.App.TitleLarge" />
+            </RelativeLayout>
+        </androidx.appcompat.widget.Toolbar>
+
+        <com.google.android.material.tabs.TabLayout
+            android:id="@+id/tabCommunication"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_centerInParent="true"
-            android:text="@string/communication_hub_title"
-            android:textColor="@color/adaptive_text_primary"
-            android:textSize="20sp"
-            android:textStyle="bold" />
-    </RelativeLayout>
+            app:tabIndicatorFullWidth="false"
+            app:tabIndicatorHeight="3dp"
+            app:tabSelectedTextColor="@color/m3_primary"
+            app:tabTextColor="@color/text_secondary"
+            app:tabIndicatorColor="@color/m3_primary"
+            app:tabTextAppearance="@style/TextAppearance.App.LabelLarge" />
 
-    <com.google.android.material.tabs.TabLayout
-        android:id="@+id/tabCommunication"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="@color/adaptive_surface"
-        app:layout_constraintTop_toBottomOf="@id/communicationHeader"
-        app:tabIndicatorColor="@color/primary"
-        app:tabSelectedTextColor="@color/primary"
-        app:tabTextColor="@color/text_secondary" />
+    </com.google.android.material.appbar.AppBarLayout>
 
     <androidx.viewpager2.widget.ViewPager2
         android:id="@+id/pagerCommunication"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/tabCommunication" />
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior" />
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

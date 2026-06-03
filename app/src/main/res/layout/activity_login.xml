@@ -3,111 +3,114 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/adaptive_bg">
+    android:background="@drawable/bg_onboarding_gradient">
 
-    <View
-        android:id="@+id/headerBg"
-        android:layout_width="match_parent"
-        android:layout_height="280dp"
-        android:background="@drawable/bg_premium_gradient"
-        app:layout_constraintTop_toTopOf="parent" />
-
+    <!-- Header Area -->
     <LinearLayout
+        android:id="@+id/headerArea"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center"
         android:orientation="vertical"
-        android:paddingTop="60dp"
+        android:paddingTop="48dp"
         app:layout_constraintTop_toTopOf="parent">
 
-        <ImageView
-            android:layout_width="100dp"
-            android:layout_height="100dp"
-            android:src="@mipmap/ic_launcher"
-            app:tint="@color/white" />
+        <FrameLayout
+            android:layout_width="120dp"
+            android:layout_height="120dp"
+            android:background="@drawable/bg_empty_state_circle"
+            android:backgroundTint="#26FFFFFF">
+
+            <ImageView
+                android:layout_width="64dp"
+                android:layout_height="64dp"
+                android:layout_gravity="center"
+                android:src="@drawable/ic_location"
+                app:tint="@color/white" />
+
+            <ImageView
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:layout_gravity="top|end"
+                android:layout_margin="16dp"
+                android:src="@android:drawable/ic_menu_compass"
+                app:tint="#80FFFFFF" />
+        </FrameLayout>
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
-            android:text="ExploreEase"
+            android:text="@string/app_name"
             android:textColor="@color/white"
-            android:textSize="32sp"
+            android:textAppearance="@style/TextAppearance.App.HeadlineLarge"
             android:textStyle="bold" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Your Luxury Travel Companion"
-            android:textColor="#E1BEE7"
-            android:textSize="16sp" />
+            android:layout_marginTop="4dp"
+            android:text="@string/onboarding_login_subtitle"
+            android:textColor="#CCFFFFFF"
+            android:textAppearance="@style/TextAppearance.App.BodyMedium" />
     </LinearLayout>
 
+    <!-- Glassmorphism Login Card -->
     <com.google.android.material.card.MaterialCardView
+        android:id="@+id/loginCard"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginHorizontal="24dp"
-        android:layout_marginTop="-60dp"
-        app:cardCornerRadius="32dp"
-        app:cardElevation="12dp"
-        app:cardBackgroundColor="@color/adaptive_surface"
-        app:layout_constraintTop_toBottomOf="@id/headerBg"
-        app:strokeWidth="0dp">
+        android:layout_marginTop="32dp"
+        app:cardElevation="0dp"
+        app:cardBackgroundColor="@android:color/transparent"
+        app:layout_constraintTop_toBottomOf="@id/headerArea">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:background="@drawable/bg_glass_card"
             android:orientation="vertical"
-            android:padding="32dp">
+            android:padding="24dp">
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Welcome Back"
-                android:textColor="@color/adaptive_text_primary"
-                android:textSize="24sp"
+                android:text="@string/onboarding_login_title"
+                android:textColor="@color/black"
+                android:textAppearance="@style/TextAppearance.App.TitleLarge"
                 android:textStyle="bold" />
 
             <com.google.android.material.textfield.TextInputLayout
-                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="32dp"
+                android:layout_marginTop="24dp"
                 android:hint="Email Address"
-                app:boxCornerRadiusBottomEnd="16dp"
-                app:boxCornerRadiusBottomStart="16dp"
-                app:boxCornerRadiusTopEnd="16dp"
-                app:boxCornerRadiusTopStart="16dp"
                 app:startIconDrawable="@android:drawable/ic_dialog_email"
-                app:startIconTint="@color/primary">
+                app:shapeAppearanceOverlay="@style/ShapeAppearance.Material3.MediumComponent">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/etEmail"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:textColor="@color/adaptive_text_primary"
                     android:inputType="textEmailAddress" />
             </com.google.android.material.textfield.TextInputLayout>
 
             <com.google.android.material.textfield.TextInputLayout
-                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
                 android:hint="Password"
-                app:boxCornerRadiusBottomEnd="16dp"
-                app:boxCornerRadiusBottomStart="16dp"
-                app:boxCornerRadiusTopEnd="16dp"
-                app:boxCornerRadiusTopStart="16dp"
                 app:passwordToggleEnabled="true"
                 app:startIconDrawable="@android:drawable/ic_lock_lock"
-                app:startIconTint="@color/primary">
+                app:shapeAppearanceOverlay="@style/ShapeAppearance.Material3.MediumComponent">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/etPassword"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:textColor="@color/adaptive_text_primary"
                     android:inputType="textPassword" />
             </com.google.android.material.textfield.TextInputLayout>
 
@@ -115,55 +118,141 @@
                 android:id="@+id/btnLogin"
                 android:layout_width="match_parent"
                 android:layout_height="56dp"
-                android:layout_marginTop="32dp"
-                android:text="LOGIN"
-                android:textAllCaps="true"
+                android:layout_marginTop="24dp"
+                android:text="@string/onboarding_login_title"
+                android:textAppearance="@style/TextAppearance.Material3.LabelLarge"
                 android:textStyle="bold"
                 app:cornerRadius="16dp" />
 
-            <TextView
-                android:layout_width="wrap_content"
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:layout_marginTop="20dp"
-                android:text="OR"
-                android:textColor="@color/adaptive_text_muted"
-                android:textSize="12sp" />
+                android:gravity="center"
+                android:layout_marginTop="16dp"
+                android:orientation="horizontal">
+
+                <View
+                    android:layout_width="0dp"
+                    android:layout_height="1dp"
+                    android:layout_weight="1"
+                    android:background="#20000000" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginHorizontal="16dp"
+                    android:text="OR"
+                    android:textAppearance="@style/TextAppearance.Material3.LabelSmall"
+                    android:textColor="#80000000" />
+
+                <View
+                    android:layout_width="0dp"
+                    android:layout_height="1dp"
+                    android:layout_weight="1"
+                    android:background="#20000000" />
+            </LinearLayout>
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnGoogleSignIn"
-                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                style="@style/Widget.Material3.Button.OutlinedButton"
                 android:layout_width="match_parent"
                 android:layout_height="56dp"
-                android:layout_marginTop="20dp"
+                android:layout_marginTop="16dp"
                 android:text="Continue with Google"
-                android:textAllCaps="false"
-                android:textColor="@color/adaptive_text_primary"
-                app:cornerRadius="16dp"
+                android:textColor="@color/black"
                 app:icon="@android:drawable/ic_menu_compass"
                 app:iconGravity="textStart"
-                app:iconTint="@color/primary"
-                app:strokeColor="@color/adaptive_divider" />
+                app:iconPadding="12dp"
+                app:cornerRadius="16dp"
+                app:strokeColor="#20000000" />
 
             <TextView
                 android:id="@+id/tvCreateAccount"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:layout_marginTop="24dp"
-                android:text="New user? Create Premium Account"
-                android:textColor="@color/primary"
+                android:layout_marginTop="20dp"
+                android:padding="8dp"
+                android:text="@string/onboarding_create_account"
+                android:textAppearance="@style/TextAppearance.Material3.LabelLarge"
+                android:textColor="@color/m3_primary"
                 android:textStyle="bold" />
-
-            <ProgressBar
-                android:id="@+id/loginProgressBar"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:layout_marginTop="16dp"
-                android:visibility="gone" />
 
         </LinearLayout>
     </com.google.android.material.card.MaterialCardView>
+
+    <ProgressBar
+        android:id="@+id/loginProgressBar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <!-- Feature Chips -->
+    <HorizontalScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="24dp"
+        android:scrollbars="none"
+        android:clipToPadding="false"
+        android:paddingHorizontal="24dp"
+        app:layout_constraintBottom_toBottomOf="parent">
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <com.google.android.material.chip.Chip
+                style="@style/Widget.Material3.Chip.Assist"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/onboarding_feature_discover"
+                android:textColor="@color/white"
+                app:chipBackgroundColor="#26FFFFFF"
+                app:chipStrokeWidth="0dp"
+                app:chipIcon="@android:drawable/btn_star"
+                app:chipIconTint="@color/white" />
+
+            <com.google.android.material.chip.Chip
+                style="@style/Widget.Material3.Chip.Assist"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:text="@string/onboarding_feature_planner"
+                android:textColor="@color/white"
+                app:chipBackgroundColor="#26FFFFFF"
+                app:chipStrokeWidth="0dp"
+                app:chipIcon="@android:drawable/ic_menu_myplaces"
+                app:chipIconTint="@color/white" />
+
+            <com.google.android.material.chip.Chip
+                style="@style/Widget.Material3.Chip.Assist"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:text="@string/onboarding_feature_sos"
+                android:textColor="@color/white"
+                app:chipBackgroundColor="#26FFFFFF"
+                app:chipStrokeWidth="0dp"
+                app:chipIcon="@drawable/ic_sos"
+                app:chipIconTint="@color/white" />
+
+            <com.google.android.material.chip.Chip
+                style="@style/Widget.Material3.Chip.Assist"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:text="@string/onboarding_feature_translation"
+                android:textColor="@color/white"
+                app:chipBackgroundColor="#26FFFFFF"
+                app:chipStrokeWidth="0dp"
+                app:chipIcon="@android:drawable/ic_menu_search"
+                app:chipIconTint="@color/white" />
+        </LinearLayout>
+    </HorizontalScrollView>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
