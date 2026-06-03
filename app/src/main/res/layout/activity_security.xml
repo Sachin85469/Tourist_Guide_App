@@ -77,7 +77,22 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="4dp"
                 android:layout_marginBottom="8dp"
-                android:text="ACCOUNT PROTECTION"
+                android:text="ACCOUNT DETAILS"
+                android:textColor="@color/primary"
+                android:textSize="12sp"
+                android:textStyle="bold" />
+
+            <include
+                android:id="@+id/btnAccountInfo"
+                layout="@layout/item_setting_row" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="4dp"
+                android:layout_marginTop="16dp"
+                android:layout_marginBottom="8dp"
+                android:text="SECURITY &amp; CREDENTIALS"
                 android:textColor="@color/primary"
                 android:textSize="12sp"
                 android:textStyle="bold" />
@@ -91,11 +106,46 @@
                 layout="@layout/item_setting_row" />
 
             <include
-                android:id="@+id/btnDeleteAccount"
-                layout="@layout/item_setting_row"
-                android:layout_width="match_parent"
+                android:id="@+id/btnVerifyPhone"
+                layout="@layout/item_setting_row" />
+
+            <TextView
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="24dp" />
+                android:layout_marginStart="4dp"
+                android:layout_marginTop="16dp"
+                android:layout_marginBottom="8dp"
+                android:text="SESSIONS &amp; PRIVACY"
+                android:textColor="@color/primary"
+                android:textSize="12sp"
+                android:textStyle="bold" />
+
+            <include
+                android:id="@+id/btnDeviceManagement"
+                layout="@layout/item_setting_row" />
+
+            <include
+                android:id="@+id/btnLoginHistory"
+                layout="@layout/item_setting_row" />
+
+            <include
+                android:id="@+id/btnPrivacySettings"
+                layout="@layout/item_setting_row" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="4dp"
+                android:layout_marginTop="24dp"
+                android:layout_marginBottom="8dp"
+                android:text="DANGER ZONE"
+                android:textColor="@color/indicator_red"
+                android:textSize="12sp"
+                android:textStyle="bold" />
+
+            <include
+                android:id="@+id/btnDeleteAccount"
+                layout="@layout/item_setting_row" />
 
         </LinearLayout>
     </ScrollView>

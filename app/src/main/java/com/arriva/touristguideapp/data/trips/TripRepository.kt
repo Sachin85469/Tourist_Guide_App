@@ -2,6 +2,7 @@ package com.arriva.touristguideapp.data.trips
 
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import java.util.Date
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 
@@ -16,18 +17,55 @@ class TripRepository {
                 .whereEqualTo("userId", uid)
                 .get()
                 .await()
-                .toObjects(Trip::class.java)
+                .documents
+                .mapNotNull { document ->
+                    document.toObject(Trip::class.java)?.apply {
+                        if (id.isEmpty()) id = document.id
+                    }
+                }
         } catch (e: Exception) {
             emptyList()
+        }
+    }
+
+    suspend fun getTrip(tripId: String): Trip? {
+        val uid = auth.currentUser?.uid ?: return null
+        if (tripId.isBlank()) return null
+
+        return try {
+            val document = db.collection("trips").document(tripId).get().await()
+            val trip = document.toObject(Trip::class.java) ?: return null
+            if (trip.userId != uid) return null
+            if (trip.id.isEmpty()) trip.id = document.id
+            trip
+        } catch (e: Exception) {
+            null
         }
     }
 
     suspend fun saveTrip(trip: Trip) {
         val uid = auth.currentUser?.uid ?: return
         trip.userId = uid
+        val now = Date()
+        trip.updatedAt = now
+
+        if (trip.destinationName.isBlank()) {
+            trip.destinationName = trip.title
+        }
+        if (trip.location.isBlank()) {
+            trip.location = trip.places.mapNotNull { it.city }
+                .filter { it.isNotBlank() }
+                .distinct()
+                .joinToString(", ")
+        }
+        if (trip.imageUrl.isBlank()) {
+            trip.imageUrl = trip.places.firstOrNull { !it.imageUrl.isNullOrBlank() }?.imageUrl ?: ""
+        }
+
         if (trip.id.isEmpty()) {
             val ref = db.collection("trips").document()
             trip.id = ref.id
+            trip.createdAt = now
             ref.set(trip).await()
         } else {
             db.collection("trips").document(trip.id).set(trip).await()
@@ -35,6 +73,13 @@ class TripRepository {
     }
 
     suspend fun deleteTrip(tripId: String) {
+        val uid = auth.currentUser?.uid ?: return
+        if (tripId.isBlank()) return
+
+        val document = db.collection("trips").document(tripId).get().await()
+        val ownerId = document.getString("userId") ?: return
+        if (ownerId != uid) return
+
         db.collection("trips").document(tripId).delete().await()
     }
 

@@ -626,6 +626,7 @@ public class MainActivity extends BaseActivity {
         super.onResume();
         loadUserInfo();
         refreshQuickStatsOnly();
+        FavoritesManager.syncFavoritesFromFirestore(this);
         if (tvProfileBadge != null && notificationRepository != null) {
             int unreadCount = notificationRepository.getUnreadCount();
             if (unreadCount > 0) {

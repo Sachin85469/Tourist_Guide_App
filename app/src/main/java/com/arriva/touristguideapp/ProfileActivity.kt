@@ -1,29 +1,58 @@
 package com.arriva.touristguideapp
 
+import android.app.Activity
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
-import android.widget.Toast
-import androidx.appcompat.app.AppCompatActivity
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.lifecycle.lifecycleScope
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.arriva.touristguideapp.data.repository.ProfileRepository
+import com.arriva.touristguideapp.profile.ProfileCompletionHelper
+import com.arriva.touristguideapp.profile.ProfileRecentActivityAdapter
 import com.arriva.touristguideapp.sos.ui.SOSSettingsActivity
 import com.bumptech.glide.Glide
 import com.google.android.material.appbar.MaterialToolbar
+import com.google.android.material.button.MaterialButton
+import com.google.android.material.card.MaterialCardView
 import com.google.firebase.auth.FirebaseAuth
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 class ProfileActivity : BaseActivity() {
 
     private lateinit var auth: FirebaseAuth
     private lateinit var repository: ProfileRepository
     private lateinit var notificationRepository: com.arriva.touristguideapp.data.notifications.NotificationRepository
-    
+
     private lateinit var ivProfileImage: ImageView
     private lateinit var tvProfileName: TextView
+    private lateinit var tvProfileUsername: TextView
     private lateinit var tvProfileEmail: TextView
+    private lateinit var cardCompleteProfileBanner: MaterialCardView
+    private lateinit var tvBannerSubtitle: TextView
+    private lateinit var recentActivityAdapter: ProfileRecentActivityAdapter
+
+    private var dashboardJob: Job? = null
+    private var lastStats: Map<String, Long> = emptyMap()
+    private val dateTimeFormat = SimpleDateFormat("dd MMM yyyy, hh:mm a", Locale.getDefault())
+
+    private val editProfileLauncher = registerForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        if (result.resultCode == Activity.RESULT_OK) {
+            loadUserData()
+            refreshDashboard()
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -31,8 +60,8 @@ class ProfileActivity : BaseActivity() {
 
         auth = FirebaseAuth.getInstance()
         repository = ProfileRepository(this)
-
         notificationRepository = com.arriva.touristguideapp.data.notifications.NotificationRepository(this)
+
         initViews()
         applyAnimations()
     }
@@ -40,7 +69,7 @@ class ProfileActivity : BaseActivity() {
     override fun onResume() {
         super.onResume()
         loadUserData()
-        observeStats()
+        refreshDashboard()
         updateNotificationBadge()
     }
 
@@ -59,13 +88,97 @@ class ProfileActivity : BaseActivity() {
     private fun initViews() {
         ivProfileImage = findViewById(R.id.ivProfileImage)
         tvProfileName = findViewById(R.id.tvProfileName)
+        tvProfileUsername = findViewById(R.id.tvProfileUsername)
         tvProfileEmail = findViewById(R.id.tvProfileEmail)
+        cardCompleteProfileBanner = findViewById(R.id.cardCompleteProfileBanner)
+        tvBannerSubtitle = findViewById(R.id.tvBannerSubtitle)
 
         findViewById<MaterialToolbar>(R.id.toolbar).setNavigationOnClickListener { finish() }
 
-        // Setup settings rows
+        val rvRecentActivity = findViewById<RecyclerView>(R.id.rvRecentActivity)
+        recentActivityAdapter = ProfileRecentActivityAdapter()
+        rvRecentActivity.layoutManager = LinearLayoutManager(this)
+        rvRecentActivity.adapter = recentActivityAdapter
+
+        findViewById<MaterialButton>(R.id.btnCompleteNow).setOnClickListener {
+            openEditProfile()
+        }
+
+        setupStatNavigation()
+        setupQuickAccessCards()
+        setupQuickAccessRows()
+        loadMemberInfo()
+
+        ivProfileImage.setOnClickListener { openEditProfile() }
+        findViewById<View>(R.id.cardProfileCompletion).setOnClickListener { openEditProfile() }
+    }
+
+    private fun openEditProfile() {
+        editProfileLauncher.launch(Intent(this, EditProfileActivity::class.java))
+    }
+
+    private fun setupStatNavigation() {
+        findViewById<View>(R.id.statTrips).setOnClickListener {
+            startActivity(Intent(this, TripHistoryActivity::class.java))
+        }
+        findViewById<View>(R.id.statFavs).setOnClickListener {
+            startActivity(Intent(this, FavoritesActivity::class.java))
+        }
+        findViewById<View>(R.id.statReviews).setOnClickListener {
+            startActivity(Intent(this, MyReviewsActivity::class.java))
+        }
+        findViewById<View>(R.id.statNotifications).setOnClickListener {
+            startActivity(Intent(this, NotificationHistoryActivity::class.java))
+        }
+    }
+
+    private fun setupQuickAccessCards() {
+        bindQuickAccessCard(
+            R.id.cardQuickTripHistory,
+            R.drawable.ic_trip,
+            getString(R.string.quick_access_trip_history)
+        ) { startActivity(Intent(this, TripHistoryActivity::class.java)) }
+
+        bindQuickAccessCard(
+            R.id.cardQuickFavorites,
+            R.drawable.ic_favorite,
+            getString(R.string.quick_access_favorites)
+        ) { startActivity(Intent(this, FavoritesActivity::class.java)) }
+
+        bindQuickAccessCard(
+            R.id.cardQuickReviews,
+            R.drawable.ic_star,
+            getString(R.string.quick_access_reviews)
+        ) { startActivity(Intent(this, MyReviewsActivity::class.java)) }
+
+        bindQuickAccessCard(
+            R.id.cardQuickNotifications,
+            R.drawable.ic_notification,
+            getString(R.string.quick_access_notifications)
+        ) { startActivity(Intent(this, NotificationHistoryActivity::class.java)) }
+    }
+
+    private fun bindQuickAccessCard(cardId: Int, iconRes: Int, title: String, onClick: () -> Unit) {
+        val card = findViewById<View>(cardId)
+        card.findViewById<ImageView>(R.id.ivQuickAccessIcon).setImageResource(iconRes)
+        card.findViewById<TextView>(R.id.tvQuickAccessTitle).text = title
+        card.setOnClickListener { onClick() }
+    }
+
+    private fun updateQuickAccessCounts(stats: Map<String, Long>) {
+        updateQuickAccessCount(R.id.cardQuickTripHistory, stats["trips"] ?: 0)
+        updateQuickAccessCount(R.id.cardQuickFavorites, stats["favorites"] ?: 0)
+        updateQuickAccessCount(R.id.cardQuickReviews, stats["reviews"] ?: 0)
+        updateQuickAccessCount(R.id.cardQuickNotifications, stats["notifications"] ?: 0)
+    }
+
+    private fun updateQuickAccessCount(cardId: Int, count: Long) {
+        findViewById<View>(cardId).findViewById<TextView>(R.id.tvQuickAccessCount).text = count.toString()
+    }
+
+    private fun setupQuickAccessRows() {
         setupRow(findViewById(R.id.btnEditProfile), R.drawable.ic_account, getString(R.string.edit_profile), getString(R.string.edit_profile_desc)) {
-            startActivity(Intent(this, EditProfileActivity::class.java))
+            openEditProfile()
         }
 
         setupRow(findViewById(R.id.btnMyReviews), R.drawable.ic_star, getString(R.string.my_reviews), getString(R.string.my_reviews_desc)) {
@@ -97,17 +210,34 @@ class ProfileActivity : BaseActivity() {
         }
 
         setupRow(findViewById(R.id.btnLogoutRow), R.drawable.ic_logout, getString(R.string.sign_out), getString(R.string.sign_out_desc)) {
-            auth.signOut()
-            // Reset local cache
-            repository.cacheUserProfile(User())
-            val intent = Intent(this, LoginActivity::class.java)
-            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-            startActivity(intent)
-            finish()
-        }
+            val uid = auth.currentUser?.uid
+            val deviceId = BaseActivity.getDeviceId(this)
 
-        ivProfileImage.setOnClickListener {
-            startActivity(Intent(this, EditProfileActivity::class.java))
+            lifecycleScope.launch {
+                if (uid != null) {
+                    try {
+                        com.google.firebase.firestore.FirebaseFirestore.getInstance()
+                            .collection("users")
+                            .document(uid)
+                            .collection("devices")
+                            .document(deviceId)
+                            .delete()
+                            .await()
+                    } catch (e: Exception) {
+                        // Ignore error
+                    }
+                }
+
+                auth.signOut()
+                repository.cacheUserProfile(User())
+                getSharedPreferences("user_profile_cache", Context.MODE_PRIVATE).edit().clear().apply()
+                getSharedPreferences("favorites", Context.MODE_PRIVATE).edit().clear().apply()
+
+                val intent = Intent(this@ProfileActivity, LoginActivity::class.java)
+                intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                startActivity(intent)
+                finish()
+            }
         }
     }
 
@@ -118,65 +248,156 @@ class ProfileActivity : BaseActivity() {
         row.setOnClickListener { onClick() }
     }
 
+    private fun loadMemberInfo() {
+        val firebaseUser = auth.currentUser ?: return
+        val creationTime = firebaseUser.metadata?.creationTimestamp
+        val lastSignInTime = firebaseUser.metadata?.lastSignInTimestamp
+
+        findViewById<TextView>(R.id.tvMemberSince).text =
+            if (creationTime != null && creationTime > 0) {
+                dateTimeFormat.format(Date(creationTime))
+            } else {
+                getString(R.string.date_not_available)
+            }
+
+        findViewById<TextView>(R.id.tvLastLogin).text =
+            if (lastSignInTime != null && lastSignInTime > 0) {
+                dateTimeFormat.format(Date(lastSignInTime))
+            } else {
+                getString(R.string.date_not_available)
+            }
+    }
+
     private fun loadUserData() {
         val user = auth.currentUser ?: return
-        
-        // Load cached details first
-        val cached = repository.getCachedUserProfile()
-        val displayName = cached?.fullName ?: cached?.name ?: user.displayName ?: "Complete Your Profile"
-        val username = if (cached?.username.isNullOrEmpty()) "Complete Your Profile" else cached?.username
-        val email = user.email ?: "Complete Your Profile"
-        
-        tvProfileName.text = displayName
-        findViewById<TextView>(R.id.tvProfileUsername).text = username
-        tvProfileEmail.text = email
 
-        if (!cached?.profileImage.isNullOrEmpty()) {
+        val cached = repository.getCachedUserProfile()
+        if (cached != null) {
+            bindProfileHeader(cached, user.email)
+            updateProfileCompletionUI(cached)
+        } else {
+            bindProfileHeader(null, user.email)
+            updateProfileCompletionUI(buildUserFromAuth(user))
+        }
+
+        lifecycleScope.launch {
+            val profile = repository.getUserProfile()
+            val resolved = profile ?: buildUserFromAuth(user)
+            bindProfileHeader(resolved, resolved.email ?: user.email)
+            updateProfileCompletionUI(resolved)
+        }
+    }
+
+    private fun buildUserFromAuth(firebaseUser: com.google.firebase.auth.FirebaseUser): User {
+        return User().apply {
+            uid = firebaseUser.uid
+            email = firebaseUser.email
+            name = firebaseUser.displayName
+            fullName = firebaseUser.displayName
+            profileImage = firebaseUser.photoUrl?.toString()
+        }
+    }
+
+    private fun bindProfileHeader(profile: User?, fallbackEmail: String?) {
+        val displayName = profile?.fullName?.takeIf { it.isNotBlank() }
+            ?: profile?.name?.takeIf { it.isNotBlank() }
+            ?: getString(R.string.complete_your_profile)
+
+        val username = profile?.username?.takeIf { it.isNotBlank() }
+        val email = profile?.email?.takeIf { it.isNotBlank() }
+            ?: fallbackEmail?.takeIf { it.isNotBlank() }
+            ?: ""
+
+        tvProfileName.text = displayName
+        tvProfileUsername.text = if (username != null) "@$username" else ""
+        tvProfileUsername.visibility = if (username != null) View.VISIBLE else View.GONE
+        tvProfileEmail.text = email.ifBlank { getString(R.string.complete_your_profile) }
+
+        if (profile != null && ProfileCompletionHelper.hasPhoto(profile)) {
             Glide.with(this)
-                .load(cached?.profileImage)
+                .load(profile.profileImage ?: profile.profilePhoto)
                 .circleCrop()
                 .placeholder(R.drawable.ic_account)
                 .into(ivProfileImage)
         } else {
-            ivProfileImage.setImageDrawable(ProfileUtils.generateLetterAvatar(this, displayName))
+            val avatarName = if (displayName == getString(R.string.complete_your_profile)) "?" else displayName
+            ivProfileImage.setImageDrawable(ProfileUtils.generateLetterAvatar(this, avatarName))
         }
+    }
 
-        // Fetch fresh from Firestore
-        lifecycleScope.launch {
-            val profile = repository.getUserProfile()
-            profile?.let {
-                val updatedName = it.fullName ?: it.name ?: "Complete Your Profile"
-                tvProfileName.text = updatedName
-                findViewById<TextView>(R.id.tvProfileUsername).text = if (it.username.isNullOrEmpty()) "Complete Your Profile" else it.username
-                tvProfileEmail.text = it.email ?: "Complete Your Profile"
-                
-                if (!it.profileImage.isNullOrEmpty()) {
-                    Glide.with(this@ProfileActivity)
-                        .load(it.profileImage)
-                        .circleCrop()
-                        .placeholder(R.drawable.ic_account)
-                        .into(ivProfileImage)
+    private fun updateProfileCompletionUI(user: User) {
+        val completion = ProfileCompletionHelper.calculateCompletion(user)
+        findViewById<com.google.android.material.progressindicator.LinearProgressIndicator>(R.id.pbProfileCompletion).progress = completion
+        findViewById<TextView>(R.id.tvCompletionPercentage).text =
+            getString(R.string.profile_completion_format, completion)
+
+        val isComplete = ProfileCompletionHelper.isProfileComplete(user)
+        cardCompleteProfileBanner.visibility = if (isComplete) View.GONE else View.VISIBLE
+        tvBannerSubtitle.text = getString(R.string.profile_banner_subtitle, completion)
+    }
+
+    private fun refreshDashboard() {
+        dashboardJob?.cancel()
+        dashboardJob = lifecycleScope.launch {
+            try {
+                val stats = repository.fetchStats()
+                lastStats = stats
+                updateStat(
+                    R.id.statTrips,
+                    stats["trips"] ?: 0,
+                    getString(R.string.trips),
+                    getString(R.string.no_trips_created)
+                )
+                updateStat(
+                    R.id.statFavs,
+                    stats["favorites"] ?: 0,
+                    getString(R.string.saved_places),
+                    getString(R.string.no_saved_places)
+                )
+                updateStat(
+                    R.id.statReviews,
+                    stats["reviews"] ?: 0,
+                    getString(R.string.reviews),
+                    getString(R.string.no_reviews_yet)
+                )
+                updateStat(
+                    R.id.statNotifications,
+                    stats["notifications"] ?: 0,
+                    getString(R.string.notifications),
+                    getString(R.string.no_notifications_yet)
+                )
+                updateQuickAccessCounts(stats)
+
+                val activities = repository.getRecentActivity()
+                recentActivityAdapter.submitList(activities)
+                val emptyView = findViewById<TextView>(R.id.tvRecentActivityEmpty)
+                val listView = findViewById<RecyclerView>(R.id.rvRecentActivity)
+                if (activities.isEmpty()) {
+                    emptyView.visibility = View.VISIBLE
+                    listView.visibility = View.GONE
                 } else {
-                    ivProfileImage.setImageDrawable(ProfileUtils.generateLetterAvatar(this@ProfileActivity, updatedName))
+                    emptyView.visibility = View.GONE
+                    listView.visibility = View.VISIBLE
+                }
+            } catch (e: Exception) {
+                if (lastStats.isNotEmpty()) {
+                    updateQuickAccessCounts(lastStats)
                 }
             }
         }
     }
 
-    private fun observeStats() {
-        lifecycleScope.launch {
-            repository.getStats().collect { stats ->
-                updateStat(R.id.statTrips, stats["trips"] ?: 0, getString(R.string.trips))
-                updateStat(R.id.statFavs, stats["favorites"] ?: 0, getString(R.string.saved))
-                updateStat(R.id.statReviews, stats["reviews"] ?: 0, getString(R.string.reviews))
-            }
-        }
-    }
-
-    private fun updateStat(rowId: Int, value: Long, label: String) {
+    private fun updateStat(rowId: Int, value: Long, label: String, emptyMessage: String) {
         val row = findViewById<View>(rowId)
         row.findViewById<TextView>(R.id.tvStatValue).text = value.toString()
         row.findViewById<TextView>(R.id.tvStatLabel).text = label
+        val emptyView = row.findViewById<TextView>(R.id.tvStatEmpty)
+        if (value == 0L) {
+            emptyView.text = emptyMessage
+            emptyView.visibility = View.VISIBLE
+        } else {
+            emptyView.visibility = View.GONE
+        }
     }
 
     private fun applyAnimations() {

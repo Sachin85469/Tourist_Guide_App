@@ -3,6 +3,7 @@ package com.arriva.touristguideapp.sos.manager;
 import android.content.Context;
 import android.content.SharedPreferences;
 
+import com.arriva.touristguideapp.R;
 import com.arriva.touristguideapp.data.sos.SOSContact;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -24,11 +25,14 @@ public class SOSPreferences {
     private static final String KEY_SEND_SMS_AUTOMATICALLY = "send_sms_automatically";
     private static final String KEY_SHARE_LIVE_LOCATION = "share_live_location";
     private static final String KEY_REQUIRE_CONFIRMATION = "require_confirmation";
+    private static final String KEY_CUSTOM_SOS_MESSAGE = "custom_sos_message";
 
+    private final Context appContext;
     private final SharedPreferences prefs;
 
     public SOSPreferences(Context context) {
-        this.prefs = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
+        this.appContext = context.getApplicationContext();
+        this.prefs = appContext.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
     }
 
     public void setContactNumber(String number) {
@@ -141,6 +145,11 @@ public class SOSPreferences {
         history.add(0, event);
         String json = new Gson().toJson(history);
         prefs.edit().putString(KEY_SOS_EVENTS_LIST, json).apply();
+        com.arriva.touristguideapp.profile.ProfileActivityTracker.log(
+                appContext,
+                com.arriva.touristguideapp.profile.ProfileActivityTracker.Action.SOS_ACTIVATED,
+                ""
+        );
     }
 
     public List<com.arriva.touristguideapp.sos.model.SOSEvent> getSosEvents() {
@@ -154,5 +163,39 @@ public class SOSPreferences {
         } catch (Exception e) {
             return new ArrayList<>();
         }
+    }
+
+    public String getDefaultSosMessageTemplate() {
+        return appContext.getString(R.string.sos_default_message_template);
+    }
+
+    /** Saved custom template, or null if using the app default. */
+    public String getCustomSosMessageTemplate() {
+        String saved = prefs.getString(KEY_CUSTOM_SOS_MESSAGE, null);
+        if (saved == null || saved.trim().isEmpty()) {
+            return null;
+        }
+        return saved;
+    }
+
+    /** Template used when SOS triggers; falls back to default if empty. */
+    public String getSosMessageTemplate() {
+        String custom = getCustomSosMessageTemplate();
+        if (custom != null) {
+            return custom;
+        }
+        return getDefaultSosMessageTemplate();
+    }
+
+    public void setCustomSosMessageTemplate(String template) {
+        if (template == null || template.trim().isEmpty()) {
+            clearCustomSosMessageTemplate();
+            return;
+        }
+        prefs.edit().putString(KEY_CUSTOM_SOS_MESSAGE, template.trim()).apply();
+    }
+
+    public void clearCustomSosMessageTemplate() {
+        prefs.edit().remove(KEY_CUSTOM_SOS_MESSAGE).apply();
     }
 }

@@ -25,6 +25,11 @@ public class User {
     private String dateOfBirth;
     private String favoriteTravelCategory;
     private boolean admin; // Added
+    private boolean phoneVerified = false;
+    private boolean showProfilePublicly = true;
+    private boolean allowRecommendations = true;
+    private boolean shareAnalytics = true;
+    private boolean receiveNotifications = true;
 
     // Empty constructor for Firestore
     public User() {
@@ -213,5 +218,45 @@ public class User {
 
     public void setFavoriteTravelCategory(String favoriteTravelCategory) {
         this.favoriteTravelCategory = favoriteTravelCategory;
+    }
+
+    public boolean isPhoneVerified() {
+        return phoneVerified;
+    }
+
+    public void setPhoneVerified(boolean phoneVerified) {
+        this.phoneVerified = phoneVerified;
+    }
+
+    public boolean isShowProfilePublicly() {
+        return showProfilePublicly;
+    }
+
+    public void setShowProfilePublicly(boolean showProfilePublicly) {
+        this.showProfilePublicly = showProfilePublicly;
+    }
+
+    public boolean isAllowRecommendations() {
+        return allowRecommendations;
+    }
+
+    public void setAllowRecommendations(boolean allowRecommendations) {
+        this.allowRecommendations = allowRecommendations;
+    }
+
+    public boolean isShareAnalytics() {
+        return shareAnalytics;
+    }
+
+    public void setShareAnalytics(boolean shareAnalytics) {
+        this.shareAnalytics = shareAnalytics;
+    }
+
+    public boolean isReceiveNotifications() {
+        return receiveNotifications;
+    }
+
+    public void setReceiveNotifications(boolean receiveNotifications) {
+        this.receiveNotifications = receiveNotifications;
     }
 }

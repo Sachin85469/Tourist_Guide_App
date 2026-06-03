@@ -67,9 +67,13 @@ public class TopPickAdapter extends RecyclerView.Adapter<TopPickAdapter.ViewHold
                 favoriteIcon.setImageResource(isFav ? R.drawable.ic_favorite : R.drawable.ic_favorite_border);
 
                 favoriteIcon.setOnClickListener(v -> {
-                    FavoritesManager.toggleFavorite(context, place.getId());
+                    FavoritesManager.toggleFavorite(context, place);
                     boolean updated = FavoritesManager.isFavorite(context, place.getId());
                     favoriteIcon.setImageResource(updated ? R.drawable.ic_favorite : R.drawable.ic_favorite_border);
+
+                    if (context instanceof MainActivity) {
+                        ((MainActivity) context).refreshQuickStatsOnly();
+                    }
 
                     favoriteIcon.setScaleX(0.7f);
                     favoriteIcon.setScaleY(0.7f);

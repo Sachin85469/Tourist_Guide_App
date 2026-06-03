@@ -5,84 +5,114 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_marginBottom="12dp"
+    android:clickable="true"
+    android:focusable="true"
     app:cardCornerRadius="16dp"
     app:cardElevation="2dp"
-    app:strokeWidth="1dp"
-    app:strokeColor="#1A000000">
+    app:strokeColor="#1A000000"
+    app:strokeWidth="1dp">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="16dp">
+        android:padding="14dp">
 
-        <RelativeLayout
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-
-            <TextView
-                android:id="@+id/tvTripTitle"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentStart="true"
-                android:layout_toStartOf="@id/tvTripStatus"
-                android:layout_marginEnd="8dp"
-                android:textColor="@color/adaptive_text_primary"
-                android:textAppearance="@style/TextAppearance.App.TitleMedium"
-                android:textStyle="bold"
-                tools:text="Nature Escape Pune" />
-
-            <TextView
-                android:id="@+id/tvTripStatus"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentEnd="true"
-                android:background="@drawable/chip_clean_bg"
-                android:paddingHorizontal="8dp"
-                android:paddingVertical="4dp"
-                android:textColor="@color/primary"
-                android:textSize="11sp"
-                android:textStyle="bold"
-                tools:text="PLANNED" />
-        </RelativeLayout>
-
-        <TextView
-            android:id="@+id/tvTripDates"
-            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
-            android:textColor="@color/adaptive_text_muted"
-            android:textSize="12sp"
-            tools:text="June 03, 2026 - June 05, 2026" />
+            android:orientation="horizontal">
 
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:layout_marginVertical="12dp"
-            android:background="#1A000000" />
+            <ImageView
+                android:id="@+id/ivTripImage"
+                android:layout_width="86dp"
+                android:layout_height="86dp"
+                android:background="@color/m3_surface_variant"
+                android:contentDescription="Destination image"
+                android:padding="18dp"
+                android:scaleType="centerCrop"
+                android:src="@drawable/ic_trip" />
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Places to Visit:"
-            android:textColor="@color/adaptive_text_secondary"
-            android:textSize="12sp"
-            android:textStyle="bold" />
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="12dp"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:id="@+id/tvTripTitle"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:ellipsize="end"
+                        android:maxLines="2"
+                        android:textAppearance="@style/TextAppearance.App.TitleMedium"
+                        android:textColor="@color/adaptive_text_primary"
+                        android:textStyle="bold"
+                        tools:text="Pune" />
+
+                    <TextView
+                        android:id="@+id/tvTripStatus"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="8dp"
+                        android:background="@drawable/chip_clean_bg"
+                        android:paddingHorizontal="8dp"
+                        android:paddingVertical="4dp"
+                        android:textColor="@color/primary"
+                        android:textSize="11sp"
+                        android:textStyle="bold"
+                        tools:text="Upcoming" />
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/tvTripLocation"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:ellipsize="end"
+                    android:maxLines="1"
+                    android:textColor="@color/adaptive_text_muted"
+                    android:textSize="12sp"
+                    tools:text="Pune, Maharashtra" />
+
+                <TextView
+                    android:id="@+id/tvTripDates"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="6dp"
+                    android:textColor="@color/adaptive_text_secondary"
+                    android:textSize="13sp"
+                    tools:text="Jun 05, 2026 - Jun 07, 2026" />
+
+                <TextView
+                    android:id="@+id/tvTripDuration"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="2dp"
+                    android:textColor="@color/adaptive_text_muted"
+                    android:textSize="12sp"
+                    tools:text="3 days" />
+            </LinearLayout>
+        </LinearLayout>
 
         <TextView
             android:id="@+id/tvTripPlaces"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
+            android:layout_marginTop="12dp"
+            android:lineSpacingExtra="2dp"
+            android:maxLines="4"
             android:textColor="@color/adaptive_text_primary"
             android:textSize="13sp"
-            tools:text="• Sinhagad Fort\n• Khadakwasla Dam\n• Okayama Garden" />
-
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:layout_marginVertical="12dp"
-            android:background="#1A000000" />
+            tools:text="- Sinhagad Fort&#10;- Khadakwasla Dam&#10;- Okayama Garden" />
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -109,7 +139,5 @@
                 app:icon="@drawable/ic_delete"
                 app:iconTint="@color/m3_error" />
         </LinearLayout>
-
     </LinearLayout>
-
 </com.google.android.material.card.MaterialCardView>

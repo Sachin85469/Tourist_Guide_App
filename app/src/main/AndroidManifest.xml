@@ -101,6 +101,9 @@
             android:name=".TripHistoryActivity"
             android:exported="false" />
         <activity
+            android:name=".TripDetailsActivity"
+            android:exported="false" />
+        <activity
             android:name=".NotificationSettingsActivity"
             android:exported="false" />
         <activity
@@ -123,6 +126,22 @@
             android:exported="false"
             android:theme="@style/Theme.TouristGuideApp"
             android:windowSoftInputMode="adjustResize" />
+        <activity
+            android:name=".AccountInfoActivity"
+            android:exported="false"
+            android:theme="@style/Theme.TouristGuideApp" />
+        <activity
+            android:name=".DeviceManagementActivity"
+            android:exported="false"
+            android:theme="@style/Theme.TouristGuideApp" />
+        <activity
+            android:name=".PrivacySettingsActivity"
+            android:exported="false"
+            android:theme="@style/Theme.TouristGuideApp" />
+        <activity
+            android:name=".LoginHistoryActivity"
+            android:exported="false"
+            android:theme="@style/Theme.TouristGuideApp" />
         <activity
             android:name=".SecurityActivity"
             android:exported="false"

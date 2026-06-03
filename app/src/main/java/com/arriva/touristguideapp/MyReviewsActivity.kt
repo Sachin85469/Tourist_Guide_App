@@ -228,6 +228,11 @@ class MyReviewsActivity : BaseActivity() {
                 btnCancel.isEnabled = true
                 if (task.isSuccessful) {
                     Toast.makeText(this, "Review updated successfully", Toast.LENGTH_SHORT).show()
+                    com.arriva.touristguideapp.profile.ProfileActivityTracker.log(
+                        this@MyReviewsActivity,
+                        com.arriva.touristguideapp.profile.ProfileActivityTracker.Action.REVIEW_EDITED,
+                        review.placeName ?: "destination"
+                    )
                     try {
                         com.arriva.touristguideapp.data.notifications.NotificationRepository(this@MyReviewsActivity).addNotification(
                             "Review Updated",

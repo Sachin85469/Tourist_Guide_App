@@ -14,16 +14,22 @@ public class NotificationModel implements Serializable {
     private String title;
     private String message;
     private String type;
+    private String dataId; // For deep linking (tripId, placeId, etc.)
     private long timestamp;
     private boolean isRead;
 
     public NotificationModel() {}
 
     public NotificationModel(String id, String title, String message, String type, long timestamp) {
+        this(id, title, message, type, null, timestamp);
+    }
+
+    public NotificationModel(String id, String title, String message, String type, String dataId, long timestamp) {
         this.id = id;
         this.title = title;
         this.message = message;
         this.type = type;
+        this.dataId = dataId;
         this.timestamp = timestamp;
         this.isRead = false;
         this.userId = "";
@@ -31,6 +37,9 @@ public class NotificationModel implements Serializable {
 
     public String getId() { return id; }
     public void setId(String id) { this.id = id; }
+
+    public String getDataId() { return dataId; }
+    public void setDataId(String dataId) { this.dataId = dataId; }
 
     public String getNotificationId() { return id; }
     public void setNotificationId(String notificationId) { this.id = notificationId; }

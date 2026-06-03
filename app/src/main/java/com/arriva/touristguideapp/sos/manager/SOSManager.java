@@ -136,16 +136,21 @@ public class SOSManager {
 
             // Fetch live GPS location
             LocationHelper locationHelper = new LocationHelper(context);
-            locationHelper.getLastLocation(mapsLink -> {
+            locationHelper.getLastLocation(locationResult -> {
                 try {
-                    String locationText = (mapsLink != null) ? mapsLink : "Location unavailable";
-                    
-                    // Compose the message template precisely
-                    String message = "EMERGENCY ALERT\n\n" +
-                                     "I may need immediate assistance.\n\n" +
-                                     "My current location:\n\n" +
-                                     locationText + "\n\n" +
-                                     "Sent from Smart Tourist Guide App";
+                    String locationText = "Location unavailable";
+                    if (locationResult != null && locationResult.mapsLink != null) {
+                        locationText = locationResult.mapsLink;
+                    }
+
+                    String template = preferences.getSosMessageTemplate();
+                    String message = SOSMessageBuilder.build(
+                            context,
+                            template,
+                            locationResult,
+                            new Date(),
+                            preferences.isShareLiveLocation()
+                    );
                     
                     List<String> namesNotified = new ArrayList<>();
                     boolean anySmsSent = false;

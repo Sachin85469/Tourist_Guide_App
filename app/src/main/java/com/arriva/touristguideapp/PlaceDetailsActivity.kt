@@ -211,7 +211,7 @@ class PlaceDetailsActivity : BaseActivity() {
             btnFavorite?.animate()?.scaleX(1f)?.scaleY(1f)?.setDuration(150)
         }
 
-        FavoritesManager.toggleFavorite(this, place.id)
+        FavoritesManager.toggleFavorite(this, place)
         val isFav = FavoritesManager.isFavorite(this, place.id)
         updateFavoriteIcon(isFav)
     }
@@ -282,6 +282,16 @@ class PlaceDetailsActivity : BaseActivity() {
             if (task.isSuccessful) {
                 android.util.Log.d("PlaceDetailsActivity", "Review saved successfully")
                 val isUpdate = btnSubmitReview?.text?.toString() == getString(R.string.update_review)
+                val placeLabel = review.placeName ?: placeName ?: "destination"
+                com.arriva.touristguideapp.profile.ProfileActivityTracker.log(
+                    this,
+                    if (isUpdate) {
+                        com.arriva.touristguideapp.profile.ProfileActivityTracker.Action.REVIEW_EDITED
+                    } else {
+                        com.arriva.touristguideapp.profile.ProfileActivityTracker.Action.REVIEW_POSTED
+                    },
+                    placeLabel
+                )
                 lastSubmitTime = System.currentTimeMillis()
                 Toast.makeText(this, "Success!", Toast.LENGTH_SHORT).show()
                 btnSubmitReview?.setText(R.string.update_review)

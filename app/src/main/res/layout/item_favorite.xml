@@ -158,15 +158,15 @@
                 android:orientation="horizontal">
 
                 <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btnDirections"
+                    android:id="@+id/btnPlanTrip"
                     style="@style/Widget.Material3.Button.TextButton"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="@string/favorites_directions"
+                    android:text="Plan Trip"
                     android:textAppearance="@style/TextAppearance.App.LabelLarge"
                     android:textSize="13sp"
-                    app:icon="@drawable/ic_nav_map"
+                    app:icon="@drawable/ic_trip"
                     app:iconSize="18dp" />
 
                 <com.google.android.material.button.MaterialButton
