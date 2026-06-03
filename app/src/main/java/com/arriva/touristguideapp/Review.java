@@ -19,6 +19,8 @@ public class Review implements Serializable {
     private String userPhotoUrl;
     private String placeId;
     private String placeName;
+    private String placeImageUrl; // Added
+    private String reviewId; // Added
     private float rating;
     private String comment;
     private String status = STATUS_ACTIVE;
@@ -69,4 +71,20 @@ public class Review implements Serializable {
 
     public Date getUpdatedAt() { return updatedAt; }
     public void setUpdatedAt(Date updatedAt) { this.updatedAt = updatedAt; }
+
+    public String getPlaceImageUrl() { return placeImageUrl; }
+    public void setPlaceImageUrl(String placeImageUrl) { this.placeImageUrl = placeImageUrl; }
+
+    public String getReviewId() { return reviewId; }
+    public void setReviewId(String reviewId) { this.reviewId = reviewId; }
+
+    // Aliases to satisfy specific field checks
+    public String getDestinationId() { return getPlaceId(); }
+    public void setDestinationId(String destinationId) { setPlaceId(destinationId); }
+
+    public String getDestinationName() { return getPlaceName(); }
+    public void setDestinationName(String destinationName) { setPlaceName(destinationName); }
+
+    public String getReviewText() { return getComment(); }
+    public void setReviewText(String reviewText) { setComment(reviewText); }
 }

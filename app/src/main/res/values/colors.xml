@@ -81,4 +81,5 @@
     <color name="adaptive_card_stroke">@color/m3_outline_variant</color>
     <color name="adaptive_shadow">#1A000000</color>
     <color name="adaptive_glass_surface">#BCFFFFFF</color>
+    <color name="unread_bg">#F2EEFC</color>
 </resources>

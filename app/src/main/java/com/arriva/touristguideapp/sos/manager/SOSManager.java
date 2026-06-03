@@ -113,6 +113,18 @@ public class SOSManager {
                     }
 
                     preferences.addLog("SOS triggered from " + source + ". Location: " + (mapsLink != null) + ". SMS: " + smsSent);
+                    
+                    try {
+                        com.arriva.touristguideapp.data.notifications.NotificationRepository notificationRepository = 
+                            new com.arriva.touristguideapp.data.notifications.NotificationRepository(context);
+                        notificationRepository.addNotification(
+                            "SOS Alert Activated",
+                            "Emergency SOS alert was sent successfully to " + contact + ".",
+                            com.arriva.touristguideapp.data.notifications.NotificationModel.TYPE_SOS
+                        );
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
                 } catch (Exception e) {
                     Logger.e("Error in SOS flow callback", e);
                 } finally {

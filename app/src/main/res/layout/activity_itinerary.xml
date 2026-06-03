@@ -34,4 +34,16 @@
         android:padding="16dp"
         app:layout_behavior="@string/appbar_scrolling_view_behavior" />
 
+    <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
+        android:id="@+id/btnSaveTrip"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:layout_margin="16dp"
+        android:text="Save Trip"
+        android:textColor="@color/white"
+        app:icon="@drawable/ic_check_circle"
+        app:iconTint="@color/white"
+        app:backgroundTint="@color/primary" />
+
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

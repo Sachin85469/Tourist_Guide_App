@@ -19,6 +19,7 @@ class ProfileActivity : AppCompatActivity() {
 
     private lateinit var auth: FirebaseAuth
     private lateinit var repository: ProfileRepository
+    private lateinit var notificationRepository: com.arriva.touristguideapp.data.notifications.NotificationRepository
     
     private lateinit var ivProfileImage: ImageView
     private lateinit var tvProfileName: TextView
@@ -31,6 +32,7 @@ class ProfileActivity : AppCompatActivity() {
         auth = FirebaseAuth.getInstance()
         repository = ProfileRepository(this)
 
+        notificationRepository = com.arriva.touristguideapp.data.notifications.NotificationRepository(this)
         initViews()
         applyAnimations()
     }
@@ -39,6 +41,19 @@ class ProfileActivity : AppCompatActivity() {
         super.onResume()
         loadUserData()
         observeStats()
+        updateNotificationBadge()
+    }
+
+    private fun updateNotificationBadge() {
+        val row = findViewById<View>(R.id.btnNotificationSettings)
+        val badge = row.findViewById<TextView>(R.id.tvRowBadge)
+        val unreadCount = notificationRepository.getUnreadCount()
+        if (unreadCount > 0) {
+            badge.text = unreadCount.toString()
+            badge.visibility = View.VISIBLE
+        } else {
+            badge.visibility = View.GONE
+        }
     }
 
     private fun initViews() {
@@ -54,19 +69,19 @@ class ProfileActivity : AppCompatActivity() {
         }
 
         setupRow(findViewById(R.id.btnMyReviews), R.drawable.ic_star, "My Reviews", "View and manage your feedback") {
-            Toast.makeText(this, "My Reviews feature coming soon", Toast.LENGTH_SHORT).show()
+            startActivity(Intent(this, MyReviewsActivity::class.java))
         }
 
         setupRow(findViewById(R.id.btnTripHistory), R.drawable.ic_trip, "Trip History", "View your past and upcoming trips") {
-            Toast.makeText(this, "Trip History feature coming soon", Toast.LENGTH_SHORT).show()
+            startActivity(Intent(this, TripHistoryActivity::class.java))
         }
 
         setupRow(findViewById(R.id.btnSecurity), R.drawable.ic_security, "Security", "Manage your account privacy") {
             startActivity(Intent(this, SecurityActivity::class.java))
         }
 
-        setupRow(findViewById(R.id.btnNotificationSettings), R.drawable.ic_notification, "Notifications", "Control alerts and sounds") {
-            startActivity(Intent(this, NotificationSettingsActivity::class.java))
+        setupRow(findViewById(R.id.btnNotificationSettings), R.drawable.ic_notification, "Notifications", "View your alerts and updates") {
+            startActivity(Intent(this, NotificationHistoryActivity::class.java))
         }
 
         setupRow(findViewById(R.id.btnLanguage), R.drawable.ic_language, "Language", "Choose your preferred language") {

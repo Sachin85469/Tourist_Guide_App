@@ -2,6 +2,7 @@ package com.arriva.touristguideapp.data.trips
 
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 
 class TripRepository {
@@ -31,5 +32,22 @@ class TripRepository {
         } else {
             db.collection("trips").document(trip.id).set(trip).await()
         }
+    }
+
+    suspend fun deleteTrip(tripId: String) {
+        db.collection("trips").document(tripId).delete().await()
+    }
+
+    fun saveTripAsync(trip: Trip): com.google.android.gms.tasks.Task<Void> {
+        val tcs = com.google.android.gms.tasks.TaskCompletionSource<Void>()
+        kotlinx.coroutines.CoroutineScope(kotlinx.coroutines.Dispatchers.IO).launch {
+            try {
+                saveTrip(trip)
+                tcs.setResult(null)
+            } catch (e: Exception) {
+                tcs.setException(e)
+            }
+        }
+        return tcs.task
     }
 }

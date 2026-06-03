@@ -14,7 +14,7 @@ import java.util.List;
 public class ReviewRepository {
 
     public interface ReviewsCallback {
-        void onReviewsLoaded(@NonNull List<Review> reviews, @Nullable String error);
+        void onReviewsLoaded(@NonNull List<Review> reviews, @Nullable Exception exception, @Nullable String error);
     }
 
     public interface SingleReviewCallback {
@@ -40,14 +40,14 @@ public class ReviewRepository {
         return dataSource.listenToReviews(placeId, limit, (value, error) -> {
             if (error != null) {
                 android.util.Log.e("ReviewRepository", "REVIEW_PERMISSION_DENIED or error: " + error.getMessage());
-                callback.onReviewsLoaded(new ArrayList<>(), error.getMessage());
+                callback.onReviewsLoaded(new ArrayList<>(), error, error.getMessage());
                 return;
             }
             if (value != null) {
                 android.util.Log.d("ReviewRepository", "REVIEW_QUERY_RESULT_COUNT: count=" + value.size());
                 List<Review> reviews = ReviewMapper.fromSnapshots(value.getDocuments());
                 android.util.Log.d("ReviewRepository", "REVIEW_LIST_SUBMITTED: count=" + reviews.size());
-                callback.onReviewsLoaded(reviews, null);
+                callback.onReviewsLoaded(reviews, null, null);
             }
         });
     }
@@ -116,9 +116,9 @@ public class ReviewRepository {
         dataSource.fetchReviews(placeId).addOnCompleteListener(task -> {
             if (task.isSuccessful() && task.getResult() != null) {
                 List<ReviewDto> dtos = task.getResult().toObjects(ReviewDto.class);
-                callback.onReviewsLoaded(ReviewMapper.toReviews(dtos), null);
+                callback.onReviewsLoaded(ReviewMapper.toReviews(dtos), null, null);
             } else {
-                callback.onReviewsLoaded(new ArrayList<>(), task.getException() != null ? task.getException().getMessage() : "Fetch failed");
+                callback.onReviewsLoaded(new ArrayList<>(), task.getException(), task.getException() != null ? task.getException().getMessage() : "Fetch failed");
             }
         });
     }
@@ -153,5 +153,16 @@ public class ReviewRepository {
     // updateReview is functionally same as submitReview due to the document ID being userId
     public Task<Void> updateReview(String placeId, Review review) {
         return submitReview(placeId, review);
+    }
+
+    public void fetchUserReviews(String userId, ReviewsCallback callback) {
+        dataSource.fetchUserReviews(userId).addOnCompleteListener(task -> {
+            if (task.isSuccessful() && task.getResult() != null) {
+                List<Review> reviews = ReviewMapper.fromSnapshots(task.getResult().getDocuments());
+                callback.onReviewsLoaded(reviews, null, null);
+            } else {
+                callback.onReviewsLoaded(new ArrayList<>(), task.getException(), task.getException() != null ? task.getException().getMessage() : "Fetch failed");
+            }
+        });
     }
 }

@@ -38,23 +38,108 @@ class NotificationRepository(private val context: Context) {
         }
     }
 
+    private fun getHistoryKey(): String {
+        val uid = auth.currentUser?.uid ?: "guest"
+        return "notification_history_$uid"
+    }
+
     /**
      * Saves a notification to local history.
      */
     fun saveToHistory(notification: NotificationModel) {
         val history = getHistory().toMutableList()
+        // Ensure the notification is associated with the current user
+        notification.userId = auth.currentUser?.uid ?: ""
+        
+        // Remove duplicate if same ID exists (e.g. on update/replace)
+        history.removeAll { it.id == notification.id }
+        
         history.add(0, notification)
-        val finalHistory = if (history.size > 50) history.subList(0, 50) else history
-        prefs.edit().putString("notification_history", gson.toJson(finalHistory)).apply()
+        val finalHistory = if (history.size > 100) history.subList(0, 100) else history
+        prefs.edit().putString(getHistoryKey(), gson.toJson(finalHistory)).apply()
     }
 
     /**
-     * Retrieves the notification history.
+     * Retrieves the notification history. Generates a default welcome system notification if empty.
      */
     fun getHistory(): List<NotificationModel> {
-        val json = prefs.getString("notification_history", null) ?: return emptyList()
+        val key = getHistoryKey()
+        val json = prefs.getString(key, null)
+        if (json == null) {
+            // Generate a default system notification on first launch for the user
+            val welcomeNotif = NotificationModel(
+                java.util.UUID.randomUUID().toString(),
+                "Welcome to Tourist Guide App!",
+                "Start exploring Pune's top picks, read and write reviews, plan your perfect trip, or configure SOS contacts.",
+                NotificationModel.TYPE_SYSTEM,
+                System.currentTimeMillis()
+            ).apply {
+                userId = auth.currentUser?.uid ?: ""
+                isRead = false
+            }
+            val initialList = listOf(welcomeNotif)
+            prefs.edit().putString(key, gson.toJson(initialList)).apply()
+            return initialList
+        }
         val type = object : com.google.gson.reflect.TypeToken<List<NotificationModel>>() {}.type
         return gson.fromJson(json, type)
+    }
+
+    fun getNotifications(): List<NotificationModel> {
+        return getHistory()
+    }
+
+    fun addNotification(title: String, message: String, type: String): NotificationModel {
+        val notif = NotificationModel(
+            java.util.UUID.randomUUID().toString(),
+            title,
+            message,
+            type,
+            System.currentTimeMillis()
+        ).apply {
+            userId = auth.currentUser?.uid ?: ""
+            isRead = false
+        }
+        saveToHistory(notif)
+        return notif
+    }
+
+    fun deleteNotification(id: String) {
+        val history = getHistory().toMutableList()
+        if (history.removeAll { it.id == id }) {
+            prefs.edit().putString(getHistoryKey(), gson.toJson(history)).apply()
+        }
+    }
+
+    fun markAsRead(id: String) {
+        val history = getHistory().toMutableList()
+        val notif = history.find { it.id == id }
+        if (notif != null && !notif.isRead) {
+            notif.isRead = true
+            prefs.edit().putString(getHistoryKey(), gson.toJson(history)).apply()
+        }
+    }
+
+    fun markAllAsRead() {
+        val history = getHistory().toMutableList()
+        var updated = false
+        for (notif in history) {
+            if (!notif.isRead) {
+                notif.isRead = true
+                updated = true
+            }
+        }
+        if (updated) {
+            prefs.edit().putString(getHistoryKey(), gson.toJson(history)).apply()
+        }
+    }
+
+    fun clearAll() {
+        prefs.edit().remove(getHistoryKey()).apply()
+    }
+
+    fun getUnreadCount(): Int {
+        return getHistory().count { !it.isRead }
     }
 
     /**

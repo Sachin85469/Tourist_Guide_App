@@ -27,6 +27,9 @@ public final class ReviewMapper {
             if (dto.getUserId() == null) {
                 dto.setUserId(doc.getId());
             }
+            if (dto.getPlaceId() == null && doc.getReference().getParent() != null && doc.getReference().getParent().getParent() != null) {
+                dto.setPlaceId(doc.getReference().getParent().getParent().getId());
+            }
             return toReview(dto);
         } catch (Exception e) {
             android.util.Log.e("ReviewMapper", "REVIEW_PARSE_FAILED: exception=" + e.getMessage() + " for " + doc.getId());
@@ -50,7 +53,11 @@ public final class ReviewMapper {
         review.setUserName(dto.getUserName() != null ? dto.getUserName() : "Anonymous");
         review.setUserPhotoUrl(dto.getUserPhotoUrl());
         review.setRating(dto.getRating());
-        review.setComment(dto.getComment());
+        review.setComment(dto.getComment() != null ? dto.getComment() : dto.getReviewText());
+        review.setPlaceId(dto.getPlaceId() != null ? dto.getPlaceId() : dto.getDestinationId());
+        review.setPlaceName(dto.getPlaceName() != null ? dto.getPlaceName() : dto.getDestinationName());
+        review.setReviewId(dto.getReviewId());
+        review.setPlaceImageUrl(dto.getPlaceImageUrl());
         
         // Handle legacy status
         String status = dto.getStatus();

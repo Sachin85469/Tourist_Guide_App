@@ -56,8 +56,12 @@ public class FirestoreReviewDataSource {
      * Ensure mandatory fields are ALWAYS present and aggregates are consistent.
      */
     public Task<Void> submitReview(String placeId, Review review) {
+        if (review.getReviewId() == null || review.getReviewId().isEmpty()) {
+            review.setReviewId(placeId + "_" + review.getUserId());
+        }
         DocumentReference placeRef = db.collection(PlacesFirestoreContract.COLLECTION_PLACES).document(placeId);
         DocumentReference reviewRef = placeRef.collection(ReviewsFirestoreContract.SUB_COLLECTION_REVIEWS).document(review.getUserId());
+        DocumentReference reviewRootRef = db.collection("reviews").document(review.getReviewId());
 
         return db.runTransaction(transaction -> {
             DocumentSnapshot placeSnapshot = transaction.get(placeRef);
@@ -135,6 +139,7 @@ public class FirestoreReviewDataSource {
             review.setStatus(Review.STATUS_ACTIVE); // Editing always restores to active
 
             transaction.set(reviewRef, review);
+            transaction.set(reviewRootRef, review);
             transaction.update(placeRef, 
                 ReviewsFirestoreContract.FIELD_PLACE_AVG_RATING, newAvg,
                 ReviewsFirestoreContract.FIELD_PLACE_TOTAL_RATINGS, newTotal,
@@ -145,10 +150,11 @@ public class FirestoreReviewDataSource {
         }).continueWithTask(task -> {
             if (task.isSuccessful()) {
                 Log.i(TAG, "REVIEW_UPLOAD_SUCCESS placeId=" + placeId + " userId=" + review.getUserId());
+                Log.d(TAG, "Review Saved successfully: " + review.getReviewId());
                 return Tasks.forResult(null);
             } else {
                 Exception e = task.getException();
-                Log.e(TAG, "REVIEW_UPLOAD_FAILED placeId=" + placeId + " error=" + (e != null ? e.getMessage() : "unknown"));
+                Log.e(TAG, "REVIEW_UPLOAD_FAILED placeId=" + placeId + " error=" + (e != null ? e.getMessage() : "unknown"), e);
                 return Tasks.forException(e != null ? e : new Exception("Transaction failed"));
             }
         });
@@ -175,6 +181,7 @@ public class FirestoreReviewDataSource {
     public Task<Void> deleteReview(String placeId, String userId) {
         DocumentReference placeRef = db.collection(PlacesFirestoreContract.COLLECTION_PLACES).document(placeId);
         DocumentReference reviewRef = placeRef.collection(ReviewsFirestoreContract.SUB_COLLECTION_REVIEWS).document(userId);
+        DocumentReference reviewRootRef = db.collection("reviews").document(placeId + "_" + userId);
 
         return db.runTransaction(transaction -> {
             DocumentSnapshot reviewSnapshot = transaction.get(reviewRef);
@@ -210,6 +217,7 @@ public class FirestoreReviewDataSource {
             long newComments = (wasActive && hadComment) ? Math.max(0, currentComments - 1) : currentComments;
 
             transaction.delete(reviewRef);
+            transaction.delete(reviewRootRef);
             transaction.update(placeRef, 
                 ReviewsFirestoreContract.FIELD_PLACE_AVG_RATING, newAvg,
                 ReviewsFirestoreContract.FIELD_PLACE_TOTAL_RATINGS, newTotal,
@@ -223,7 +231,7 @@ public class FirestoreReviewDataSource {
                 return Tasks.forResult(null);
             } else {
                 Exception e = task.getException();
-                Log.e(TAG, "REVIEW_DELETE_FAILED placeId=" + placeId + " userId=" + userId + " error=" + (e != null ? e.getMessage() : "unknown"));
+                Log.e(TAG, "REVIEW_DELETE_FAILED placeId=" + placeId + " userId=" + userId + " error=" + (e != null ? e.getMessage() : "unknown"), e);
                 return Tasks.forException(e != null ? e : new Exception("Delete transaction failed"));
             }
         });
@@ -326,6 +334,15 @@ public class FirestoreReviewDataSource {
         return db.collection("reports")
                 .whereEqualTo("status", "pending")
                 .orderBy("timestamp", Query.Direction.DESCENDING)
+                .get();
+    }
+
+    /**
+     * Fetches all reviews submitted by a specific user across all destinations.
+     */
+    public Task<com.google.firebase.firestore.QuerySnapshot> fetchUserReviews(String userId) {
+        return db.collection("reviews")
+                .whereEqualTo("userId", userId)
                 .get();
     }
 }

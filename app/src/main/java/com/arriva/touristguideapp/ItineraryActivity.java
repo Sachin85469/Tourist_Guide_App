@@ -6,12 +6,20 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import com.arriva.touristguideapp.data.places.PlaceRepository;
+import com.arriva.touristguideapp.data.trips.Trip;
+import com.arriva.touristguideapp.data.trips.TripRepository;
+import com.arriva.touristguideapp.data.notifications.NotificationRepository;
+import com.arriva.touristguideapp.data.notifications.NotificationModel;
+import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 public class ItineraryActivity extends AppCompatActivity {
@@ -20,6 +28,10 @@ public class ItineraryActivity extends AppCompatActivity {
     private ItineraryAdapter adapter;
     private TextView tvTitle;
     private PlaceRepository placeRepository;
+    private TripRepository tripRepository;
+    private NotificationRepository notificationRepository;
+    private ExtendedFloatingActionButton btnSaveTrip;
+    private List<Place> selectedPlacesList = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -27,6 +39,8 @@ public class ItineraryActivity extends AppCompatActivity {
         setContentView(R.layout.activity_itinerary);
 
         placeRepository = new PlaceRepository();
+        tripRepository = new TripRepository();
+        notificationRepository = new NotificationRepository(this);
         
         androidx.appcompat.widget.Toolbar toolbar = findViewById(R.id.toolbar);
         if (toolbar != null) {
@@ -36,6 +50,11 @@ public class ItineraryActivity extends AppCompatActivity {
         tvTitle = findViewById(R.id.tvItineraryTitle);
         rvItinerary = findViewById(R.id.rvItinerary);
         rvItinerary.setLayoutManager(new LinearLayoutManager(this));
+        
+        btnSaveTrip = findViewById(R.id.btnSaveTrip);
+        if (btnSaveTrip != null) {
+            btnSaveTrip.setOnClickListener(v -> saveThisItinerary());
+        }
 
         boolean isQuickPlan = getIntent().getBooleanExtra("isQuickPlan", false);
 
@@ -48,6 +67,21 @@ public class ItineraryActivity extends AppCompatActivity {
             plan.add(new DayPlan("Your Selection", quickPlanText));
             adapter = new ItineraryAdapter(plan);
             rvItinerary.setAdapter(adapter);
+
+            // Populate selectedPlacesList for Quick Plan
+            int count = 2;
+            if (customTitle != null) {
+                if (customTitle.contains("Half Day")) count = 4;
+                else if (customTitle.contains("Full Day")) count = 5;
+            }
+            List<Place> topPicks = DataProvider.getTopPicks();
+            if (topPicks.isEmpty()) {
+                topPicks = DataProvider.getAllPlaces();
+            }
+            selectedPlacesList.clear();
+            for (int i = 0; i < Math.min(count, topPicks.size()); i++) {
+                selectedPlacesList.add(topPicks.get(i));
+            }
         } else {
             int days = getIntent().getIntExtra("days", 1);
             String type = getIntent().getStringExtra("type");
@@ -57,6 +91,26 @@ public class ItineraryActivity extends AppCompatActivity {
 
     private void loadAndGeneratePlan(int days, String type) {
         placeRepository.fetchPublishedPlaces((places, origin, message) -> {
+            // Populate selectedPlacesList for Custom Plan
+            List<Place> filtered = new ArrayList<>();
+            if (type.equalsIgnoreCase("Nature")) {
+                for (Place p : places) if (p.getCategory().equalsIgnoreCase("Nature")) filtered.add(p);
+            } else if (type.equalsIgnoreCase("Food")) {
+                for (Place p : places) if (p.getCategory().equalsIgnoreCase("Food")) filtered.add(p);
+            } else {
+                filtered.addAll(places);
+            }
+            filtered.sort((p1, p2) -> Double.compare(p2.getRating(), p1.getRating()));
+
+            int placesPerDay = 3;
+            int currentIdx = 0;
+            selectedPlacesList.clear();
+            for (int i = 1; i <= days; i++) {
+                for (int j = 0; j < placesPerDay && currentIdx < filtered.size(); j++) {
+                    selectedPlacesList.add(filtered.get(currentIdx++));
+                }
+            }
+
             List<DayPlan> plan = generateSmartPlan(places, days, type);
             adapter = new ItineraryAdapter(plan);
             rvItinerary.setAdapter(adapter);
@@ -143,5 +197,46 @@ public class ItineraryActivity extends AppCompatActivity {
                 tvDayPlaces = itemView.findViewById(R.id.tvDayPlaces);
             }
         }
+    }
+
+    private void saveThisItinerary() {
+        String title = tvTitle != null ? tvTitle.getText().toString() : "My Trip";
+        if (title.isEmpty()) title = "My Trip";
+
+        Trip trip = new Trip();
+        trip.setTitle(title);
+        trip.setStatus("planned");
+        trip.setPlaces(selectedPlacesList);
+        
+        Calendar cal = Calendar.getInstance();
+        trip.setStartDate(cal.getTime());
+        int days = getIntent().getIntExtra("days", 1);
+        cal.add(Calendar.DATE, days - 1);
+        trip.setEndDate(cal.getTime());
+
+        if (btnSaveTrip != null) {
+            btnSaveTrip.setEnabled(false);
+        }
+        
+        tripRepository.saveTripAsync(trip).addOnCompleteListener(task -> {
+            if (btnSaveTrip != null) {
+                btnSaveTrip.setEnabled(true);
+            }
+            if (task.isSuccessful()) {
+                Toast.makeText(ItineraryActivity.this, "Trip saved to history!", Toast.LENGTH_SHORT).show();
+                
+                // Generate trip notification
+                notificationRepository.addNotification(
+                    "Trip Created",
+                    "Your trip '" + trip.getTitle() + "' was planned successfully.",
+                    NotificationModel.TYPE_TRIP
+                );
+                
+                finish();
+            } else {
+                Toast.makeText(ItineraryActivity.this, "Failed to save trip: " + 
+                    (task.getException() != null ? task.getException().getMessage() : "unknown"), Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 }

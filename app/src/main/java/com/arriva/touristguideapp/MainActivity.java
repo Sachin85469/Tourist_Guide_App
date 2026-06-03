@@ -62,7 +62,7 @@ public class MainActivity extends AppCompatActivity {
     private View emptyStateContainer;
     private EditText searchBox;
     private ImageView btnVoiceSearch;
-    private TextView tvMainUserName, tvMainUserEmail, tvQuickStats;
+    private TextView tvMainUserName, tvMainUserEmail, tvQuickStats, tvProfileBadge;
     private String resolvedCity = "Pune";
 
     private PlaceRepository placeRepository;
@@ -92,6 +92,7 @@ public class MainActivity extends AppCompatActivity {
         rvHome = findViewById(R.id.rvHome);
         btnProfile = findViewById(R.id.btnProfile);
         ivProfileIcon = findViewById(R.id.btnProfile);
+        tvProfileBadge = findViewById(R.id.tvProfileBadge);
         bottomNavigationView = findViewById(R.id.bottom_navigation);
         tvMainUserName = findViewById(R.id.tvMainUserName);
         tvMainUserEmail = findViewById(R.id.tvMainUserEmail);
@@ -621,5 +622,14 @@ public class MainActivity extends AppCompatActivity {
         super.onResume();
         loadUserInfo();
         refreshQuickStatsOnly();
+        if (tvProfileBadge != null && notificationRepository != null) {
+            int unreadCount = notificationRepository.getUnreadCount();
+            if (unreadCount > 0) {
+                tvProfileBadge.setText(String.valueOf(unreadCount));
+                tvProfileBadge.setVisibility(View.VISIBLE);
+            } else {
+                tvProfileBadge.setVisibility(View.GONE);
+            }
+        }
     }
 }

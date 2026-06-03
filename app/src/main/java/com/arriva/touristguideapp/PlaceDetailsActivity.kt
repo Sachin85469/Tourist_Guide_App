@@ -270,17 +270,46 @@ class PlaceDetailsActivity : AppCompatActivity() {
         val review = Review(user.uid, user.displayName ?: "Anonymous", user.photoUrl?.toString(), rating, comment).apply {
             placeId = this@PlaceDetailsActivity.placeId
             placeName = this@PlaceDetailsActivity.placeName
+            placeImageUrl = this@PlaceDetailsActivity.currentPlace?.imageUrl
+            reviewId = "${this@PlaceDetailsActivity.placeId}_${user.uid}"
         }
 
+        android.util.Log.d("PlaceDetailsActivity", "Review submission started")
         reviewRepository.submitReview(placeId ?: "", review).addOnCompleteListener { task ->
             btnSubmitReview?.isEnabled = true
             pbSubmitReview?.visibility = View.GONE
 
             if (task.isSuccessful) {
+                android.util.Log.d("PlaceDetailsActivity", "Review saved successfully")
+                val isUpdate = btnSubmitReview?.text?.toString() == getString(R.string.update_review)
                 lastSubmitTime = System.currentTimeMillis()
                 Toast.makeText(this, "Success!", Toast.LENGTH_SHORT).show()
                 btnSubmitReview?.setText(R.string.update_review)
+                
+                // Add success notification
+                try {
+                    val notifTitle = if (isUpdate) "Review Edited" else "Review Submitted"
+                    val notifMessage = if (isUpdate) {
+                        "Your review for ${review.placeName ?: "Destination"} was updated successfully."
+                    } else {
+                        "Your review for ${review.placeName ?: "Destination"} was posted successfully."
+                    }
+                    val notif = com.arriva.touristguideapp.data.notifications.NotificationModel(
+                        UUID.randomUUID().toString(),
+                        notifTitle,
+                        notifMessage,
+                        com.arriva.touristguideapp.data.notifications.NotificationModel.TYPE_REVIEW,
+                        System.currentTimeMillis()
+                    ).apply {
+                        userId = user.uid
+                        isRead = false
+                    }
+                    com.arriva.touristguideapp.data.notifications.NotificationRepository(this).saveToHistory(notif)
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                }
             } else {
+                android.util.Log.e("PlaceDetailsActivity", "Review save failed: ${task.exception?.message}")
                 Toast.makeText(this, "Failed to post review: ${task.exception?.message}", Toast.LENGTH_SHORT).show()
             }
         }
@@ -292,11 +321,11 @@ class PlaceDetailsActivity : AppCompatActivity() {
 
         pbReviewsLoading?.visibility = View.VISIBLE
         btnRetryReviews?.visibility = View.GONE
-        reviewsListener = reviewRepository.listenToReviews(id, currentReviewLimit) { reviews, error ->
+        reviewsListener = reviewRepository.listenToReviews(id, currentReviewLimit) { reviews, exception, error ->
             pbReviewsLoading?.visibility = View.GONE
             isPaginationLoading = false
             
-            if (error != null) {
+            if (exception != null || error != null) {
                 btnRetryReviews?.visibility = View.VISIBLE
                 return@listenToReviews
             }
@@ -479,6 +508,15 @@ class PlaceDetailsActivity : AppCompatActivity() {
                 reviewRepository.deleteReview(placeId, review.userId).addOnCompleteListener {
                     if (it.isSuccessful) {
                         Toast.makeText(this, "Review deleted", Toast.LENGTH_SHORT).show()
+                        try {
+                            com.arriva.touristguideapp.data.notifications.NotificationRepository(this@PlaceDetailsActivity).addNotification(
+                                "Review Deleted",
+                                "Your review for ${review.placeName ?: "Destination"} was deleted successfully.",
+                                com.arriva.touristguideapp.data.notifications.NotificationModel.TYPE_REVIEW
+                            )
+                        } catch (e: Exception) {
+                            e.printStackTrace()
+                        }
                         rbInputRating?.rating = 0f
                         etReviewComment?.setText("")
                         btnSubmitReview?.setText(R.string.submit_review)
