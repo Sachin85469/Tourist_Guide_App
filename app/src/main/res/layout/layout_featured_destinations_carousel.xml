@@ -1,21 +1,41 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
     android:paddingBottom="16dp">
 
-    <TextView
-        android:id="@+id/tvFeaturedHeader"
-        android:layout_width="wrap_content"
+    <RelativeLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginStart="@dimen/screen_margin"
         android:layout_marginTop="8dp"
         android:layout_marginBottom="8dp"
-        android:text="@string/featured_destinations_header"
-        android:textAppearance="@style/TextAppearance.App.TitleMedium"
-        android:textColor="@color/m3_on_surface"
-        android:textStyle="bold" />
+        android:paddingHorizontal="@dimen/screen_margin">
+
+        <TextView
+            android:id="@+id/tvFeaturedHeader"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentStart="true"
+            android:layout_centerVertical="true"
+            android:text="@string/featured_destinations_header"
+            android:textAppearance="@style/TextAppearance.App.TitleMedium"
+            android:textColor="@color/m3_on_surface"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/btnViewAll"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:layout_centerVertical="true"
+            android:text="@string/view_all"
+            android:textAppearance="@style/TextAppearance.App.LabelLarge"
+            android:textColor="@color/m3_primary"
+            android:clickable="true"
+            android:focusable="true" />
+    </RelativeLayout>
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rvFeaturedHorizontal"

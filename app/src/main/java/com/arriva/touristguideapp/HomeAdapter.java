@@ -33,6 +33,8 @@ public class HomeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private static final int TYPE_WELCOME = 5;
     private static final int TYPE_FEATURED_CAROUSEL = 10;
     private static final int TYPE_FEATURED_DESTINATIONS = 11;
+    private static final int TYPE_CATEGORIES = 12;
+    private static final int TYPE_POPULAR_THIS_WEEK = 13;
 
     private List<HomeSection> sections;
     private List<Category> categories;
@@ -116,6 +118,8 @@ public class HomeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             case HomeSection.TYPE_PLACE: return TYPE_PLACE;
             case HomeSection.TYPE_FEATURED_CAROUSEL: return TYPE_FEATURED_CAROUSEL;
             case HomeSection.TYPE_FEATURED_DESTINATIONS: return TYPE_FEATURED_DESTINATIONS;
+            case HomeSection.TYPE_CATEGORIES: return TYPE_CATEGORIES;
+            case HomeSection.TYPE_POPULAR_THIS_WEEK: return TYPE_POPULAR_THIS_WEEK;
             default: return -1;
         }
     }
@@ -135,6 +139,10 @@ public class HomeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 return new FeaturedViewHolder(inflater.inflate(R.layout.item_featured_carousel, parent, false));
             case TYPE_FEATURED_DESTINATIONS:
                 return new FeaturedDestinationsViewHolder(inflater.inflate(R.layout.layout_featured_destinations_carousel, parent, false), placeClickListener);
+            case TYPE_CATEGORIES:
+                return new CategoriesViewHolder(inflater.inflate(R.layout.layout_home_categories, parent, false), categoryClickListener);
+            case TYPE_POPULAR_THIS_WEEK:
+                return new FeaturedDestinationsViewHolder(inflater.inflate(R.layout.layout_featured_destinations_carousel, parent, false), placeClickListener);
             default:
                 throw new IllegalArgumentException("Invalid view type");
         }
@@ -153,7 +161,10 @@ public class HomeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         } else if (holder instanceof FeaturedViewHolder) {
             ((FeaturedViewHolder) holder).bind(section.getSinglePlace(), placeClickListener);
         } else if (holder instanceof FeaturedDestinationsViewHolder) {
-            ((FeaturedDestinationsViewHolder) holder).bind(section.getData());
+            boolean isPopular = HomeSection.TYPE_POPULAR_THIS_WEEK.equals(section.getType());
+            ((FeaturedDestinationsViewHolder) holder).bind(section.getData(), isPopular);
+        } else if (holder instanceof CategoriesViewHolder) {
+            ((CategoriesViewHolder) holder).bind(categories, section.getTitle());
         }
     }
 
@@ -184,9 +195,64 @@ public class HomeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         }
 
         void bind(List<Place> places) {
-            if (places == null || places.isEmpty()) return;
-            FeaturedDestinationsAdapter adapter = new FeaturedDestinationsAdapter(places, listener);
+            bind(places, false);
+        }
+
+        void bind(List<Place> places, boolean isPopular) {
+            TextView tvHeader = itemView.findViewById(R.id.tvFeaturedHeader);
+            View btnViewAll = itemView.findViewById(R.id.btnViewAll);
+            
+            if (tvHeader != null) {
+                tvHeader.setText(isPopular ? R.string.popular_this_week_header : R.string.featured_destinations_header);
+            }
+
+            if (places == null || places.isEmpty()) {
+                rvFeatured.setVisibility(View.GONE);
+                if (btnViewAll != null) btnViewAll.setVisibility(View.GONE);
+                
+                // Show empty message
+                TextView tvEmpty = new TextView(itemView.getContext());
+                tvEmpty.setText(R.string.no_destinations_available);
+                tvEmpty.setPadding(50, 20, 50, 20);
+                // In a real app we'd add this to the layout, for now we just hide RV
+                return;
+            }
+
+            rvFeatured.setVisibility(View.VISIBLE);
+            if (btnViewAll != null) {
+                btnViewAll.setVisibility(View.VISIBLE);
+                btnViewAll.setOnClickListener(v -> {
+                    // Navigate to See All activity or similar
+                });
+            }
+
+            FeaturedDestinationsAdapter adapter = new FeaturedDestinationsAdapter(places, listener, isPopular);
             rvFeatured.setAdapter(adapter);
+        }
+    }
+
+    static class CategoriesViewHolder extends RecyclerView.ViewHolder {
+        private final RecyclerView rvCategories;
+        private final CategoryAdapter.OnCategoryClickListener listener;
+        private final TextView tvHeader;
+
+        CategoriesViewHolder(View itemView, CategoryAdapter.OnCategoryClickListener listener) {
+            super(itemView);
+            this.rvCategories = itemView.findViewById(R.id.rvCategories);
+            this.tvHeader = itemView.findViewById(R.id.tvCategoriesHeader);
+            this.listener = listener;
+            if (rvCategories != null) {
+                rvCategories.setLayoutManager(new LinearLayoutManager(itemView.getContext(), LinearLayoutManager.HORIZONTAL, false));
+            }
+        }
+
+        void bind(List<Category> categories, String title) {
+            if (tvHeader != null && title != null) {
+                tvHeader.setText(title);
+            }
+            if (categories == null || categories.isEmpty()) return;
+            CategoryAdapter adapter = new CategoryAdapter(categories, listener);
+            rvCategories.setAdapter(adapter);
         }
     }
 

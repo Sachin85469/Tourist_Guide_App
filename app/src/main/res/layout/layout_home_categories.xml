@@ -2,24 +2,27 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    android:paddingBottom="12dp">
 
     <TextView
+        android:id="@+id/tvCategoriesHeader"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="@dimen/screen_margin"
-        android:layout_marginTop="@dimen/spacing_medium"
-        android:text="@string/home_categories"
+        android:layout_marginTop="12dp"
+        android:layout_marginBottom="8dp"
+        android:text="@string/explore_categories_header"
         android:textAppearance="@style/TextAppearance.App.TitleMedium"
-        android:textColor="@color/m3_on_surface" />
+        android:textColor="@color/m3_on_surface"
+        android:textStyle="bold" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rvCategories"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:clipToPadding="false"
-        android:paddingHorizontal="@dimen/spacing_small"
-        android:paddingVertical="@dimen/spacing_small"
+        android:paddingHorizontal="12dp"
         android:scrollbars="none" />
 
 </LinearLayout>

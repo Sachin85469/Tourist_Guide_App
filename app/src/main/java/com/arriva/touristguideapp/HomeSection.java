@@ -16,6 +16,7 @@ public class HomeSection {
     public static final String TYPE_MAP_PREVIEW = "map_preview";
     public static final String TYPE_FEATURED_CAROUSEL = "featured_carousel";
     public static final String TYPE_FEATURED_DESTINATIONS = "featured_destinations";
+    public static final String TYPE_POPULAR_THIS_WEEK = "popular_this_week";
     public static final String TYPE_UPCOMING_TRIPS = "upcoming_trips";
 
     private String type;

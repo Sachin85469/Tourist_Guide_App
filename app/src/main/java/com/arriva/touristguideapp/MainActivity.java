@@ -316,13 +316,12 @@ public class MainActivity extends BaseActivity {
         topPicks = new ArrayList<>(DataProvider.getDefaultTopPicks());
 
         categories = new ArrayList<>();
-        categories.add(new Category(getString(R.string.cat_nature), android.R.drawable.ic_menu_gallery));
-        categories.add(new Category(getString(R.string.cat_history), android.R.drawable.ic_menu_today));
-        categories.add(new Category(getString(R.string.cat_food), android.R.drawable.ic_menu_view));
-        categories.add(new Category(getString(R.string.cat_adventure), android.R.drawable.ic_menu_compass));
-        categories.add(new Category(getString(R.string.cat_spiritual), android.R.drawable.ic_menu_info_details));
-        categories.add(new Category(getString(R.string.cat_shopping), android.R.drawable.ic_menu_agenda));
-        categories.add(new Category(getString(R.string.cat_entertainment), android.R.drawable.ic_menu_slideshow));
+        categories.add(new Category(getString(R.string.cat_historical), R.drawable.ic_map_marker_historical));
+        categories.add(new Category(getString(R.string.cat_nature), R.drawable.ic_map_marker_nature));
+        categories.add(new Category(getString(R.string.cat_religious), R.drawable.ic_map_marker_temple));
+        categories.add(new Category(getString(R.string.cat_food), R.drawable.ic_map_marker_food));
+        categories.add(new Category(getString(R.string.cat_culture), R.drawable.ic_mood));
+        categories.add(new Category(getString(R.string.cat_adventure), R.drawable.ic_map_marker_adventure));
     }
 
     private void checkLocationPermission() {
@@ -486,15 +485,22 @@ public class MainActivity extends BaseActivity {
 
     private void addDefaultSections() {
         sections.add(new HomeSection(HomeSection.TYPE_WELCOME));
-        
-        // Add Hero Carousel (Existing large card)
-        if (allPlaces != null && !allPlaces.isEmpty()) {
-            sections.add(new HomeSection(HomeSection.TYPE_FEATURED_CAROUSEL, allPlaces.get(0)));
-        }
 
-        // NEW: Featured Destinations Horizontal Scroll
+        // Featured Destinations Horizontal Scroll
         if (topPicks != null && !topPicks.isEmpty()) {
             sections.add(new HomeSection(HomeSection.TYPE_FEATURED_DESTINATIONS, new ArrayList<>(topPicks)));
+        } else {
+            // Show empty state placeholder if no featured destinations
+            sections.add(new HomeSection(HomeSection.TYPE_ALL_PLACES_HEADER, getString(R.string.no_destinations_available)));
+        }
+
+        // Explore By Category
+        sections.add(new HomeSection(HomeSection.TYPE_CATEGORIES, getString(R.string.explore_categories_header)));
+
+        // Popular This Week
+        if (allPlaces != null && !allPlaces.isEmpty()) {
+            List<Place> popular = new ArrayList<>(allPlaces.subList(0, Math.min(allPlaces.size(), 5)));
+            sections.add(new HomeSection(HomeSection.TYPE_POPULAR_THIS_WEEK, popular));
         }
 
         sections.add(new HomeSection(HomeSection.TYPE_ALL_PLACES_HEADER, getString(R.string.browse_destinations_header)));

@@ -14,10 +14,17 @@ public class FeaturedDestinationsAdapter extends RecyclerView.Adapter<FeaturedDe
 
     private final List<Place> featuredPlaces;
     private final OnItemClickListener listener;
+    private boolean isPopularMode = false;
 
     public FeaturedDestinationsAdapter(List<Place> featuredPlaces, OnItemClickListener listener) {
         this.featuredPlaces = featuredPlaces;
         this.listener = listener;
+    }
+
+    public FeaturedDestinationsAdapter(List<Place> featuredPlaces, OnItemClickListener listener, boolean isPopularMode) {
+        this.featuredPlaces = featuredPlaces;
+        this.listener = listener;
+        this.isPopularMode = isPopularMode;
     }
 
     @NonNull
@@ -32,7 +39,21 @@ public class FeaturedDestinationsAdapter extends RecyclerView.Adapter<FeaturedDe
         Place place = featuredPlaces.get(position);
         holder.tvTitle.setText(place.getName());
         holder.tvRating.setText(String.format(Locale.getDefault(), "⭐ %.1f", place.getRating()));
-        holder.tvTag.setText(place.getTag() != null ? place.getTag() : "Popular");
+        
+        if (isPopularMode) {
+            holder.tvCategory.setVisibility(View.GONE);
+            holder.tvTag.setVisibility(View.VISIBLE);
+            String descSnippet = place.getDescription();
+            if (descSnippet != null && descSnippet.length() > 40) {
+                descSnippet = descSnippet.substring(0, 37) + "...";
+            }
+            holder.tvTag.setText(descSnippet != null ? descSnippet : place.getTag());
+        } else {
+            holder.tvCategory.setVisibility(View.VISIBLE);
+            holder.tvCategory.setText(place.getCategory());
+            holder.tvTag.setVisibility(View.VISIBLE);
+            holder.tvTag.setText(place.getTag() != null ? place.getTag() : "Popular");
+        }
         
         PlaceImageHelper.loadThumbnail(holder.ivFeatured, place);
         
@@ -48,7 +69,7 @@ public class FeaturedDestinationsAdapter extends RecyclerView.Adapter<FeaturedDe
 
     static class ViewHolder extends RecyclerView.ViewHolder {
         ImageView ivFeatured;
-        TextView tvTitle, tvRating, tvTag;
+        TextView tvTitle, tvRating, tvTag, tvCategory;
 
         ViewHolder(View itemView) {
             super(itemView);
@@ -56,6 +77,7 @@ public class FeaturedDestinationsAdapter extends RecyclerView.Adapter<FeaturedDe
             tvTitle = itemView.findViewById(R.id.tvFeaturedTitle);
             tvRating = itemView.findViewById(R.id.tvFeaturedRating);
             tvTag = itemView.findViewById(R.id.tvFeaturedTag);
+            tvCategory = itemView.findViewById(R.id.tvFeaturedCategory);
         }
     }
 }
