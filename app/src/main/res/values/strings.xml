@@ -251,4 +251,20 @@
     <string name="sos_message_empty_error">Message cannot be empty. Default message restored.</string>
     <string name="sos_message_too_long">Message is too long for SMS (max %1$d parts). Shorten your message.</string>
     <string name="sos_default_message_template" translatable="false">EMERGENCY ALERT\n\nI may need immediate assistance.\n\nPlease contact me immediately.\n\nMy current location:\n\n{LOCATION_LINK}\n\nSent from Smart Tourist Guide App</string>
+
+    <!-- Map Enhancement Strings -->
+    <string name="map_search_hint">Search destinations...</string>
+    <string name="map_directions_to">Directions to %1$s</string>
+    <string name="map_drive">Drive</string>
+    <string name="map_bike">Bike</string>
+    <string name="map_walk">Walk</string>
+    <string name="map_view_details">View Details</string>
+    <string name="map_get_directions">Get Directions</string>
+    <string name="map_open_now">Open Now</string>
+    <string name="map_closed">Closed</string>
+    <string name="map_distance_away">%1$s away</string>
+    <string name="map_temples">Temples</string>
+    <string name="map_forts">Forts</string>
+    <string name="map_nature">Nature</string>
+    <string name="map_museums">Museums</string>
 </resources>

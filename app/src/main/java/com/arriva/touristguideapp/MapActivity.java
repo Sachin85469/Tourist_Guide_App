@@ -23,6 +23,8 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+
+import com.bumptech.glide.Glide;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -62,11 +64,20 @@ public class MapActivity extends BaseActivity {
     private static final int REQUEST_PERMISSIONS_REQUEST_CODE = 1;
     private static final int SPEECH_REQUEST_CODE = 100;
     private GeoPoint searchedPoint;
+    private org.osmdroid.views.overlay.Marker selectedMarker;
+    private Polyline currentRoutePolyline;
 
     // Bottom Sheet
     private BottomSheetBehavior<View> bottomSheetBehavior;
-    private TextView placeNameTv, placeDetailsTv;
-    private Button btnSheetGo;
+    private TextView placeNameTv, placeDetailsTv, tvPlaceCategory, tvPlaceRating, tvPlaceDistance;
+    private ImageView ivPlaceImage;
+    private Button btnSheetGo, btnViewDetails;
+    
+    // Route UI
+    private View routeSummaryCard;
+    private TextView tvRouteTime, tvRouteDistance, tvRouteTitle;
+    private View btnCancelRoute, btnStartNavigation;
+    
     private PlaceRepository placeRepository;
     private List<Place> allTouristPlaces = new ArrayList<>();
 
@@ -213,14 +224,46 @@ public class MapActivity extends BaseActivity {
         placeNameTv = findViewById(R.id.placeName);
         placeDetailsTv = findViewById(R.id.placeDetails);
         btnSheetGo = findViewById(R.id.btnSheetGo);
+        btnViewDetails = findViewById(R.id.btnViewDetails);
+        tvPlaceCategory = findViewById(R.id.tvPlaceCategory);
+        tvPlaceRating = findViewById(R.id.tvPlaceRating);
+        tvPlaceDistance = findViewById(R.id.tvPlaceDistance);
+        ivPlaceImage = findViewById(R.id.ivPlaceImage);
+        
+        // Route UI
+        routeSummaryCard = findViewById(R.id.routeSummaryCard);
+        tvRouteTime = findViewById(R.id.tvRouteTime);
+        tvRouteDistance = findViewById(R.id.tvRouteDistance);
+        tvRouteTitle = findViewById(R.id.tvRouteTitle);
+        btnCancelRoute = findViewById(R.id.btnCancelRoute);
+        btnStartNavigation = findViewById(R.id.btnStartNavigation);
+
+        if (btnCancelRoute != null) {
+            btnCancelRoute.setOnClickListener(v -> clearRoute());
+        }
+    }
+
+    private void clearRoute() {
+        if (currentRoutePolyline != null) {
+            map.getOverlays().remove(currentRoutePolyline);
+            currentRoutePolyline = null;
+        }
+        if (routeSummaryCard != null) routeSummaryCard.setVisibility(View.GONE);
+        map.invalidate();
     }
 
     private void setupCategoryButtons() {
-        findViewById(R.id.btnAtm).setOnClickListener(v -> loadCategoryMarkers("atm"));
-        findViewById(R.id.btnCafe).setOnClickListener(v -> loadCategoryMarkers("cafe"));
-        findViewById(R.id.btnRestaurant).setOnClickListener(v -> loadCategoryMarkers("restaurant"));
-        findViewById(R.id.btnBank).setOnClickListener(v -> loadCategoryMarkers("bank"));
-        findViewById(R.id.btnFuel).setOnClickListener(v -> loadCategoryMarkers("fuel"));
+        View chipTemple = findViewById(R.id.chipTemple);
+        if (chipTemple != null) chipTemple.setOnClickListener(v -> loadCategoryMarkers("temple"));
+
+        View chipFort = findViewById(R.id.chipFort);
+        if (chipFort != null) chipFort.setOnClickListener(v -> loadCategoryMarkers("fort"));
+
+        View chipNature = findViewById(R.id.chipNature);
+        if (chipNature != null) chipNature.setOnClickListener(v -> loadCategoryMarkers("nature"));
+
+        View chipMuseum = findViewById(R.id.chipMuseum);
+        if (chipMuseum != null) chipMuseum.setOnClickListener(v -> loadCategoryMarkers("museum"));
     }
 
     private void startVoiceSearch() {
@@ -292,7 +335,15 @@ public class MapActivity extends BaseActivity {
         
         new Thread(() -> {
             try {
-                String query = "[out:json];node[\"amenity\"=\"" + type + "\"](around:3000," + center.getLatitude() + "," + center.getLongitude() + ");out;";
+                String osmType;
+                switch (type) {
+                    case "temple": osmType = "node[\"amenity\"=\"place_of_worship\"]"; break;
+                    case "fort": osmType = "node[\"historic\"=\"castle\"]"; break;
+                    case "nature": osmType = "node[\"leisure\"=\"park\"]"; break;
+                    case "museum": osmType = "node[\"tourism\"=\"museum\"]"; break;
+                    default: osmType = "node[\"amenity\"=\"" + type + "\"]"; break;
+                }
+                String query = "[out:json];" + osmType + "(around:5000," + center.getLatitude() + "," + center.getLongitude() + ");out;";
                 String urlString = "https://overpass-api.de/api/interpreter?data=" + java.net.URLEncoder.encode(query, "UTF-8");
                 
                 URL url = new URL(urlString);
@@ -320,7 +371,7 @@ public class MapActivity extends BaseActivity {
                     if (isFinishing() || isDestroyed()) return;
                     map.getOverlays().removeIf(o -> o instanceof org.osmdroid.views.overlay.Marker && !((org.osmdroid.views.overlay.Marker)o).getTitle().equals(searchInput.getText().toString()));
                     for (int i = 0; i < points.size(); i++) {
-                        addMarker(points.get(i), names.get(i), "Category: " + type, android.R.drawable.btn_star);
+                        addMarker(points.get(i), names.get(i), "Category: " + type, R.drawable.ic_map_marker_historical);
                     }
                     map.invalidate();
                 });
@@ -375,12 +426,12 @@ public class MapActivity extends BaseActivity {
             marker.setTitle(p.getName());
             marker.setSnippet(p.getCategory() + " - " + p.getCity());
             marker.setAnchor(org.osmdroid.views.overlay.Marker.ANCHOR_CENTER, org.osmdroid.views.overlay.Marker.ANCHOR_BOTTOM);
-            marker.setIcon(androidx.core.content.ContextCompat.getDrawable(this, android.R.drawable.ic_menu_mapmode));
+            
+            int iconRes = getMarkerIconForCategory(p.getCategory());
+            marker.setIcon(androidx.core.content.ContextCompat.getDrawable(this, iconRes));
             
             marker.setOnMarkerClickListener((m, mapView) -> {
-                searchedPoint = (GeoPoint) m.getPosition();
-                showPlaceInfo(m.getTitle(), m.getSnippet(), p);
-                map.getController().animateTo(m.getPosition());
+                selectMarker(m, p);
                 return true;
             });
             
@@ -390,16 +441,82 @@ public class MapActivity extends BaseActivity {
         Log.d("MapActivity", "MAP_MARKERS_RENDERED count=" + allTouristPlaces.size());
     }
 
-    private void showPlaceInfo(String name, String details, Place place) {
-        placeNameTv.setText(name);
-        placeDetailsTv.setText(details);
+    private int getMarkerIconForCategory(String category) {
+        if (category == null) return R.drawable.ic_map_marker_historical;
+        String cat = category.toLowerCase();
+        if (cat.contains("temple")) return R.drawable.ic_map_marker_temple;
+        if (cat.contains("fort")) return R.drawable.ic_map_marker_fort;
+        if (cat.contains("museum")) return R.drawable.ic_map_marker_museum;
+        if (cat.contains("nature") || cat.contains("park") || cat.contains("hill")) return R.drawable.ic_map_marker_nature;
+        if (cat.contains("food") || cat.contains("restaurant") || cat.contains("cafe")) return R.drawable.ic_map_marker_food;
+        if (cat.contains("shop") || cat.contains("mall") || cat.contains("market")) return R.drawable.ic_map_marker_shopping;
+        if (cat.contains("adventure") || cat.contains("trek") || cat.contains("sport")) return R.drawable.ic_map_marker_adventure;
+        return R.drawable.ic_map_marker_historical;
+    }
+
+    private void selectMarker(org.osmdroid.views.overlay.Marker marker, Place p) {
+        // Reset previous selection
+        if (selectedMarker != null) {
+            Place prevPlace = (Place) selectedMarker.getRelatedObject();
+            if (prevPlace != null) {
+                selectedMarker.setIcon(ContextCompat.getDrawable(this, getMarkerIconForCategory(prevPlace.getCategory())));
+            } else {
+                selectedMarker.setIcon(ContextCompat.getDrawable(this, android.R.drawable.ic_menu_mylocation));
+            }
+            selectedMarker.setAnchor(org.osmdroid.views.overlay.Marker.ANCHOR_CENTER, org.osmdroid.views.overlay.Marker.ANCHOR_BOTTOM);
+        }
+
+        selectedMarker = marker;
+        selectedMarker.setRelatedObject(p);
         
-        btnSheetGo.setText("View Details");
+        // Highlight selection
+        selectedMarker.setIcon(ContextCompat.getDrawable(this, R.drawable.ic_map_marker_selected));
+        selectedMarker.setAnchor(org.osmdroid.views.overlay.Marker.ANCHOR_CENTER, org.osmdroid.views.overlay.Marker.ANCHOR_BOTTOM);
+        
+        // Animate
+        marker.setAlpha(0.5f);
+        new Handler().postDelayed(() -> marker.setAlpha(1.0f), 150);
+
+        searchedPoint = marker.getPosition();
+        showPlaceInfo(marker.getTitle(), p);
+        map.getController().animateTo(marker.getPosition());
+    }
+
+    private void showPlaceInfo(String name, Place place) {
+        placeNameTv.setText(name);
+        placeDetailsTv.setText(place.getDescription());
+        if (tvPlaceCategory != null) tvPlaceCategory.setText(place.getCategory());
+        if (tvPlaceRating != null) tvPlaceRating.setText(String.format(java.util.Locale.getDefault(), "%.1f ⭐", place.getRating()));
+        
+        if (locationOverlay != null && locationOverlay.getMyLocation() != null) {
+            float[] results = new float[1];
+            android.location.Location.distanceBetween(
+                    locationOverlay.getMyLocation().getLatitude(), locationOverlay.getMyLocation().getLongitude(),
+                    place.getLat(), place.getLng(), results);
+            if (tvPlaceDistance != null) tvPlaceDistance.setText(String.format(java.util.Locale.getDefault(), "%.1f km away", results[0] / 1000f));
+        }
+
+        if (ivPlaceImage != null && place.getImageUrl() != null) {
+            Glide.with(this).load(place.getImageUrl()).into(ivPlaceImage);
+        }
+        
+        btnSheetGo.setText("Get Directions");
         btnSheetGo.setOnClickListener(v -> {
-            Intent intent = new Intent(this, PlaceDetailsActivity.class);
-            PlaceIntentExtras.putPlaceDetails(intent, place);
-            startActivity(intent);
+            bottomSheetBehavior.setState(BottomSheetBehavior.STATE_HIDDEN);
+            if (locationOverlay != null && locationOverlay.getMyLocation() != null) {
+                fetchRoute(locationOverlay.getMyLocation(), selectedMarker.getPosition());
+            } else {
+                getDirectionsToSearched();
+            }
         });
+
+        if (btnViewDetails != null) {
+            btnViewDetails.setOnClickListener(v -> {
+                Intent intent = new Intent(this, PlaceDetailsActivity.class);
+                PlaceIntentExtras.putPlaceDetails(intent, place);
+                startActivity(intent);
+            });
+        }
 
         bottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
     }
@@ -432,7 +549,11 @@ public class MapActivity extends BaseActivity {
                 JSONArray routes = obj.getJSONArray("routes");
 
                 if (routes.length() > 0) {
-                    JSONArray coordinates = routes.getJSONObject(0).getJSONObject("geometry").getJSONArray("coordinates");
+                    JSONObject route = routes.getJSONObject(0);
+                    double distance = route.getDouble("distance"); // meters
+                    double duration = route.getDouble("duration"); // seconds
+                    
+                    JSONArray coordinates = route.getJSONObject("geometry").getJSONArray("coordinates");
                     ArrayList<GeoPoint> points = new ArrayList<>();
                     for (int i = 0; i < coordinates.length(); i++) {
                         JSONArray p = coordinates.getJSONArray(i);
@@ -440,7 +561,9 @@ public class MapActivity extends BaseActivity {
                     }
                     runOnUiThread(() -> {
                         if (isFinishing() || isDestroyed()) return;
+                        updateRouteInfo(distance, duration);
                         animateRoute(points);
+                        zoomToRoute(points);
                     });
                 }
             } catch (Exception e) {
@@ -449,12 +572,44 @@ public class MapActivity extends BaseActivity {
         }).start();
     }
 
+    private void updateRouteInfo(double meters, double seconds) {
+        if (routeSummaryCard == null) return;
+        routeSummaryCard.setVisibility(View.VISIBLE);
+        
+        int mins = (int) (seconds / 60);
+        String timeStr = mins < 60 ? mins + " min" : (mins / 60) + "h " + (mins % 60) + "m";
+        tvRouteTime.setText(timeStr);
+        
+        String distStr = String.format("%.1f km", meters / 1000f);
+        tvRouteDistance.setText(distStr);
+        
+        if (selectedMarker != null) {
+            tvRouteTitle.setText("To " + selectedMarker.getTitle());
+        }
+    }
+
+    private void zoomToRoute(List<GeoPoint> points) {
+        if (points.isEmpty()) return;
+        double minLat = Double.MAX_VALUE, maxLat = -Double.MAX_VALUE;
+        double minLng = Double.MAX_VALUE, maxLng = -Double.MAX_VALUE;
+        for (GeoPoint p : points) {
+            minLat = Math.min(minLat, p.getLatitude());
+            maxLat = Math.max(maxLat, p.getLatitude());
+            minLng = Math.min(minLng, p.getLongitude());
+            maxLng = Math.max(maxLng, p.getLongitude());
+        }
+        map.zoomToBoundingBox(new org.osmdroid.util.BoundingBox(maxLat, maxLng, minLat, minLng), true);
+    }
+
     private void animateRoute(ArrayList<GeoPoint> points) {
-        map.getOverlays().removeIf(overlay -> overlay instanceof Polyline);
-        Polyline line = new Polyline();
-        line.getOutlinePaint().setColor(0xFF7B1FA2);
-        line.getOutlinePaint().setStrokeWidth(12f);
-        map.getOverlays().add(line);
+        if (currentRoutePolyline != null) {
+            map.getOverlays().remove(currentRoutePolyline);
+        }
+        currentRoutePolyline = new Polyline();
+        currentRoutePolyline.getOutlinePaint().setColor(ContextCompat.getColor(this, R.color.m3_primary));
+        currentRoutePolyline.getOutlinePaint().setStrokeWidth(14f);
+        currentRoutePolyline.getOutlinePaint().setStrokeCap(android.graphics.Paint.Cap.ROUND);
+        map.getOverlays().add(currentRoutePolyline);
 
         Handler handler = new Handler(Looper.getMainLooper());
         final int[] index = {0};
@@ -463,10 +618,11 @@ public class MapActivity extends BaseActivity {
             @Override
             public void run() {
                 if (index[0] < points.size()) {
-                    line.addPoint(points.get(index[0]));
+                    currentRoutePolyline.addPoint(points.get(index[0]));
                     map.invalidate();
-                    index[0]++;
-                    handler.postDelayed(this, 30);
+                    index[0] += Math.max(1, points.size() / 50); // Speed up for long routes
+                    if (index[0] >= points.size()) index[0] = points.size() - 1;
+                    handler.postDelayed(this, 20);
                 }
             }
         };

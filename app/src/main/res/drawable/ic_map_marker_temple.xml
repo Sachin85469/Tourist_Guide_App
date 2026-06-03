@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:drawable="@drawable/bg_marker_pin" />
+    <item
+        android:bottom="20dp"
+        android:left="8dp"
+        android:right="8dp"
+        android:top="8dp">
+        <vector
+            android:width="24dp"
+            android:height="24dp"
+            android:viewportWidth="24"
+            android:viewportHeight="24">
+            <path
+                android:fillColor="@color/m3_primary"
+                android:pathData="M12,3L4,9v11h2v-7h12v7h2V9L12,3zM16,11H8V9h8V11z" />
+        </vector>
+    </item>
+</layer-list>
