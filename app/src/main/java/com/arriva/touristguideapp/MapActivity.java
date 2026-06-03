@@ -49,9 +49,16 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
+
 import com.arriva.touristguideapp.data.places.PlaceRepository;
 import com.arriva.touristguideapp.data.places.PlaceDto;
 import com.arriva.touristguideapp.data.places.PlaceMapper;
+
+import org.osmdroid.bonuspack.routing.OSRMRoadManager;
+import org.osmdroid.bonuspack.routing.Road;
+import org.osmdroid.bonuspack.routing.RoadManager;
+import org.osmdroid.util.BoundingBox;
 
 public class MapActivity extends BaseActivity {
 
@@ -530,49 +537,52 @@ public class MapActivity extends BaseActivity {
     }
 
     private void fetchRoute(GeoPoint start, GeoPoint end) {
+        if (currentRoutePolyline != null) {
+            map.getOverlays().remove(currentRoutePolyline);
+        }
+
         new Thread(() -> {
             try {
-                String urlString = "https://router.project-osrm.org/route/v1/driving/"
-                        + start.getLongitude() + "," + start.getLatitude() + ";"
-                        + end.getLongitude() + "," + end.getLatitude()
-                        + "?overview=full&geometries=geojson";
+                RoadManager roadManager = new OSRMRoadManager(this, getPackageName());
+                ((OSRMRoadManager) roadManager).setMean(OSRMRoadManager.MEAN_BY_CAR);
 
-                URL url = new URL(urlString);
-                HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-                BufferedReader reader = new BufferedReader(new InputStreamReader(conn.getInputStream()));
-                StringBuilder jsonResponse = new StringBuilder();
-                String line;
-                while ((line = reader.readLine()) != null) jsonResponse.append(line);
-                reader.close();
+                ArrayList<GeoPoint> waypoints = new ArrayList<>();
+                waypoints.add(start);
+                waypoints.add(end);
 
-                JSONObject obj = new JSONObject(jsonResponse.toString());
-                JSONArray routes = obj.getJSONArray("routes");
+                Road road = roadManager.getRoad(waypoints);
 
-                if (routes.length() > 0) {
-                    JSONObject route = routes.getJSONObject(0);
-                    double distance = route.getDouble("distance"); // meters
-                    double duration = route.getDouble("duration"); // seconds
-                    
-                    JSONArray coordinates = route.getJSONObject("geometry").getJSONArray("coordinates");
-                    ArrayList<GeoPoint> points = new ArrayList<>();
-                    for (int i = 0; i < coordinates.length(); i++) {
-                        JSONArray p = coordinates.getJSONArray(i);
-                        points.add(new GeoPoint(p.getDouble(1), p.getDouble(0)));
+                runOnUiThread(() -> {
+                    if (isFinishing() || isDestroyed()) return;
+
+                    if (road.mStatus != Road.STATUS_OK) {
+                        Toast.makeText(this, "Error calculating route", Toast.LENGTH_SHORT).show();
+                        return;
                     }
-                    runOnUiThread(() -> {
-                        if (isFinishing() || isDestroyed()) return;
-                        updateRouteInfo(distance, duration);
-                        animateRoute(points);
-                        zoomToRoute(points);
-                    });
-                }
+
+                    currentRoutePolyline = RoadManager.buildRoadOverlay(road);
+                    currentRoutePolyline.getOutlinePaint().setColor(ContextCompat.getColor(this, R.color.m3_primary));
+                    currentRoutePolyline.getOutlinePaint().setStrokeWidth(14f);
+                    currentRoutePolyline.getOutlinePaint().setStrokeCap(android.graphics.Paint.Cap.ROUND);
+                    
+                    map.getOverlays().add(currentRoutePolyline);
+                    
+                    updateRouteInfo(road.mLength, road.mDuration);
+                    
+                    BoundingBox bb = BoundingBox.fromGeoPoints(road.mRouteHigh);
+                    map.zoomToBoundingBox(bb, true, 150);
+                    
+                    map.invalidate();
+                });
+
             } catch (Exception e) {
                 e.printStackTrace();
+                runOnUiThread(() -> Toast.makeText(this, "Route failed", Toast.LENGTH_SHORT).show());
             }
         }).start();
     }
 
-    private void updateRouteInfo(double meters, double seconds) {
+    private void updateRouteInfo(double km, double seconds) {
         if (routeSummaryCard == null) return;
         routeSummaryCard.setVisibility(View.VISIBLE);
         
@@ -580,53 +590,12 @@ public class MapActivity extends BaseActivity {
         String timeStr = mins < 60 ? mins + " min" : (mins / 60) + "h " + (mins % 60) + "m";
         tvRouteTime.setText(timeStr);
         
-        String distStr = String.format("%.1f km", meters / 1000f);
+        String distStr = String.format(Locale.getDefault(), "Distance: %.1f km", km);
         tvRouteDistance.setText(distStr);
         
         if (selectedMarker != null) {
             tvRouteTitle.setText("To " + selectedMarker.getTitle());
         }
-    }
-
-    private void zoomToRoute(List<GeoPoint> points) {
-        if (points.isEmpty()) return;
-        double minLat = Double.MAX_VALUE, maxLat = -Double.MAX_VALUE;
-        double minLng = Double.MAX_VALUE, maxLng = -Double.MAX_VALUE;
-        for (GeoPoint p : points) {
-            minLat = Math.min(minLat, p.getLatitude());
-            maxLat = Math.max(maxLat, p.getLatitude());
-            minLng = Math.min(minLng, p.getLongitude());
-            maxLng = Math.max(maxLng, p.getLongitude());
-        }
-        map.zoomToBoundingBox(new org.osmdroid.util.BoundingBox(maxLat, maxLng, minLat, minLng), true);
-    }
-
-    private void animateRoute(ArrayList<GeoPoint> points) {
-        if (currentRoutePolyline != null) {
-            map.getOverlays().remove(currentRoutePolyline);
-        }
-        currentRoutePolyline = new Polyline();
-        currentRoutePolyline.getOutlinePaint().setColor(ContextCompat.getColor(this, R.color.m3_primary));
-        currentRoutePolyline.getOutlinePaint().setStrokeWidth(14f);
-        currentRoutePolyline.getOutlinePaint().setStrokeCap(android.graphics.Paint.Cap.ROUND);
-        map.getOverlays().add(currentRoutePolyline);
-
-        Handler handler = new Handler(Looper.getMainLooper());
-        final int[] index = {0};
-        
-        Runnable runnable = new Runnable() {
-            @Override
-            public void run() {
-                if (index[0] < points.size()) {
-                    currentRoutePolyline.addPoint(points.get(index[0]));
-                    map.invalidate();
-                    index[0] += Math.max(1, points.size() / 50); // Speed up for long routes
-                    if (index[0] >= points.size()) index[0] = points.size() - 1;
-                    handler.postDelayed(this, 20);
-                }
-            }
-        };
-        handler.post(runnable);
     }
 
     private void initLocationOverlay() {

@@ -63,6 +63,7 @@ dependencies {
     implementation libs.places
     implementation libs.volley
     implementation libs.osmdroid
+    implementation 'com.github.MKergall:osmbonuspack:6.9.0'
     implementation libs.mlkit.translate
     implementation libs.generativeai
 
