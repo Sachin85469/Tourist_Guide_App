@@ -22,6 +22,7 @@ import androidx.recyclerview.widget.SnapHelper;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
@@ -31,6 +32,7 @@ public class HomeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private static final int TYPE_PLACE = 4;
     private static final int TYPE_WELCOME = 5;
     private static final int TYPE_FEATURED_CAROUSEL = 10;
+    private static final int TYPE_FEATURED_DESTINATIONS = 11;
 
     private List<HomeSection> sections;
     private List<Category> categories;
@@ -48,7 +50,7 @@ public class HomeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                        CategoryAdapter.OnCategoryClickListener categoryClickListener,
                        View.OnClickListener planTripClickListener,
                        View.OnClickListener phrasebookClickListener) {
-        this.sections = sections;
+        this.sections = new ArrayList<>(sections);
         this.categories = categories;
         this.topPicks = topPicks;
         this.placeClickListener = placeClickListener;
@@ -59,36 +61,40 @@ public class HomeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     }
 
     public void updateSections(List<HomeSection> newSections) {
+        final List<HomeSection> oldList = new ArrayList<>(this.sections);
+        final List<HomeSection> newList = new ArrayList<>(newSections);
+        
         DiffUtil.DiffResult diffResult = DiffUtil.calculateDiff(new DiffUtil.Callback() {
             @Override
             public int getOldListSize() {
-                return sections.size();
+                return oldList.size();
             }
 
             @Override
             public int getNewListSize() {
-                return newSections.size();
+                return newList.size();
             }
 
             @Override
             public boolean areItemsTheSame(int oldItemPosition, int newItemPosition) {
-                HomeSection oldS = sections.get(oldItemPosition);
-                HomeSection newS = newSections.get(newItemPosition);
+                HomeSection oldS = oldList.get(oldItemPosition);
+                HomeSection newS = newList.get(newItemPosition);
                 if (!oldS.getType().equals(newS.getType())) return false;
                 
                 if (HomeSection.TYPE_PLACE.equals(oldS.getType())) {
                     return oldS.getSinglePlace().getId().equals(newS.getSinglePlace().getId());
                 }
-                return true; // Other sections are singleton types
+                return true;
             }
 
             @Override
             public boolean areContentsTheSame(int oldItemPosition, int newItemPosition) {
-                return sections.get(oldItemPosition).equals(newSections.get(newItemPosition));
+                return oldList.get(oldItemPosition).equals(newList.get(newItemPosition));
             }
         });
+        
         this.sections.clear();
-        this.sections.addAll(newSections);
+        this.sections.addAll(newList);
         diffResult.dispatchUpdatesTo(this);
     }
 
@@ -109,6 +115,7 @@ public class HomeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             case HomeSection.TYPE_ALL_PLACES_HEADER: return TYPE_SECTION_HEADER;
             case HomeSection.TYPE_PLACE: return TYPE_PLACE;
             case HomeSection.TYPE_FEATURED_CAROUSEL: return TYPE_FEATURED_CAROUSEL;
+            case HomeSection.TYPE_FEATURED_DESTINATIONS: return TYPE_FEATURED_DESTINATIONS;
             default: return -1;
         }
     }
@@ -126,6 +133,8 @@ public class HomeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 return new PlaceViewHolder(inflater.inflate(R.layout.item_place_v2, parent, false));
             case TYPE_FEATURED_CAROUSEL:
                 return new FeaturedViewHolder(inflater.inflate(R.layout.item_featured_carousel, parent, false));
+            case TYPE_FEATURED_DESTINATIONS:
+                return new FeaturedDestinationsViewHolder(inflater.inflate(R.layout.layout_featured_destinations_carousel, parent, false), placeClickListener);
             default:
                 throw new IllegalArgumentException("Invalid view type");
         }
@@ -143,6 +152,8 @@ public class HomeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             ((PlaceViewHolder) holder).bind(section.getSinglePlace(), position, placeClickListener);
         } else if (holder instanceof FeaturedViewHolder) {
             ((FeaturedViewHolder) holder).bind(section.getSinglePlace(), placeClickListener);
+        } else if (holder instanceof FeaturedDestinationsViewHolder) {
+            ((FeaturedDestinationsViewHolder) holder).bind(section.getData());
         }
     }
 
@@ -158,6 +169,27 @@ public class HomeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         }
         super.onViewRecycled(holder);
     }
+
+    static class FeaturedDestinationsViewHolder extends RecyclerView.ViewHolder {
+        private final RecyclerView rvFeatured;
+        private final OnItemClickListener listener;
+
+        FeaturedDestinationsViewHolder(View itemView, OnItemClickListener listener) {
+            super(itemView);
+            this.rvFeatured = itemView.findViewById(R.id.rvFeaturedHorizontal);
+            this.listener = listener;
+            if (rvFeatured != null) {
+                rvFeatured.setLayoutManager(new LinearLayoutManager(itemView.getContext(), LinearLayoutManager.HORIZONTAL, false));
+            }
+        }
+
+        void bind(List<Place> places) {
+            if (places == null || places.isEmpty()) return;
+            FeaturedDestinationsAdapter adapter = new FeaturedDestinationsAdapter(places, listener);
+            rvFeatured.setAdapter(adapter);
+        }
+    }
+
 
     static class FeaturedViewHolder extends RecyclerView.ViewHolder {
         ImageView ivFeatured, btnFavorite;

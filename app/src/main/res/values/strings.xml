@@ -293,4 +293,14 @@
     <string name="travel_insight_title">✨ Ready to Explore?</string>
     <string name="travel_insight_subtitle">Discover hidden gems nearby</string>
     <string name="quick_stats_format">⭐ %1$d Favorites   •   🧳 %2$d Trips</string>
+    <string name="quick_actions_header">⚡ Quick Actions</string>
+    <string name="browse_destinations_header">🗺️ Browse Destinations</string>
+    <string name="featured_destinations_header">🌟 Featured Destinations</string>
+    <string name="recommended_for_you">Recommended for You</string>
+    <string name="travel_categories">Travel Categories</string>
+    <string name="language_assistant">Language Assistant</string>
+    <string name="language_assistant_sub">Translate &amp; communicate</string>
+    <string name="explore_nearby_sub">Places around you</string>
+    <string name="plan_trip_sub">Create your itinerary</string>
+    <string name="sos_alert_sub">Emergency assistance</string>
 </resources>

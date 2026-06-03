@@ -487,12 +487,17 @@ public class MainActivity extends BaseActivity {
     private void addDefaultSections() {
         sections.add(new HomeSection(HomeSection.TYPE_WELCOME));
         
-        // Add Featured Carousel if data is available
+        // Add Hero Carousel (Existing large card)
         if (allPlaces != null && !allPlaces.isEmpty()) {
             sections.add(new HomeSection(HomeSection.TYPE_FEATURED_CAROUSEL, allPlaces.get(0)));
         }
 
-        sections.add(new HomeSection(HomeSection.TYPE_ALL_PLACES_HEADER, getString(R.string.browse_all)));
+        // NEW: Featured Destinations Horizontal Scroll
+        if (topPicks != null && !topPicks.isEmpty()) {
+            sections.add(new HomeSection(HomeSection.TYPE_FEATURED_DESTINATIONS, new ArrayList<>(topPicks)));
+        }
+
+        sections.add(new HomeSection(HomeSection.TYPE_ALL_PLACES_HEADER, getString(R.string.browse_destinations_header)));
         for (Place p : allPlaces) {
             sections.add(new HomeSection(HomeSection.TYPE_PLACE, p));
         }
