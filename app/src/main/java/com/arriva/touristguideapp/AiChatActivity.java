@@ -1,12 +1,13 @@
 package com.arriva.touristguideapp;
 
 import android.os.Bundle;
-import android.view.Gravity;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
-import android.widget.LinearLayout;
+import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -21,140 +22,269 @@ import com.google.ai.client.generativeai.GenerativeModel;
 import com.google.ai.client.generativeai.java.GenerativeModelFutures;
 import com.google.ai.client.generativeai.type.Content;
 import com.google.ai.client.generativeai.type.GenerateContentResponse;
-import com.google.android.material.card.MaterialCardView;
+import com.google.ai.client.generativeai.type.RequestOptions;
+import com.google.android.material.chip.Chip;
+import com.google.android.material.progressindicator.LinearProgressIndicator;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
+import java.util.Objects;
 
 public class AiChatActivity extends AppCompatActivity {
 
     private RecyclerView recyclerViewChat;
     private ChatAdapter chatAdapter;
     private EditText etMessage;
-    private View btnSend;
-    private List<ChatMessage> messages = new ArrayList<>();
+    private ImageButton btnSend;
+    private LinearProgressIndicator progressIndicator;
+    private View emptyStateView;
+    private View suggestedPromptsScroll;
+    private final List<ChatMessage> messages = new ArrayList<>();
     private GenerativeModelFutures model;
+    private boolean isThinking = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        PerformanceTracker.startTimer("AI_CHAT_INIT");
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_ai_chat);
 
+        initViews();
+        setupRecyclerView();
+        setupListeners();
+        initGemini();
+
+        PerformanceTracker.endTimer("AI_CHAT_INIT");
+    }
+
+    private void initViews() {
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            getSupportActionBar().setDisplayShowTitleEnabled(false);
         }
         toolbar.setNavigationOnClickListener(v -> finish());
 
         recyclerViewChat = findViewById(R.id.recyclerViewChat);
         etMessage = findViewById(R.id.etMessage);
         btnSend = findViewById(R.id.btnSend);
+        progressIndicator = findViewById(R.id.progressIndicator);
+        emptyStateView = findViewById(R.id.emptyStateView);
+        suggestedPromptsScroll = findViewById(R.id.suggestedPromptsScroll);
 
+        updateEmptyState();
+    }
+
+    private void setupRecyclerView() {
         chatAdapter = new ChatAdapter(messages);
         recyclerViewChat.setLayoutManager(new LinearLayoutManager(this));
         recyclerViewChat.setAdapter(chatAdapter);
+    }
 
-        initGemini();
+    private void setupListeners() {
+        btnSend.setOnClickListener(v -> sendMessage(etMessage.getText().toString().trim()));
+        
+        etMessage.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                btnSend.setEnabled(!s.toString().trim().isEmpty() && !isThinking);
+            }
+            @Override
+            public void afterTextChanged(Editable s) {}
+        });
 
-        btnSend.setOnClickListener(v -> sendMessage());
+        findViewById(R.id.chipPlanTrip).setOnClickListener(v -> onSuggestedPromptClick(((Chip)v).getText().toString()));
+        findViewById(R.id.chipFood).setOnClickListener(v -> onSuggestedPromptClick(((Chip)v).getText().toString()));
+        findViewById(R.id.chipAttractions).setOnClickListener(v -> onSuggestedPromptClick(((Chip)v).getText().toString()));
+        findViewById(R.id.chipBudget).setOnClickListener(v -> onSuggestedPromptClick(((Chip)v).getText().toString()));
+    }
 
-        // Initial greeting
-        addMessage(new ChatMessage(getString(R.string.ai_initial_message), false));
+    private void onSuggestedPromptClick(String prompt) {
+        sendMessage(prompt);
     }
 
     private void initGemini() {
-        String apiKey = getString(R.string.gemini_api_key);
-        if (apiKey.equals("YOUR_GEMINI_API_KEY")) {
-            Toast.makeText(this, "Please set your Gemini API key in strings.xml", Toast.LENGTH_LONG).show();
+        String apiKey = BuildConfig.GEMINI_API_KEY;
+        if (apiKey.isEmpty() || apiKey.equals("YOUR_ACTUAL_GEMINI_KEY")) {
+            Toast.makeText(this, "AI configuration missing", Toast.LENGTH_LONG).show();
+            return;
         }
 
-        GenerativeModel gm = new GenerativeModel("gemini-2.0-flash", apiKey);
-        model = GenerativeModelFutures.from(gm);
+        Content systemInstruction = new Content.Builder()
+                .addText("You are a specialized Tourism AI Assistant named ExploreEase AI. " +
+                        "Your ONLY purpose is to answer queries related to tourism, travel, attractions, and local guide information in Pune. " +
+                        "Strictly refuse to answer ANY questions that are not related to tourism. " +
+                        "Maintain a friendly, helpful, and professional tone. " +
+                        "If asked about yourself, say you are the ExploreEase Travel Assistant.")
+                .build();
+
+        try {
+            GenerativeModel gm = new GenerativeModel(
+                    "gemini-1.5-flash-latest",
+                    apiKey,
+                    null, null, new RequestOptions(), null, null,
+                    systemInstruction
+            );
+            model = GenerativeModelFutures.from(gm);
+        } catch (Exception e) {
+            android.util.Log.e("AiChatActivity", "Failed to initialize Gemini", e);
+        }
     }
 
-    private void sendMessage() {
-        String text = etMessage.getText().toString().trim();
-        if (text.isEmpty()) return;
+    private void sendMessage(String text) {
+        if (text.isEmpty() || isThinking) return;
+
+        if (model == null) {
+            Toast.makeText(this, "Assistant not ready", Toast.LENGTH_SHORT).show();
+            return;
+        }
 
         etMessage.setText("");
         addMessage(new ChatMessage(text, true));
+        setThinkingState(true);
 
-        Content content = new Content.Builder()
-                .addText(text)
-                .build();
-
-        Executor executor = Executors.newSingleThreadExecutor();
+        Content content = new Content.Builder().addText(text).build();
         ListenableFuture<GenerateContentResponse> response = model.generateContent(content);
 
         Futures.addCallback(response, new FutureCallback<GenerateContentResponse>() {
             @Override
             public void onSuccess(GenerateContentResponse result) {
-                String resultText = result.getText();
-                runOnUiThread(() -> addMessage(new ChatMessage(resultText, false)));
+                if (isFinishing() || isDestroyed()) return;
+                runOnUiThread(() -> {
+                    setThinkingState(false);
+                    String resultText = Objects.requireNonNullElse(result.getText(), "I'm sorry, I couldn't generate a response.");
+                    addMessage(new ChatMessage(resultText, false));
+                });
             }
 
             @Override
             public void onFailure(@NonNull Throwable t) {
+                if (isFinishing() || isDestroyed()) return;
                 runOnUiThread(() -> {
-                    addMessage(new ChatMessage("Error: " + t.getMessage(), false));
-                    Toast.makeText(AiChatActivity.this, "Failed to get response", Toast.LENGTH_SHORT).show();
+                    setThinkingState(false);
+                    String error = "I'm having trouble connecting. Please try again.";
+                    if (t.getMessage() != null && t.getMessage().contains("quota")) {
+                        error = "I've reached my limit for now. Try again later!";
+                    }
+                    addMessage(new ChatMessage(error, false));
                 });
             }
         }, ContextCompat.getMainExecutor(this));
+    }
+
+    private void setThinkingState(boolean thinking) {
+        isThinking = thinking;
+        progressIndicator.setVisibility(thinking ? View.VISIBLE : View.GONE);
+        btnSend.setEnabled(!thinking && !etMessage.getText().toString().trim().isEmpty());
+        suggestedPromptsScroll.setVisibility(thinking ? View.GONE : View.VISIBLE);
+        
+        if (thinking) {
+            addMessage(new ChatMessage(null, false, true));
+        } else {
+            removeTypingIndicator();
+        }
     }
 
     private void addMessage(ChatMessage message) {
         messages.add(message);
         chatAdapter.notifyItemInserted(messages.size() - 1);
         recyclerViewChat.scrollToPosition(messages.size() - 1);
+        updateEmptyState();
+    }
+
+    private void removeTypingIndicator() {
+        for (int i = messages.size() - 1; i >= 0; i--) {
+            if (messages.get(i).isTyping) {
+                messages.remove(i);
+                chatAdapter.notifyItemRemoved(i);
+                break;
+            }
+        }
+    }
+
+    private void updateEmptyState() {
+        boolean isEmpty = messages.isEmpty();
+        emptyStateView.setVisibility(isEmpty ? View.VISIBLE : View.GONE);
+        recyclerViewChat.setVisibility(isEmpty ? View.GONE : View.VISIBLE);
     }
 
     static class ChatMessage {
         String text;
         boolean isUser;
+        boolean isTyping;
 
         ChatMessage(String text, boolean isUser) {
+            this(text, isUser, false);
+        }
+
+        ChatMessage(String text, boolean isUser, boolean isTyping) {
             this.text = text;
             this.isUser = isUser;
+            this.isTyping = isTyping;
         }
     }
 
-    class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ViewHolder> {
-        private List<ChatMessage> messages;
+    static class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
+        private static final int VIEW_TYPE_USER = 1;
+        private static final int VIEW_TYPE_AI = 2;
+        private static final int VIEW_TYPE_TYPING = 3;
+
+        private final List<ChatMessage> messages;
 
         ChatAdapter(List<ChatMessage> messages) {
             this.messages = messages;
         }
 
+        @Override
+        public int getItemViewType(int position) {
+            ChatMessage msg = messages.get(position);
+            if (msg.isTyping) return VIEW_TYPE_TYPING;
+            return msg.isUser ? VIEW_TYPE_USER : VIEW_TYPE_AI;
+        }
+
         @NonNull
         @Override
-        public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-            View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_chat_message, parent, false);
-            return new ViewHolder(view);
+        public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+            LayoutInflater inflater = LayoutInflater.from(parent.getContext());
+            if (viewType == VIEW_TYPE_USER) {
+                return new UserViewHolder(inflater.inflate(R.layout.item_chat_message_user, parent, false));
+            } else if (viewType == VIEW_TYPE_TYPING) {
+                return new TypingViewHolder(inflater.inflate(R.layout.item_chat_typing, parent, false));
+            } else {
+                return new AiViewHolder(inflater.inflate(R.layout.item_chat_message_ai, parent, false));
+            }
         }
 
         @Override
-        public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
+        public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
             ChatMessage message = messages.get(position);
-            holder.tvMessage.setText(message.text);
+            
+            // Premium Entrance Animation
+            holder.itemView.setAlpha(0f);
+            holder.itemView.setTranslationY(20f);
+            holder.itemView.animate()
+                .alpha(1f)
+                .translationY(0f)
+                .setDuration(300)
+                .setStartDelay(position % 5 * 50L)
+                .start();
 
-            LinearLayout.LayoutParams params = (LinearLayout.LayoutParams) holder.cardMessage.getLayoutParams();
-            if (message.isUser) {
-                params.gravity = Gravity.END;
-                holder.cardMessage.setCardBackgroundColor(ContextCompat.getColor(AiChatActivity.this, R.color.primary));
-                holder.tvMessage.setTextColor(ContextCompat.getColor(AiChatActivity.this, R.color.white));
-            } else {
-                params.gravity = Gravity.START;
-                holder.cardMessage.setCardBackgroundColor(ContextCompat.getColor(AiChatActivity.this, R.color.gray_light));
-                holder.tvMessage.setTextColor(ContextCompat.getColor(AiChatActivity.this, R.color.black));
+            if (holder instanceof UserViewHolder) {
+                ((UserViewHolder) holder).tvMessage.setText(message.text);
+            } else if (holder instanceof AiViewHolder) {
+                ((AiViewHolder) holder).tvMessage.setText(message.text);
+            } else if (holder instanceof TypingViewHolder) {
+                View card = holder.itemView.findViewById(R.id.cardTyping);
+                if (card != null) {
+                    card.startAnimation(android.view.animation.AnimationUtils.loadAnimation(holder.itemView.getContext(), R.anim.pulse));
+                }
             }
-            holder.cardMessage.setLayoutParams(params);
         }
 
         @Override
@@ -162,14 +292,25 @@ public class AiChatActivity extends AppCompatActivity {
             return messages.size();
         }
 
-        class ViewHolder extends RecyclerView.ViewHolder {
+        static class UserViewHolder extends RecyclerView.ViewHolder {
             TextView tvMessage;
-            MaterialCardView cardMessage;
-
-            ViewHolder(View itemView) {
+            UserViewHolder(View itemView) {
                 super(itemView);
                 tvMessage = itemView.findViewById(R.id.tvMessage);
-                cardMessage = itemView.findViewById(R.id.cardMessage);
+            }
+        }
+
+        static class AiViewHolder extends RecyclerView.ViewHolder {
+            TextView tvMessage;
+            AiViewHolder(View itemView) {
+                super(itemView);
+                tvMessage = itemView.findViewById(R.id.tvMessage);
+            }
+        }
+
+        static class TypingViewHolder extends RecyclerView.ViewHolder {
+            TypingViewHolder(View itemView) {
+                super(itemView);
             }
         }
     }

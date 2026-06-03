@@ -4,60 +4,231 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
-    android:paddingHorizontal="20dp"
-    android:paddingTop="12dp"
-    android:paddingBottom="24dp">
+    android:paddingHorizontal="@dimen/screen_margin"
+    android:paddingTop="32dp"
+    android:paddingBottom="@dimen/spacing_medium">
 
-    <!-- Welcome Card - Premium Gradient -->
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/home_explore_safely"
+        android:textAppearance="@style/TextAppearance.App.TitleMedium"
+        android:textColor="@color/m3_on_surface"
+        android:layout_marginBottom="@dimen/spacing_medium"/>
+
+    <!-- Integrated SOS Card (Compact) -->
     <com.google.android.material.card.MaterialCardView
-        android:id="@+id/cardWelcome"
+        android:id="@+id/btnLargeSOS"
         android:layout_width="match_parent"
-        android:layout_height="160dp"
-        app:cardCornerRadius="32dp"
-        app:cardElevation="10dp"
-        app:strokeWidth="0dp">
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="12dp"
+        app:cardCornerRadius="20dp"
+        app:cardElevation="0dp"
+        app:cardBackgroundColor="@color/m3_error_container"
+        app:strokeWidth="0dp"
+        android:clickable="true"
+        android:focusable="true">
 
-        <RelativeLayout
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:background="@drawable/bg_premium_gradient"
-            android:padding="32dp">
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:padding="12dp">
+
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="44dp"
+                android:layout_height="44dp"
+                app:cardCornerRadius="22dp"
+                app:cardBackgroundColor="@color/white"
+                app:strokeWidth="0dp"
+                app:cardElevation="2dp">
+                <ImageView
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:layout_gravity="center"
+                    android:src="@android:drawable/ic_dialog_alert"
+                    app:tint="@color/m3_error" />
+            </com.google.android.material.card.MaterialCardView>
 
             <LinearLayout
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_centerVertical="true"
+                android:layout_marginStart="12dp"
+                android:layout_weight="1"
                 android:orientation="vertical">
 
                 <TextView
-                    android:id="@+id/tvWelcomeUser"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Welcome, Explorer"
-                    android:textColor="@color/white"
-                    android:textSize="24sp"
-                    android:textStyle="bold" />
+                    android:text="Emergency SOS"
+                    android:textAppearance="@style/TextAppearance.App.LabelLarge"
+                    android:textColor="@color/m3_on_error_container" />
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="6dp"
-                    android:text="Ready for a luxury trip today?"
-                    android:textColor="#CCFFFFFF"
-                    android:alpha="0.9"
-                    android:textSize="15sp" />
+                    android:text="@string/home_sos_desc"
+                    android:textAppearance="@style/TextAppearance.App.BodySmall"
+                    android:textColor="@color/m3_on_error_container"
+                    android:alpha="0.7" />
             </LinearLayout>
 
             <ImageView
-                android:layout_width="90dp"
-                android:layout_height="90dp"
-                android:layout_alignParentEnd="true"
-                android:layout_centerVertical="true"
-                android:alpha="0.15"
-                android:src="@android:drawable/ic_menu_send"
-                app:tint="@color/white" />
-
-        </RelativeLayout>
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:src="@android:drawable/ic_media_play"
+                app:tint="@color/m3_error"
+                android:alpha="0.5"/>
+        </LinearLayout>
     </com.google.android.material.card.MaterialCardView>
+
+    <GridLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:columnCount="2"
+        android:rowCount="2"
+        android:alignmentMode="alignMargins"
+        android:columnOrderPreserved="false">
+
+        <!-- AI Assistant Card -->
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/btnAiAssistant"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_columnWeight="1"
+            android:layout_marginEnd="6dp"
+            android:layout_marginBottom="12dp"
+            app:cardCornerRadius="20dp"
+            app:cardElevation="0dp"
+            app:cardBackgroundColor="@color/m3_primary_container"
+            app:strokeWidth="0dp"
+            android:clickable="true"
+            android:focusable="true">
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:padding="12dp">
+                <ImageView
+                    android:layout_width="28dp"
+                    android:layout_height="28dp"
+                    android:src="@drawable/ic_robot_assistant"
+                    app:tint="@color/m3_on_primary_container" />
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="10dp"
+                    android:text="@string/home_ai_guide"
+                    android:textAppearance="@style/TextAppearance.App.LabelLarge"
+                    android:textColor="@color/m3_on_primary_container" />
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- Translation Card -->
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/btnTranslate"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_columnWeight="1"
+            android:layout_marginStart="6dp"
+            android:layout_marginBottom="12dp"
+            app:cardCornerRadius="20dp"
+            app:cardElevation="0dp"
+            app:cardBackgroundColor="@color/m3_secondary_container"
+            app:strokeWidth="0dp"
+            android:clickable="true"
+            android:focusable="true">
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:padding="12dp">
+                <ImageView
+                    android:layout_width="28dp"
+                    android:layout_height="28dp"
+                    android:src="@android:drawable/ic_menu_sort_alphabetically"
+                    app:tint="@color/m3_on_secondary_container" />
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="10dp"
+                    android:text="@string/home_action_translate"
+                    android:textAppearance="@style/TextAppearance.App.LabelLarge"
+                    android:textColor="@color/m3_on_secondary_container" />
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- Trip Planner Card -->
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/btnPlanner"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_columnWeight="1"
+            android:layout_marginEnd="6dp"
+            app:cardCornerRadius="20dp"
+            app:cardElevation="0dp"
+            app:cardBackgroundColor="@color/m3_tertiary_container"
+            app:strokeWidth="0dp"
+            android:clickable="true"
+            android:focusable="true">
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:padding="12dp">
+                <ImageView
+                    android:layout_width="28dp"
+                    android:layout_height="28dp"
+                    android:src="@android:drawable/ic_menu_today"
+                    app:tint="@color/m3_on_tertiary_container" />
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="10dp"
+                    android:text="@string/home_action_planner"
+                    android:textAppearance="@style/TextAppearance.App.LabelLarge"
+                    android:textColor="@color/m3_on_tertiary_container" />
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- Offline Maps Card -->
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/btnNearby"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_columnWeight="1"
+            android:layout_marginStart="6dp"
+            app:cardCornerRadius="20dp"
+            app:cardElevation="0dp"
+            app:cardBackgroundColor="@color/m3_surface_variant"
+            app:strokeWidth="0dp"
+            android:clickable="true"
+            android:focusable="true">
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:padding="12dp">
+                <ImageView
+                    android:layout_width="28dp"
+                    android:layout_height="28dp"
+                    android:src="@android:drawable/ic_menu_mylocation"
+                    app:tint="@color/m3_on_surface_variant" />
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="10dp"
+                    android:text="@string/home_action_nearby"
+                    android:textAppearance="@style/TextAppearance.App.LabelLarge"
+                    android:textColor="@color/m3_on_surface_variant" />
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+    </GridLayout>
 
 </LinearLayout>

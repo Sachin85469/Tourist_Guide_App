@@ -6,12 +6,14 @@ import android.content.SharedPreferences;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.LinearSnapHelper;
 import androidx.recyclerview.widget.RecyclerView;
@@ -25,14 +27,16 @@ import java.util.Locale;
 
 public class HomeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
-    private static final int TYPE_WELCOME = 5;
     private static final int TYPE_CATEGORIES = 0;
     private static final int TYPE_TOP_PICKS = 1;
-    private static final int TYPE_PLAN_TRIP = 2;
     private static final int TYPE_SECTION_HEADER = 3;
     private static final int TYPE_PLACE = 4;
+    private static final int TYPE_WELCOME = 5;
     private static final int TYPE_HORIZONTAL_LIST = 6;
     private static final int TYPE_PHRASEBOOK = 7;
+    private static final int TYPE_PLAN_TRIP = 9;
+    private static final int TYPE_MAP_PREVIEW = 8;
+    private static final int TYPE_FEATURED_CAROUSEL = 10;
 
     private List<HomeSection> sections;
     private List<Category> categories;
@@ -57,6 +61,50 @@ public class HomeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         this.categoryClickListener = categoryClickListener;
         this.planTripClickListener = planTripClickListener;
         this.phrasebookClickListener = phrasebookClickListener;
+        setHasStableIds(true);
+    }
+
+    public void updateSections(List<HomeSection> newSections) {
+        DiffUtil.DiffResult diffResult = DiffUtil.calculateDiff(new DiffUtil.Callback() {
+            @Override
+            public int getOldListSize() {
+                return sections.size();
+            }
+
+            @Override
+            public int getNewListSize() {
+                return newSections.size();
+            }
+
+            @Override
+            public boolean areItemsTheSame(int oldItemPosition, int newItemPosition) {
+                HomeSection oldS = sections.get(oldItemPosition);
+                HomeSection newS = newSections.get(newItemPosition);
+                if (!oldS.getType().equals(newS.getType())) return false;
+                
+                if (HomeSection.TYPE_PLACE.equals(oldS.getType())) {
+                    return oldS.getSinglePlace().getId().equals(newS.getSinglePlace().getId());
+                }
+                return true; // Other sections are singleton types
+            }
+
+            @Override
+            public boolean areContentsTheSame(int oldItemPosition, int newItemPosition) {
+                return sections.get(oldItemPosition).equals(newSections.get(newItemPosition));
+            }
+        });
+        this.sections.clear();
+        this.sections.addAll(newSections);
+        diffResult.dispatchUpdatesTo(this);
+    }
+
+    @Override
+    public long getItemId(int position) {
+        HomeSection s = sections.get(position);
+        if (HomeSection.TYPE_PLACE.equals(s.getType())) {
+            return s.getSinglePlace().getId().hashCode();
+        }
+        return s.getType().hashCode();
     }
 
     @Override
@@ -66,14 +114,16 @@ public class HomeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             case HomeSection.TYPE_WELCOME: return TYPE_WELCOME;
             case HomeSection.TYPE_CATEGORIES: return TYPE_CATEGORIES;
             case HomeSection.TYPE_TOP_PICKS: return TYPE_TOP_PICKS;
-            case HomeSection.TYPE_PLAN_TRIP: return TYPE_PLAN_TRIP;
-            case HomeSection.TYPE_PHRASEBOOK: return TYPE_PHRASEBOOK;
             case HomeSection.TYPE_TRENDING:
             case HomeSection.TYPE_RECOMMENDED:
             case HomeSection.TYPE_RECENTLY_VIEWED:
                 return TYPE_HORIZONTAL_LIST;
+            case HomeSection.TYPE_MAP_PREVIEW: return TYPE_MAP_PREVIEW;
+            case HomeSection.TYPE_PHRASEBOOK: return TYPE_PHRASEBOOK;
+            case HomeSection.TYPE_PLAN_TRIP: return TYPE_PLAN_TRIP;
             case HomeSection.TYPE_ALL_PLACES_HEADER: return TYPE_SECTION_HEADER;
             case HomeSection.TYPE_PLACE: return TYPE_PLACE;
+            case HomeSection.TYPE_FEATURED_CAROUSEL: return TYPE_FEATURED_CAROUSEL;
             default: return -1;
         }
     }
@@ -84,20 +134,24 @@ public class HomeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         LayoutInflater inflater = LayoutInflater.from(parent.getContext());
         switch (viewType) {
             case TYPE_WELCOME:
-                return new WelcomeViewHolder(inflater.inflate(R.layout.item_welcome_stats, parent, false));
+                return new WelcomeViewHolder(inflater.inflate(R.layout.item_welcome_stats, parent, false), planTripClickListener, phrasebookClickListener);
             case TYPE_CATEGORIES:
                 return new CategoriesViewHolder(inflater.inflate(R.layout.layout_home_categories, parent, false));
             case TYPE_TOP_PICKS:
             case TYPE_HORIZONTAL_LIST:
                 return new HorizontalViewHolder(inflater.inflate(R.layout.layout_home_horizontal_section, parent, false));
-            case TYPE_PLAN_TRIP:
-                return new PlanTripViewHolder(inflater.inflate(R.layout.layout_home_plan_trip, parent, false));
+            case TYPE_MAP_PREVIEW:
+                return new MapPreviewViewHolder(inflater.inflate(R.layout.layout_home_map_preview, parent, false));
             case TYPE_PHRASEBOOK:
                 return new PhrasebookViewHolder(inflater.inflate(R.layout.layout_home_phrasebook, parent, false));
+            case TYPE_PLAN_TRIP:
+                return new PlanTripViewHolder(inflater.inflate(R.layout.layout_home_plan_trip, parent, false));
             case TYPE_SECTION_HEADER:
                 return new HeaderViewHolder(inflater.inflate(R.layout.layout_home_section_header, parent, false));
             case TYPE_PLACE:
                 return new PlaceViewHolder(inflater.inflate(R.layout.item_place_v2, parent, false));
+            case TYPE_FEATURED_CAROUSEL:
+                return new FeaturedViewHolder(inflater.inflate(R.layout.item_featured_carousel, parent, false));
             default:
                 throw new IllegalArgumentException("Invalid view type");
         }
@@ -107,8 +161,6 @@ public class HomeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
         HomeSection section = sections.get(position);
         
-        setAnimation(holder.itemView, position);
-
         if (holder instanceof WelcomeViewHolder) {
             ((WelcomeViewHolder) holder).bind();
         } else if (holder instanceof CategoriesViewHolder) {
@@ -119,22 +171,18 @@ public class HomeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             } else {
                 ((HorizontalViewHolder) holder).bind(section.getTitle(), section.getData(), placeClickListener);
             }
-        } else if (holder instanceof PlanTripViewHolder) {
-            ((PlanTripViewHolder) holder).bind(planTripClickListener);
-        } else if (holder instanceof PhrasebookViewHolder) {
-            ((PhrasebookViewHolder) holder).bind(phrasebookClickListener);
         } else if (holder instanceof HeaderViewHolder) {
             ((HeaderViewHolder) holder).bind(section.getTitle());
+        } else if (holder instanceof MapPreviewViewHolder) {
+            ((MapPreviewViewHolder) holder).bind();
+        } else if (holder instanceof PhrasebookViewHolder) {
+            ((PhrasebookViewHolder) holder).bind(phrasebookClickListener);
+        } else if (holder instanceof PlanTripViewHolder) {
+            ((PlanTripViewHolder) holder).bind(planTripClickListener);
         } else if (holder instanceof PlaceViewHolder) {
             ((PlaceViewHolder) holder).bind(section.getSinglePlace(), position, placeClickListener);
-        }
-    }
-
-    private void setAnimation(View viewToAnimate, int position) {
-        if (position > lastPosition) {
-            Animation animation = AnimationUtils.loadAnimation(viewToAnimate.getContext(), R.anim.fade_in);
-            viewToAnimate.startAnimation(animation);
-            lastPosition = position;
+        } else if (holder instanceof FeaturedViewHolder) {
+            ((FeaturedViewHolder) holder).bind(section.getSinglePlace(), placeClickListener);
         }
     }
 
@@ -151,27 +199,79 @@ public class HomeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         super.onViewRecycled(holder);
     }
 
-    static class WelcomeViewHolder extends RecyclerView.ViewHolder {
-        TextView tvWelcomeUser;
-        WelcomeViewHolder(View itemView) {
+    static class FeaturedViewHolder extends RecyclerView.ViewHolder {
+        ImageView ivFeatured;
+        TextView tvTitle, tvSubtitle;
+        FeaturedViewHolder(View itemView) {
             super(itemView);
-            tvWelcomeUser = itemView.findViewById(R.id.tvWelcomeUser);
+            ivFeatured = itemView.findViewById(R.id.ivFeatured);
+            tvTitle = itemView.findViewById(R.id.tvFeaturedTitle);
+            tvSubtitle = itemView.findViewById(R.id.tvFeaturedSubtitle);
+        }
+        void bind(Place place, OnItemClickListener listener) {
+            if (place == null) return;
+            tvTitle.setText(place.getName());
+            tvSubtitle.setText(place.getCategory());
+            PlaceImageHelper.loadThumbnail(ivFeatured, place);
+            itemView.setOnClickListener(v -> listener.onItemClick(place));
+        }
+    }
+
+    static class WelcomeViewHolder extends RecyclerView.ViewHolder {
+        private final OnClickListener plannerListener;
+        private final OnClickListener translatorListener;
+
+        WelcomeViewHolder(View itemView, OnClickListener plannerListener, OnClickListener translatorListener) {
+            super(itemView);
+            this.plannerListener = plannerListener;
+            this.translatorListener = translatorListener;
+        }
+
+        void bind() {
+            View btnSOS = itemView.findViewById(R.id.btnLargeSOS);
+            if (btnSOS != null) {
+                btnSOS.setOnClickListener(v -> {
+                    com.arriva.touristguideapp.sos.ui.EmergencyDialog.showConfirmation(itemView.getContext());
+                });
+            }
+
+            View btnPlanner = itemView.findViewById(R.id.btnPlanner);
+            if (btnPlanner != null) {
+                btnPlanner.setOnClickListener(plannerListener);
+            }
+
+            View btnTranslate = itemView.findViewById(R.id.btnTranslate);
+            if (btnTranslate != null) {
+                btnTranslate.setOnClickListener(translatorListener);
+            }
+
+            View btnNearby = itemView.findViewById(R.id.btnNearby);
+            if (btnNearby != null) {
+                btnNearby.setOnClickListener(v -> {
+                    Intent intent = new Intent(itemView.getContext(), com.arriva.touristguideapp.MapActivity.class);
+                    itemView.getContext().startActivity(intent);
+                });
+            }
+
+            View btnAi = itemView.findViewById(R.id.btnAiAssistant);
+            if (btnAi != null) {
+                btnAi.setOnClickListener(v -> {
+                    Intent intent = new Intent(itemView.getContext(), com.arriva.touristguideapp.AiChatActivity.class);
+                    itemView.getContext().startActivity(intent);
+                });
+            }
+        }
+    }
+
+    static class MapPreviewViewHolder extends RecyclerView.ViewHolder {
+        MapPreviewViewHolder(View itemView) {
+            super(itemView);
         }
         void bind() {
-            Context context = itemView.getContext();
-            FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-            String name = "Explorer";
-
-            if (user != null) {
-                name = user.getDisplayName();
-                if (TextUtils.isEmpty(name)) {
-                    // Try SharedPreferences as fallback
-                    SharedPreferences prefs = context.getSharedPreferences("UserPrefs", Context.MODE_PRIVATE);
-                    name = prefs.getString("user_display_name", "Explorer");
-                }
-            }
-            
-            tvWelcomeUser.setText("Welcome, " + name);
+            itemView.findViewById(R.id.cardMapPreview).setOnClickListener(v -> {
+                Intent intent = new Intent(itemView.getContext(), com.arriva.touristguideapp.MapActivity.class);
+                itemView.getContext().startActivity(intent);
+            });
         }
     }
 
@@ -197,6 +297,9 @@ public class HomeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             super(itemView);
             tvTitle = itemView.findViewById(R.id.tvSectionTitle);
             rvHorizontal = itemView.findViewById(R.id.rvHorizontal);
+            // Attach SnapHelper
+            SnapHelper snapHelper = new LinearSnapHelper();
+            snapHelper.attachToRecyclerView(rvHorizontal);
         }
         void bind(String title, List<Place> data, OnItemClickListener listener) {
             tvTitle.setText(title);
@@ -231,7 +334,7 @@ public class HomeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         TextView tvTitle;
         HeaderViewHolder(View itemView) {
             super(itemView);
-            tvTitle = itemView.findViewById(R.id.tvHeaderTitle);
+            tvTitle = itemView.findViewById(R.id.tvTitle);
         }
         void bind(String title) {
             if (tvTitle != null) tvTitle.setText(title);
@@ -260,7 +363,20 @@ public class HomeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             placeName.setText(place.getName());
             placeCategory.setText(place.getCategory());
             if (placeCity != null) placeCity.setText(place.getCity());
-            if (placeRating != null) placeRating.setText(String.format(Locale.getDefault(), "%.1f ⭐", place.getRating()));
+            if (placeRating != null) {
+                if (place.getTotalRatings() > 0) {
+                    placeRating.setText(String.format(Locale.getDefault(), "%.1f", place.getRating()));
+                    placeRating.setVisibility(View.VISIBLE);
+                    android.util.Log.d("HomeAdapter", "CARD_REAL_RATING: " + place.getName() + " -> " + place.getRating());
+                    if (place.getRating() == 4.0) {
+                        android.util.Log.v("HomeAdapter", "CARD_FAKE_RATING_DETECTED: potential static 4.0 for " + place.getName());
+                    }
+                } else {
+                    placeRating.setText("New");
+                    placeRating.setVisibility(View.VISIBLE);
+                    android.util.Log.d("HomeAdapter", "CARD_UNRATED: " + place.getName());
+                }
+            }
             if (placeTag != null) placeTag.setText(place.getTag());
             
             if (placeDistance != null) {

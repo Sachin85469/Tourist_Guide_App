@@ -51,9 +51,13 @@ public class MainActivity extends AppCompatActivity {
     private FusedLocationProviderClient fusedLocationClient;
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 1001;
     
+    private final android.os.Handler handler = new android.os.Handler(android.os.Looper.getMainLooper());
+    private Runnable reminderRunnable;
+
     private View btnProfile;
     private ImageView ivProfileIcon;
     private BottomNavigationView bottomNavigationView;
+    private View fabAiChat;
     private ProgressBar progressBar;
     private View emptyStateContainer;
     private EditText searchBox;
@@ -73,9 +77,11 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        Log.d("APP_DEBUG", "MainActivity started");
         PerformanceTracker.startTimer("MAIN_ACTIVITY_INIT");
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        Log.d("APP_DEBUG", "Layout loaded");
 
         // Initialize Places SDK
         if (!Places.isInitialized()) {
@@ -88,9 +94,16 @@ public class MainActivity extends AppCompatActivity {
         bottomNavigationView = findViewById(R.id.bottom_navigation);
         tvMainUserName = findViewById(R.id.tvMainUserName);
         tvMainUserEmail = findViewById(R.id.tvMainUserEmail);
+        fabAiChat = findViewById(R.id.fabAiChat);
 
         // Profile Avatar and User Info Setup
         loadUserInfo();
+
+        if (fabAiChat != null) {
+            fabAiChat.setOnClickListener(v -> {
+                startActivity(new Intent(this, AiChatActivity.class));
+            });
+        }
 
         progressBar = findViewById(R.id.mainProgressBar);
         emptyStateContainer = findViewById(R.id.tvEmptyState);
@@ -109,10 +122,11 @@ public class MainActivity extends AppCompatActivity {
 
         // Phase 10: Local Notification Reminder (Requirement 5)
         if (savedInstanceState == null) {
-            rvHome.postDelayed(() -> {
+            reminderRunnable = () -> {
                 com.arriva.touristguideapp.data.notifications.LocalNotificationHelper.showReminder(
-                    this, "Ready for Adventure?", "Explore the best hidden gems in Pune today!");
-            }, 5000);
+                    MainActivity.this, "Ready for Adventure?", "Explore the best hidden gems in Pune today!");
+            };
+            handler.postDelayed(reminderRunnable, 5000);
         }
         
         // Start with ProgressBar visible
@@ -133,11 +147,11 @@ public class MainActivity extends AppCompatActivity {
                     return true;
                 } else if (id == R.id.nav_favorites) {
                     startActivity(new Intent(MainActivity.this, FavoritesActivity.class));
-                    overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
+                    overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
                     return true;
                 } else if (id == R.id.nav_map) {
                     startActivity(new Intent(MainActivity.this, MapActivity.class));
-                    overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
+                    overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
                     return true;
                 }
                 return false;
@@ -150,6 +164,14 @@ public class MainActivity extends AppCompatActivity {
                 overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
             });
         }
+    }
+
+    @Override
+    protected void onDestroy() {
+        if (reminderRunnable != null) {
+            handler.removeCallbacks(reminderRunnable);
+        }
+        super.onDestroy();
     }
 
     @Override
@@ -228,7 +250,9 @@ public class MainActivity extends AppCompatActivity {
         if (text.isEmpty()) {
             sections.clear();
             addDefaultSections();
-            homeAdapter.notifyDataSetChanged();
+            if (homeAdapter != null) {
+                homeAdapter.updateSections(new ArrayList<>(sections));
+            }
             return;
         }
 
@@ -248,7 +272,9 @@ public class MainActivity extends AppCompatActivity {
             for (Place p : filteredList) {
                 sections.add(new HomeSection(HomeSection.TYPE_PLACE, p));
             }
-            homeAdapter.notifyDataSetChanged();
+            if (homeAdapter != null) {
+                homeAdapter.updateSections(new ArrayList<>(sections));
+            }
         }
     }
 
@@ -350,7 +376,7 @@ public class MainActivity extends AppCompatActivity {
 
         // Update UI
         if (homeAdapter != null) {
-            homeAdapter.notifyDataSetChanged();
+            homeAdapter.updateSections(new ArrayList<>(sections));
         }
     }
 
@@ -366,7 +392,7 @@ public class MainActivity extends AppCompatActivity {
         }
 
         if (homeAdapter != null) {
-            homeAdapter.notifyDataSetChanged();
+            homeAdapter.updateSections(new ArrayList<>(sections));
         }
         Toast.makeText(this, "Location unavailable, using default top picks", Toast.LENGTH_SHORT).show();
     }
@@ -413,10 +439,21 @@ public class MainActivity extends AppCompatActivity {
         rvHome.setAdapter(homeAdapter);
         rvHome.setItemViewCacheSize(20);
         rvHome.setHasFixedSize(true);
+        
+        // Premium Staggered Animation
+        android.view.animation.LayoutAnimationController animation = android.view.animation.AnimationUtils.loadLayoutAnimation(this, R.anim.layout_animation_fall_down);
+        rvHome.setLayoutAnimation(animation);
+        Log.d("APP_DEBUG", "RecyclerView initialized");
     }
 
     private void addDefaultSections() {
         sections.add(new HomeSection(HomeSection.TYPE_WELCOME));
+        
+        // Add Featured Carousel if data is available
+        if (allPlaces != null && !allPlaces.isEmpty()) {
+            sections.add(new HomeSection(HomeSection.TYPE_FEATURED_CAROUSEL, allPlaces.get(0)));
+        }
+
         sections.add(new HomeSection(HomeSection.TYPE_CATEGORIES));
         
         // Phase 6: Recent Searches (if search box is empty)
@@ -448,7 +485,7 @@ public class MainActivity extends AppCompatActivity {
             }
         }
 
-        List<Place> recent = recentlyViewedManager.getRecentPlaces();
+        List<Place> recent = recentlyViewedManager.getRecentlyViewed();
         if (!recent.isEmpty()) {
             sections.add(new HomeSection(HomeSection.TYPE_RECENTLY_VIEWED, "Recently Viewed") {{
                 setData(recent);
@@ -492,14 +529,17 @@ public class MainActivity extends AppCompatActivity {
 
             allPlaces.clear();
             allPlaces.addAll(places);
+            Log.d("APP_DEBUG", "Data loaded, count=" + places.size());
 
             if (cachedUserLocation != null) {
                 updateTopPicksWithLocation(cachedUserLocation.getLatitude(), cachedUserLocation.getLongitude());
             } else {
-                sections.clear();
-                addDefaultSections();
-                if (homeAdapter != null) {
-                    homeAdapter.notifyDataSetChanged();
+                if (sections != null) {
+                    sections.clear();
+                    addDefaultSections();
+                    if (homeAdapter != null) {
+                        homeAdapter.updateSections(new ArrayList<>(sections));
+                    }
                 }
             }
 
@@ -532,11 +572,12 @@ public class MainActivity extends AppCompatActivity {
 
     private void openDetails(Place place) {
         if (place == null) return;
-        recentlyViewedManager.addPlace(place);
+        recentlyViewedManager.addRecentlyViewed(place);
         Intent intent = new Intent(MainActivity.this, PlaceDetailsActivity.class);
         PlaceIntentExtras.putPlaceDetails(intent, place);
-        startActivity(intent);
-        overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
+        
+        androidx.core.app.ActivityOptionsCompat options = androidx.core.app.ActivityOptionsCompat.makeCustomAnimation(this, R.anim.slide_in_right, android.R.anim.fade_out);
+        startActivity(intent, options.toBundle());
     }
 
     private void loadUserInfo() {
@@ -563,9 +604,48 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    private void refreshRecentlyViewed() {
+        if (recentlyViewedManager == null || homeAdapter == null || sections == null) return;
+
+        List<Place> recent = recentlyViewedManager.getRecentlyViewed();
+        int existingIndex = -1;
+        for (int i = 0; i < sections.size(); i++) {
+            if (HomeSection.TYPE_RECENTLY_VIEWED.equals(sections.get(i).getType())) {
+                existingIndex = i;
+                break;
+            }
+        }
+
+        if (recent.isEmpty()) {
+            if (existingIndex != -1) {
+                sections.remove(existingIndex);
+                homeAdapter.notifyItemRemoved(existingIndex);
+            }
+        } else {
+            if (existingIndex != -1) {
+                sections.get(existingIndex).setData(recent);
+                homeAdapter.notifyItemChanged(existingIndex);
+            } else {
+                // Insert after Categories or Welcome if it doesn't exist
+                int insertIndex = 0;
+                for (int i = 0; i < sections.size(); i++) {
+                    String type = sections.get(i).getType();
+                    if (HomeSection.TYPE_CATEGORIES.equals(type) || HomeSection.TYPE_WELCOME.equals(type)) {
+                        insertIndex = i + 1;
+                    }
+                }
+                sections.add(insertIndex, new HomeSection(HomeSection.TYPE_RECENTLY_VIEWED, "Recently Viewed") {{
+                    setData(recent);
+                }});
+                homeAdapter.notifyItemInserted(insertIndex);
+            }
+        }
+    }
+
     @Override
     protected void onResume() {
         super.onResume();
         loadUserInfo();
+        refreshRecentlyViewed();
     }
 }

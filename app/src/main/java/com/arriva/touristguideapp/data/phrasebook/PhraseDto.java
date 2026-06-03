@@ -4,20 +4,20 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 /**
- * Firestore document shape for {@link PhrasebookFirestoreContract#COLLECTION_PHRASEBOOK}.
+ * Firestore document shape for phrases with multi-language support.
  */
 public class PhraseDto {
 
     @NonNull
     private String id = "";
     @Nullable
-    private String baseText;
+    private String englishText;
     @Nullable
-    private String baseLanguage;
+    private String hindiText;
+    @Nullable
+    private String marathiText;
     @Nullable
     private String category;
-    @Nullable
-    private String englishText;
 
     public PhraseDto() {
     }
@@ -32,21 +32,30 @@ public class PhraseDto {
     }
 
     @Nullable
-    public String getBaseText() {
-        return baseText;
+    public String getEnglishText() {
+        return englishText;
     }
 
-    public void setBaseText(@Nullable String baseText) {
-        this.baseText = baseText;
+    public void setEnglishText(@Nullable String englishText) {
+        this.englishText = englishText;
     }
 
     @Nullable
-    public String getBaseLanguage() {
-        return baseLanguage;
+    public String getHindiText() {
+        return hindiText;
     }
 
-    public void setBaseLanguage(@Nullable String baseLanguage) {
-        this.baseLanguage = baseLanguage;
+    public void setHindiText(@Nullable String hindiText) {
+        this.hindiText = hindiText;
+    }
+
+    @Nullable
+    public String getMarathiText() {
+        return marathiText;
+    }
+
+    public void setMarathiText(@Nullable String marathiText) {
+        this.marathiText = marathiText;
     }
 
     @Nullable
@@ -58,36 +67,8 @@ public class PhraseDto {
         this.category = category;
     }
 
-    @Nullable
-    public String getEnglishText() {
-        return englishText;
-    }
-
-    public void setEnglishText(@Nullable String englishText) {
-        this.englishText = englishText;
-    }
-
-    @NonNull
-    public String resolveBaseText() {
-        if (baseText != null && !baseText.trim().isEmpty()) {
-            return baseText.trim();
-        }
-        if (englishText != null && !englishText.trim().isEmpty()) {
-            return englishText.trim();
-        }
-        return "";
-    }
-
-    @NonNull
-    public String resolveBaseLanguage() {
-        if (baseLanguage != null && !baseLanguage.trim().isEmpty()) {
-            return baseLanguage.trim();
-        }
-        return "en";
-    }
-
     public boolean isValid() {
-        return !resolveBaseText().isEmpty()
-                && category != null && !category.trim().isEmpty();
+        return englishText != null && !englishText.isEmpty()
+                && category != null && !category.isEmpty();
     }
 }

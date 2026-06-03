@@ -4,21 +4,21 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/adaptive_bg"
-    tools:context=".ReplyTranslatorActivity">
+    android:background="@color/m3_background">
 
     <com.google.android.material.appbar.AppBarLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/adaptive_surface">
+        android:background="@color/white"
+        app:elevation="0dp">
 
-        <com.google.android.material.appbar.MaterialToolbar
+        <androidx.appcompat.widget.Toolbar
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
-            app:navigationIcon="@android:drawable/ic_menu_revert"
+            app:navigationIcon="@drawable/ic_back"
             app:title="@string/reply_translator_title"
-            app:titleCentered="true" />
+            app:titleTextAppearance="@style/TextAppearance.App.TitleLarge" />
     </com.google.android.material.appbar.AppBarLayout>
 
     <androidx.core.widget.NestedScrollView
@@ -30,64 +30,73 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:padding="16dp">
+            android:padding="24dp">
 
-            <!-- Language Selectors -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:gravity="center_vertical"
-                android:orientation="horizontal">
-
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btnSourceLang"
-                    style="@style/Widget.MaterialComponents.Button.TextButton"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="English"
-                    app:icon="@android:drawable/arrow_down_float"
-                    app:iconGravity="end" />
-
-                <ImageButton
-                    android:id="@+id/btnSwapLang"
-                    android:layout_width="48dp"
-                    android:layout_height="48dp"
-                    android:background="?attr/selectableItemBackgroundBorderless"
-                    android:contentDescription="Swap"
-                    android:src="@android:drawable/ic_menu_sort_by_size" />
-
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btnTargetLang"
-                    style="@style/Widget.MaterialComponents.Button.TextButton"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="Marathi"
-                    app:icon="@android:drawable/arrow_down_float"
-                    app:iconGravity="end" />
-            </LinearLayout>
-
-            <!-- Input Area -->
+            <!-- Language Selectors Card -->
             <com.google.android.material.card.MaterialCardView
+                style="@style/AppCard.Primary"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                app:cardCornerRadius="12dp"
-                app:cardElevation="2dp">
+                android:layout_height="wrap_content">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:padding="12dp">
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnSourceLang"
+                        style="@style/Widget.Material3.Button.TextButton"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="English"
+                        android:textAppearance="@style/TextAppearance.App.TitleMedium"
+                        app:icon="@drawable/ic_chevron_right"
+                        app:iconGravity="end"
+                        android:rotation="90" />
+
+                    <ImageButton
+                        android:id="@+id/btnSwapLang"
+                        android:layout_width="48dp"
+                        android:layout_height="48dp"
+                        android:background="?attr/selectableItemBackgroundBorderless"
+                        android:src="@drawable/ic_refresh"
+                        app:tint="@color/m3_primary" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnTargetLang"
+                        style="@style/Widget.Material3.Button.TextButton"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Marathi"
+                        android:textAppearance="@style/TextAppearance.App.TitleMedium"
+                        app:icon="@drawable/ic_chevron_right"
+                        app:iconGravity="end"
+                        android:rotation="90" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- Input Card -->
+            <com.google.android.material.card.MaterialCardView
+                style="@style/AppCard.Primary"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
 
                     <com.google.android.material.textfield.TextInputLayout
-                        android:id="@+id/tilInput"
+                        style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:hint="Type text to translate"
-                        app:boxBackgroundColor="@android:color/transparent"
+                        android:hint="Type or paste text"
+                        app:boxStrokeWidth="0dp"
+                        app:boxStrokeWidthFocused="0dp"
                         app:endIconMode="clear_text">
 
                         <com.google.android.material.textfield.TextInputEditText
@@ -95,48 +104,50 @@
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:gravity="top"
+                            android:textAppearance="@style/TextAppearance.App.BodyLarge"
                             android:inputType="textMultiLine"
-                            android:minLines="3" />
+                            android:minLines="4" />
                     </com.google.android.material.textfield.TextInputLayout>
 
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:gravity="end"
+                        android:layout_marginTop="16dp"
                         android:orientation="horizontal">
 
                         <com.google.android.material.button.MaterialButton
                             android:id="@+id/btnVoiceInput"
-                            style="@style/Widget.MaterialComponents.Button.TextButton"
+                            style="@style/Widget.Material3.Button.TonalButton"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Voice"
-                            app:icon="@android:drawable/ic_btn_speak_now" />
+                            android:text="Speak"
+                            app:icon="@android:drawable/ic_btn_speak_now"
+                            app:cornerRadius="12dp" />
 
                         <com.google.android.material.button.MaterialButton
                             android:id="@+id/btnTranslate"
+                            style="@style/AppButton"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginStart="8dp"
+                            android:layout_marginStart="12dp"
                             android:text="Translate" />
                     </LinearLayout>
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
-            <!-- Status and Download -->
+            <!-- Status -->
             <LinearLayout
                 android:id="@+id/layoutStatus"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
+                android:layout_marginTop="16dp"
                 android:gravity="center"
                 android:orientation="vertical"
-                android:visibility="gone"
-                tools:visibility="visible">
+                android:visibility="gone">
 
-                <ProgressBar
+                <com.google.android.material.progressindicator.LinearProgressIndicator
                     android:id="@+id/downloadProgress"
-                    style="?android:attr/progressBarStyleHorizontal"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:indeterminate="true" />
@@ -145,68 +156,70 @@
                     android:id="@+id/tvStatus"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Downloading model..."
-                    android:textSize="12sp" />
+                    android:layout_marginTop="8dp"
+                    android:text="Downloading translation model..."
+                    android:textAppearance="@style/TextAppearance.App.BodySmall" />
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnRetryDownload"
-                    style="@style/Widget.MaterialComponents.Button.TextButton"
+                    style="@style/Widget.Material3.Button.TextButton"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Retry"
                     android:visibility="gone" />
             </LinearLayout>
 
-            <!-- Output Area -->
+            <!-- Result Card -->
             <com.google.android.material.card.MaterialCardView
                 android:id="@+id/cardResult"
+                style="@style/AppCard.Primary"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
+                android:layout_marginTop="24dp"
                 android:visibility="gone"
-                app:cardCornerRadius="12dp"
-                app:cardElevation="2dp"
-                app:strokeColor="@color/primary_light"
-                app:strokeWidth="1dp"
-                tools:visibility="visible">
+                app:cardBackgroundColor="@color/m3_primary_container"
+                app:strokeWidth="0dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:padding="16dp">
+                    android:orientation="vertical">
 
                     <TextView
                         android:id="@+id/tvTranslatedResult"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:textColor="@color/adaptive_text_primary"
-                        android:textSize="20sp"
-                        android:textStyle="bold"
-                        tools:text="नमस्ते, आपण कसे आहात?" />
+                        android:textAppearance="@style/TextAppearance.App.HeadlineLarge"
+                        android:textColor="@color/m3_on_primary_container"
+                        android:textSize="24sp"
+                        tools:text="नमस्कार, तुम्ही कसे आहात?" />
 
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="16dp"
+                        android:layout_marginTop="24dp"
                         android:orientation="horizontal">
 
                         <com.google.android.material.button.MaterialButton
                             android:id="@+id/btnTts"
-                            style="@style/Widget.MaterialComponents.Button.TextButton"
+                            style="@style/Widget.Material3.Button.TextButton"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Speak"
-                            app:icon="@android:drawable/ic_lock_silent_mode_off" />
+                            android:text="Listen"
+                            android:textColor="@color/m3_on_primary_container"
+                            app:icon="@drawable/ic_volume"
+                            app:iconTint="@color/m3_on_primary_container" />
 
                         <com.google.android.material.button.MaterialButton
                             android:id="@+id/btnCopy"
-                            style="@style/Widget.MaterialComponents.Button.TextButton"
+                            style="@style/Widget.Material3.Button.TextButton"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginStart="8dp"
+                            android:layout_marginStart="12dp"
                             android:text="Copy"
-                            app:icon="@android:drawable/ic_menu_edit" />
+                            android:textColor="@color/m3_on_primary_container"
+                            app:icon="@android:drawable/ic_menu_edit"
+                            app:iconTint="@color/m3_on_primary_container" />
                     </LinearLayout>
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>

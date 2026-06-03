@@ -4,26 +4,30 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 /**
- * Language-agnostic phrase stored in Firestore (base text only; translations are dynamic).
+ * Phrase with predefined translations for high stability and instant access.
  */
 public class Phrase {
 
     @NonNull
     private final String id;
     @NonNull
-    private final String baseText;
+    private final String englishText;
     @NonNull
-    private final String baseLanguage;
+    private final String hindiText;
+    @NonNull
+    private final String marathiText;
     @NonNull
     private final String category;
 
     public Phrase(@NonNull String id,
-                  @NonNull String baseText,
-                  @NonNull String baseLanguage,
+                  @NonNull String englishText,
+                  @NonNull String hindiText,
+                  @NonNull String marathiText,
                   @NonNull String category) {
         this.id = id;
-        this.baseText = baseText;
-        this.baseLanguage = baseLanguage;
+        this.englishText = englishText;
+        this.hindiText = hindiText;
+        this.marathiText = marathiText;
         this.category = category;
     }
 
@@ -33,13 +37,33 @@ public class Phrase {
     }
 
     @NonNull
-    public String getBaseText() {
-        return baseText;
+    public String getEnglishText() {
+        return englishText;
     }
 
     @NonNull
-    public String getBaseLanguage() {
-        return baseLanguage;
+    public String getHindiText() {
+        return hindiText;
+    }
+
+    @NonNull
+    public String getMarathiText() {
+        return marathiText;
+    }
+
+    @NonNull
+    public String getEnglish() {
+        return englishText;
+    }
+
+    @NonNull
+    public String getHindi() {
+        return hindiText;
+    }
+
+    @NonNull
+    public String getMarathi() {
+        return marathiText;
     }
 
     @NonNull
@@ -47,22 +71,24 @@ public class Phrase {
         return category;
     }
 
-    public boolean matchesBaseQuery(@Nullable String query) {
+    @NonNull
+    public String getTranslation(@NonNull String targetLangCode) {
+        if ("mr".equalsIgnoreCase(targetLangCode)) {
+            return marathiText;
+        } else if ("hi".equalsIgnoreCase(targetLangCode)) {
+            return hindiText;
+        }
+        return englishText;
+    }
+
+    public boolean matchesQuery(@Nullable String query) {
         if (query == null || query.trim().isEmpty()) {
             return true;
         }
         String q = query.trim().toLowerCase();
-        return baseText.toLowerCase().contains(q);
-    }
-
-    public boolean matchesTranslatedQuery(@Nullable String query, @Nullable String translatedText) {
-        if (query == null || query.trim().isEmpty()) {
-            return true;
-        }
-        if (translatedText != null && translatedText.toLowerCase().contains(query.trim().toLowerCase())) {
-            return true;
-        }
-        return false;
+        return englishText.toLowerCase().contains(q) 
+                || hindiText.contains(q) 
+                || marathiText.contains(q);
     }
 
     public boolean matchesCategory(@Nullable String categoryFilter) {

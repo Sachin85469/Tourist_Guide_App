@@ -90,12 +90,17 @@ public class UniversalTtsHelper implements TextToSpeech.OnInitListener {
         }
 
         stop();
+        
+        // Optimizing for Indian language clarity
+        tts.setPitch(1.0f);
+        tts.setSpeechRate(0.9f); // Slightly slower for better clarity during travel
+
         int result = tts.setLanguage(language.getTtsLocale());
         if (result == TextToSpeech.LANG_MISSING_DATA || result == TextToSpeech.LANG_NOT_SUPPORTED) {
             Log.w(TAG, "TTS missing for " + language.getDisplayName() + ", trying locale fallback");
             result = tts.setLanguage(Locale.forLanguageTag(language.getLanguageCode()));
             if (result == TextToSpeech.LANG_MISSING_DATA || result == TextToSpeech.LANG_NOT_SUPPORTED) {
-                showToast(appContext.getString(R.string.tts_voice_missing, language.getDisplayName()));
+                showToast("Language voice not available on device");
                 promptInstallTtsData();
                 notifyFinished("Voice data not installed for " + language.getDisplayName());
                 return;

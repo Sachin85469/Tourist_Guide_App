@@ -12,11 +12,18 @@ import androidx.viewpager2.widget.ViewPager2;
 import com.arriva.touristguideapp.R;
 import com.arriva.touristguideapp.communication.languages.LanguageConfig;
 import com.arriva.touristguideapp.communication.speech.UniversalSpeechHelper;
+import com.arriva.touristguideapp.communication.translation.LanguageSetupManager;
 import com.arriva.touristguideapp.communication.translation.TranslationManager;
 import com.arriva.touristguideapp.communication.tts.UniversalTtsHelper;
 import com.arriva.touristguideapp.communication.ui.CommunicationPagerAdapter;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
+import android.widget.ProgressBar;
+import android.widget.TextView;
+import android.view.LayoutInflater;
+import android.view.View;
+import androidx.appcompat.app.AlertDialog;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -31,6 +38,7 @@ public class CommunicationHubActivity extends AppCompatActivity implements Commu
     private CommunicationPreferences preferences;
     private TranslationManager translationManager;
     private UniversalTtsHelper ttsHelper;
+    private LanguageSetupManager setupManager;
 
     private LanguageConfig sourceLanguage;
     private LanguageConfig targetLanguage;
@@ -47,6 +55,7 @@ public class CommunicationHubActivity extends AppCompatActivity implements Commu
         preferences = new CommunicationPreferences(this);
         translationManager = TranslationManager.getInstance(this);
         ttsHelper = new UniversalTtsHelper(this);
+        setupManager = new LanguageSetupManager(this);
 
         sourceLanguage = preferences.getSourceLanguage();
         targetLanguage = preferences.getTargetLanguage();
@@ -71,6 +80,73 @@ public class CommunicationHubActivity extends AppCompatActivity implements Commu
         if (initialTab == 1) {
             viewPager.setCurrentItem(initialTab, false);
         }
+
+        if (!setupManager.isSetupComplete()) {
+            showSetupDialog();
+        }
+    }
+
+    private void showSetupDialog() {
+        MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(this);
+        builder.setTitle(R.string.setup_title);
+        builder.setMessage(R.string.setup_message);
+        builder.setCancelable(false);
+        builder.setPositiveButton(R.string.setup_btn_download, (dialog, which) -> {
+            startLanguageSetup();
+        });
+        builder.setNegativeButton(R.string.back, (dialog, which) -> finish());
+        builder.show();
+    }
+
+    private void startLanguageSetup() {
+        View setupView = LayoutInflater.from(this).inflate(R.layout.dialog_language_setup, null);
+        ProgressBar progressBar = setupView.findViewById(R.id.setupProgress);
+        TextView tvStatus = setupView.findViewById(R.id.tvSetupStatus);
+        TextView tvPercentage = setupView.findViewById(R.id.tvSetupPercentage);
+
+        AlertDialog dialog = new MaterialAlertDialogBuilder(this)
+                .setView(setupView)
+                .setCancelable(false)
+                .show();
+
+        setupManager.startSetup(new LanguageSetupManager.SetupCallback() {
+            @Override
+            public void onProgress(int percentage, String message) {
+                runOnUiThread(() -> {
+                    progressBar.setProgress(percentage);
+                    tvPercentage.setText(percentage + "%");
+                    tvStatus.setText(message);
+                });
+            }
+
+            @Override
+            public void onComplete() {
+                runOnUiThread(() -> {
+                    tvStatus.setText(R.string.setup_complete);
+                    dialog.setCancelable(true);
+                    dialog.getButton(AlertDialog.BUTTON_POSITIVE).setVisibility(View.VISIBLE);
+                    dialog.getButton(AlertDialog.BUTTON_POSITIVE).setText(R.string.setup_btn_finish);
+                    dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(v -> dialog.dismiss());
+                });
+            }
+
+            @Override
+            public void onError(String message) {
+                runOnUiThread(() -> {
+                    tvStatus.setText(message);
+                    dialog.setCancelable(true);
+                    dialog.getButton(AlertDialog.BUTTON_POSITIVE).setVisibility(View.VISIBLE);
+                    dialog.getButton(AlertDialog.BUTTON_POSITIVE).setText(R.string.setup_btn_retry);
+                    dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(v -> {
+                        dialog.dismiss();
+                        startLanguageSetup();
+                    });
+                });
+            }
+        });
+        
+        // Hide positive button initially
+        dialog.getButton(AlertDialog.BUTTON_POSITIVE).setVisibility(View.GONE);
     }
 
     @Override

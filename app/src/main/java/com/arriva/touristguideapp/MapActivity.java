@@ -57,7 +57,6 @@ public class MapActivity extends AppCompatActivity {
     private EditText searchInput;
     private ImageButton searchBtn;
     private ImageView micBtn, ivProfileIcon;
-    private View btnProfile;
     private Button btnDirections;
     private MyLocationNewOverlay locationOverlay;
     private static final int REQUEST_PERMISSIONS_REQUEST_CODE = 1;
@@ -88,9 +87,9 @@ public class MapActivity extends AppCompatActivity {
         searchBtn = findViewById(R.id.searchBtn);
         micBtn = findViewById(R.id.micBtn);
         btnDirections = findViewById(R.id.btnDirections);
-        btnProfile = findViewById(R.id.btnProfile);
         ivProfileIcon = findViewById(R.id.ivProfileIcon);
 
+        setupBottomNavigation();
         setupBottomSheet();
         setupCategoryButtons();
         loadProfileImage();
@@ -123,7 +122,7 @@ public class MapActivity extends AppCompatActivity {
 
         micBtn.setOnClickListener(v -> startVoiceSearch());
 
-        btnProfile.setOnClickListener(v -> {
+        ivProfileIcon.setOnClickListener(v -> {
             v.animate().scaleX(0.9f).scaleY(0.9f).setDuration(100).withEndAction(() -> {
                 v.animate().scaleX(1f).scaleY(1f).setDuration(100).start();
                 startActivity(new Intent(MapActivity.this, ProfileActivity.class));
@@ -159,6 +158,26 @@ public class MapActivity extends AppCompatActivity {
                     REQUEST_PERMISSIONS_REQUEST_CODE);
         } else {
             initLocationOverlay();
+        }
+    }
+
+    private void setupBottomNavigation() {
+        com.google.android.material.bottomnavigation.BottomNavigationView nav = findViewById(R.id.bottom_navigation);
+        if (nav != null) {
+            nav.setSelectedItemId(R.id.nav_map);
+            nav.setOnItemSelectedListener(item -> {
+                int id = item.getItemId();
+                if (id == R.id.nav_home) {
+                    startActivity(new Intent(this, MainActivity.class));
+                    finish();
+                    return true;
+                } else if (id == R.id.nav_favorites) {
+                    startActivity(new Intent(this, FavoritesActivity.class));
+                    finish();
+                    return true;
+                }
+                return id == R.id.nav_map;
+            });
         }
     }
 
@@ -278,6 +297,7 @@ public class MapActivity extends AppCompatActivity {
                 }
 
                 runOnUiThread(() -> {
+                    if (isFinishing() || isDestroyed()) return;
                     map.getOverlays().removeIf(o -> o instanceof org.osmdroid.views.overlay.Marker && !((org.osmdroid.views.overlay.Marker)o).getTitle().equals(searchInput.getText().toString()));
                     for (int i = 0; i < points.size(); i++) {
                         addMarker(points.get(i), names.get(i), "Category: " + type, android.R.drawable.btn_star);
@@ -287,7 +307,10 @@ public class MapActivity extends AppCompatActivity {
 
             } catch (Exception e) {
                 e.printStackTrace();
-                runOnUiThread(() -> Toast.makeText(this, "Failed to load " + type, Toast.LENGTH_SHORT).show());
+                runOnUiThread(() -> {
+                    if (isFinishing() || isDestroyed()) return;
+                    Toast.makeText(this, "Failed to load " + type, Toast.LENGTH_SHORT).show();
+                });
             }
         }).start();
     }
@@ -395,7 +418,10 @@ public class MapActivity extends AppCompatActivity {
                         JSONArray p = coordinates.getJSONArray(i);
                         points.add(new GeoPoint(p.getDouble(1), p.getDouble(0)));
                     }
-                    runOnUiThread(() -> animateRoute(points));
+                    runOnUiThread(() -> {
+                        if (isFinishing() || isDestroyed()) return;
+                        animateRoute(points);
+                    });
                 }
             } catch (Exception e) {
                 e.printStackTrace();
@@ -434,6 +460,7 @@ public class MapActivity extends AppCompatActivity {
             final GeoPoint myLocation = locationOverlay.getMyLocation();
             if (myLocation != null) {
                 runOnUiThread(() -> {
+                    if (isFinishing() || isDestroyed()) return;
                     map.getController().animateTo(myLocation);
                     map.getController().setZoom(15.0);
                 });

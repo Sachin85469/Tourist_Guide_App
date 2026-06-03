@@ -1,36 +1,38 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_marginBottom="16dp"
-    app:cardCornerRadius="12dp"
-    app:cardElevation="2dp">
+    app:cardCornerRadius="20dp"
+    app:cardElevation="2dp"
+    app:strokeWidth="1dp"
+    app:strokeColor="@color/m3_outline_variant">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="16dp">
+        android:padding="20dp">
 
         <TextView
             android:id="@+id/tvDayTitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Day 1"
-            android:textColor="@color/primary"
-            android:textSize="18sp"
-            android:textStyle="bold" />
+            android:textAppearance="@style/TextAppearance.App.TitleMedium"
+            android:textColor="@color/m3_primary"
+            tools:text="Day 1" />
 
         <TextView
             android:id="@+id/tvDayPlaces"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:text="- Place 1\n- Place 2"
-            android:textColor="@color/black"
-            android:textSize="15sp"
-            android:lineSpacingExtra="4dp" />
+            android:layout_marginTop="12dp"
+            android:lineSpacingExtra="6dp"
+            android:textAppearance="@style/TextAppearance.App.BodyLarge"
+            android:textColor="@color/m3_on_surface"
+            tools:text="• Shaniwar Wada\n• Raja Dinkar Kelkar Museum" />
 
     </LinearLayout>
-</androidx.cardview.widget.CardView>
+</com.google.android.material.card.MaterialCardView>

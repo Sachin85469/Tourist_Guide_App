@@ -102,7 +102,20 @@ public class PlaceAdapter extends RecyclerView.Adapter<PlaceAdapter.ViewHolder> 
             placeName.setText(place.getName());
             placeCategory.setText(place.getCategory());
             if (placeCity != null) placeCity.setText(place.getCity());
-            if (placeRating != null) placeRating.setText(String.format(Locale.getDefault(), "%.1f ⭐", place.getRating()));
+            if (placeRating != null) {
+                if (place.getTotalRatings() > 0) {
+                    placeRating.setText(String.format(Locale.getDefault(), "%.1f ⭐", place.getRating()));
+                    placeRating.setVisibility(View.VISIBLE);
+                    android.util.Log.d("PlaceAdapter", "CARD_REAL_RATING: " + place.getName() + " -> " + place.getRating());
+                    if (place.getRating() == 4.0) {
+                        android.util.Log.v("PlaceAdapter", "CARD_FAKE_RATING_DETECTED: potential static 4.0 for " + place.getName());
+                    }
+                } else {
+                    placeRating.setText("New");
+                    placeRating.setVisibility(View.VISIBLE);
+                    android.util.Log.d("PlaceAdapter", "CARD_UNRATED: " + place.getName());
+                }
+            }
             if (placeTag != null) placeTag.setText(place.getTag());
             PlaceImageHelper.loadThumbnail(placeImage, place);
             

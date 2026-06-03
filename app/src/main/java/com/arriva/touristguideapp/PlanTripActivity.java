@@ -19,9 +19,9 @@ public class PlanTripActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_plan_trip);
 
-        ImageView btnBack = findViewById(R.id.btnPlanBack);
-        if (btnBack != null) {
-            btnBack.setOnClickListener(v -> finish());
+        androidx.appcompat.widget.Toolbar toolbar = findViewById(R.id.toolbar);
+        if (toolbar != null) {
+            toolbar.setNavigationOnClickListener(v -> finish());
         }
 
         spinnerDays = findViewById(R.id.spinnerDays);

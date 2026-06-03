@@ -35,6 +35,7 @@ public class Place implements Serializable {
     private double distance = -1.0; // Distance from user in km
     private boolean isTopPick = false;
     private double searchScore = 0.0; // Runtime score for search/ranking
+    private long viewedAt; // Timestamp for recently viewed (Requirement)
 
     /** HTTPS image URL from Firestore. */
     @Nullable
@@ -157,6 +158,14 @@ public class Place implements Serializable {
         this.searchScore = searchScore;
     }
 
+    public long getViewedAt() {
+        return viewedAt;
+    }
+
+    public void setViewedAt(long viewedAt) {
+        this.viewedAt = viewedAt;
+    }
+
     public void setRating(double rating) {
         this.rating = rating;
     }
@@ -232,5 +241,31 @@ public class Place implements Serializable {
     /** True when any remote gallery URL entries exist. */
     public boolean hasRemoteGalleryImages() {
         return galleryImageUrls != null && !galleryImageUrls.isEmpty();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Place place = (Place) o;
+        return Double.compare(place.latitude, latitude) == 0 &&
+                Double.compare(place.longitude, longitude) == 0 &&
+                Double.compare(place.rating, rating) == 0 &&
+                totalRatings == place.totalRatings &&
+                totalComments == place.totalComments &&
+                java.util.Objects.equals(id, place.id) &&
+                java.util.Objects.equals(name, place.name) &&
+                java.util.Objects.equals(city, place.city) &&
+                java.util.Objects.equals(category, place.category) &&
+                java.util.Objects.equals(description, place.description) &&
+                java.util.Objects.equals(budget, place.budget) &&
+                java.util.Objects.equals(crowdLevel, place.crowdLevel) &&
+                java.util.Objects.equals(bestTime, place.bestTime) &&
+                java.util.Objects.equals(imageUrl, place.imageUrl);
+    }
+
+    @Override
+    public int hashCode() {
+        return java.util.Objects.hash(id, name, city, category, description, budget, crowdLevel, bestTime, latitude, longitude, rating, totalRatings, totalComments, imageUrl);
     }
 }

@@ -1,157 +1,172 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fillViewport="true"
-    android:padding="12dp">
+    android:background="@color/m3_background">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:padding="20dp">
 
         <include
             android:id="@+id/languageSelector"
             layout="@layout/include_language_selector" />
 
+        <!-- Input Card -->
         <com.google.android.material.card.MaterialCardView
+            style="@style/AppCard.Primary"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            app:cardCornerRadius="16dp"
-            app:strokeColor="@color/adaptive_card_stroke"
-            app:strokeWidth="1dp">
+            android:layout_marginTop="20dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:padding="12dp">
+                android:orientation="vertical">
 
                 <EditText
                     android:id="@+id/etTranslatorInput"
                     android:layout_width="match_parent"
-                    android:layout_height="120dp"
+                    android:layout_height="140dp"
                     android:background="@android:color/transparent"
                     android:gravity="top|start"
                     android:hint="@string/communication_input_hint"
+                    android:textAppearance="@style/TextAppearance.App.BodyLarge"
                     android:inputType="textMultiLine" />
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
+                    android:layout_marginTop="16dp"
                     android:orientation="horizontal">
 
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/btnVoiceInput"
-                        style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                        style="@style/Widget.Material3.Button.TonalButton"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:layout_marginEnd="6dp"
+                        android:layout_marginEnd="8dp"
                         android:layout_weight="1"
                         android:text="@string/communication_voice_input"
-                        app:icon="@drawable/ic_volume" />
+                        app:icon="@drawable/ic_volume"
+                        app:cornerRadius="12dp" />
 
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/btnTranslate"
+                        style="@style/AppButton"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:layout_marginStart="6dp"
+                        android:layout_marginStart="8dp"
                         android:layout_weight="1"
                         android:text="@string/communication_translate" />
                 </LinearLayout>
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
-        <TextView
-            android:id="@+id/tvTranslatorStatus"
+        <!-- Status & Progress -->
+        <FrameLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:textColor="@color/primary"
-            android:textSize="13sp" />
+            android:layout_marginTop="12dp">
 
-        <ProgressBar
-            android:id="@+id/translatorProgress"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
-            android:layout_marginTop="4dp"
-            android:indeterminateTint="@color/primary"
-            android:visibility="gone" />
+            <TextView
+                android:id="@+id/tvTranslatorStatus"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:textAppearance="@style/TextAppearance.App.LabelLarge"
+                android:textColor="@color/m3_primary" />
 
+            <com.google.android.material.progressindicator.LinearProgressIndicator
+                android:id="@+id/translatorProgress"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:indeterminate="true"
+                android:visibility="gone" />
+        </FrameLayout>
+
+        <!-- Result Card -->
         <com.google.android.material.card.MaterialCardView
+            android:id="@+id/cardResult"
+            style="@style/AppCard.Primary"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            app:cardCornerRadius="16dp"
-            app:strokeColor="@color/adaptive_card_stroke"
-            app:strokeWidth="1dp">
+            android:layout_marginTop="20dp"
+            app:cardBackgroundColor="@color/m3_primary_container"
+            app:strokeWidth="0dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:padding="12dp">
+                android:orientation="vertical">
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/communication_translation_result"
-                    android:textColor="@color/text_muted"
-                    android:textSize="11sp"
-                    android:textStyle="bold" />
+                    android:textAppearance="@style/TextAppearance.App.LabelLarge"
+                    android:textColor="@color/m3_primary"
+                    android:textSize="11sp" />
 
                 <TextView
                     android:id="@+id/tvTranslatorOutput"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="6dp"
+                    android:layout_marginTop="8dp"
                     android:minHeight="80dp"
-                    android:textColor="@color/adaptive_text_primary"
-                    android:textSize="17sp" />
+                    android:textAppearance="@style/TextAppearance.App.HeadlineLarge"
+                    android:textColor="@color/m3_on_primary_container"
+                    android:textSize="22sp"
+                    tools:text="नमस्कार" />
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
+                    android:layout_marginTop="20dp"
                     android:orientation="horizontal">
 
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/btnSpeakTranslation"
-                        style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-                        android:layout_width="0dp"
+                        style="@style/Widget.Material3.Button.TextButton"
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginEnd="6dp"
-                        android:layout_weight="1"
                         android:text="@string/communication_speak"
-                        app:icon="@drawable/ic_volume" />
+                        android:textColor="@color/m3_primary"
+                        app:icon="@drawable/ic_volume"
+                        app:iconTint="@color/m3_primary" />
 
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/btnCopyTranslation"
-                        style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-                        android:layout_width="0dp"
+                        style="@style/Widget.Material3.Button.TextButton"
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginStart="6dp"
-                        android:layout_weight="1"
-                        android:text="@string/communication_copy" />
+                        android:layout_marginStart="8dp"
+                        android:text="@string/communication_copy"
+                        android:textColor="@color/m3_primary" />
                 </LinearLayout>
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
+        <!-- History Header -->
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
+            android:layout_marginTop="32dp"
             android:text="@string/communication_recent_translations"
-            android:textStyle="bold" />
+            android:textAppearance="@style/TextAppearance.App.TitleMedium" />
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rvTranslationHistory"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:nestedScrollingEnabled="false" />
+            android:layout_marginTop="12dp"
+            android:nestedScrollingEnabled="false"
+            tools:listitem="@layout/item_translation_history" />
+
     </LinearLayout>
 </androidx.core.widget.NestedScrollView>
