@@ -3,6 +3,7 @@ package com.arriva.touristguideapp;
 import android.app.Application;
 import android.util.Log;
 
+import android.content.Context;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreSettings;
@@ -14,6 +15,13 @@ import com.google.firebase.firestore.FirebaseFirestoreSettings;
 public class TouristGuideApp extends Application {
 
     private static final String TAG = "TouristGuideApp";
+
+    @Override
+    protected void attachBaseContext(Context base) {
+        android.content.SharedPreferences prefs = base.getSharedPreferences("settings", MODE_PRIVATE);
+        String langCode = prefs.getString("language", "en");
+        super.attachBaseContext(LocaleHelper.setLocale(base, langCode));
+    }
 
     @Override
     public void onCreate() {

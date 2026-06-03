@@ -518,7 +518,7 @@
                 android:layout_height="wrap_content"
                 android:gravity="center"
                 android:padding="40dp"
-                android:text="No reviews yet. Be the first to share your thoughts!"
+                android:text="@string/no_reviews_details"
                 android:textColor="@color/m3_on_surface_variant"
                 android:visibility="gone" />
 

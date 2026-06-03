@@ -7,7 +7,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import java.util.ArrayList;
 import java.util.List;
 
-public class QuickPlanActivity extends AppCompatActivity {
+public class QuickPlanActivity extends BaseActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

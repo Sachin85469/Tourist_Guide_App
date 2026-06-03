@@ -37,7 +37,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends BaseActivity {
 
     private static final String TAG = "MainActivity";
     private static final int VOICE_SEARCH_REQUEST_CODE = 101;
@@ -272,7 +272,7 @@ public class MainActivity extends AppCompatActivity {
             emptyStateContainer.setVisibility(View.GONE);
             
             sections.clear();
-            sections.add(new HomeSection(HomeSection.TYPE_ALL_PLACES_HEADER, "Search Results (" + filteredList.size() + ")"));
+            sections.add(new HomeSection(HomeSection.TYPE_ALL_PLACES_HEADER, getString(R.string.search_results, filteredList.size())));
             for (Place p : filteredList) {
                 sections.add(new HomeSection(HomeSection.TYPE_PLACE, p));
             }
@@ -473,7 +473,7 @@ public class MainActivity extends AppCompatActivity {
             sections.add(new HomeSection(HomeSection.TYPE_FEATURED_CAROUSEL, allPlaces.get(0)));
         }
 
-        sections.add(new HomeSection(HomeSection.TYPE_ALL_PLACES_HEADER, "Browse All"));
+        sections.add(new HomeSection(HomeSection.TYPE_ALL_PLACES_HEADER, getString(R.string.browse_all)));
         for (Place p : allPlaces) {
             sections.add(new HomeSection(HomeSection.TYPE_PLACE, p));
         }
@@ -603,12 +603,16 @@ public class MainActivity extends AppCompatActivity {
                         tripsCount = task.getResult().size();
                     }
                     if (tvQuickStats != null) {
-                        tvQuickStats.setText(resolvedCity + " | " + favoritesCount + " Favorites | " + tripsCount + " Trips");
+                        String favoritesLabel = getString(R.string.favorites);
+                        String tripsLabel = getString(R.string.trips);
+                        tvQuickStats.setText(String.format(Locale.getDefault(), "%s | %d %s | %d %s", resolvedCity, favoritesCount, favoritesLabel, tripsCount, tripsLabel));
                     }
                 });
         } else {
             if (tvQuickStats != null) {
-                tvQuickStats.setText(resolvedCity + " | " + favoritesCount + " Favorites | 0 Trips");
+                String favoritesLabel = getString(R.string.favorites);
+                String tripsLabel = getString(R.string.trips);
+                tvQuickStats.setText(String.format(Locale.getDefault(), "%s | %d %s | 0 %s", resolvedCity, favoritesCount, favoritesLabel, tripsLabel));
             }
         }
     }

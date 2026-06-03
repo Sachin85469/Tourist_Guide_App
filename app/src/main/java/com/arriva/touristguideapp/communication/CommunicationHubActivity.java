@@ -7,8 +7,8 @@ import android.widget.ImageButton;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import com.arriva.touristguideapp.BaseActivity;
 import androidx.viewpager2.widget.ViewPager2;
-
 import com.arriva.touristguideapp.R;
 import com.arriva.touristguideapp.communication.languages.LanguageConfig;
 import com.arriva.touristguideapp.communication.speech.UniversalSpeechHelper;
@@ -31,7 +31,7 @@ import java.util.List;
 /**
  * Multilingual communication hub: Phrasebook, Translator, and Conversation mode.
  */
-public class CommunicationHubActivity extends AppCompatActivity implements CommunicationHost {
+public class CommunicationHubActivity extends BaseActivity implements CommunicationHost {
 
     public static final String EXTRA_INITIAL_TAB = "initial_tab";
 

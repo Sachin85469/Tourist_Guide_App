@@ -19,7 +19,7 @@ import com.google.firebase.auth.FirebaseAuth
 import java.text.SimpleDateFormat
 import java.util.*
 
-class MyReviewsActivity : AppCompatActivity() {
+class MyReviewsActivity : BaseActivity() {
 
     private lateinit var auth: FirebaseAuth
     private lateinit var reviewRepository: ReviewRepository

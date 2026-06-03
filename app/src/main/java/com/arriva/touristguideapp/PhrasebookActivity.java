@@ -11,7 +11,7 @@ import com.arriva.touristguideapp.communication.CommunicationHubActivity;
 /**
  * Legacy entry point — forwards to the multilingual {@link CommunicationHubActivity}.
  */
-public class PhrasebookActivity extends AppCompatActivity {
+public class PhrasebookActivity extends BaseActivity {
 
     public static final String EXTRA_INITIAL_TAB = "initial_tab";
 

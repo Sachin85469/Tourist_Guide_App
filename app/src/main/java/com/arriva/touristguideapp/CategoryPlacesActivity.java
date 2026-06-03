@@ -14,7 +14,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import java.util.ArrayList;
 import java.util.List;
 
-public class CategoryPlacesActivity extends AppCompatActivity implements PlaceAdapter.OnItemClickListener {
+public class CategoryPlacesActivity extends BaseActivity implements PlaceAdapter.OnItemClickListener {
 
     private RecyclerView recyclerView;
     private PlaceAdapter adapter;

@@ -13,7 +13,7 @@
         android:layout_marginStart="@dimen/screen_margin"
         android:layout_marginTop="20dp"
         android:layout_marginBottom="8dp"
-        android:text="Upcoming Trips"
+        android:text="@string/upcoming_trips"
         android:textAppearance="@style/TextAppearance.App.TitleMedium"
         android:textColor="@color/m3_on_surface" />
 
@@ -55,7 +55,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
-                    android:text="No trips planned yet"
+                    android:text="@string/no_trips_yet"
                     android:textColor="@color/m3_on_surface_variant"
                     android:textSize="14sp" />
 
@@ -67,7 +67,7 @@
                     android:background="@drawable/bg_gradient_button"
                     android:paddingHorizontal="16dp"
                     android:paddingVertical="8dp"
-                    android:text="Create your first itinerary"
+                    android:text="@string/create_itinerary"
                     android:textColor="@color/white"
                     android:textSize="13sp"
                     android:textStyle="bold"

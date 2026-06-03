@@ -10,7 +10,7 @@ import androidx.lifecycle.lifecycleScope
 import com.arriva.touristguideapp.data.notifications.NotificationRepository
 import kotlinx.coroutines.launch
 
-class NotificationSettingsActivity : AppCompatActivity() {
+class NotificationSettingsActivity : BaseActivity() {
 
     private lateinit var repository: NotificationRepository
 
@@ -22,7 +22,7 @@ class NotificationSettingsActivity : AppCompatActivity() {
         setSupportActionBar(toolbar)
         supportActionBar?.apply {
             setDisplayHomeAsUpEnabled(true)
-            setTitle("Notification Settings")
+            setTitle(R.string.notification_settings_title)
         }
 
         repository = NotificationRepository(this)
@@ -43,7 +43,7 @@ class NotificationSettingsActivity : AppCompatActivity() {
                 try {
                     repository.setPreference(type, isChecked)
                 } catch (e: Exception) {
-                    Toast.makeText(this@NotificationSettingsActivity, "Failed to save: ${e.message}", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this@NotificationSettingsActivity, getString(R.string.failed_to_save, e.message), Toast.LENGTH_SHORT).show()
                     sw.isChecked = !isChecked // Revert on failure
                 }
             }

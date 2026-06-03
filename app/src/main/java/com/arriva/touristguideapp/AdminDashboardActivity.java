@@ -11,7 +11,7 @@ import androidx.appcompat.widget.Toolbar;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.tabs.TabLayout;
 
-public class AdminDashboardActivity extends AppCompatActivity {
+public class AdminDashboardActivity extends BaseActivity {
 
     private TabLayout tabLayout;
     private FloatingActionButton fabAddPlace;

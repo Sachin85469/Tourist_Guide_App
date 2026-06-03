@@ -5,7 +5,7 @@ import android.os.Bundle;
 import androidx.appcompat.app.AppCompatActivity;
 import com.google.android.material.card.MaterialCardView;
 
-public class MoodActivity extends AppCompatActivity {
+public class MoodActivity extends BaseActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

@@ -5,6 +5,7 @@ import android.content.Context;
 import android.os.CountDownTimer;
 import com.arriva.touristguideapp.sos.manager.SOSManager;
 import com.arriva.touristguideapp.sos.utils.Logger;
+import com.arriva.touristguideapp.R;
 
 public class EmergencyDialog {
     public static void showConfirmation(Context context) {
@@ -12,9 +13,9 @@ public class EmergencyDialog {
         
         try {
             AlertDialog.Builder builder = new AlertDialog.Builder(context);
-            builder.setTitle("EMERGENCY SOS");
-            builder.setMessage("Triggering SOS in 3 seconds...");
-            builder.setNegativeButton("CANCEL", (dialog, which) -> {
+            builder.setTitle(context.getString(R.string.emergency_sos_title));
+            builder.setMessage(context.getString(R.string.sos_triggering_countdown, 3));
+            builder.setNegativeButton(context.getString(R.string.cancel), (dialog, which) -> {
                 dialog.dismiss();
             });
 
@@ -26,7 +27,7 @@ public class EmergencyDialog {
                 public void onTick(long millisUntilFinished) {
                     try {
                         if (dialog.isShowing()) {
-                            dialog.setMessage("Triggering SOS in " + (millisUntilFinished / 1000 + 1) + " seconds...");
+                            dialog.setMessage(context.getString(R.string.sos_triggering_countdown, (millisUntilFinished / 1000 + 1)));
                         }
                     } catch (Exception ignored) {}
                 }

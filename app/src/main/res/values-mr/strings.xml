@@ -1,12 +1,19 @@
 <resources>
-    <string name="app_name">टूरिस्ट गाइड ऐप</string>
+    <string name="app_name">टूरिस्ट मार्गदर्शक ॲप</string>
+    <string name="back">मागे</string>
+    <string name="update_review">समीक्षा अपडेट करा</string>
+    <string name="submit_review">समीक्षा सबमिट करा</string>
+    <string name="retry">पुन्हा प्रयत्न करा</string>
+    <string name="nearby_tourist_spots">जवळपासची पर्यटन ठिकाणे</string>
+
+    <!-- Global/Navigation Navigation labels -->
     <string name="home">होम</string>
     <string name="profile">प्रोफाइल</string>
     <string name="favorites">आवडते</string>
-    <string name="trip_planner">ट्रिप प्लॅनर</string>
-    <string name="notifications">सूचना</string>
-    <string name="sos">एसओएस</string>
-    <string name="language">भाषा</string>
+    <string name="map">नकाशा</string>
+    <string name="trips">ट्रिप्स</string>
+    <string name="saved">आवडते</string>
+    <string name="reviews">समीक्षा</string>
     <string name="settings">सेटिंग्ज</string>
     <string name="security">सुरक्षा</string>
     <string name="edit_profile">प्रोफाइल संपादित करा</string>
@@ -16,5 +23,85 @@
     <string name="discover_attractions">आकर्षणे शोधा</string>
     <string name="plan_smart_trips">स्मार्ट ट्रिप प्लॅन करा</string>
     <string name="stay_safe_sos">एसओएस सह सुरक्षित रहा</string>
-    <string name="favorites_count_format">%1$d आवडते</string>
+    <string name="trip_planner">ट्रिप प्लॅनर</string>
+    <string name="notifications">सूचना</string>
+    <string name="sos">एसओएस</string>
+    <string name="language">भाषा</string>
+
+    <!-- Home Screen Strings -->
+    <string name="home_greeting_morning">शुभ प्रभात!</string>
+    <string name="home_title">पुढे कुठे जायचे?</string>
+    <string name="explore_pune_local">स्थानिक असल्यासारखे पुणे एक्सप्लोर करा</string>
+    <string name="search_destinations_hint">प्रेक्षणीय स्थळे, मंदिरे, संग्रहालये शोधा...</string>
+    <string name="quick_actions">जलद कृती</string>
+    <string name="sos_alert">एसओएस अलर्ट</string>
+    <string name="ai_guide">एी मार्गदर्शक</string>
+    <string name="home_action_translate">अनुवादक</string>
+    <string name="home_action_planner">प्रवासाचे नियोजन</string>
+    <string name="home_action_nearby">जवळपास शोधा</string>
+    <string name="phrasebook">वाक्यसंग्रह</string>
+    <string name="featured_today">आजची खास आकर्षणे</string>
+    <string name="browse_all">सर्व पहा</string>
+    <string name="search_results">शोध निकाल (%1$d)</string>
+
+    <!-- Profile settings labels -->
+    <string name="profile_edit_profile">प्रोफाइल संपादित करा</string>
+    <string name="edit_profile_desc">आपले नाव आणि फोटो अपडेट करा</string>
+    <string name="my_reviews">माझ्या समीक्षा</string>
+    <string name="my_reviews_desc">आपला अभिप्राय पहा आणि व्यवस्थापित करा</string>
+    <string name="trip_history">प्रवासाचा इतिहास</string>
+    <string name="trip_history_desc">आपले मागील आणि आगामी प्रवास पहा</string>
+    <string name="profile_security">सुरक्षा</string>
+    <string name="security_desc">आपल्या खात्याची गोपनीयता व्यवस्थापित करा</string>
+    <string name="profile_notifications">सूचना सेटिंग्ज</string>
+    <string name="notifications_desc">आपले अलर्ट आणि अपडेट पहा</string>
+    <string name="profile_language">भाषा बदला</string>
+    <string name="language_desc">आपली पसंतीची भाषा निवडा</string>
+    <string name="profile_sos_settings">एसओएस सेटिंग्ज</string>
+    <string name="sos_settings_desc">आपत्कालीन ट्रिगर व्यवस्थापित करा</string>
+    <string name="profile_sign_out">साइन आउट</string>
+    <string name="sign_out_desc">आपल्या खात्यातून सुरक्षितपणे लॉग आउट करा</string>
+
+    <!-- SOS & Trigger Settings -->
+    <string name="emergency_contact">आपत्कालीन संपर्क</string>
+    <string name="phone_number">फोन नंबर</string>
+    <string name="volume_trigger">आवाज बटण ट्रिगर</string>
+    <string name="floating_sos_button">तरंगणारे एसओएस बटण</string>
+    <string name="auto_call_after_sms">एसएमएस नंतर ऑटो-कॉल</string>
+    <string name="save_sos_settings">एसओएस सेटिंग्ज जतन करा</string>
+    <string name="settings_saved">सेटिंग्ज जतन केल्या</string>
+    <string name="emergency_sos_title">आपत्कालीन एसओएस</string>
+    <string name="sos_triggering_countdown">%1$d सेकंदात एसओएस ट्रिगर होत आहे...</string>
+    <string name="cancel">रद्द करा</string>
+
+    <!-- Empty States Messages -->
+    <string name="no_reviews_yet">अजून एकही समीक्षा नाही</string>
+    <string name="no_reviews_details">अजून एकही समीक्षा नाही. तुमचे विचार शेअर करणारे पहिले व्हा!</string>
+    <string name="no_trips_yet">अजून एकही प्रवास नियोजित नाही</string>
+    <string name="no_notifications_yet">अजून एकही सूचना नाही</string>
+    <string name="favorites_empty_title">अजून कोणतेही आवडते नाही</string>
+    <string name="favorites_empty_msg">पर्यटन स्थळे एक्सप्लोर करा आणि त्यांना येथे जतन करण्यासाठी हृदय चिन्हावर टॅप करा.</string>
+
+    <!-- Notification History / Settings -->
+    <string name="notification_history_title">सूचना इतिहास</string>
+    <string name="notification_settings_title">सूचना सेटिंग्ज</string>
+    <string name="notification_deleted">सूचना हटवली</string>
+    <string name="all_marked_read">सर्व वाचलेले म्हणून चिन्हांकित केले</string>
+    <string name="clear_all_notifications">सर्व सूचना हटवा</string>
+    <string name="clear_all_confirm">तुम्ही नक्की सर्व सूचना हटवू इच्छिता?</string>
+    <string name="clear">साफ करा</string>
+    <string name="notifications_cleared">सूचना साफ केल्या</string>
+    <string name="failed_to_save">जतन करण्यात अपयशी: %1$s</string>
+    <string name="apply_language">भाषा लागू करा</string>
+
+    <!-- AI Guide / Translator / Phrasebook Extras -->
+    <string name="ai_assistant_title">एआय प्रवास सहाय्यक</string>
+    <string name="ai_input_hint">तुमच्या प्रवासाबद्दल काहीही विचारा...</string>
+    <string name="ai_initial_message">नमस्कार! मी मिथुनद्वारे समर्थित आपला एआय प्रवास सहाय्यक आहे. मला स्थानिक आकर्षणे, प्रवास टिप्स किंवा इतर कशाबद्दलही विचारा!</string>
+    <string name="phrasebook_title">प्रवास वाक्यांश संग्रह</string>
+    <string name="phrasebook_search_hint">कोणत्याही भाषेत वाक्यांश शोधा</string>
+    <string name="phrasebook_empty_title">कोणतेही वाक्यांश आढळले नाहीत</string>
+    <string name="phrasebook_empty_message">दुसरी श्रेणी किंवा शोध शब्द वापरून पहा.</string>
+    <string name="upcoming_trips">आगामी प्रवास</string>
+    <string name="create_itinerary">तुमचा पहिला प्रवास मार्ग आराखडा तयार करा</string>
 </resources>

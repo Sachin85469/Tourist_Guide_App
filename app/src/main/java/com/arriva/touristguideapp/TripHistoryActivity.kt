@@ -20,7 +20,7 @@ import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.*
 
-class TripHistoryActivity : AppCompatActivity() {
+class TripHistoryActivity : BaseActivity() {
 
     private lateinit var tripRepository: TripRepository
     private lateinit var notificationRepository: NotificationRepository

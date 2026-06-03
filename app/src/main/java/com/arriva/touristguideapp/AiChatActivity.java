@@ -33,7 +33,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-public class AiChatActivity extends AppCompatActivity {
+public class AiChatActivity extends BaseActivity {
 
     private RecyclerView recyclerViewChat;
     private ChatAdapter chatAdapter;

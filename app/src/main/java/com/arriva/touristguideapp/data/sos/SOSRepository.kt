@@ -27,6 +27,11 @@ class SOSRepository(private val context: Context) {
         ref.set(contact).await()
     }
 
+    suspend fun updateContact(contact: SOSContact) {
+        val uid = auth.currentUser?.uid ?: return
+        db.collection("users").document(uid).collection("emergency_contacts").document(contact.id).set(contact).await()
+    }
+
     suspend fun deleteContact(contactId: String) {
         val uid = auth.currentUser?.uid ?: return
         db.collection("users").document(uid).collection("emergency_contacts").document(contactId).delete().await()

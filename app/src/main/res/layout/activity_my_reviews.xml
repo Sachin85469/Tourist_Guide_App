@@ -17,7 +17,7 @@
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
             app:navigationIcon="@drawable/ic_back"
-            app:title="My Reviews"
+            app:title="@string/my_reviews"
             app:titleTextColor="@color/text_primary" />
     </com.google.android.material.appbar.AppBarLayout>
 
@@ -158,7 +158,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="16dp"
-                    android:text="No reviews yet"
+                    android:text="@string/no_reviews_yet"
                     android:textColor="@color/text_primary"
                     android:textSize="18sp"
                     android:textStyle="bold" />

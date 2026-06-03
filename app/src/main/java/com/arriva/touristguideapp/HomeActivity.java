@@ -19,7 +19,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
-public class HomeActivity extends AppCompatActivity {
+public class HomeActivity extends BaseActivity {
 
     private static final int VOICE_SEARCH_REQUEST_CODE = 101;
     private RecyclerView recyclerViewPlaces;

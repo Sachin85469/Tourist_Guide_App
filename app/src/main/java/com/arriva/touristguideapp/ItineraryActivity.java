@@ -22,7 +22,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
-public class ItineraryActivity extends AppCompatActivity {
+public class ItineraryActivity extends BaseActivity {
 
     private RecyclerView rvItinerary;
     private ItineraryAdapter adapter;

@@ -12,7 +12,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.arriva.touristguideapp.data.analytics.AuditLogger;
 import com.arriva.touristguideapp.data.places.FirestorePlaceDataSource;
 
-public class PlaceEditorActivity extends AppCompatActivity {
+public class PlaceEditorActivity extends BaseActivity {
 
     private EditText etName, etCity, etDescription, etImageUrl, etLat, etLng;
     private Spinner spinnerStatus;

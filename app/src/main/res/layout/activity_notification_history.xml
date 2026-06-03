@@ -11,7 +11,7 @@
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
         android:background="@color/primary"
-        app:title="Notification History"
+        app:title="@string/notification_history_title"
         app:titleTextColor="@color/white" />
 
     <FrameLayout
@@ -46,7 +46,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="24dp"
-                android:text="No notifications yet"
+                android:text="@string/no_notifications_yet"
                 android:textColor="#212121"
                 android:textSize="18sp"
                 android:textStyle="bold" />

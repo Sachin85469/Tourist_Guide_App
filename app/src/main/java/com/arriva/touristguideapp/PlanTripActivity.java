@@ -8,7 +8,7 @@ import android.widget.ImageView;
 import android.widget.Spinner;
 import androidx.appcompat.app.AppCompatActivity;
 
-public class PlanTripActivity extends AppCompatActivity {
+public class PlanTripActivity extends BaseActivity {
 
     private Spinner spinnerDays;
     private Spinner spinnerType;

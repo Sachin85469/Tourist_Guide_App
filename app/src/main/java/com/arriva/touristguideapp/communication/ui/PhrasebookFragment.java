@@ -179,8 +179,13 @@ public class PhrasebookFragment extends Fragment {
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinner.setAdapter(adapter);
         
-        // Default: Marathi
-        spinner.setSelection(0); 
+        // Default based on app language settings:
+        String currentAppLang = requireContext().getSharedPreferences("settings", android.content.Context.MODE_PRIVATE).getString("language", "en");
+        if ("hi".equals(currentAppLang)) {
+            spinner.setSelection(1); // Hindi
+        } else {
+            spinner.setSelection(0); // Marathi (default)
+        }
 
         spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override

@@ -11,7 +11,7 @@
         android:layout_marginStart="@dimen/screen_margin"
         android:layout_marginTop="20dp"
         android:layout_marginBottom="8dp"
-        android:text="Featured Today"
+        android:text="@string/featured_today"
         android:textAppearance="@style/TextAppearance.App.TitleMedium"
         android:textColor="@color/m3_on_surface" />
 

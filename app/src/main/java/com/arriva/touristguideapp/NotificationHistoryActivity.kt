@@ -16,7 +16,7 @@ import com.arriva.touristguideapp.data.notifications.NotificationAdapter
 import com.arriva.touristguideapp.data.notifications.NotificationModel
 import com.arriva.touristguideapp.data.notifications.NotificationRepository
 
-class NotificationHistoryActivity : AppCompatActivity() {
+class NotificationHistoryActivity : BaseActivity() {
 
     private lateinit var repository: NotificationRepository
     private lateinit var adapter: NotificationAdapter
@@ -32,7 +32,7 @@ class NotificationHistoryActivity : AppCompatActivity() {
         setSupportActionBar(toolbar)
         supportActionBar?.apply {
             setDisplayHomeAsUpEnabled(true)
-            setTitle("Notification History")
+            setTitle(R.string.notification_history_title)
         }
 
         rvHistory = findViewById(R.id.rvNotificationHistory)
@@ -73,7 +73,7 @@ class NotificationHistoryActivity : AppCompatActivity() {
                 adapter.notifyItemRemoved(position)
                 
                 toggleEmptyState(history.isEmpty())
-                Toast.makeText(this@NotificationHistoryActivity, "Notification deleted", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this@NotificationHistoryActivity, R.string.notification_deleted, Toast.LENGTH_SHORT).show()
             }
         }
         val itemTouchHelper = ItemTouchHelper(swipeHandler)
@@ -109,7 +109,7 @@ class NotificationHistoryActivity : AppCompatActivity() {
         AlertDialog.Builder(this)
             .setTitle(notification.title)
             .setMessage(notification.message)
-            .setPositiveButton("Close", null)
+            .setPositiveButton(R.string.cancel, null)
             .show()
     }
 
@@ -120,7 +120,7 @@ class NotificationHistoryActivity : AppCompatActivity() {
             history.removeAt(position)
             adapter.notifyItemRemoved(position)
             toggleEmptyState(history.isEmpty())
-            Toast.makeText(this, "Notification deleted", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, R.string.notification_deleted, Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -138,19 +138,19 @@ class NotificationHistoryActivity : AppCompatActivity() {
             R.id.menu_mark_all_read -> {
                 repository.markAllAsRead()
                 loadNotifications()
-                Toast.makeText(this, "All marked as read", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, R.string.all_marked_read, Toast.LENGTH_SHORT).show()
                 return true
             }
             R.id.menu_clear_all -> {
                 AlertDialog.Builder(this)
-                    .setTitle("Clear All Notifications")
-                    .setMessage("Are you sure you want to clear all notifications?")
-                    .setPositiveButton("Clear") { _, _ ->
+                    .setTitle(R.string.clear_all_notifications)
+                    .setMessage(R.string.clear_all_confirm)
+                    .setPositiveButton(R.string.clear) { _, _ ->
                         repository.clearAll()
                         loadNotifications()
-                        Toast.makeText(this, "Notifications cleared", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(this, R.string.notifications_cleared, Toast.LENGTH_SHORT).show()
                     }
-                    .setNegativeButton("Cancel", null)
+                    .setNegativeButton(R.string.cancel, null)
                     .show()
                 return true
             }

@@ -75,7 +75,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="4dp"
-                            android:text="Explore Pune like a local"
+                            android:text="@string/explore_pune_local"
                             android:textAppearance="@style/TextAppearance.App.BodyMedium"
                             android:textColor="#B3FFFFFF"
                             android:textSize="14sp" />
@@ -142,7 +142,7 @@
                             android:layout_marginStart="10dp"
                             android:layout_weight="1"
                             android:background="@null"
-                            android:hint="Search destinations, temples, museums..."
+                            android:hint="@string/search_destinations_hint"
                             android:textAppearance="@style/TextAppearance.App.BodyMedium"
                             android:textColor="@color/m3_on_surface"
                             android:textColorHint="@color/m3_outline"

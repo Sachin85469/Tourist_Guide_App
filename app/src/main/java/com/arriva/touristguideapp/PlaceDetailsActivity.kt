@@ -23,7 +23,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.util.*
 
-class PlaceDetailsActivity : AppCompatActivity() {
+class PlaceDetailsActivity : BaseActivity() {
 
     private var placeId: String? = null
     private var btnFavorite: ImageView? = null

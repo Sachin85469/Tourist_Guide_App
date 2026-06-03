@@ -21,7 +21,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Trip History"
+                android:text="@string/trip_history"
                 android:textAppearance="@style/TextAppearance.App.TitleLarge" />
         </androidx.appcompat.widget.Toolbar>
     </com.google.android.material.appbar.AppBarLayout>
@@ -58,7 +58,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
-                android:text="No trips planned yet"
+                android:text="@string/no_trips_yet"
                 android:textAppearance="@style/TextAppearance.App.TitleMedium"
                 android:textColor="@color/adaptive_text_primary"
                 android:textStyle="bold" />

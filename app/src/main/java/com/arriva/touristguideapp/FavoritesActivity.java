@@ -12,7 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-public class FavoritesActivity extends AppCompatActivity implements FavoriteAdapter.OnItemClickListener {
+public class FavoritesActivity extends BaseActivity implements FavoriteAdapter.OnItemClickListener {
 
     private RecyclerView recyclerView;
     private FavoriteAdapter adapter;

@@ -15,7 +15,7 @@
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
             android:background="@color/white"
-            app:title="Change Language"
+            app:title="@string/profile_language"
             app:navigationIcon="@drawable/ic_back" />
     </com.google.android.material.appbar.AppBarLayout>
 
@@ -38,7 +38,7 @@
             android:id="@+id/rbHindi"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Hindi (हिंदी)"
+            android:text="हिन्दी"
             android:textSize="16sp"
             android:padding="12dp" />
 
@@ -46,15 +46,7 @@
             android:id="@+id/rbMarathi"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Marathi (मराठी)"
-            android:textSize="16sp"
-            android:padding="12dp" />
-
-        <RadioButton
-            android:id="@+id/rbKannada"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Kannada (ಕನ್ನಡ)"
+            android:text="मराठी"
             android:textSize="16sp"
             android:padding="12dp" />
     </RadioGroup>
@@ -64,7 +56,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="16dp"
-        android:text="Apply Language"
+        android:text="@string/apply_language"
         android:padding="12dp" />
 
 </LinearLayout>

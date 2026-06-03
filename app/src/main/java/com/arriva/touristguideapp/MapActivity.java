@@ -51,7 +51,7 @@ import com.arriva.touristguideapp.data.places.PlaceRepository;
 import com.arriva.touristguideapp.data.places.PlaceDto;
 import com.arriva.touristguideapp.data.places.PlaceMapper;
 
-public class MapActivity extends AppCompatActivity {
+public class MapActivity extends BaseActivity {
 
     private MapView map;
     private EditText searchInput;

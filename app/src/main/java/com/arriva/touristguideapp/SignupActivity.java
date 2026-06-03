@@ -15,7 +15,7 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.UserProfileChangeRequest;
 import com.google.firebase.firestore.FirebaseFirestore;
 
-public class SignupActivity extends AppCompatActivity {
+public class SignupActivity extends BaseActivity {
 
     private EditText etName, etEmail, etPassword, etConfirmPassword;
     private Button btnSignup;

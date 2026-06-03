@@ -11,7 +11,7 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Quick Actions"
+        android:text="@string/quick_actions"
         android:textAppearance="@style/TextAppearance.App.TitleMedium"
         android:textColor="@color/m3_on_surface"
         android:layout_marginBottom="12dp"/>
@@ -52,7 +52,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="10dp"
-                    android:text="SOS Alert"
+                    android:text="@string/sos_alert"
                     android:textStyle="bold"
                     android:textColor="#C62828"
                     android:textSize="14sp" />
@@ -86,7 +86,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="10dp"
-                    android:text="AI Guide"
+                    android:text="@string/ai_guide"
                     android:textStyle="bold"
                     android:textColor="#6A1B9A"
                     android:textSize="14sp" />
@@ -121,7 +121,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="10dp"
-                    android:text="Translator"
+                    android:text="@string/home_action_translate"
                     android:textStyle="bold"
                     android:textColor="#1565C0"
                     android:textSize="14sp" />
@@ -156,7 +156,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="10dp"
-                    android:text="Plan Trip"
+                    android:text="@string/home_action_planner"
                     android:textStyle="bold"
                     android:textColor="#2E7D32"
                     android:textSize="14sp" />
@@ -191,7 +191,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="10dp"
-                    android:text="Explore Nearby"
+                    android:text="@string/home_action_nearby"
                     android:textStyle="bold"
                     android:textColor="#EF6C00"
                     android:textSize="14sp" />
@@ -226,7 +226,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="10dp"
-                    android:text="Phrasebook"
+                    android:text="@string/phrasebook"
                     android:textStyle="bold"
                     android:textColor="#00838F"
                     android:textSize="14sp" />

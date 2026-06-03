@@ -23,7 +23,7 @@ import java.io.File
 import java.io.FileOutputStream
 import java.util.*
 
-class EditProfileActivity : AppCompatActivity() {
+class EditProfileActivity : BaseActivity() {
 
     private lateinit var auth: FirebaseAuth
     private lateinit var repository: ProfileRepository

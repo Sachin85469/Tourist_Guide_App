@@ -5,5 +5,6 @@ import java.io.Serializable
 data class SOSContact(
     var id: String = "",
     var name: String = "",
-    var phone: String = ""
+    var phone: String = "",
+    var relationship: String = ""
 ) : Serializable

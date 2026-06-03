@@ -6,9 +6,10 @@ import android.os.Bundle;
 import android.provider.Settings;
 import android.widget.Button;
 import androidx.appcompat.app.AppCompatActivity;
+import com.arriva.touristguideapp.BaseActivity;
 import com.arriva.touristguideapp.R;
 
-public class SOSOnboardingActivity extends AppCompatActivity {
+public class SOSOnboardingActivity extends BaseActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

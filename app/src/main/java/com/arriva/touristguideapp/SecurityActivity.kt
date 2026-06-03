@@ -17,7 +17,7 @@ import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 
-class SecurityActivity : AppCompatActivity() {
+class SecurityActivity : BaseActivity() {
 
     private lateinit var auth: FirebaseAuth
     private lateinit var profileRepository: ProfileRepository

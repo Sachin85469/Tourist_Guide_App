@@ -15,7 +15,7 @@ import com.google.android.material.appbar.MaterialToolbar
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.launch
 
-class ProfileActivity : AppCompatActivity() {
+class ProfileActivity : BaseActivity() {
 
     private lateinit var auth: FirebaseAuth
     private lateinit var repository: ProfileRepository
@@ -64,35 +64,35 @@ class ProfileActivity : AppCompatActivity() {
         findViewById<MaterialToolbar>(R.id.toolbar).setNavigationOnClickListener { finish() }
 
         // Setup settings rows
-        setupRow(findViewById(R.id.btnEditProfile), R.drawable.ic_account, "Edit Profile", "Update your name and photo") {
+        setupRow(findViewById(R.id.btnEditProfile), R.drawable.ic_account, getString(R.string.edit_profile), getString(R.string.edit_profile_desc)) {
             startActivity(Intent(this, EditProfileActivity::class.java))
         }
 
-        setupRow(findViewById(R.id.btnMyReviews), R.drawable.ic_star, "My Reviews", "View and manage your feedback") {
+        setupRow(findViewById(R.id.btnMyReviews), R.drawable.ic_star, getString(R.string.my_reviews), getString(R.string.my_reviews_desc)) {
             startActivity(Intent(this, MyReviewsActivity::class.java))
         }
 
-        setupRow(findViewById(R.id.btnTripHistory), R.drawable.ic_trip, "Trip History", "View your past and upcoming trips") {
+        setupRow(findViewById(R.id.btnTripHistory), R.drawable.ic_trip, getString(R.string.trip_history), getString(R.string.trip_history_desc)) {
             startActivity(Intent(this, TripHistoryActivity::class.java))
         }
 
-        setupRow(findViewById(R.id.btnSecurity), R.drawable.ic_security, "Security", "Manage your account privacy") {
+        setupRow(findViewById(R.id.btnSecurity), R.drawable.ic_security, getString(R.string.security), getString(R.string.security_desc)) {
             startActivity(Intent(this, SecurityActivity::class.java))
         }
 
-        setupRow(findViewById(R.id.btnNotificationSettings), R.drawable.ic_notification, "Notifications", "View your alerts and updates") {
+        setupRow(findViewById(R.id.btnNotificationSettings), R.drawable.ic_notification, getString(R.string.notifications), getString(R.string.notifications_desc)) {
             startActivity(Intent(this, NotificationHistoryActivity::class.java))
         }
 
-        setupRow(findViewById(R.id.btnLanguage), R.drawable.ic_language, "Language", "Choose your preferred language") {
+        setupRow(findViewById(R.id.btnLanguage), R.drawable.ic_language, getString(R.string.language), getString(R.string.language_desc)) {
             startActivity(Intent(this, LanguageActivity::class.java))
         }
 
-        setupRow(findViewById(R.id.btnSOSSettings), R.drawable.ic_sos, "SOS Settings", "Manage emergency triggers") {
+        setupRow(findViewById(R.id.btnSOSSettings), R.drawable.ic_sos, getString(R.string.profile_sos_settings), getString(R.string.sos_settings_desc)) {
             startActivity(Intent(this, SOSSettingsActivity::class.java))
         }
 
-        setupRow(findViewById(R.id.btnLogoutRow), R.drawable.ic_logout, "Sign Out", "Safely log out of your account") {
+        setupRow(findViewById(R.id.btnLogoutRow), R.drawable.ic_logout, getString(R.string.sign_out), getString(R.string.sign_out_desc)) {
             auth.signOut()
             // Reset local cache
             repository.cacheUserProfile(User())
@@ -162,9 +162,9 @@ class ProfileActivity : AppCompatActivity() {
     private fun observeStats() {
         lifecycleScope.launch {
             repository.getStats().collect { stats ->
-                updateStat(R.id.statTrips, stats["trips"] ?: 0, "Trips")
-                updateStat(R.id.statFavs, stats["favorites"] ?: 0, "Saved")
-                updateStat(R.id.statReviews, stats["reviews"] ?: 0, "Reviews")
+                updateStat(R.id.statTrips, stats["trips"] ?: 0, getString(R.string.trips))
+                updateStat(R.id.statFavs, stats["favorites"] ?: 0, getString(R.string.saved))
+                updateStat(R.id.statReviews, stats["reviews"] ?: 0, getString(R.string.reviews))
             }
         }
     }

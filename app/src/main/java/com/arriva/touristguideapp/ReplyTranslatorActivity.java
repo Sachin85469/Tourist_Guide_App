@@ -31,7 +31,7 @@ import com.google.android.material.button.MaterialButton;
 import com.google.android.material.card.MaterialCardView;
 import com.google.mlkit.nl.translate.TranslateLanguage;
 
-public class ReplyTranslatorActivity extends AppCompatActivity {
+public class ReplyTranslatorActivity extends BaseActivity {
 
     private static final String TAG = "ReplyTranslatorActivity";
     private static final int REQUEST_RECORD_AUDIO_PERMISSION = 200;
