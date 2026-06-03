@@ -26,41 +26,40 @@
                 android:background="@drawable/bg_home_header"
                 android:orientation="vertical"
                 android:paddingHorizontal="@dimen/screen_margin"
-                android:paddingTop="28dp"
+                android:paddingTop="36dp"
                 android:paddingBottom="24dp"
                 app:layout_collapseMode="parallax">
 
-                <!-- Header Top Row (Greeting & Avatar) -->
+                <!-- Header Top Row (Greeting, Notifications & Avatar) -->
                 <RelativeLayout
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp">
+                    android:layout_height="wrap_content">
 
                     <LinearLayout
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_alignParentStart="true"
-                        android:layout_toStartOf="@+id/btnProfile"
+                        android:layout_toStartOf="@+id/notificationContainer"
                         android:orientation="vertical">
 
                         <TextView
                             android:id="@+id/tvGreeting"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="@string/home_greeting_morning"
-                            android:textAppearance="@style/TextAppearance.App.BodyLarge"
+                            android:text="@string/home_greeting_with_emoji"
+                            android:textAppearance="@style/TextAppearance.App.BodySmall"
                             android:textColor="#CCFFFFFF"
-                            android:textSize="16sp" />
+                            android:textSize="14sp" />
 
                         <TextView
                             android:id="@+id/tvMainUserName"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="2dp"
-                            android:text="@string/home_title"
+                            android:text="Traveler"
                             android:textAppearance="@style/TextAppearance.App.HeadlineLarge"
                             android:textColor="@color/white"
-                            android:textSize="28sp"
+                            android:textSize="32sp"
                             android:textStyle="bold" />
 
                         <!-- Hidden email to prevent NullPointerException in Java binding -->
@@ -74,51 +73,77 @@
                             android:id="@+id/tvHeaderSubtitle"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginTop="4dp"
-                            android:text="@string/explore_pune_local"
+                            android:layout_marginTop="6dp"
+                            android:text="@string/home_subtitle"
                             android:textAppearance="@style/TextAppearance.App.BodyMedium"
                             android:textColor="#B3FFFFFF"
-                            android:textSize="14sp" />
+                            android:textSize="15sp" />
                     </LinearLayout>
 
-                    <com.google.android.material.imageview.ShapeableImageView
-                        android:id="@+id/btnProfile"
-                        android:layout_width="48dp"
-                        android:layout_height="48dp"
+                    <LinearLayout
+                        android:id="@+id/notificationContainer"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
                         android:layout_alignParentEnd="true"
                         android:layout_centerVertical="true"
-                        android:padding="2dp"
-                        android:src="@android:drawable/ic_menu_gallery"
-                        app:shapeAppearanceOverlay="@style/CircleImage"
-                        app:strokeColor="@color/white"
-                        app:strokeWidth="2dp" />
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal">
 
-                    <TextView
-                        android:id="@+id/tvProfileBadge"
-                        android:layout_width="16dp"
-                        android:layout_height="16dp"
-                        android:layout_alignTop="@id/btnProfile"
-                        android:layout_alignEnd="@id/btnProfile"
-                        android:layout_marginTop="-2dp"
-                        android:layout_marginEnd="-2dp"
-                        android:background="@drawable/badge_background"
-                        android:gravity="center"
-                        android:textColor="@color/white"
-                        android:textSize="9sp"
-                        android:textStyle="bold"
-                        android:visibility="gone"
-                        tools:visibility="visible"
-                        tools:text="3" />
+                        <!-- Notification Bell Area -->
+                        <FrameLayout
+                            android:id="@+id/btnNotifications"
+                            android:layout_width="44dp"
+                            android:layout_height="44dp"
+                            android:layout_marginEnd="12dp"
+                            android:background="@drawable/bg_notification_circle"
+                            android:clickable="true"
+                            android:focusable="true">
+
+                            <ImageView
+                                android:layout_width="24dp"
+                                android:layout_height="24dp"
+                                android:layout_gravity="center"
+                                android:src="@drawable/ic_notification"
+                                app:tint="@color/white" />
+
+                            <TextView
+                                android:id="@+id/tvProfileBadge"
+                                android:layout_width="16dp"
+                                android:layout_height="16dp"
+                                android:layout_gravity="top|end"
+                                android:layout_marginTop="4dp"
+                                android:layout_marginEnd="4dp"
+                                android:background="@drawable/badge_background"
+                                android:gravity="center"
+                                android:textColor="@color/white"
+                                android:textSize="9sp"
+                                android:textStyle="bold"
+                                android:visibility="gone"
+                                tools:text="3"
+                                tools:visibility="visible" />
+                        </FrameLayout>
+
+                        <com.google.android.material.imageview.ShapeableImageView
+                            android:id="@+id/btnProfile"
+                            android:layout_width="48dp"
+                            android:layout_height="48dp"
+                            android:padding="2dp"
+                            android:src="@android:drawable/ic_menu_gallery"
+                            app:shapeAppearanceOverlay="@style/CircleImage"
+                            app:strokeColor="@color/white"
+                            app:strokeWidth="2dp" />
+                    </LinearLayout>
+
                 </RelativeLayout>
 
                 <!-- Search Bar Card -->
                 <com.google.android.material.card.MaterialCardView
                     android:id="@+id/searchCard"
                     android:layout_width="match_parent"
-                    android:layout_height="52dp"
-                    android:layout_marginTop="20dp"
-                    app:cardCornerRadius="26dp"
-                    app:cardElevation="6dp"
+                    android:layout_height="56dp"
+                    android:layout_marginTop="24dp"
+                    app:cardCornerRadius="28dp"
+                    app:cardElevation="8dp"
                     app:cardBackgroundColor="@color/white"
                     app:strokeWidth="0dp">
 
@@ -148,7 +173,7 @@
                             android:textColorHint="@color/m3_outline"
                             android:imeOptions="actionSearch"
                             android:inputType="text"
-                            android:textSize="15sp" />
+                            android:textSize="16sp" />
 
                         <ImageView
                             android:id="@+id/btnVoiceSearch"
@@ -159,15 +184,51 @@
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
 
-                <!-- Quick Stats row below Search Bar -->
+                <!-- Travel Insight Card (Glassmorphism) -->
                 <com.google.android.material.card.MaterialCardView
-                    android:id="@+id/statsCard"
+                    android:id="@+id/insightCard"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="16dp"
                     app:cardCornerRadius="16dp"
-                    app:cardElevation="2dp"
+                    app:cardElevation="0dp"
                     app:cardBackgroundColor="#26FFFFFF"
+                    app:strokeWidth="1dp"
+                    app:strokeColor="#1AFFFFFF">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:padding="12dp">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/travel_insight_title"
+                            android:textColor="@color/white"
+                            android:textSize="14sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="2dp"
+                            android:text="@string/travel_insight_subtitle"
+                            android:textColor="#CCFFFFFF"
+                            android:textSize="12sp" />
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <!-- Quick Stats row -->
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/statsCard"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    app:cardCornerRadius="12dp"
+                    app:cardElevation="0dp"
+                    app:cardBackgroundColor="#1AFFFFFF"
                     app:strokeWidth="0dp">
 
                     <LinearLayout
@@ -175,18 +236,16 @@
                         android:layout_height="wrap_content"
                         android:gravity="center"
                         android:orientation="horizontal"
-                        android:paddingVertical="10dp"
-                        android:paddingHorizontal="16dp">
+                        android:paddingVertical="8dp">
 
                         <TextView
                             android:id="@+id/tvQuickStats"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Pune | 0 Favorites | 0 Trips"
+                            android:text="⭐ 0 Favorites   •   🧳 0 Trips"
                             android:textColor="@color/white"
                             android:textSize="13sp"
                             android:textStyle="bold"
-                            android:letterSpacing="0.05"
                             android:gravity="center" />
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>

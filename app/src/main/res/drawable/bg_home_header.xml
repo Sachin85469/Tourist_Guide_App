@@ -1,9 +1,36 @@
 <?xml version="1.0" encoding="utf-8"?>
-<shape xmlns:android="http://schemas.android.com/apk/res/android"
-    android:shape="rectangle">
-    <gradient
-        android:angle="0"
-        android:endColor="#6750A4"
-        android:startColor="#8A6ED0"
-        android:type="linear" />
-</shape>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:aapt="http://schemas.android.com/aapt"
+    android:width="412dp"
+    android:height="320dp"
+    android:viewportWidth="412"
+    android:viewportHeight="320">
+
+    <!-- Premium Gradient Background -->
+    <path android:pathData="M0,0h412v320h-412z">
+        <aapt:attr name="android:fillColor">
+            <gradient
+                android:endColor="#5E35B1"
+                android:endX="412"
+                android:endY="320"
+                android:startColor="#7C4DFF"
+                android:startX="0"
+                android:startY="0"
+                android:type="linear" />
+        </aapt:attr>
+    </path>
+
+    <!-- Subtle Decorative Shapes (Low Opacity) -->
+    <path
+        android:fillColor="#1AFFFFFF"
+        android:pathData="M380,60m-80,0a80,80 0,1 1,160 0a80,80 0,1 1,-160 0" />
+
+    <path
+        android:fillColor="#0DFFFFFF"
+        android:pathData="M40,280m-100,0a100,100 0,1 1,200 0a100,100 0,1 1,-200 0" />
+
+    <path
+        android:fillColor="#08FFFFFF"
+        android:pathData="M200,160m-140,0a140,140 0,1 1,280 0a140,140 0,1 1,-280 0" />
+
+</vector>

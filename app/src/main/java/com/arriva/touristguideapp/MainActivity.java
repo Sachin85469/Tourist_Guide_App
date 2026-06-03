@@ -54,16 +54,16 @@ public class MainActivity extends BaseActivity {
     private final android.os.Handler handler = new android.os.Handler(android.os.Looper.getMainLooper());
     private Runnable reminderRunnable;
 
-    private View btnProfile;
+    private View btnProfile, btnNotifications;
     private ImageView ivProfileIcon;
     private BottomNavigationView bottomNavigationView;
     private View fabAiChat;
     private ProgressBar progressBar;
     private View emptyStateContainer;
     private EditText searchBox;
-    private ImageView btnVoiceSearch;
+    private ImageView btnVoiceSearch, searchBtn;
     private TextView tvMainUserName, tvMainUserEmail, tvQuickStats, tvProfileBadge;
-    private String resolvedCity = "Pune";
+    private String resolvedCity = "Your Current Location";
 
     private PlaceRepository placeRepository;
     private com.arriva.touristguideapp.data.analytics.AnalyticsRepository analyticsRepository;
@@ -98,6 +98,13 @@ public class MainActivity extends BaseActivity {
         tvMainUserEmail = findViewById(R.id.tvMainUserEmail);
         tvQuickStats = findViewById(R.id.tvQuickStats);
         fabAiChat = findViewById(R.id.fabAiChat);
+        btnNotifications = findViewById(R.id.btnNotifications);
+
+        if (btnNotifications != null) {
+            btnNotifications.setOnClickListener(v -> {
+                startActivity(new Intent(this, NotificationHistoryActivity.class));
+            });
+        }
         View aiTooltip = findViewById(R.id.ai_tooltip);
 
         if (fabAiChat != null) {
@@ -140,7 +147,7 @@ public class MainActivity extends BaseActivity {
         if (savedInstanceState == null) {
             reminderRunnable = () -> {
                 com.arriva.touristguideapp.data.notifications.LocalNotificationHelper.showReminder(
-                    MainActivity.this, "Ready for Adventure?", "Explore the best hidden gems in Pune today!");
+                    MainActivity.this, "Ready for Adventure?", "Explore the best hidden gems today!");
             };
             handler.postDelayed(reminderRunnable, 5000);
         }
@@ -603,6 +610,7 @@ public class MainActivity extends BaseActivity {
     }
 
     public void refreshQuickStatsOnly() {
+        // Redesigned header doesn't show city in stats row anymore
         int favoritesCount = FavoritesManager.getFavoritesCount(this);
         com.google.firebase.auth.FirebaseUser user = com.google.firebase.auth.FirebaseAuth.getInstance().getCurrentUser();
         if (user != null) {
@@ -615,16 +623,12 @@ public class MainActivity extends BaseActivity {
                         tripsCount = task.getResult().size();
                     }
                     if (tvQuickStats != null) {
-                        String favoritesLabel = getString(R.string.favorites);
-                        String tripsLabel = getString(R.string.trips);
-                        tvQuickStats.setText(String.format(Locale.getDefault(), "%s | %d %s | %d %s", resolvedCity, favoritesCount, favoritesLabel, tripsCount, tripsLabel));
+                        tvQuickStats.setText(getString(R.string.quick_stats_format, favoritesCount, tripsCount));
                     }
                 });
         } else {
             if (tvQuickStats != null) {
-                String favoritesLabel = getString(R.string.favorites);
-                String tripsLabel = getString(R.string.trips);
-                tvQuickStats.setText(String.format(Locale.getDefault(), "%s | %d %s | 0 %s", resolvedCity, favoritesCount, favoritesLabel, tripsLabel));
+                tvQuickStats.setText(getString(R.string.quick_stats_format, favoritesCount, 0));
             }
         }
     }

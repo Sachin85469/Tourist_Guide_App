@@ -288,4 +288,9 @@
     <string name="cat_spiritual">Spiritual</string>
     <string name="cat_shopping">Shopping</string>
     <string name="cat_entertainment">Entertainment</string>
+    <string name="home_greeting_with_emoji">Good Morning 👋</string>
+    <string name="home_subtitle">Discover amazing places around you</string>
+    <string name="travel_insight_title">✨ Ready to Explore?</string>
+    <string name="travel_insight_subtitle">Discover hidden gems nearby</string>
+    <string name="quick_stats_format">⭐ %1$d Favorites   •   🧳 %2$d Trips</string>
 </resources>

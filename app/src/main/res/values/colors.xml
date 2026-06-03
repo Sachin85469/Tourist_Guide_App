@@ -37,8 +37,9 @@
     <color name="m3_on_error_container">#410E0B</color>
 
     <!-- Premium Brand Colors -->
-    <color name="premium_purple">#6750A4</color>
-    <color name="premium_purple_light">#EADDFF</color>
+    <color name="premium_purple">#7C4DFF</color>
+    <color name="premium_purple_dark">#5E35B1</color>
+    <color name="premium_purple_light">#B388FF</color>
     <color name="premium_gold">#FFD600</color>
     <color name="premium_shadow">#1A000000</color>
     <color name="premium_glass">#D9FFFFFF</color>
