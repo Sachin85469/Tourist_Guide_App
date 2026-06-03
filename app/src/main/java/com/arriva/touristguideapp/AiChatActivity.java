@@ -112,21 +112,21 @@ public class AiChatActivity extends BaseActivity {
     private void initGemini() {
         String apiKey = BuildConfig.GEMINI_API_KEY;
         if (apiKey.isEmpty() || apiKey.equals("YOUR_ACTUAL_GEMINI_KEY")) {
-            Toast.makeText(this, "AI configuration missing", Toast.LENGTH_LONG).show();
+            apiKey = getString(R.string.gemini_api_key);
+        }
+
+        if (apiKey.isEmpty() || apiKey.startsWith("YOUR_")) {
+            Toast.makeText(this, R.string.ai_config_missing, Toast.LENGTH_LONG).show();
             return;
         }
 
         Content systemInstruction = new Content.Builder()
-                .addText("You are a specialized Tourism AI Assistant named ExploreEase AI. " +
-                        "Your ONLY purpose is to answer queries related to tourism, travel, attractions, and local guide information in Pune. " +
-                        "Strictly refuse to answer ANY questions that are not related to tourism. " +
-                        "Maintain a friendly, helpful, and professional tone. " +
-                        "If asked about yourself, say you are the ExploreEase Travel Assistant.")
+                .addText(getString(R.string.ai_system_instruction))
                 .build();
 
         try {
             GenerativeModel gm = new GenerativeModel(
-                    "gemini-1.5-flash-latest",
+                    "gemini-2.5-flash",
                     apiKey,
                     null, null, new RequestOptions(), null, null,
                     systemInstruction
@@ -141,7 +141,7 @@ public class AiChatActivity extends BaseActivity {
         if (text.isEmpty() || isThinking) return;
 
         if (model == null) {
-            Toast.makeText(this, "Assistant not ready", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, R.string.ai_assistant_not_ready, Toast.LENGTH_SHORT).show();
             return;
         }
 
@@ -158,7 +158,10 @@ public class AiChatActivity extends BaseActivity {
                 if (isFinishing() || isDestroyed()) return;
                 runOnUiThread(() -> {
                     setThinkingState(false);
-                    String resultText = Objects.requireNonNullElse(result.getText(), "I'm sorry, I couldn't generate a response.");
+                    String resultText = result.getText();
+                    if (resultText == null || resultText.isEmpty()) {
+                        resultText = getString(R.string.ai_generic_error);
+                    }
                     addMessage(new ChatMessage(resultText, false));
                 });
             }
@@ -168,9 +171,9 @@ public class AiChatActivity extends BaseActivity {
                 if (isFinishing() || isDestroyed()) return;
                 runOnUiThread(() -> {
                     setThinkingState(false);
-                    String error = "I'm having trouble connecting. Please try again.";
+                    String error = getString(R.string.ai_connection_error);
                     if (t.getMessage() != null && t.getMessage().contains("quota")) {
-                        error = "I've reached my limit for now. Try again later!";
+                        error = getString(R.string.ai_quota_error);
                     }
                     addMessage(new ChatMessage(error, false));
                 });

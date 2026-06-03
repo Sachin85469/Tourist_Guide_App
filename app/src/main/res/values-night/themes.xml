@@ -1,16 +1,46 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
-    <!-- Base application theme. -->
-    <style name="Base.Theme.TouristGuideApp" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+    <!-- Base application theme for Night mode. -->
+    <style name="Base.Theme.TouristGuideApp" parent="Theme.Material3.DayNight.NoActionBar">
         <!-- Main branding colors. -->
-        <item name="colorPrimary">@color/primary</item>
-        <item name="colorPrimaryVariant">@color/primary_dark</item>
-        <item name="colorAccent">@color/accent</item>
+        <item name="colorPrimary">@color/m3_primary</item>
+        <item name="colorOnPrimary">@color/m3_on_primary</item>
+        <item name="colorPrimaryContainer">@color/m3_primary_container</item>
+        <item name="colorOnPrimaryContainer">@color/m3_on_primary_container</item>
+
+        <item name="colorSecondary">@color/m3_secondary</item>
+        <item name="colorOnSecondary">@color/m3_on_secondary</item>
+        <item name="colorSecondaryContainer">@color/m3_secondary_container</item>
+        <item name="colorOnSecondaryContainer">@color/m3_on_secondary_container</item>
+
+        <item name="colorTertiary">@color/m3_tertiary</item>
+        <item name="colorOnTertiary">@color/m3_on_tertiary</item>
+
+        <item name="android:windowBackground">@color/m3_background</item>
+        <item name="colorSurface">@color/m3_surface</item>
+        <item name="colorOnSurface">@color/m3_on_surface</item>
+        <item name="colorSurfaceVariant">@color/m3_surface_variant</item>
+        <item name="colorOnSurfaceVariant">@color/m3_on_surface_variant</item>
+
+        <item name="colorError">@color/m3_error</item>
+        <item name="colorOnError">@color/m3_on_error</item>
 
         <!-- Status bar color. -->
-        <item name="android:statusBarColor">@color/adaptive_bg</item>
+        <item name="android:statusBarColor">@color/m3_background</item>
         <item name="android:windowLightStatusBar" tools:targetApi="m">false</item>
 
-        <!-- View backgrounds -->
-        <item name="android:windowBackground">@color/adaptive_bg</item>
+        <!-- Window Animations -->
+        <item name="android:windowAnimationStyle">@style/AppAnimation.Activity</item>
+
+        <!-- Typography Hierarchy -->
+        <item name="textAppearanceHeadlineLarge">@style/TextAppearance.App.HeadlineLarge</item>
+        <item name="textAppearanceTitleLarge">@style/TextAppearance.App.TitleLarge</item>
+        <item name="textAppearanceTitleMedium">@style/TextAppearance.App.TitleMedium</item>
+        <item name="textAppearanceBodyLarge">@style/TextAppearance.App.BodyLarge</item>
+        <item name="textAppearanceBodyMedium">@style/TextAppearance.App.BodyMedium</item>
+        <item name="textAppearanceLabelLarge">@style/TextAppearance.App.LabelLarge</item>
+
+        <!-- TextInputLayout default text appearance (for Material3 compatibility) -->
+        <item name="textAppearanceSubtitle1">@style/TextAppearance.App.BodyLarge</item>
+        <item name="textAppearanceCaption">@style/TextAppearance.App.BodySmall</item>
     </style>
 </resources>

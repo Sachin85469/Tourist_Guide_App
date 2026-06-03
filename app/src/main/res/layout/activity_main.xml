@@ -239,6 +239,31 @@
             android:text="@string/empty_state_places_msg" />
     </LinearLayout>
 
+    <!-- AI Assistant FAB & Tooltip -->
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/ai_tooltip"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:layout_marginBottom="176dp"
+        android:layout_marginEnd="32dp"
+        android:visibility="invisible"
+        app:cardCornerRadius="16dp"
+        app:cardElevation="4dp"
+        app:cardBackgroundColor="@color/m3_primary"
+        app:strokeWidth="0dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingHorizontal="16dp"
+            android:paddingVertical="8dp"
+            android:text="@string/ai_tooltip_text"
+            android:textColor="@color/white"
+            android:textSize="14sp"
+            android:textStyle="bold" />
+    </com.google.android.material.card.MaterialCardView>
+
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/fabAiChat"
         android:layout_width="wrap_content"
@@ -247,6 +272,8 @@
         android:layout_marginBottom="112dp"
         android:layout_marginEnd="@dimen/spacing_large"
         app:srcCompat="@drawable/ic_robot_assistant"
+        app:fabSize="normal"
+        app:maxImageSize="36dp"
         app:tint="@null"
         app:backgroundTint="@color/white"
         app:elevation="8dp" />
@@ -266,15 +293,14 @@
 
         <com.google.android.material.bottomnavigation.BottomNavigationView
             android:id="@+id/bottom_navigation"
-            style="@style/AppBottomNavigation"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             app:elevation="0dp"
             app:itemIconSize="22dp"
-            app:itemPaddingTop="12dp"
-            app:itemPaddingBottom="12dp"
             app:labelVisibilityMode="unlabeled"
-            app:menu="@menu/bottom_nav_menu" />
+            app:menu="@menu/bottom_nav_menu"
+            app:itemIconTint="@color/m3_primary"
+            app:itemTextColor="@color/m3_primary" />
     </com.google.android.material.card.MaterialCardView>
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

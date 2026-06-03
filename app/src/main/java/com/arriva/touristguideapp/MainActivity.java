@@ -98,15 +98,27 @@ public class MainActivity extends BaseActivity {
         tvMainUserEmail = findViewById(R.id.tvMainUserEmail);
         tvQuickStats = findViewById(R.id.tvQuickStats);
         fabAiChat = findViewById(R.id.fabAiChat);
-
-        // Profile Avatar and User Info Setup
-        loadUserInfo();
-        refreshQuickStatsOnly();
+        View aiTooltip = findViewById(R.id.ai_tooltip);
 
         if (fabAiChat != null) {
             fabAiChat.setOnClickListener(v -> {
                 startActivity(new Intent(this, AiChatActivity.class));
             });
+
+            // Delay tooltip entrance
+            if (aiTooltip != null) {
+                handler.postDelayed(() -> {
+                    aiTooltip.setVisibility(View.VISIBLE);
+                    aiTooltip.setAlpha(0f);
+                    aiTooltip.setTranslationY(20f);
+                    aiTooltip.animate()
+                        .alpha(1f)
+                        .translationY(0f)
+                        .setDuration(500)
+                        .setInterpolator(new android.view.animation.OvershootInterpolator())
+                        .start();
+                }, 3000);
+            }
         }
 
         progressBar = findViewById(R.id.mainProgressBar);
@@ -297,13 +309,13 @@ public class MainActivity extends BaseActivity {
         topPicks = new ArrayList<>(DataProvider.getDefaultTopPicks());
 
         categories = new ArrayList<>();
-        categories.add(new Category("Nature", android.R.drawable.ic_menu_gallery));
-        categories.add(new Category("History", android.R.drawable.ic_menu_today));
-        categories.add(new Category("Food", android.R.drawable.ic_menu_view));
-        categories.add(new Category("Adventure", android.R.drawable.ic_menu_compass));
-        categories.add(new Category("Spiritual", android.R.drawable.ic_menu_info_details));
-        categories.add(new Category("Shopping", android.R.drawable.ic_menu_agenda));
-        categories.add(new Category("Entertainment", android.R.drawable.ic_menu_slideshow));
+        categories.add(new Category(getString(R.string.cat_nature), android.R.drawable.ic_menu_gallery));
+        categories.add(new Category(getString(R.string.cat_history), android.R.drawable.ic_menu_today));
+        categories.add(new Category(getString(R.string.cat_food), android.R.drawable.ic_menu_view));
+        categories.add(new Category(getString(R.string.cat_adventure), android.R.drawable.ic_menu_compass));
+        categories.add(new Category(getString(R.string.cat_spiritual), android.R.drawable.ic_menu_info_details));
+        categories.add(new Category(getString(R.string.cat_shopping), android.R.drawable.ic_menu_agenda));
+        categories.add(new Category(getString(R.string.cat_entertainment), android.R.drawable.ic_menu_slideshow));
     }
 
     private void checkLocationPermission() {

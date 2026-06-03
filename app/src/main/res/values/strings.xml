@@ -72,10 +72,24 @@
     <string name="tts_voice_missing">Voice data not installed for %1$s.</string>
 
     <!-- Gemini AI -->
-    <string name="gemini_api_key">YOUR_GEMINI_API_KEY</string>
+    <string name="gemini_api_key">AIzaSyBPu56iwPN1vBCBki8_hmNfnEuqfpD5h5s</string>
     <string name="ai_assistant_title">AI Travel Assistant</string>
     <string name="ai_input_hint">Ask me anything about your trip…</string>
     <string name="ai_initial_message">Hello! I am your AI travel assistant powered by Gemini. Ask me about local attractions, travel tips, or anything else!</string>
+    <string name="ai_tooltip_text">Ask me anything!</string>
+    <string name="ai_subtitle">Your AI Travel Companion</string>
+    <string name="ai_welcome_title">Welcome to ExploreEase AI</string>
+    <string name="ai_welcome_message">I can help you plan trips, find attractions, and discover hidden gems in Pune.</string>
+    <string name="ai_chip_plan">Plan a Pune trip</string>
+    <string name="ai_chip_food">Best food places</string>
+    <string name="ai_chip_attractions">Nearby attractions</string>
+    <string name="ai_chip_budget">Budget itinerary</string>
+    <string name="ai_config_missing">AI configuration missing</string>
+    <string name="ai_assistant_not_ready">Assistant not ready</string>
+    <string name="ai_generic_error">I\'m sorry, I couldn\'t generate a response.</string>
+    <string name="ai_connection_error">I\'m having trouble connecting. Please try again.</string>
+    <string name="ai_quota_error">I\'ve reached my limit for now. Try again later!</string>
+    <string name="ai_system_instruction">You are a specialized Tourism AI Assistant named ExploreEase AI. Your ONLY purpose is to answer queries related to tourism, travel, attractions, and local guide information in Pune. Strictly refuse to answer ANY questions that are not related to tourism. Specifically, do NOT perform any mathematical calculations, even basic arithmetic. Maintain a friendly, helpful, and professional tone. If asked about yourself, say you are the ExploreEase Travel Assistant.</string>
 
     <!-- Communication Hub Setup -->
     <string name="setup_title">Language Setup</string>
@@ -267,4 +281,11 @@
     <string name="map_forts">Forts</string>
     <string name="map_nature">Nature</string>
     <string name="map_museums">Museums</string>
+    <string name="cat_nature">Nature</string>
+    <string name="cat_history">History</string>
+    <string name="cat_food">Food</string>
+    <string name="cat_adventure">Adventure</string>
+    <string name="cat_spiritual">Spiritual</string>
+    <string name="cat_shopping">Shopping</string>
+    <string name="cat_entertainment">Entertainment</string>
 </resources>

@@ -50,7 +50,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Your AI Travel Companion"
+                        android:text="@string/ai_subtitle"
                         android:textColor="@color/m3_primary"
                         android:textSize="12sp" />
                 </LinearLayout>
@@ -85,7 +85,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
-                android:text="Welcome to ExploreEase AI"
+                android:text="@string/ai_welcome_title"
                 android:textColor="@color/m3_primary"
                 android:textSize="20sp"
                 android:textStyle="bold" />
@@ -95,7 +95,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
                 android:gravity="center"
-                android:text="I can help you plan trips, find attractions, and discover hidden gems in Pune."
+                android:text="@string/ai_welcome_message"
                 android:textColor="@color/text_secondary"
                 android:textSize="14sp" />
         </LinearLayout>
@@ -137,28 +137,28 @@
                     style="@style/Widget.App.Chip.Suggestion"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Plan a Pune trip" />
+                    android:text="@string/ai_chip_plan" />
 
                 <com.google.android.material.chip.Chip
                     android:id="@+id/chipFood"
                     style="@style/Widget.App.Chip.Suggestion"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Best food places" />
+                    android:text="@string/ai_chip_food" />
 
                 <com.google.android.material.chip.Chip
                     android:id="@+id/chipAttractions"
                     style="@style/Widget.App.Chip.Suggestion"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Nearby attractions" />
+                    android:text="@string/ai_chip_attractions" />
 
                 <com.google.android.material.chip.Chip
                     android:id="@+id/chipBudget"
                     style="@style/Widget.App.Chip.Suggestion"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Budget itinerary" />
+                    android:text="@string/ai_chip_budget" />
 
             </com.google.android.material.chip.ChipGroup>
         </HorizontalScrollView>
@@ -191,6 +191,7 @@
                     android:hint="@string/ai_input_hint"
                     android:maxLines="4"
                     android:paddingVertical="12dp"
+                    android:textColor="@color/black"
                     android:textSize="15sp" />
 
                 <ImageButton

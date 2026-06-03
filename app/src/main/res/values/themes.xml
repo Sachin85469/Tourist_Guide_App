@@ -38,6 +38,10 @@
         <item name="textAppearanceBodyLarge">@style/TextAppearance.App.BodyLarge</item>
         <item name="textAppearanceBodyMedium">@style/TextAppearance.App.BodyMedium</item>
         <item name="textAppearanceLabelLarge">@style/TextAppearance.App.LabelLarge</item>
+
+        <!-- TextInputLayout default text appearance (for Material3 compatibility) -->
+        <item name="textAppearanceSubtitle1">@style/TextAppearance.App.BodyLarge</item>
+        <item name="textAppearanceCaption">@style/TextAppearance.App.BodySmall</item>
     </style>
 
     <style name="Theme.TouristGuideApp" parent="Base.Theme.TouristGuideApp" />
@@ -155,8 +159,8 @@
     </style>
 
     <style name="AppBottomNavigation" parent="Widget.Material3.BottomNavigationView">
-        <item name="itemIconTint">@drawable/nav_item_color_state</item>
-        <item name="itemTextColor">@drawable/nav_item_color_state</item>
+        <item name="itemIconTint">@color/m3_primary</item>
+        <item name="itemTextColor">@color/m3_primary</item>
         <item name="itemRippleColor">@color/m3_primary_container</item>
         <item name="itemActiveIndicatorStyle">@style/AppActiveIndicator</item>
         <item name="backgroundTint">@android:color/transparent</item>
@@ -186,6 +190,7 @@
         <item name="shapeAppearanceOverlay">@style/ShapeAppearance.App.SmallComponent</item>
         <item name="strokeColor">@color/m3_outline_variant</item>
         <item name="strokeWidth">1dp</item>
+        <item name="android:textColor">@color/black</item>
     </style>
 
     <style name="ShapeAppearance.App.SmallComponent" parent="ShapeAppearance.Material3.SmallComponent">

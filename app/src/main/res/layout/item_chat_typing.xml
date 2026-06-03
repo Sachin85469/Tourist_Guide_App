@@ -47,7 +47,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"
                 android:text="Assistant is thinking..."
-                android:textColor="@color/text_secondary"
+                android:textColor="@color/black"
                 android:textSize="13sp"
                 android:textStyle="italic" />
         </LinearLayout>
