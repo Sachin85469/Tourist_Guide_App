@@ -8,6 +8,8 @@
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    <uses-permission android:name="android.permission.CALL_PHONE" />
+    <uses-permission android:name="android.permission.SEND_SMS" />
 
     <queries>
         <package android:name="com.google.android.apps.maps" />
@@ -133,6 +135,35 @@
             android:name=".sos.ui.SOSSettingsActivity"
             android:exported="false"
             android:theme="@style/Theme.TouristGuideApp" />
+        <activity
+            android:name=".sos.ui.SOSHistoryActivity"
+            android:exported="false"
+            android:theme="@style/Theme.TouristGuideApp" />
+
+        <service
+            android:name=".sos.service.SOSForegroundService"
+            android:enabled="true"
+            android:exported="false"
+            android:foregroundServiceType="location" />
+
+        <service
+            android:name=".sos.service.FloatingSOSService"
+            android:enabled="true"
+            android:exported="false"
+            android:foregroundServiceType="specialUse" />
+
+        <service
+            android:name=".sos.service.SOSAccessibilityService"
+            android:label="SOS Trigger Service"
+            android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="android.intent.action.ACCESSIBILITY_SERVICE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.accessibilityservice"
+                android:resource="@xml/sos_accessibility_config" />
+        </service>
     </application>
 
 </manifest>

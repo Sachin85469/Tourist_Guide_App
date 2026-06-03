@@ -1,18 +1,27 @@
 package com.arriva.touristguideapp.sos.manager;
 
+import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.os.Handler;
 import android.os.Looper;
-import android.provider.Settings;
 import android.widget.Toast;
 
 import androidx.core.content.ContextCompat;
 
+import com.arriva.touristguideapp.data.sos.SOSContact;
+import com.arriva.touristguideapp.sos.model.SOSEvent;
 import com.arriva.touristguideapp.sos.service.SOSForegroundService;
-import com.arriva.touristguideapp.sos.service.FloatingSOSService;
 import com.arriva.touristguideapp.sos.utils.DebounceHelper;
 import com.arriva.touristguideapp.sos.utils.Logger;
+
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Locale;
+import java.util.UUID;
 
 public class SOSManager {
     private static SOSManager instance;
@@ -48,16 +57,33 @@ public class SOSManager {
     private void startFloatingService() {
         try {
             if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
-                if (!Settings.canDrawOverlays(context)) {
+                if (!android.provider.Settings.canDrawOverlays(context)) {
                     Logger.d("Skipping floating service: No overlay permission");
                     return;
                 }
             }
-            Intent serviceIntent = new Intent(context, FloatingSOSService.class);
+            Intent serviceIntent = new Intent(context, com.arriva.touristguideapp.sos.service.FloatingSOSService.class);
             ContextCompat.startForegroundService(context, serviceIntent);
             Logger.d("Floating service started");
         } catch (Exception e) {
             Logger.e("Failed to start floating service", e);
+        }
+    }
+
+    public void startSOSFlow(Context activeContext, String source) {
+        if (preferences.isRequireConfirmation() && activeContext instanceof android.app.Activity) {
+            new com.google.android.material.dialog.MaterialAlertDialogBuilder(activeContext)
+                .setTitle("Emergency SOS")
+                .setMessage("Are you sure you want to activate SOS?")
+                .setPositiveButton("Activate SOS", (dialog, which) -> {
+                    triggerSOS(source);
+                })
+                .setNegativeButton("Cancel", (dialog, which) -> {
+                    dialog.dismiss();
+                })
+                .show();
+        } else {
+            triggerSOS(source);
         }
     }
 
@@ -92,48 +118,118 @@ public class SOSManager {
 
     private void executeSOSFlow(String source) {
         try {
-            String contact = preferences.getContactNumber();
-            if (contact == null || contact.isEmpty()) {
-                Logger.e("No emergency contact set!");
-                Toast.makeText(context, "Emergency contact not set!", Toast.LENGTH_LONG).show();
+            List<SOSContact> contacts = preferences.getContacts();
+            
+            // Check if emergency contacts are empty
+            if (contacts == null || contacts.isEmpty()) {
+                Logger.e("No emergency contacts set!");
+                Toast.makeText(context, "No emergency contacts set! Calling 112 directly.", Toast.LENGTH_LONG).show();
+                
+                // Immediately call 112 even with empty contacts
+                CallHelper.makeCall(context, "112");
+                
+                // Save empty trigger to log history
+                logSOSEvent("Location unavailable", "No emergency contacts notified");
                 stopSOS();
                 return;
             }
 
+            // Fetch live GPS location
             LocationHelper locationHelper = new LocationHelper(context);
             locationHelper.getLastLocation(mapsLink -> {
                 try {
-                    String message = "EMERGENCY! I need help. My location: " + 
-                        (mapsLink != null ? mapsLink : "Location unavailable");
+                    String locationText = (mapsLink != null) ? mapsLink : "Location unavailable";
                     
-                    boolean smsSent = SMSHelper.sendSMS(context, contact, message);
+                    // Compose the message template precisely
+                    String message = "EMERGENCY ALERT\n\n" +
+                                     "I may need immediate assistance.\n\n" +
+                                     "My current location:\n\n" +
+                                     locationText + "\n\n" +
+                                     "Sent from Smart Tourist Guide App";
                     
-                    if (preferences.isCallAfterSMS()) {
-                        CallHelper.makeCall(context, contact);
+                    List<String> namesNotified = new ArrayList<>();
+                    boolean anySmsSent = false;
+
+                    // Send SMS automatically to all saved contacts
+                    if (preferences.isSendSMSAutomatically()) {
+                        for (SOSContact contact : contacts) {
+                            if (contact.getPhone() != null && !contact.getPhone().trim().isEmpty()) {
+                                boolean success = SMSHelper.sendSMS(context, contact.getPhone(), message);
+                                if (success) {
+                                    anySmsSent = true;
+                                }
+                                namesNotified.add(contact.getName() + " (" + contact.getPhone() + ")");
+                            }
+                        }
                     }
 
-                    preferences.addLog("SOS triggered from " + source + ". Location: " + (mapsLink != null) + ". SMS: " + smsSent);
-                    
-                    try {
-                        com.arriva.touristguideapp.data.notifications.NotificationRepository notificationRepository = 
-                            new com.arriva.touristguideapp.data.notifications.NotificationRepository(context);
-                        notificationRepository.addNotification(
-                            "SOS Alert Activated",
-                            "Emergency SOS alert was sent successfully to " + contact + ".",
-                            com.arriva.touristguideapp.data.notifications.NotificationModel.TYPE_SOS
-                        );
-                    } catch (Exception e) {
-                        e.printStackTrace();
+                    // Dial Emergency Services (112)
+                    CallHelper.makeCall(context, "112");
+
+                    // Join notified contacts list into a string
+                    StringBuilder sb = new StringBuilder();
+                    for (int i = 0; i < namesNotified.size(); i++) {
+                        sb.append(namesNotified.get(i));
+                        if (i < namesNotified.size() - 1) {
+                            sb.append(", ");
+                        }
                     }
+                    String contactsNotifiedStr = sb.toString();
+                    if (contactsNotifiedStr.isEmpty()) {
+                        contactsNotifiedStr = "No emergency contacts notified";
+                    }
+
+                    // Save event log
+                    logSOSEvent(locationText, contactsNotifiedStr);
+
+                    // Add Notification to system
+                    generateSystemNotification();
+
+                    preferences.addLog("SOS triggered from " + source + ". Location: " + locationText + ". SMS Sent: " + anySmsSent);
+
                 } catch (Exception e) {
-                    Logger.e("Error in SOS flow callback", e);
+                    Logger.e("Error in SOS flow location callback", e);
                 } finally {
                     new Handler(Looper.getMainLooper()).postDelayed(this::stopSOS, 5000);
                 }
             });
+
         } catch (Exception e) {
             Logger.e("Critical error in executeSOSFlow", e);
             stopSOS();
+        }
+    }
+
+    private void logSOSEvent(String location, String contactsNotified) {
+        try {
+            SimpleDateFormat sdfDate = new SimpleDateFormat("dd MMM yyyy", Locale.getDefault());
+            SimpleDateFormat sdfTime = new SimpleDateFormat("hh:mm a", Locale.getDefault());
+            Date now = new Date();
+
+            SOSEvent event = new SOSEvent(
+                UUID.randomUUID().toString(),
+                sdfDate.format(now),
+                sdfTime.format(now),
+                location,
+                contactsNotified
+            );
+            preferences.addSosEvent(event);
+        } catch (Exception e) {
+            Logger.e("Failed to save SOSEvent log", e);
+        }
+    }
+
+    private void generateSystemNotification() {
+        try {
+            com.arriva.touristguideapp.data.notifications.NotificationRepository notificationRepository = 
+                new com.arriva.touristguideapp.data.notifications.NotificationRepository(context);
+            notificationRepository.addNotification(
+                "SOS activated successfully",
+                "Emergency SOS alert was activated successfully. Dialed 112 and notified emergency contacts.",
+                com.arriva.touristguideapp.data.notifications.NotificationModel.TYPE_SOS
+            );
+        } catch (Exception e) {
+            Logger.e("Failed to post system notification for SOS", e);
         }
     }
 

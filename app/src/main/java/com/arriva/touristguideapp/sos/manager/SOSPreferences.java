@@ -133,4 +133,26 @@ public class SOSPreferences {
     public boolean isRequireConfirmation() {
         return prefs.getBoolean(KEY_REQUIRE_CONFIRMATION, false);
     }
+
+    private static final String KEY_SOS_EVENTS_LIST = "sos_events_history_list";
+
+    public void addSosEvent(com.arriva.touristguideapp.sos.model.SOSEvent event) {
+        List<com.arriva.touristguideapp.sos.model.SOSEvent> history = getSosEvents();
+        history.add(0, event);
+        String json = new Gson().toJson(history);
+        prefs.edit().putString(KEY_SOS_EVENTS_LIST, json).apply();
+    }
+
+    public List<com.arriva.touristguideapp.sos.model.SOSEvent> getSosEvents() {
+        String json = prefs.getString(KEY_SOS_EVENTS_LIST, null);
+        if (json == null || json.isEmpty()) {
+            return new ArrayList<>();
+        }
+        Type type = new TypeToken<ArrayList<com.arriva.touristguideapp.sos.model.SOSEvent>>(){}.getType();
+        try {
+            return new Gson().fromJson(json, type);
+        } catch (Exception e) {
+            return new ArrayList<>();
+        }
+    }
 }

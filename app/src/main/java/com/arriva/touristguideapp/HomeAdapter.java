@@ -236,8 +236,8 @@ public class HomeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             View btnSOS = itemView.findViewById(R.id.btnLargeSOS);
             if (btnSOS != null) {
                 btnSOS.setOnClickListener(v -> {
-                    Intent intent = new Intent(itemView.getContext(), com.arriva.touristguideapp.sos.ui.SOSSettingsActivity.class);
-                    itemView.getContext().startActivity(intent);
+                    com.arriva.touristguideapp.sos.manager.SOSManager.getInstance(itemView.getContext())
+                        .startSOSFlow(itemView.getContext(), "Home Screen");
                 });
             }
 

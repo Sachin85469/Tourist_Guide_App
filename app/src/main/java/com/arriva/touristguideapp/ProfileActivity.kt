@@ -92,6 +92,10 @@ class ProfileActivity : BaseActivity() {
             startActivity(Intent(this, SOSSettingsActivity::class.java))
         }
 
+        setupRow(findViewById(R.id.btnSOSHistory), R.drawable.ic_history, getString(R.string.profile_sos_history), getString(R.string.sos_history_desc)) {
+            startActivity(Intent(this, com.arriva.touristguideapp.sos.ui.SOSHistoryActivity::class.java))
+        }
+
         setupRow(findViewById(R.id.btnLogoutRow), R.drawable.ic_logout, getString(R.string.sign_out), getString(R.string.sign_out_desc)) {
             auth.signOut()
             // Reset local cache

@@ -178,6 +178,10 @@
                 layout="@layout/item_setting_row" />
 
             <include
+                android:id="@+id/btnSOSHistory"
+                layout="@layout/item_setting_row" />
+
+            <include
                 android:id="@+id/btnLogoutRow"
                 layout="@layout/item_setting_row"
                 android:layout_width="match_parent"

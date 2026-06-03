@@ -218,4 +218,8 @@
     <string name="map">Map</string>
     <string name="upcoming_trips">Upcoming Trips</string>
     <string name="create_itinerary">Create your first itinerary</string>
+    <string name="profile_sos_history">SOS Log History</string>
+    <string name="sos_history_desc">View details of previous emergency triggers</string>
+    <string name="sos_history_empty_title">No Emergency Triggers Yet</string>
+    <string name="sos_history_empty_msg">Your emergency trigger logs will appear here once activated.</string>
 </resources>
