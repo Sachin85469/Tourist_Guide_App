@@ -81,6 +81,10 @@
             android:exported="false"
             android:theme="@style/Theme.TouristGuideApp" />
         <activity
+            android:name=".EditProfileActivity"
+            android:exported="false"
+            android:theme="@style/Theme.TouristGuideApp" />
+        <activity
             android:name=".AdminDashboardActivity"
             android:exported="false"
             android:theme="@style/Theme.TouristGuideApp" />

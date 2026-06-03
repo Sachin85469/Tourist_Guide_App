@@ -1,10 +1,7 @@
 package com.arriva.touristguideapp
 
-import android.app.Activity
 import android.content.Intent
-import android.net.Uri
 import android.os.Bundle
-import android.provider.MediaStore
 import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
@@ -15,10 +12,7 @@ import com.arriva.touristguideapp.data.repository.ProfileRepository
 import com.arriva.touristguideapp.sos.ui.SOSSettingsActivity
 import com.bumptech.glide.Glide
 import com.google.android.material.appbar.MaterialToolbar
-import com.google.android.material.card.MaterialCardView
-import com.google.android.material.textfield.TextInputEditText
 import com.google.firebase.auth.FirebaseAuth
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 
 class ProfileActivity : AppCompatActivity() {
@@ -29,10 +23,6 @@ class ProfileActivity : AppCompatActivity() {
     private lateinit var ivProfileImage: ImageView
     private lateinit var tvProfileName: TextView
     private lateinit var tvProfileEmail: TextView
-    private lateinit var cardEditName: MaterialCardView
-    private lateinit var etEditName: TextInputEditText
-    
-    private val PICK_IMAGE_REQUEST = 100
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -42,26 +32,25 @@ class ProfileActivity : AppCompatActivity() {
         repository = ProfileRepository(this)
 
         initViews()
+        applyAnimations()
+    }
+
+    override fun onResume() {
+        super.onResume()
         loadUserData()
         observeStats()
-        applyAnimations()
     }
 
     private fun initViews() {
         ivProfileImage = findViewById(R.id.ivProfileImage)
         tvProfileName = findViewById(R.id.tvProfileName)
         tvProfileEmail = findViewById(R.id.tvProfileEmail)
-        cardEditName = findViewById(R.id.cardEditName)
-        etEditName = findViewById(R.id.etEditName)
 
         findViewById<MaterialToolbar>(R.id.toolbar).setNavigationOnClickListener { finish() }
 
         // Setup settings rows
         setupRow(findViewById(R.id.btnEditProfile), R.drawable.ic_account, "Edit Profile", "Update your name and photo") {
-            cardEditName.visibility = if (cardEditName.visibility == View.VISIBLE) View.GONE else View.VISIBLE
-            if (cardEditName.visibility == View.VISIBLE) {
-                etEditName.setText(tvProfileName.text)
-            }
+            startActivity(Intent(this, EditProfileActivity::class.java))
         }
 
         setupRow(findViewById(R.id.btnMyReviews), R.drawable.ic_star, "My Reviews", "View and manage your feedback") {
@@ -90,21 +79,16 @@ class ProfileActivity : AppCompatActivity() {
 
         setupRow(findViewById(R.id.btnLogoutRow), R.drawable.ic_logout, "Sign Out", "Safely log out of your account") {
             auth.signOut()
+            // Reset local cache
+            repository.cacheUserProfile(User())
             val intent = Intent(this, LoginActivity::class.java)
             intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
             startActivity(intent)
             finish()
         }
 
-        findViewById<View>(R.id.btnSaveName).setOnClickListener {
-            val newName = etEditName.text.toString().trim()
-            if (newName.isNotEmpty()) {
-                updateProfile(mapOf("name" to newName))
-            }
-        }
-
         ivProfileImage.setOnClickListener {
-            openGallery()
+            startActivity(Intent(this, EditProfileActivity::class.java))
         }
     }
 
@@ -117,20 +101,44 @@ class ProfileActivity : AppCompatActivity() {
 
     private fun loadUserData() {
         val user = auth.currentUser ?: return
-        tvProfileName.text = user.displayName ?: "User"
-        tvProfileEmail.text = user.email
+        
+        // Load cached details first
+        val cached = repository.getCachedUserProfile()
+        val displayName = cached?.fullName ?: cached?.name ?: user.displayName ?: "Complete Your Profile"
+        val username = if (cached?.username.isNullOrEmpty()) "Complete Your Profile" else cached?.username
+        val email = user.email ?: "Complete Your Profile"
+        
+        tvProfileName.text = displayName
+        findViewById<TextView>(R.id.tvProfileUsername).text = username
+        tvProfileEmail.text = email
 
+        if (!cached?.profileImage.isNullOrEmpty()) {
+            Glide.with(this)
+                .load(cached?.profileImage)
+                .circleCrop()
+                .placeholder(R.drawable.ic_account)
+                .into(ivProfileImage)
+        } else {
+            ivProfileImage.setImageDrawable(ProfileUtils.generateLetterAvatar(this, displayName))
+        }
+
+        // Fetch fresh from Firestore
         lifecycleScope.launch {
             val profile = repository.getUserProfile()
             profile?.let {
-                tvProfileName.text = it.name
+                val updatedName = it.fullName ?: it.name ?: "Complete Your Profile"
+                tvProfileName.text = updatedName
+                findViewById<TextView>(R.id.tvProfileUsername).text = if (it.username.isNullOrEmpty()) "Complete Your Profile" else it.username
+                tvProfileEmail.text = it.email ?: "Complete Your Profile"
+                
                 if (!it.profileImage.isNullOrEmpty()) {
                     Glide.with(this@ProfileActivity)
                         .load(it.profileImage)
                         .circleCrop()
+                        .placeholder(R.drawable.ic_account)
                         .into(ivProfileImage)
                 } else {
-                    ivProfileImage.setImageDrawable(ProfileUtils.generateLetterAvatar(this@ProfileActivity, it.name))
+                    ivProfileImage.setImageDrawable(ProfileUtils.generateLetterAvatar(this@ProfileActivity, updatedName))
                 }
             }
         }
@@ -150,44 +158,6 @@ class ProfileActivity : AppCompatActivity() {
         val row = findViewById<View>(rowId)
         row.findViewById<TextView>(R.id.tvStatValue).text = value.toString()
         row.findViewById<TextView>(R.id.tvStatLabel).text = label
-    }
-
-    private fun updateProfile(updates: Map<String, Any>) {
-        lifecycleScope.launch {
-            try {
-                repository.updateProfile(updates)
-                Toast.makeText(this@ProfileActivity, "Profile updated", Toast.LENGTH_SHORT).show()
-                cardEditName.visibility = View.GONE
-                loadUserData()
-            } catch (e: Exception) {
-                Toast.makeText(this@ProfileActivity, "Failed to update: ${e.message}", Toast.LENGTH_SHORT).show()
-            }
-        }
-    }
-
-    private fun openGallery() {
-        val intent = Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
-        startActivityForResult(intent, PICK_IMAGE_REQUEST)
-    }
-
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-        if (requestCode == PICK_IMAGE_REQUEST && resultCode == Activity.RESULT_OK && data?.data != null) {
-            val imageUri = data.data!!
-            uploadProfileImage(imageUri)
-        }
-    }
-
-    private fun uploadProfileImage(uri: Uri) {
-        lifecycleScope.launch {
-            try {
-                val downloadUrl = repository.uploadProfileImage(uri)
-                updateProfile(mapOf("profileImage" to downloadUrl))
-                Glide.with(this@ProfileActivity).load(uri).circleCrop().into(ivProfileImage)
-            } catch (e: Exception) {
-                Toast.makeText(this@ProfileActivity, "Upload failed: ${e.message}", Toast.LENGTH_SHORT).show()
-            }
-        }
     }
 
     private fun applyAnimations() {

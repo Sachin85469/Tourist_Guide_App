@@ -20,6 +20,10 @@ public class User {
     private long createdAt; // Added
     private long updatedAt; // Added
     private int emergencyContactsCount; // Added
+    private String username;
+    private String gender;
+    private String dateOfBirth;
+    private String favoriteTravelCategory;
     private boolean admin; // Added
 
     // Empty constructor for Firestore
@@ -177,5 +181,37 @@ public class User {
 
     public void setAdmin(boolean admin) {
         this.admin = admin;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public String getGender() {
+        return gender;
+    }
+
+    public void setGender(String gender) {
+        this.gender = gender;
+    }
+
+    public String getDateOfBirth() {
+        return dateOfBirth;
+    }
+
+    public void setDateOfBirth(String dateOfBirth) {
+        this.dateOfBirth = dateOfBirth;
+    }
+
+    public String getFavoriteTravelCategory() {
+        return favoriteTravelCategory;
+    }
+
+    public void setFavoriteTravelCategory(String favoriteTravelCategory) {
+        this.favoriteTravelCategory = favoriteTravelCategory;
     }
 }

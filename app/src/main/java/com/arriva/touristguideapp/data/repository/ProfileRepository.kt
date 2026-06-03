@@ -35,12 +35,45 @@ class ProfileRepository(private val context: Context) {
         ref.downloadUrl.await().toString()
     }
 
+    private val profileCachePrefs = context.getSharedPreferences("user_profile_cache", Context.MODE_PRIVATE)
+    private val gson = com.google.gson.Gson()
+
+    fun getCachedUserProfile(): User? {
+        val json = profileCachePrefs.getString("profile_data", null)
+        return if (json != null) {
+            gson.fromJson(json, User::class.java)
+        } else {
+            null
+        }
+    }
+
+    fun cacheUserProfile(user: User) {
+        profileCachePrefs.edit().putString("profile_data", gson.toJson(user)).apply()
+    }
+
     /**
      * Updates user profile in Firestore.
      */
     suspend fun updateProfile(updates: Map<String, Any>) {
         val uid = getUid() ?: throw Exception("User not authenticated")
-        db.collection("users").document(uid).update(updates).await()
+        db.collection("users").document(uid).set(updates, com.google.firebase.firestore.SetOptions.merge()).await()
+        
+        // Refresh local cache
+        val doc = db.collection("users").document(uid).get().await()
+        val remoteUser = doc.toObject(User::class.java)
+        if (remoteUser != null) {
+            cacheUserProfile(remoteUser)
+        }
+    }
+
+    /**
+     * Updates user profile with complete object.
+     */
+    suspend fun saveUserProfile(user: User) {
+        val uid = getUid() ?: throw Exception("User not authenticated")
+        user.uid = uid
+        db.collection("users").document(uid).set(user, com.google.firebase.firestore.SetOptions.merge()).await()
+        cacheUserProfile(user)
     }
 
     /**
@@ -48,7 +81,18 @@ class ProfileRepository(private val context: Context) {
      */
     suspend fun getUserProfile(): User? {
         val uid = getUid() ?: return null
-        return db.collection("users").document(uid).get().await().toObject(User::class.java)
+        val cached = getCachedUserProfile()
+        try {
+            val doc = db.collection("users").document(uid).get().await()
+            val remoteUser = doc.toObject(User::class.java)
+            if (remoteUser != null) {
+                cacheUserProfile(remoteUser)
+                return remoteUser
+            }
+        } catch (e: Exception) {
+            if (cached != null) return cached
+        }
+        return cached
     }
 
     /**
