@@ -74,12 +74,23 @@
                         android:textStyle="bold" />
 
                     <TextView
+                        android:id="@+id/tvProfileUsername"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="username"
+                        android:textColor="@color/primary"
+                        android:textSize="14sp"
+                        android:textStyle="bold|italic"
+                        android:layout_marginTop="2dp" />
+
+                    <TextView
                         android:id="@+id/tvProfileEmail"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="user@example.com"
                         android:textColor="@color/text_secondary"
-                        android:textSize="14sp" />
+                        android:textSize="14sp"
+                        android:layout_marginTop="2dp" />
                 </LinearLayout>
             </RelativeLayout>
 
@@ -114,41 +125,7 @@
                     android:layout_weight="1" />
             </LinearLayout>
 
-            <com.google.android.material.card.MaterialCardView
-                android:id="@+id/cardEditName"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_margin="16dp"
-                android:visibility="gone"
-                app:cardCornerRadius="12dp"
-                app:cardElevation="2dp">
 
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:padding="16dp">
-
-                    <com.google.android.material.textfield.TextInputLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:hint="Update Name"
-                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
-
-                        <com.google.android.material.textfield.TextInputEditText
-                            android:id="@+id/etEditName"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content" />
-                    </com.google.android.material.textfield.TextInputLayout>
-
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/btnSaveName"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="8dp"
-                        android:text="Save changes" />
-                </LinearLayout>
-            </com.google.android.material.card.MaterialCardView>
 
             <TextView
                 android:layout_width="wrap_content"

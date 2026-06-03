@@ -1,0 +1,181 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:paddingBottom="16dp">
+
+    <!-- Section Header -->
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/screen_margin"
+        android:layout_marginTop="20dp"
+        android:layout_marginBottom="8dp"
+        android:text="Upcoming Trips"
+        android:textAppearance="@style/TextAppearance.App.TitleMedium"
+        android:textColor="@color/m3_on_surface" />
+
+    <!-- Main Card -->
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/cardUpcomingTrip"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="@dimen/screen_margin"
+        app:cardCornerRadius="16dp"
+        app:cardElevation="2dp"
+        app:cardBackgroundColor="@color/white"
+        app:strokeColor="@color/m3_outline_variant"
+        app:strokeWidth="1dp">
+
+        <!-- FrameLayout to swap Empty and Full States -->
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="16dp">
+
+            <!-- Empty State Container -->
+            <LinearLayout
+                android:id="@+id/layoutEmptyTripState"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:orientation="vertical"
+                android:paddingVertical="12dp"
+                android:visibility="visible">
+
+                <ImageView
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:src="@drawable/ic_trip"
+                    app:tint="@color/m3_outline" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:text="No trips planned yet"
+                    android:textColor="@color/m3_on_surface_variant"
+                    android:textSize="14sp" />
+
+                <TextView
+                    android:id="@+id/btnCreateItinerary"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:background="@drawable/bg_gradient_button"
+                    android:paddingHorizontal="16dp"
+                    android:paddingVertical="8dp"
+                    android:text="Create your first itinerary"
+                    android:textColor="@color/white"
+                    android:textSize="13sp"
+                    android:textStyle="bold"
+                    android:gravity="center"
+                    android:clickable="true"
+                    android:focusable="true" />
+            </LinearLayout>
+
+            <!-- Trip Content Container -->
+            <LinearLayout
+                android:id="@+id/layoutTripContent"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:visibility="gone">
+
+                <!-- Header Row: Name & Icon -->
+                <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentStart="true"
+                        android:layout_toStartOf="@+id/ivTripStatusIcon"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:id="@+id/tvTripName"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="My Pune Exploration"
+                            android:textColor="@color/m3_on_surface"
+                            android:textSize="18sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:id="@+id/tvTripDestination"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="2dp"
+                            android:text="Destination: Pune, India"
+                            android:textColor="@color/m3_on_surface_variant"
+                            android:textSize="13sp" />
+                    </LinearLayout>
+
+                    <ImageView
+                        android:id="@+id/ivTripStatusIcon"
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:layout_alignParentEnd="true"
+                        android:layout_centerVertical="true"
+                        android:src="@android:drawable/checkbox_on_background"
+                        app:tint="@color/m3_primary" />
+                </RelativeLayout>
+
+                <!-- Date Info -->
+                <TextView
+                    android:id="@+id/tvTripDate"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:text="Date: June 15 - June 18, 2026"
+                    android:textColor="@color/m3_primary"
+                    android:textSize="13sp"
+                    android:textStyle="bold" />
+
+                <!-- Divider -->
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:layout_marginTop="14dp"
+                    android:background="@color/m3_outline_variant" />
+
+                <!-- Progress Row -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <ProgressBar
+                        android:id="@+id/progressBarTrip"
+                        style="@android:style/Widget.ProgressBar.Horizontal"
+                        android:layout_width="0dp"
+                        android:layout_height="6dp"
+                        android:layout_weight="1"
+                        android:max="100"
+                        android:progress="30"
+                        android:progressTint="@color/m3_primary"
+                        android:progressBackgroundTint="@color/m3_outline_variant" />
+
+                    <TextView
+                        android:id="@+id/tvTripProgress"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="12dp"
+                        android:text="30% Completed"
+                        android:textColor="@color/m3_on_surface_variant"
+                        android:textSize="12sp"
+                        android:textStyle="bold" />
+                </LinearLayout>
+
+            </LinearLayout>
+
+        </FrameLayout>
+    </com.google.android.material.card.MaterialCardView>
+
+</LinearLayout>
