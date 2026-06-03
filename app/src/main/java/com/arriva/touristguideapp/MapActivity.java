@@ -55,7 +55,7 @@ public class MapActivity extends BaseActivity {
 
     private MapView map;
     private EditText searchInput;
-    private ImageButton searchBtn;
+    private ImageView searchBtn;
     private ImageView micBtn, ivProfileIcon;
     private Button btnDirections;
     private MyLocationNewOverlay locationOverlay;
@@ -73,17 +73,27 @@ public class MapActivity extends BaseActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        android.util.Log.d("MAP_DEBUG", "Activity Created");
+        android.util.Log.d("OSM_DEBUG", "Activity Created");
 
         // Load OSM config
         Configuration.getInstance().load(
                 getApplicationContext(),
                 getSharedPreferences("osm", MODE_PRIVATE)
         );
-        android.util.Log.d("MAP_DEBUG", "OSM Initialized");
+        Configuration.getInstance().setUserAgentValue(getPackageName());
+        
+        // Ensure tiles are stored in internal storage to avoid permission issues with external storage
+        java.io.File osmConfig = new java.io.File(getFilesDir(), "osmdroid");
+        if (!osmConfig.exists()) osmConfig.mkdirs();
+        Configuration.getInstance().setOsmdroidBasePath(osmConfig);
+        java.io.File tileCache = new java.io.File(osmConfig, "tiles");
+        if (!tileCache.exists()) tileCache.mkdirs();
+        Configuration.getInstance().setOsmdroidTileCache(tileCache);
+
+        android.util.Log.d("OSM_DEBUG", "OSM Initialized with UserAgent=" + getPackageName());
 
         setContentView(R.layout.activity_map);
-        android.util.Log.d("MAP_DEBUG", "Layout Loaded");
+        android.util.Log.d("OSM_DEBUG", "Layout Loaded");
 
         // Initialize UI
         searchInput = findViewById(R.id.searchInput);
@@ -100,9 +110,9 @@ public class MapActivity extends BaseActivity {
         // Initialize Map
         map = findViewById(R.id.map);
         if (map != null) {
-            android.util.Log.d("MAP_DEBUG", "MapView Found");
+            android.util.Log.d("OSM_DEBUG", "MapView Found");
             map.setTileSource(TileSourceFactory.MAPNIK);
-            android.util.Log.d("MAP_DEBUG", "Tile Source Applied");
+            android.util.Log.d("OSM_DEBUG", "Tile source applied: MAPNIK");
             map.setMultiTouchControls(true);
 
             IMapController controller = map.getController();
@@ -110,9 +120,9 @@ public class MapActivity extends BaseActivity {
 
             GeoPoint startPoint = new GeoPoint(18.5204, 73.8567);
             controller.setCenter(startPoint);
-            android.util.Log.d("MAP_DEBUG", "Map Ready");
+            android.util.Log.d("OSM_DEBUG", "Map Center set to Pune");
         } else {
-            android.util.Log.e("MAP_DEBUG", "MapView is NULL! Check layout R.layout.activity_map");
+            android.util.Log.e("OSM_DEBUG", "MapView is NULL! Check layout R.layout.activity_map");
         }
 
         // Search bar animation
@@ -331,7 +341,7 @@ public class MapActivity extends BaseActivity {
         marker.setTitle(title);
         marker.setSnippet(snippet);
         marker.setAnchor(org.osmdroid.views.overlay.Marker.ANCHOR_CENTER, org.osmdroid.views.overlay.Marker.ANCHOR_BOTTOM);
-        marker.setIcon(getResources().getDrawable(iconRes));
+        marker.setIcon(androidx.core.content.ContextCompat.getDrawable(this, iconRes));
         
         marker.setOnMarkerClickListener((m, mapView) -> {
             searchedPoint = (GeoPoint) m.getPosition();
@@ -365,7 +375,7 @@ public class MapActivity extends BaseActivity {
             marker.setTitle(p.getName());
             marker.setSnippet(p.getCategory() + " - " + p.getCity());
             marker.setAnchor(org.osmdroid.views.overlay.Marker.ANCHOR_CENTER, org.osmdroid.views.overlay.Marker.ANCHOR_BOTTOM);
-            marker.setIcon(getResources().getDrawable(android.R.drawable.ic_menu_mapmode));
+            marker.setIcon(androidx.core.content.ContextCompat.getDrawable(this, android.R.drawable.ic_menu_mapmode));
             
             marker.setOnMarkerClickListener((m, mapView) -> {
                 searchedPoint = (GeoPoint) m.getPosition();
@@ -482,10 +492,10 @@ public class MapActivity extends BaseActivity {
     @Override
     public void onResume() {
         super.onResume();
-        android.util.Log.d("MAP_DEBUG", "Activity Resumed");
+        android.util.Log.d("OSM_DEBUG", "Activity Resumed");
         if (map != null) {
             map.onResume();
-            android.util.Log.d("MAP_DEBUG", "MapView Resumed");
+            android.util.Log.d("OSM_DEBUG", "MapView Resumed");
         }
         if (locationOverlay != null) locationOverlay.enableMyLocation();
         loadProfileImage(); // Refresh in case name/photo changed
