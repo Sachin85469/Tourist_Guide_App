@@ -5,12 +5,13 @@
     android:layout_height="wrap_content"
     android:layout_marginHorizontal="@dimen/screen_margin"
     android:layout_marginVertical="@dimen/spacing_small"
+    android:stateListAnimator="@animator/card_lift"
     app:cardCornerRadius="@dimen/corner_radius_large"
     app:cardElevation="@dimen/card_elevation_soft"
-    app:cardBackgroundColor="@color/white"
-    app:rippleColor="@color/m3_primary_container"
+    app:cardBackgroundColor="@color/color_surface"
+    app:rippleColor="@color/color_primary_container"
     app:strokeWidth="1dp"
-    app:strokeColor="@color/m3_outline_variant">
+    app:strokeColor="@color/color_outline_variant">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
@@ -56,7 +57,7 @@
                     android:layout_width="12dp"
                     android:layout_height="12dp"
                     android:src="@android:drawable/btn_star_big_on"
-                    app:tint="@color/rating_gold" />
+                    app:tint="@color/color_accent" />
 
                 <TextView
                     android:id="@+id/tvRating"

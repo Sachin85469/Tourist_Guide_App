@@ -2,11 +2,15 @@
 <com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="220dp"
-    android:layout_height="170dp"
-    android:layout_margin="8dp"
-    app:cardCornerRadius="20dp"
+    android:layout_width="200dp"
+    android:layout_height="160dp"
+    android:layout_margin="6dp"
+    android:clickable="true"
+    android:focusable="true"
+    android:stateListAnimator="@animator/card_lift"
+    app:cardCornerRadius="16dp"
     app:cardElevation="3dp"
+    app:rippleColor="@color/color_primary_container"
     app:strokeWidth="0dp">
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -21,18 +25,21 @@
             android:contentDescription="@string/featured_destinations_header"
             tools:src="@android:drawable/ic_menu_gallery" />
 
+        <!-- Gradient overlay -->
         <View
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:background="@drawable/gradient_shadow" />
 
+        <!-- Content overlay at bottom -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:padding="16dp"
+            android:padding="12dp"
             app:layout_constraintBottom_toBottomOf="parent">
 
+            <!-- Category pill badge -->
             <TextView
                 android:id="@+id/tvFeaturedCategory"
                 android:layout_width="wrap_content"
@@ -40,25 +47,28 @@
                 android:background="@drawable/pill_bg"
                 android:backgroundTint="#80000000"
                 android:paddingHorizontal="8dp"
-                android:paddingVertical="2dp"
+                android:paddingVertical="3dp"
                 android:textColor="@color/white"
                 android:textSize="9sp"
                 android:textStyle="bold"
                 android:textAllCaps="true"
                 tools:text="Historical" />
 
+            <!-- Place name -->
             <TextView
                 android:id="@+id/tvFeaturedTitle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
+                android:layout_marginTop="3dp"
                 android:ellipsize="end"
                 android:maxLines="1"
-                android:textAppearance="@style/TextAppearance.App.TitleSmall"
+                android:textAppearance="@style/TextAppearance.App.CardTitle"
                 android:textColor="@color/white"
+                android:textSize="13sp"
                 android:textStyle="bold"
                 tools:text="Sinhagad Fort" />
 
+            <!-- Rating row -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -70,7 +80,7 @@
                     android:id="@+id/tvFeaturedRating"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:textColor="#FFD600"
+                    android:textColor="@color/color_accent"
                     android:textSize="11sp"
                     android:textStyle="bold"
                     tools:text="⭐ 4.7" />
@@ -79,8 +89,8 @@
                     android:id="@+id/tvFeaturedTag"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="8dp"
-                    android:textColor="#E0E0E0"
+                    android:layout_marginStart="6dp"
+                    android:textColor="#CCE0E0E0"
                     android:textSize="10sp"
                     tools:text="Popular" />
             </LinearLayout>

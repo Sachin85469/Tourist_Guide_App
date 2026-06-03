@@ -4,7 +4,11 @@
     style="@style/AppCard.Primary"
     android:layout_width="300dp"
     android:layout_height="wrap_content"
-    android:layout_margin="8dp">
+    android:layout_margin="8dp"
+    android:stateListAnimator="@animator/card_lift"
+    app:cardCornerRadius="16dp"
+    app:cardElevation="2dp"
+    app:rippleColor="@color/color_primary_container">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -49,7 +53,7 @@
                         android:layout_width="12dp"
                         android:layout_height="12dp"
                         android:src="@android:drawable/btn_star_big_on"
-                        app:tint="@color/rating_gold" />
+                        app:tint="@color/color_accent" />
                     <TextView
                         android:id="@+id/topPickRating"
                         android:layout_width="wrap_content"
@@ -57,7 +61,7 @@
                         android:layout_marginStart="4dp"
                         android:text="4.8"
                         android:textAppearance="@style/TextAppearance.App.LabelLarge"
-                        android:textColor="@color/m3_on_surface"
+                        android:textColor="@color/color_on_surface"
                         android:textSize="11sp" />
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>

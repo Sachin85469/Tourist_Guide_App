@@ -4,9 +4,12 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/m3_background"
+    android:background="@color/color_background"
     tools:context=".MainActivity">
 
+    <!-- ===========================
+         Collapsible Header / AppBar
+    =========================== -->
     <com.google.android.material.appbar.AppBarLayout
         android:id="@+id/appBarLayout"
         android:layout_width="match_parent"
@@ -59,7 +62,7 @@
                             android:text="Traveler"
                             android:textAppearance="@style/TextAppearance.App.HeadlineLarge"
                             android:textColor="@color/white"
-                            android:textSize="32sp"
+                            android:textSize="30sp"
                             android:textStyle="bold" />
 
                         <!-- Hidden email to prevent NullPointerException in Java binding -->
@@ -77,7 +80,7 @@
                             android:text="@string/home_subtitle"
                             android:textAppearance="@style/TextAppearance.App.BodyMedium"
                             android:textColor="#B3FFFFFF"
-                            android:textSize="15sp" />
+                            android:textSize="14sp" />
                     </LinearLayout>
 
                     <LinearLayout
@@ -89,7 +92,7 @@
                         android:gravity="center_vertical"
                         android:orientation="horizontal">
 
-                        <!-- Notification Bell Area -->
+                        <!-- Notification Bell -->
                         <FrameLayout
                             android:id="@+id/btnNotifications"
                             android:layout_width="44dp"
@@ -100,8 +103,8 @@
                             android:focusable="true">
 
                             <ImageView
-                                android:layout_width="24dp"
-                                android:layout_height="24dp"
+                                android:layout_width="22dp"
+                                android:layout_height="22dp"
                                 android:layout_gravity="center"
                                 android:src="@drawable/ic_notification"
                                 app:tint="@color/white" />
@@ -141,10 +144,10 @@
                     android:id="@+id/searchCard"
                     android:layout_width="match_parent"
                     android:layout_height="56dp"
-                    android:layout_marginTop="24dp"
+                    android:layout_marginTop="20dp"
                     app:cardCornerRadius="28dp"
                     app:cardElevation="8dp"
-                    app:cardBackgroundColor="@color/white"
+                    app:cardBackgroundColor="@color/color_surface"
                     app:strokeWidth="0dp">
 
                     <LinearLayout
@@ -152,13 +155,13 @@
                         android:layout_height="match_parent"
                         android:gravity="center_vertical"
                         android:orientation="horizontal"
-                        android:paddingHorizontal="16dp">
+                        android:paddingHorizontal="18dp">
 
                         <ImageView
                             android:layout_width="20dp"
                             android:layout_height="20dp"
                             android:src="@android:drawable/ic_menu_search"
-                            app:tint="@color/m3_outline" />
+                            app:tint="@color/color_outline" />
 
                         <EditText
                             android:id="@+id/searchBox"
@@ -169,18 +172,18 @@
                             android:background="@null"
                             android:hint="@string/search_destinations_hint"
                             android:textAppearance="@style/TextAppearance.App.BodyMedium"
-                            android:textColor="@color/m3_on_surface"
-                            android:textColorHint="@color/m3_outline"
+                            android:textColor="@color/color_on_surface"
+                            android:textColorHint="@color/color_outline"
                             android:imeOptions="actionSearch"
                             android:inputType="text"
-                            android:textSize="16sp" />
+                            android:textSize="15sp" />
 
                         <ImageView
                             android:id="@+id/btnVoiceSearch"
                             android:layout_width="22dp"
                             android:layout_height="22dp"
                             android:src="@android:drawable/ic_btn_speak_now"
-                            app:tint="@color/m3_primary" />
+                            app:tint="@color/color_primary" />
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
 
@@ -189,7 +192,7 @@
                     android:id="@+id/insightCard"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="16dp"
+                    android:layout_marginTop="14dp"
                     app:cardCornerRadius="16dp"
                     app:cardElevation="0dp"
                     app:cardBackgroundColor="#26FFFFFF"
@@ -207,7 +210,7 @@
                             android:layout_height="wrap_content"
                             android:text="@string/travel_insight_title"
                             android:textColor="@color/white"
-                            android:textSize="14sp"
+                            android:textSize="13sp"
                             android:textStyle="bold" />
 
                         <TextView
@@ -225,7 +228,7 @@
                     android:id="@+id/statsCard"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="12dp"
+                    android:layout_marginTop="10dp"
                     app:cardCornerRadius="12dp"
                     app:cardElevation="0dp"
                     app:cardBackgroundColor="#1AFFFFFF"
@@ -254,14 +257,16 @@
         </com.google.android.material.appbar.CollapsingToolbarLayout>
     </com.google.android.material.appbar.AppBarLayout>
 
-    <!-- Main Content Area -->
+    <!-- ===========================
+         Main Content RecyclerView
+    =========================== -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rvHome"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:clipToPadding="false"
         android:paddingTop="12dp"
-        android:paddingBottom="120dp"
+        android:paddingBottom="100dp"
         app:layout_behavior="@string/appbar_scrolling_view_behavior" />
 
     <ProgressBar
@@ -271,6 +276,7 @@
         android:layout_gravity="center"
         android:visibility="gone" />
 
+    <!-- Empty State -->
     <LinearLayout
         android:id="@+id/tvEmptyState"
         android:layout_width="match_parent"
@@ -298,68 +304,92 @@
             android:text="@string/empty_state_places_msg" />
     </LinearLayout>
 
-    <!-- AI Assistant FAB & Tooltip -->
+    <!-- ===========================
+         AI Assistant FAB Cluster
+         (Tooltip + FAB, visually grouped)
+    =========================== -->
+
+    <!-- AI Tooltip Bubble — appears above FAB -->
     <com.google.android.material.card.MaterialCardView
         android:id="@+id/ai_tooltip"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|end"
-        android:layout_marginBottom="176dp"
-        android:layout_marginEnd="32dp"
+        android:layout_marginBottom="165dp"
+        android:layout_marginEnd="20dp"
         android:visibility="invisible"
-        app:cardCornerRadius="16dp"
-        app:cardElevation="4dp"
-        app:cardBackgroundColor="@color/m3_primary"
+        app:cardCornerRadius="20dp"
+        app:cardElevation="8dp"
+        app:cardBackgroundColor="@color/color_primary"
         app:strokeWidth="0dp">
 
-        <TextView
+        <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
             android:paddingHorizontal="16dp"
-            android:paddingVertical="8dp"
-            android:text="@string/ai_tooltip_text"
-            android:textColor="@color/white"
-            android:textSize="14sp"
-            android:textStyle="bold" />
+            android:paddingVertical="10dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="✨"
+                android:textSize="14sp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="6dp"
+                android:text="@string/ai_tooltip_text"
+                android:textColor="@color/white"
+                android:textSize="13sp"
+                android:textStyle="bold" />
+        </LinearLayout>
     </com.google.android.material.card.MaterialCardView>
 
+    <!-- AI FAB Button -->
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/fabAiChat"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|end"
-        android:layout_marginBottom="112dp"
-        android:layout_marginEnd="@dimen/spacing_large"
+        android:layout_marginBottom="108dp"
+        android:layout_marginEnd="20dp"
         app:srcCompat="@drawable/ic_robot_assistant"
         app:fabSize="normal"
-        app:maxImageSize="36dp"
+        app:maxImageSize="34dp"
         app:tint="@null"
-        app:backgroundTint="@color/white"
-        app:elevation="8dp" />
+        app:backgroundTint="@color/color_primary"
+        app:elevation="10dp"
+        app:rippleColor="@color/color_primary_dark" />
 
-    <!-- Floating Bottom Navigation -->
-    <com.google.android.material.card.MaterialCardView
+    <!-- ===========================
+         Bottom Navigation Bar
+         Material 3 — full width, elevated surface
+    =========================== -->
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="72dp"
-        android:layout_marginHorizontal="24dp"
-        android:layout_marginBottom="24dp"
+        android:layout_height="wrap_content"
         android:layout_gravity="bottom"
-        app:cardCornerRadius="36dp"
-        app:cardElevation="12dp"
-        app:cardBackgroundColor="#F2FFFFFF"
-        app:strokeWidth="1dp"
-        app:strokeColor="@color/m3_outline_variant">
+        android:orientation="vertical"
+        android:elevation="8dp">
+
+        <!-- Thin top divider for subtle separation -->
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/color_outline_variant"
+            android:alpha="0.5" />
 
         <com.google.android.material.bottomnavigation.BottomNavigationView
             android:id="@+id/bottom_navigation"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            app:elevation="0dp"
-            app:itemIconSize="22dp"
-            app:labelVisibilityMode="unlabeled"
-            app:menu="@menu/bottom_nav_menu"
-            app:itemIconTint="@color/m3_primary"
-            app:itemTextColor="@color/m3_primary" />
-    </com.google.android.material.card.MaterialCardView>
+            android:layout_height="wrap_content"
+            android:background="@color/color_nav_surface"
+            android:paddingBottom="8dp"
+            style="@style/AppBottomNavigation"
+            app:menu="@menu/bottom_nav_menu" />
+    </LinearLayout>
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

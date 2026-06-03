@@ -1,7 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools">
-    <!-- Base application theme for Night mode. -->
+    <!-- Night-mode override — keeps the same brand identity in dark
+         but uses the Material 3 DayNight system to pick dark surface colors automatically. -->
     <style name="Base.Theme.TouristGuideApp" parent="Theme.Material3.DayNight.NoActionBar">
-        <!-- Main branding colors. -->
+        <!-- Primary brand — same vivid purple looks great in dark mode -->
         <item name="colorPrimary">@color/m3_primary</item>
         <item name="colorOnPrimary">@color/m3_on_primary</item>
         <item name="colorPrimaryContainer">@color/m3_primary_container</item>
@@ -10,22 +12,22 @@
         <item name="colorSecondary">@color/m3_secondary</item>
         <item name="colorOnSecondary">@color/m3_on_secondary</item>
         <item name="colorSecondaryContainer">@color/m3_secondary_container</item>
-        <item name="colorOnSecondaryContainer">@color/m3_on_secondary_container</item>
+        <item name="colorOnSecondaryContainer">#1D192B</item>
 
         <item name="colorTertiary">@color/m3_tertiary</item>
         <item name="colorOnTertiary">@color/m3_on_tertiary</item>
 
-        <item name="android:windowBackground">@color/m3_background</item>
-        <item name="colorSurface">@color/m3_surface</item>
-        <item name="colorOnSurface">@color/m3_on_surface</item>
-        <item name="colorSurfaceVariant">@color/m3_surface_variant</item>
-        <item name="colorOnSurfaceVariant">@color/m3_on_surface_variant</item>
+        <item name="android:windowBackground">@color/adaptive_bg</item>
+        <item name="colorSurface">@color/adaptive_surface</item>
+        <item name="colorOnSurface">@color/adaptive_text_primary</item>
+        <item name="colorSurfaceVariant">@color/adaptive_surface_elevated</item>
+        <item name="colorOnSurfaceVariant">@color/adaptive_text_secondary</item>
 
         <item name="colorError">@color/m3_error</item>
         <item name="colorOnError">@color/m3_on_error</item>
 
-        <!-- Status bar color. -->
-        <item name="android:statusBarColor">@color/m3_background</item>
+        <!-- Status bar (dark mode — icons should be light) -->
+        <item name="android:statusBarColor">@color/adaptive_bg</item>
         <item name="android:windowLightStatusBar" tools:targetApi="m">false</item>
 
         <!-- Window Animations -->
@@ -39,7 +41,7 @@
         <item name="textAppearanceBodyMedium">@style/TextAppearance.App.BodyMedium</item>
         <item name="textAppearanceLabelLarge">@style/TextAppearance.App.LabelLarge</item>
 
-        <!-- TextInputLayout default text appearance (for Material3 compatibility) -->
+        <!-- TextInputLayout compat -->
         <item name="textAppearanceSubtitle1">@style/TextAppearance.App.BodyLarge</item>
         <item name="textAppearanceCaption">@style/TextAppearance.App.BodySmall</item>
     </style>

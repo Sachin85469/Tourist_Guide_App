@@ -4,12 +4,14 @@
     android:id="@+id/categoryCard"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:layout_margin="6dp"
+    android:layout_margin="5dp"
     android:clickable="true"
     android:focusable="true"
-    app:cardCornerRadius="16dp"
+    android:stateListAnimator="@animator/chip_press"
+    app:cardCornerRadius="20dp"
     app:cardElevation="0dp"
-    app:cardBackgroundColor="@color/m3_surface_variant"
+    app:cardBackgroundColor="@color/color_surface_variant"
+    app:rippleColor="@color/color_primary_container"
     app:strokeWidth="0dp">
 
     <LinearLayout
@@ -23,19 +25,20 @@
 
         <ImageView
             android:id="@+id/categoryIcon"
-            android:layout_width="20dp"
-            android:layout_height="20dp"
+            android:layout_width="18dp"
+            android:layout_height="18dp"
             android:src="@android:drawable/ic_menu_gallery"
-            app:tint="@color/m3_primary" />
+            app:tint="@color/color_primary" />
 
         <TextView
             android:id="@+id/categoryName"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
+            android:layout_marginStart="7dp"
             android:text="Nature"
             android:textAppearance="@style/TextAppearance.App.LabelLarge"
-            android:textColor="@color/m3_on_surface_variant"
-            android:textSize="12sp" />
+            android:textColor="@color/color_primary_dark"
+            android:textSize="13sp"
+            android:textStyle="bold" />
     </LinearLayout>
 </com.google.android.material.card.MaterialCardView>

@@ -1,31 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools">
-    <!-- Base application theme. -->
+    <!-- =========================================
+         Base Application Theme (Material 3)
+    ========================================= -->
     <style name="Base.Theme.TouristGuideApp" parent="Theme.Material3.DayNight.NoActionBar">
-        <!-- Main branding colors. -->
-        <item name="colorPrimary">@color/m3_primary</item>
-        <item name="colorOnPrimary">@color/m3_on_primary</item>
-        <item name="colorPrimaryContainer">@color/m3_primary_container</item>
-        <item name="colorOnPrimaryContainer">@color/m3_on_primary_container</item>
+        <!-- Main branding colors -->
+        <item name="colorPrimary">@color/color_primary</item>
+        <item name="colorOnPrimary">@color/color_on_primary</item>
+        <item name="colorPrimaryContainer">@color/color_primary_container</item>
+        <item name="colorOnPrimaryContainer">@color/color_on_primary_container</item>
 
-        <item name="colorSecondary">@color/m3_secondary</item>
-        <item name="colorOnSecondary">@color/m3_on_secondary</item>
-        <item name="colorSecondaryContainer">@color/m3_secondary_container</item>
-        <item name="colorOnSecondaryContainer">@color/m3_on_secondary_container</item>
+        <item name="colorSecondary">@color/color_secondary</item>
+        <item name="colorOnSecondary">@color/color_on_secondary</item>
+        <item name="colorSecondaryContainer">@color/color_secondary_container</item>
+        <item name="colorOnSecondaryContainer">#1D192B</item>
 
         <item name="colorTertiary">@color/m3_tertiary</item>
         <item name="colorOnTertiary">@color/m3_on_tertiary</item>
 
-        <item name="android:windowBackground">@color/m3_background</item>
-        <item name="colorSurface">@color/m3_surface</item>
-        <item name="colorOnSurface">@color/m3_on_surface</item>
-        <item name="colorSurfaceVariant">@color/m3_surface_variant</item>
-        <item name="colorOnSurfaceVariant">@color/m3_on_surface_variant</item>
+        <item name="android:windowBackground">@color/color_background</item>
+        <item name="colorSurface">@color/color_surface</item>
+        <item name="colorOnSurface">@color/color_on_surface</item>
+        <item name="colorSurfaceVariant">@color/color_surface_variant</item>
+        <item name="colorOnSurfaceVariant">@color/color_on_surface_variant</item>
 
-        <item name="colorError">@color/m3_error</item>
-        <item name="colorOnError">@color/m3_on_error</item>
+        <item name="colorError">@color/color_error</item>
+        <item name="colorOnError">@color/color_on_error</item>
 
-        <!-- Status bar color. -->
-        <item name="android:statusBarColor">@color/m3_background</item>
+        <!-- Status bar -->
+        <item name="android:statusBarColor">@color/color_background</item>
         <item name="android:windowLightStatusBar" tools:targetApi="m">true</item>
 
         <!-- Window Animations -->
@@ -39,14 +42,16 @@
         <item name="textAppearanceBodyMedium">@style/TextAppearance.App.BodyMedium</item>
         <item name="textAppearanceLabelLarge">@style/TextAppearance.App.LabelLarge</item>
 
-        <!-- TextInputLayout default text appearance (for Material3 compatibility) -->
+        <!-- TextInputLayout compat -->
         <item name="textAppearanceSubtitle1">@style/TextAppearance.App.BodyLarge</item>
         <item name="textAppearanceCaption">@style/TextAppearance.App.BodySmall</item>
     </style>
 
     <style name="Theme.TouristGuideApp" parent="Base.Theme.TouristGuideApp" />
 
-    <!-- Activity Animations -->
+    <!-- =========================================
+         Activity Animations
+    ========================================= -->
     <style name="AppAnimation.Activity" parent="@android:style/Animation.Activity">
         <item name="android:activityOpenEnterAnimation">@anim/slide_in_right</item>
         <item name="android:activityOpenExitAnimation">@android:transition/fade</item>
@@ -54,147 +59,212 @@
         <item name="android:activityCloseExitAnimation">@anim/slide_out_down</item>
     </style>
 
-    <!-- Typography Styles -->
+    <!-- =========================================
+         Typography Scale
+    ========================================= -->
     <style name="TextAppearance.App.HeadlineLarge" parent="TextAppearance.Material3.HeadlineLarge">
         <item name="android:textStyle">bold</item>
-        <item name="android:textColor">@color/m3_on_surface</item>
+        <item name="android:textColor">@color/color_on_surface</item>
         <item name="android:letterSpacing">-0.02</item>
     </style>
 
     <style name="TextAppearance.App.TitleLarge" parent="TextAppearance.Material3.TitleLarge">
         <item name="android:textStyle">bold</item>
-        <item name="android:textColor">@color/m3_on_surface</item>
+        <item name="android:textColor">@color/color_on_surface</item>
     </style>
 
     <style name="TextAppearance.App.TitleMedium" parent="TextAppearance.Material3.TitleMedium">
         <item name="android:textStyle">bold</item>
-        <item name="android:textColor">@color/m3_on_surface</item>
+        <item name="android:textColor">@color/color_on_surface</item>
     </style>
 
     <style name="TextAppearance.App.TitleSmall" parent="TextAppearance.Material3.TitleSmall">
         <item name="android:textStyle">bold</item>
-        <item name="android:textColor">@color/m3_on_surface</item>
+        <item name="android:textColor">@color/color_on_surface</item>
     </style>
 
     <style name="TextAppearance.App.BodyLarge" parent="TextAppearance.Material3.BodyLarge">
-        <item name="android:textColor">@color/m3_on_surface</item>
+        <item name="android:textColor">@color/color_on_surface</item>
     </style>
 
     <style name="TextAppearance.App.BodyMedium" parent="TextAppearance.Material3.BodyMedium">
-        <item name="android:textColor">@color/m3_on_surface_variant</item>
+        <item name="android:textColor">@color/color_on_surface_variant</item>
     </style>
 
     <style name="TextAppearance.App.BodySmall" parent="TextAppearance.Material3.BodySmall">
-        <item name="android:textColor">@color/m3_on_surface_variant</item>
+        <item name="android:textColor">@color/color_on_surface_variant</item>
     </style>
 
     <style name="TextAppearance.App.LabelLarge" parent="TextAppearance.Material3.LabelLarge">
         <item name="android:textStyle">bold</item>
-        <item name="android:textColor">@color/m3_primary</item>
+        <item name="android:textColor">@color/color_primary</item>
     </style>
 
-    <!-- Modern Reusable Component Styles -->
+    <!-- =========================================
+         Phase 4: Defined Typography Hierarchy
+    ========================================= -->
+    <!-- Section titles — used above card sections -->
+    <style name="TextAppearance.App.SectionTitle" parent="TextAppearance.Material3.TitleMedium">
+        <item name="android:textSize">18sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textColor">@color/color_on_surface</item>
+        <item name="android:letterSpacing">-0.01</item>
+    </style>
 
+    <!-- Card titles — primary text inside cards -->
+    <style name="TextAppearance.App.CardTitle" parent="TextAppearance.Material3.TitleSmall">
+        <item name="android:textSize">15sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textColor">@color/color_on_surface</item>
+    </style>
+
+    <!-- Card descriptions — secondary text, muted -->
+    <style name="TextAppearance.App.CardDescription" parent="TextAppearance.Material3.BodySmall">
+        <item name="android:textSize">13sp</item>
+        <item name="android:textColor">@color/color_text_secondary</item>
+    </style>
+
+    <!-- Navigation label text style -->
+    <style name="TextAppearance.App.NavLabel" parent="TextAppearance.Material3.LabelSmall">
+        <item name="android:textSize">11sp</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <!-- =========================================
+         Card Styles (Standardized — Phase 4)
+    ========================================= -->
     <style name="AppCard" parent="Widget.Material3.CardView.Elevated">
-        <item name="cardCornerRadius">@dimen/corner_radius_large</item>
-        <item name="cardElevation">@dimen/card_elevation_soft</item>
-        <item name="contentPadding">@dimen/card_padding</item>
+        <item name="cardCornerRadius">16dp</item>
+        <item name="cardElevation">2dp</item>
+        <item name="contentPadding">16dp</item>
         <item name="android:clickable">true</item>
         <item name="android:focusable">true</item>
         <item name="android:stateListAnimator">@animator/card_lift</item>
     </style>
 
     <style name="AppCard.Primary" parent="AppCard">
-        <item name="cardBackgroundColor">@color/white</item>
-        <item name="strokeColor">@color/m3_outline_variant</item>
+        <item name="cardBackgroundColor">@color/color_surface</item>
+        <item name="strokeColor">@color/color_outline_variant</item>
         <item name="strokeWidth">1dp</item>
     </style>
 
     <style name="AppCard.Surface" parent="AppCard">
-        <item name="cardBackgroundColor">@color/m3_surface_variant</item>
+        <item name="cardBackgroundColor">@color/color_surface_variant</item>
         <item name="cardElevation">0dp</item>
     </style>
 
+    <!-- Horizontal scroll cards (featured destinations, top picks) -->
+    <style name="AppCard.Horizontal" parent="AppCard.Primary">
+        <item name="contentPadding">0dp</item>
+    </style>
+
+    <!-- =========================================
+         Button Styles
+    ========================================= -->
     <style name="AppButton" parent="Widget.Material3.Button">
         <item name="android:insetTop">0dp</item>
         <item name="android:insetBottom">0dp</item>
         <item name="shapeAppearanceOverlay">@style/ShapeAppearance.App.Button</item>
-        <item name="android:minHeight">@dimen/button_height</item>
+        <item name="android:minHeight">52dp</item>
     </style>
 
     <style name="AppButton.Tonal" parent="Widget.Material3.Button.TonalButton">
-        <item name="android:minHeight">@dimen/button_height</item>
+        <item name="android:minHeight">52dp</item>
     </style>
 
     <style name="AppButton.SOS" parent="AppButton">
-        <item name="backgroundTint">@color/m3_error</item>
-        <item name="android:textColor">@color/white</item>
+        <item name="backgroundTint">@color/color_error</item>
+        <item name="android:textColor">@color/color_surface</item>
     </style>
 
     <style name="ShapeAppearance.App.Button" parent="ShapeAppearance.Material3.SmallComponent">
-        <item name="cornerSize">@dimen/corner_radius_medium</item>
+        <item name="cornerSize">12dp</item>
     </style>
 
     <style name="FloatingSearchBar" parent="AppCard">
-        <item name="cardCornerRadius">@dimen/corner_radius_medium</item>
-        <item name="cardElevation">@dimen/card_elevation_medium</item>
-        <item name="cardBackgroundColor">@color/white</item>
-        <item name="android:minHeight">@dimen/search_bar_height</item>
+        <item name="cardCornerRadius">28dp</item>
+        <item name="cardElevation">4dp</item>
+        <item name="cardBackgroundColor">@color/color_surface</item>
+        <item name="android:minHeight">56dp</item>
         <item name="strokeWidth">0dp</item>
     </style>
 
-    <!-- Legacy Compatibility Styles (Updated for foundation) -->
+    <!-- =========================================
+         Bottom Navigation (Material 3 — Phase 4)
+    ========================================= -->
+    <style name="AppBottomNavigation" parent="Widget.Material3.BottomNavigationView">
+        <item name="itemIconTint">@drawable/nav_item_color_state</item>
+        <item name="itemTextColor">@drawable/nav_item_color_state</item>
+        <item name="itemRippleColor">@color/color_primary_container</item>
+        <item name="itemActiveIndicatorStyle">@style/AppActiveIndicator</item>
+        <item name="backgroundTint">@android:color/transparent</item>
+        <item name="labelVisibilityMode">labeled</item>
+        <item name="itemIconSize">24dp</item>
+    </style>
+
+    <style name="AppActiveIndicator" parent="Widget.Material3.BottomNavigationView.ActiveIndicator">
+        <item name="android:color">@color/color_nav_indicator</item>
+        <item name="android:height">36dp</item>
+        <item name="android:width">64dp</item>
+        <item name="shapeAppearance">@style/ShapeAppearance.App.NavIndicator</item>
+    </style>
+
+    <style name="ShapeAppearance.App.NavIndicator" parent="ShapeAppearance.Material3.Corner.Full">
+        <item name="cornerSize">50%</item>
+    </style>
+
+    <!-- =========================================
+         Category Chip Style (Phase 4)
+    ========================================= -->
+    <style name="CategoryChip" parent="Widget.Material3.CardView.Elevated">
+        <item name="cardCornerRadius">20dp</item>
+        <item name="cardElevation">0dp</item>
+        <item name="cardBackgroundColor">@color/color_surface_variant</item>
+        <item name="strokeWidth">0dp</item>
+        <item name="android:clickable">true</item>
+        <item name="android:focusable">true</item>
+        <item name="android:stateListAnimator">@animator/chip_press</item>
+    </style>
+
+    <!-- =========================================
+         Misc / Legacy Compat
+    ========================================= -->
     <style name="PremiumCard" parent="AppCard.Primary" />
     <style name="CircleImage" parent="">
         <item name="cornerSize">50%</item>
     </style>
     <style name="RoundedImage" parent="">
-        <item name="cornerSize">@dimen/corner_radius_large</item>
+        <item name="cornerSize">16dp</item>
     </style>
     <style name="RoundedButton" parent="AppButton" />
 
     <style name="RatingBarColor" parent="Theme.AppCompat">
-        <item name="colorControlNormal">@color/m3_outline_variant</item>
-        <item name="colorControlActivated">@color/rating_gold</item>
+        <item name="colorControlNormal">@color/color_outline_variant</item>
+        <item name="colorControlActivated">@color/color_rating_gold</item>
     </style>
 
-    <style name="AppBottomNavigation" parent="Widget.Material3.BottomNavigationView">
-        <item name="itemIconTint">@color/m3_primary</item>
-        <item name="itemTextColor">@color/m3_primary</item>
-        <item name="itemRippleColor">@color/m3_primary_container</item>
-        <item name="itemActiveIndicatorStyle">@style/AppActiveIndicator</item>
-        <item name="backgroundTint">@android:color/transparent</item>
-    </style>
-
-    <style name="AppActiveIndicator" parent="Widget.Material3.BottomNavigationView.ActiveIndicator">
-        <item name="android:color">@color/m3_primary_container</item>
-        <item name="android:height">32dp</item>
-        <item name="android:width">48dp</item>
-    </style>
-
-    <!-- Empty State Styling -->
+    <!-- Empty State -->
     <style name="EmptyStateTitle" parent="TextAppearance.App.TitleMedium">
         <item name="android:gravity">center</item>
-        <item name="android:layout_marginTop">@dimen/spacing_medium</item>
+        <item name="android:layout_marginTop">16dp</item>
     </style>
 
     <style name="EmptyStateMessage" parent="TextAppearance.App.BodyMedium">
         <item name="android:gravity">center</item>
-        <item name="android:layout_marginTop">@dimen/spacing_small</item>
-        <item name="android:layout_marginStart">@dimen/spacing_huge</item>
-        <item name="android:layout_marginEnd">@dimen/spacing_huge</item>
+        <item name="android:layout_marginTop">8dp</item>
+        <item name="android:layout_marginStart">32dp</item>
+        <item name="android:layout_marginEnd">32dp</item>
     </style>
 
     <style name="Widget.App.Chip.Suggestion" parent="Widget.Material3.Chip.Assist">
-        <item name="chipBackgroundColor">@color/white</item>
+        <item name="chipBackgroundColor">@color/color_surface</item>
         <item name="shapeAppearanceOverlay">@style/ShapeAppearance.App.SmallComponent</item>
-        <item name="strokeColor">@color/m3_outline_variant</item>
+        <item name="strokeColor">@color/color_outline_variant</item>
         <item name="strokeWidth">1dp</item>
-        <item name="android:textColor">@color/black</item>
+        <item name="android:textColor">@color/color_on_surface</item>
     </style>
 
     <style name="ShapeAppearance.App.SmallComponent" parent="ShapeAppearance.Material3.SmallComponent">
-        <item name="cornerSize">@dimen/corner_radius_small</item>
+        <item name="cornerSize">8dp</item>
     </style>
-
 </resources>
