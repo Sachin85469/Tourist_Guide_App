@@ -170,35 +170,51 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 app:singleLine="true"
+                app:singleSelection="true"
                 app:chipSpacingHorizontal="8dp">
 
                 <com.google.android.material.chip.Chip
-                    android:id="@+id/chipTemple"
+                    android:id="@+id/chipHistorical"
                     style="@style/Widget.Material3.Chip.Filter"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/map_temples" />
-
-                <com.google.android.material.chip.Chip
-                    android:id="@+id/chipFort"
-                    style="@style/Widget.Material3.Chip.Filter"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/map_forts" />
+                    android:text="@string/explore_historical" />
 
                 <com.google.android.material.chip.Chip
                     android:id="@+id/chipNature"
                     style="@style/Widget.Material3.Chip.Filter"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/map_nature" />
+                    android:text="@string/explore_nature" />
 
                 <com.google.android.material.chip.Chip
-                    android:id="@+id/chipMuseum"
+                    android:id="@+id/chipReligious"
                     style="@style/Widget.Material3.Chip.Filter"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/map_museums" />
+                    android:text="@string/explore_religious" />
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chipFood"
+                    style="@style/Widget.Material3.Chip.Filter"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/explore_food" />
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chipCulture"
+                    style="@style/Widget.Material3.Chip.Filter"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/explore_culture" />
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chipAdventure"
+                    style="@style/Widget.Material3.Chip.Filter"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/explore_adventure" />
+
             </com.google.android.material.chip.ChipGroup>
         </HorizontalScrollView>
     </LinearLayout>
@@ -382,6 +398,42 @@
 
         </LinearLayout>
     </com.google.android.material.card.MaterialCardView>
+
+    <!-- Empty State for Search/Filters -->
+    <LinearLayout
+        android:id="@+id/emptyStateExplore"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:padding="32dp"
+        android:background="@drawable/bg_glass_card"
+        android:elevation="4dp"
+        android:visibility="gone">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="📍"
+            android:textSize="48sp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="@string/explore_empty_title"
+            android:textAppearance="@style/TextAppearance.App.TitleMedium"
+            android:textColor="@color/color_on_surface" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:text="@string/explore_empty_msg"
+            android:textAppearance="@style/TextAppearance.App.BodySmall"
+            android:textColor="@color/color_text_muted" />
+    </LinearLayout>
 
     <!-- Floating Navigation Container -->
     <com.google.android.material.card.MaterialCardView

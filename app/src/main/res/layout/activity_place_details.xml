@@ -1,38 +1,121 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/m3_background">
+    android:background="@color/color_background">
 
+    <!-- ═══════════════════════════════════════
+         HERO SECTION — Full-width image + overlay
+    ═══════════════════════════════════════ -->
     <com.google.android.material.appbar.AppBarLayout
         android:id="@+id/appBar"
         android:layout_width="match_parent"
-        android:layout_height="350dp"
+        android:layout_height="360dp"
         android:background="@android:color/transparent"
-        android:theme="@style/ThemeOverlay.MaterialComponents.Dark.ActionBar">
+        android:theme="@style/ThemeOverlay.MaterialComponents.Dark.ActionBar"
+        app:elevation="0dp">
 
         <com.google.android.material.appbar.CollapsingToolbarLayout
             android:id="@+id/collapsingToolbar"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            app:contentScrim="@color/m3_primary"
+            app:contentScrim="@color/color_primary"
             app:layout_scrollFlags="scroll|exitUntilCollapsed"
             app:statusBarScrim="@android:color/transparent"
             app:titleEnabled="false">
 
+            <!-- Hero Gallery ViewPager -->
             <androidx.viewpager2.widget.ViewPager2
                 android:id="@+id/viewPagerGallery"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                app:layout_collapseMode="parallax" />
+                app:layout_collapseMode="parallax"
+                app:layout_collapseParallaxMultiplier="0.7" />
 
+            <!-- Bottom-heavy gradient overlay for readability -->
             <View
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:background="@drawable/bg_details_header_gradient" />
+                android:background="@drawable/bg_details_hero_gradient"
+                app:layout_collapseMode="parallax" />
 
+            <!-- Hero content overlay: name, category badge, rating -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="bottom"
+                android:orientation="vertical"
+                android:paddingHorizontal="20dp"
+                android:paddingBottom="24dp"
+                android:paddingTop="80dp"
+                app:layout_collapseMode="parallax">
+
+                <!-- Destination Name -->
+                <TextView
+                    android:id="@+id/detailName"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:ellipsize="end"
+                    android:letterSpacing="-0.02"
+                    android:maxLines="2"
+                    android:textColor="@color/white"
+                    android:textSize="30sp"
+                    android:textStyle="bold"
+                    android:shadowColor="#80000000"
+                    android:shadowDx="0"
+                    android:shadowDy="2"
+                    android:shadowRadius="8"
+                    tools:text="Sinhagad Fort" />
+
+                <!-- Category + Rating row -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <!-- Category pill badge -->
+                    <TextView
+                        android:id="@+id/detailCategory"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/bg_category_pill_white"
+                        android:paddingHorizontal="14dp"
+                        android:paddingVertical="5dp"
+                        android:textColor="@color/white"
+                        android:textSize="12sp"
+                        android:textStyle="bold"
+                        tools:text="🏛 Historical" />
+
+                    <!-- Dot separator -->
+                    <View
+                        android:layout_width="4dp"
+                        android:layout_height="4dp"
+                        android:layout_marginHorizontal="10dp"
+                        android:alpha="0.7"
+                        android:background="@drawable/bg_dot_separator" />
+
+                    <!-- Rating -->
+                    <TextView
+                        android:id="@+id/tvRatingSummary"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textColor="@color/color_accent"
+                        android:textSize="14sp"
+                        android:textStyle="bold"
+                        android:shadowColor="#80000000"
+                        android:shadowDx="0"
+                        android:shadowDy="1"
+                        android:shadowRadius="4"
+                        tools:text="⭐ 4.7  (842 Reviews)" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <!-- Pinned Toolbar with back / share / favorite -->
             <androidx.appcompat.widget.Toolbar
                 android:id="@+id/toolbar"
                 android:layout_width="match_parent"
@@ -43,17 +126,20 @@
                 <RelativeLayout
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:layout_marginEnd="16dp">
+                    android:layout_marginEnd="8dp">
 
+                    <!-- Back button -->
                     <ImageButton
                         android:id="@+id/btnBack"
                         android:layout_width="40dp"
                         android:layout_height="40dp"
                         android:layout_centerVertical="true"
                         android:background="@drawable/bg_favorite_circle"
+                        android:contentDescription="Back"
                         android:src="@drawable/ic_back"
                         app:tint="@color/white" />
 
+                    <!-- Share + Favorite -->
                     <LinearLayout
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
@@ -65,8 +151,9 @@
                             android:id="@+id/btnShare"
                             android:layout_width="40dp"
                             android:layout_height="40dp"
-                            android:layout_marginEnd="12dp"
+                            android:layout_marginEnd="10dp"
                             android:background="@drawable/bg_favorite_circle"
+                            android:contentDescription="Share"
                             android:src="@android:drawable/ic_menu_share"
                             app:tint="@color/white" />
 
@@ -75,6 +162,7 @@
                             android:layout_width="40dp"
                             android:layout_height="40dp"
                             android:background="@drawable/bg_favorite_circle"
+                            android:contentDescription="Favorite"
                             android:src="@drawable/ic_favorite_border"
                             app:tint="@color/white" />
                     </LinearLayout>
@@ -84,70 +172,175 @@
         </com.google.android.material.appbar.CollapsingToolbarLayout>
     </com.google.android.material.appbar.AppBarLayout>
 
+    <!-- ═══════════════════════════════════════
+         MAIN SCROLLABLE CONTENT
+    ═══════════════════════════════════════ -->
     <androidx.core.widget.NestedScrollView
         android:id="@+id/nsvPlaceDetails"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_marginTop="-32dp"
-        android:background="@drawable/bottom_sheet_bg"
-        android:elevation="4dp"
+        android:clipToPadding="false"
+        android:paddingBottom="88dp"
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:padding="24dp">
+            android:orientation="vertical">
 
-            <!-- Title & Basic Info -->
-            <TextView
-                android:id="@+id/detailName"
+            <!-- ───────────────────────────────
+                 FLOATING ACTION BUTTONS ROW
+                 Visually lifted from content
+            ─────────────────────────────── -->
+            <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:textColor="@color/m3_on_surface"
-                android:textSize="32sp"
-                android:textStyle="bold"
-                android:letterSpacing="-0.02"
-                tools:text="Aga Khan Palace" />
+                android:layout_marginHorizontal="20dp"
+                android:layout_marginTop="-28dp"
+                app:cardCornerRadius="20dp"
+                app:cardElevation="8dp"
+                app:cardBackgroundColor="@color/color_surface"
+                app:strokeWidth="0dp">
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:gravity="center_vertical"
-                android:orientation="horizontal">
-
-                <TextView
-                    android:id="@+id/detailCategory"
-                    android:layout_width="wrap_content"
+                <LinearLayout
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:textColor="@color/m3_primary"
-                    android:textSize="16sp"
-                    android:textStyle="bold"
-                    tools:text="History Museum" />
+                    android:gravity="center"
+                    android:orientation="horizontal"
+                    android:paddingVertical="16dp"
+                    android:paddingHorizontal="8dp"
+                    android:weightSum="3">
 
-                <View
-                    android:layout_width="4dp"
-                    android:layout_height="4dp"
-                    android:layout_marginHorizontal="8dp"
-                    android:background="@drawable/dot_separator" />
+                    <!-- Navigate -->
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:gravity="center"
+                        android:orientation="vertical">
 
-                <TextView
-                    android:id="@+id/tvRatingSummary"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textColor="@color/rating_gold"
-                    android:textSize="16sp"
-                    android:textStyle="bold"
-                    tools:text="⭐ 4.8 (120 reviews)" />
-            </LinearLayout>
+                        <com.google.android.material.card.MaterialCardView
+                            android:id="@+id/btnDirections"
+                            android:layout_width="52dp"
+                            android:layout_height="52dp"
+                            android:clickable="true"
+                            android:focusable="true"
+                            app:cardCornerRadius="26dp"
+                            app:cardElevation="4dp"
+                            app:cardBackgroundColor="@color/color_primary"
+                            app:rippleColor="@color/color_primary_dark"
+                            app:strokeWidth="0dp">
 
-            <!-- Modern Info Chips Scroll -->
+                            <ImageView
+                                android:layout_width="24dp"
+                                android:layout_height="24dp"
+                                android:layout_gravity="center"
+                                android:contentDescription="Navigate"
+                                android:src="@android:drawable/ic_menu_directions"
+                                app:tint="@color/white" />
+                        </com.google.android.material.card.MaterialCardView>
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="6dp"
+                            android:text="Navigate"
+                            android:textColor="@color/color_text_secondary"
+                            android:textSize="11sp"
+                            android:textStyle="bold" />
+                    </LinearLayout>
+
+                    <!-- Share -->
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:gravity="center"
+                        android:orientation="vertical">
+
+                        <com.google.android.material.card.MaterialCardView
+                            android:id="@+id/btnCall"
+                            android:layout_width="52dp"
+                            android:layout_height="52dp"
+                            android:clickable="true"
+                            android:focusable="true"
+                            app:cardCornerRadius="26dp"
+                            app:cardElevation="4dp"
+                            app:cardBackgroundColor="@color/color_surface_variant"
+                            app:rippleColor="@color/color_primary_container"
+                            app:strokeWidth="0dp">
+
+                            <ImageView
+                                android:layout_width="24dp"
+                                android:layout_height="24dp"
+                                android:layout_gravity="center"
+                                android:contentDescription="Share"
+                                android:src="@android:drawable/ic_menu_share"
+                                app:tint="@color/color_primary" />
+                        </com.google.android.material.card.MaterialCardView>
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="6dp"
+                            android:text="Share"
+                            android:textColor="@color/color_text_secondary"
+                            android:textSize="11sp"
+                            android:textStyle="bold" />
+                    </LinearLayout>
+
+                    <!-- Save / Favorite -->
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:gravity="center"
+                        android:orientation="vertical">
+
+                        <com.google.android.material.card.MaterialCardView
+                            android:id="@+id/btnSave"
+                            android:layout_width="52dp"
+                            android:layout_height="52dp"
+                            android:clickable="true"
+                            android:focusable="true"
+                            app:cardCornerRadius="26dp"
+                            app:cardElevation="4dp"
+                            app:cardBackgroundColor="@color/color_surface_variant"
+                            app:rippleColor="@color/color_primary_container"
+                            app:strokeWidth="0dp">
+
+                            <ImageView
+                                android:layout_width="24dp"
+                                android:layout_height="24dp"
+                                android:layout_gravity="center"
+                                android:contentDescription="Save"
+                                android:src="@drawable/ic_favorite_border"
+                                app:tint="@color/color_error" />
+                        </com.google.android.material.card.MaterialCardView>
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="6dp"
+                            android:text="Save"
+                            android:textColor="@color/color_text_secondary"
+                            android:textSize="11sp"
+                            android:textStyle="bold" />
+                    </LinearLayout>
+
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- ───────────────────────────────
+                 QUICK INFO CHIPS
+            ─────────────────────────────── -->
             <HorizontalScrollView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="20dp"
-                android:scrollbars="none">
+                android:paddingHorizontal="20dp"
+                android:scrollbars="none"
+                android:clipToPadding="false">
 
                 <com.google.android.material.chip.ChipGroup
                     android:layout_width="wrap_content"
@@ -159,15 +352,19 @@
                         style="@style/Widget.Material3.Chip.Assist"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        app:chipBackgroundColor="@color/color_primary_container"
                         app:chipIcon="@android:drawable/ic_menu_today"
-                        tools:text="Best: Oct - Mar" />
+                        app:chipIconTint="@color/color_primary"
+                        tools:text="Best: Oct–Mar" />
 
                     <com.google.android.material.chip.Chip
                         android:id="@+id/chipCrowd"
                         style="@style/Widget.Material3.Chip.Assist"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        app:chipBackgroundColor="@color/color_primary_container"
                         app:chipIcon="@android:drawable/ic_menu_my_calendar"
+                        app:chipIconTint="@color/color_primary"
                         tools:text="Moderate Crowd" />
 
                     <com.google.android.material.chip.Chip
@@ -175,7 +372,9 @@
                         style="@style/Widget.Material3.Chip.Assist"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        app:chipBackgroundColor="@color/color_primary_container"
                         app:chipIcon="@android:drawable/ic_menu_send"
+                        app:chipIconTint="@color/color_primary"
                         tools:text="Entry: ₹50" />
 
                     <com.google.android.material.chip.Chip
@@ -183,264 +382,729 @@
                         style="@style/Widget.Material3.Chip.Assist"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        app:chipBackgroundColor="@color/color_primary_container"
                         app:chipIcon="@android:drawable/ic_menu_recent_history"
+                        app:chipIconTint="@color/color_primary"
                         android:text="Duration: 2 hrs" />
 
                 </com.google.android.material.chip.ChipGroup>
             </HorizontalScrollView>
 
-            <!-- Action Buttons Row -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="24dp"
-                android:orientation="horizontal"
-                android:weightSum="3">
-
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btnDirections"
-                    style="@style/Widget.Material3.Button"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:layout_marginEnd="8dp"
-                    android:text="Route"
-                    app:icon="@android:drawable/ic_menu_directions"
-                    app:cornerRadius="12dp" />
-
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btnCall"
-                    style="@style/Widget.Material3.Button.TonalButton"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:layout_marginEnd="8dp"
-                    android:text="Call"
-                    app:icon="@android:drawable/ic_menu_call"
-                    app:cornerRadius="12dp" />
-
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btnSave"
-                    style="@style/Widget.Material3.Button.TonalButton"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="Save"
-                    app:icon="@drawable/ic_favorite_border"
-                    app:cornerRadius="12dp" />
-            </LinearLayout>
-
-            <!-- Description -->
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="32dp"
-                android:text="Overview"
-                android:textColor="@color/m3_on_surface"
-                android:textSize="20sp"
-                android:textStyle="bold" />
-
-            <TextView
-                android:id="@+id/detailDescription"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
-                android:lineSpacingExtra="6dp"
-                android:textColor="@color/m3_on_surface_variant"
-                android:textSize="16sp"
-                tools:text="Aga Khan Palace was built by Sultan Muhammed Shah Aga Khan III in Pune, India..." />
-
-            <TextView
-                android:id="@+id/btnReadMore"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                android:text="Read More"
-                android:textColor="@color/m3_primary"
-                android:textStyle="bold"
-                android:visibility="gone" />
-
-            <!-- Gallery Preview -->
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="32dp"
-                android:text="Gallery"
-                android:textColor="@color/m3_on_surface"
-                android:textSize="20sp"
-                android:textStyle="bold" />
-
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/rvGalleryPreview"
-                android:layout_width="match_parent"
-                android:layout_height="100dp"
-                android:layout_marginTop="12dp"
-                android:clipToPadding="false"
-                android:paddingEnd="16dp" />
-
-            <!-- Embedded Map Preview -->
+            <!-- ───────────────────────────────
+                 ABOUT SECTION
+            ─────────────────────────────── -->
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
-                android:layout_height="200dp"
-                android:layout_marginTop="32dp"
-                app:cardCornerRadius="24dp"
-                app:strokeWidth="1dp"
-                app:strokeColor="@color/m3_outline_variant">
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="20dp"
+                android:layout_marginTop="20dp"
+                android:stateListAnimator="@animator/card_lift"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="2dp"
+                app:cardBackgroundColor="@color/color_surface"
+                app:strokeColor="@color/color_outline_variant"
+                app:strokeWidth="1dp">
 
-                <FrameLayout
+                <LinearLayout
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent">
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="20dp">
 
-                    <ImageView
-                        android:id="@+id/ivMapPreview"
+                    <!-- Section header -->
+                    <LinearLayout
                         android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:scaleType="centerCrop"
-                        android:src="@drawable/timezone_pune" /> <!-- Placeholder for static map -->
+                        android:layout_height="wrap_content"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal">
 
-                    <View
+                        <View
+                            android:layout_width="4dp"
+                            android:layout_height="20dp"
+                            android:background="@color/color_primary"
+                            android:layout_marginEnd="10dp" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="About"
+                            android:textAppearance="@style/TextAppearance.App.SectionTitle"
+                            android:textColor="@color/color_on_surface" />
+                    </LinearLayout>
+
+                    <!-- Description text -->
+                    <TextView
+                        android:id="@+id/detailDescription"
                         android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:background="#44000000" />
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="12dp"
+                        android:lineSpacingExtra="6dp"
+                        android:textColor="@color/color_text_secondary"
+                        android:textSize="15sp"
+                        android:lineSpacingMultiplier="1.4"
+                        tools:text="Sinhagad Fort is a historic fort located in the Sahyadri ranges near Pune. The fort has been the site of many historical battles..." />
 
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/btnExploreMap"
-                        style="@style/Widget.Material3.Button.ElevatedButton"
+                    <!-- Read More toggle -->
+                    <TextView
+                        android:id="@+id/btnReadMore"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_gravity="center"
-                        android:text="Explore on Map"
-                        app:icon="@android:drawable/ic_dialog_map" />
-                </FrameLayout>
+                        android:layout_marginTop="8dp"
+                        android:text="Read More"
+                        android:textColor="@color/color_primary"
+                        android:textStyle="bold"
+                        android:textSize="14sp"
+                        android:visibility="gone" />
+                </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
-            <!-- More Details (Tips & Facts) -->
+            <!-- ───────────────────────────────
+                 QUICK INFO CARDS ROW
+                 (Best Season / Duration / Entry / Station)
+            ─────────────────────────────── -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="20dp"
+                android:layout_marginTop="24dp"
+                android:layout_marginBottom="12dp"
+                android:text="Quick Info"
+                android:textAppearance="@style/TextAppearance.App.SectionTitle"
+                android:textColor="@color/color_on_surface" />
+
+            <HorizontalScrollView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:clipToPadding="false"
+                android:paddingHorizontal="20dp"
+                android:scrollbars="none">
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <!-- Best Season card -->
+                    <com.google.android.material.card.MaterialCardView
+                        android:layout_width="110dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginEnd="12dp"
+                        app:cardCornerRadius="16dp"
+                        app:cardElevation="2dp"
+                        app:cardBackgroundColor="@color/color_primary_container"
+                        app:strokeWidth="0dp">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:gravity="center"
+                            android:orientation="vertical"
+                            android:padding="16dp">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="☀"
+                                android:textSize="24sp" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="6dp"
+                                android:text="Best Season"
+                                android:textColor="@color/color_text_muted"
+                                android:textSize="11sp"
+                                android:gravity="center" />
+
+                            <TextView
+                                android:id="@+id/tvQuickInfoSeason"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="2dp"
+                                android:text="Monsoon"
+                                android:textColor="@color/color_primary_dark"
+                                android:textSize="13sp"
+                                android:textStyle="bold"
+                                android:gravity="center" />
+                        </LinearLayout>
+                    </com.google.android.material.card.MaterialCardView>
+
+                    <!-- Duration card -->
+                    <com.google.android.material.card.MaterialCardView
+                        android:layout_width="110dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginEnd="12dp"
+                        app:cardCornerRadius="16dp"
+                        app:cardElevation="2dp"
+                        app:cardBackgroundColor="@color/color_primary_container"
+                        app:strokeWidth="0dp">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:gravity="center"
+                            android:orientation="vertical"
+                            android:padding="16dp">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="⏰"
+                                android:textSize="24sp" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="6dp"
+                                android:text="Duration"
+                                android:textColor="@color/color_text_muted"
+                                android:textSize="11sp"
+                                android:gravity="center" />
+
+                            <TextView
+                                android:id="@+id/tvQuickInfoDuration"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="2dp"
+                                android:text="2–3 Hours"
+                                android:textColor="@color/color_primary_dark"
+                                android:textSize="13sp"
+                                android:textStyle="bold"
+                                android:gravity="center" />
+                        </LinearLayout>
+                    </com.google.android.material.card.MaterialCardView>
+
+                    <!-- Entry Fee card -->
+                    <com.google.android.material.card.MaterialCardView
+                        android:layout_width="110dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginEnd="12dp"
+                        app:cardCornerRadius="16dp"
+                        app:cardElevation="2dp"
+                        app:cardBackgroundColor="@color/color_primary_container"
+                        app:strokeWidth="0dp">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:gravity="center"
+                            android:orientation="vertical"
+                            android:padding="16dp">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="🎟"
+                                android:textSize="24sp" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="6dp"
+                                android:text="Entry Fee"
+                                android:textColor="@color/color_text_muted"
+                                android:textSize="11sp"
+                                android:gravity="center" />
+
+                            <TextView
+                                android:id="@+id/tvQuickInfoEntry"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="2dp"
+                                android:text="Free"
+                                android:textColor="@color/color_primary_dark"
+                                android:textSize="13sp"
+                                android:textStyle="bold"
+                                android:gravity="center" />
+                        </LinearLayout>
+                    </com.google.android.material.card.MaterialCardView>
+
+                    <!-- Location card -->
+                    <com.google.android.material.card.MaterialCardView
+                        android:layout_width="110dp"
+                        android:layout_height="wrap_content"
+                        app:cardCornerRadius="16dp"
+                        app:cardElevation="2dp"
+                        app:cardBackgroundColor="@color/color_primary_container"
+                        app:strokeWidth="0dp">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:gravity="center"
+                            android:orientation="vertical"
+                            android:padding="16dp">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="📍"
+                                android:textSize="24sp" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="6dp"
+                                android:text="Location"
+                                android:textColor="@color/color_text_muted"
+                                android:textSize="11sp"
+                                android:gravity="center" />
+
+                            <TextView
+                                android:id="@+id/detailStation"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="2dp"
+                                android:text="Pune"
+                                android:textColor="@color/color_primary_dark"
+                                android:textSize="13sp"
+                                android:textStyle="bold"
+                                android:gravity="center"
+                                android:maxLines="2"
+                                android:ellipsize="end" />
+                        </LinearLayout>
+                    </com.google.android.material.card.MaterialCardView>
+
+                </LinearLayout>
+            </HorizontalScrollView>
+
+            <!-- ───────────────────────────────
+                 TRAVEL TIPS + FUN FACT
+            ─────────────────────────────── -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="32dp"
+                android:layout_marginHorizontal="20dp"
+                android:layout_marginTop="20dp"
                 android:orientation="horizontal"
                 android:weightSum="2">
 
+                <!-- Travel Tips card -->
                 <com.google.android.material.card.MaterialCardView
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:layout_marginEnd="8dp"
-                    app:cardBackgroundColor="@color/m3_primary_container"
+                    android:stateListAnimator="@animator/card_lift"
+                    app:cardBackgroundColor="@color/color_primary_container"
                     app:cardCornerRadius="16dp"
+                    app:cardElevation="2dp"
                     app:strokeWidth="0dp">
+
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="vertical"
                         android:padding="16dp">
+
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="💡 Pro Tip"
-                            android:textColor="@color/m3_on_primary_container"
+                            android:text="💡  Travel Tips"
+                            android:textColor="@color/color_primary_dark"
+                            android:textSize="13sp"
                             android:textStyle="bold" />
+
+                        <View
+                            android:layout_width="match_parent"
+                            android:layout_height="1dp"
+                            android:layout_marginTop="8dp"
+                            android:layout_marginBottom="8dp"
+                            android:background="@color/color_outline_variant"
+                            android:alpha="0.5" />
+
                         <TextView
                             android:id="@+id/detailTips"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:layout_marginTop="8dp"
-                            android:textColor="@color/m3_on_primary_container"
-                            android:textSize="14sp"
-                            tools:text="Visit during evening for light show." />
+                            android:lineSpacingExtra="4dp"
+                            android:textColor="@color/color_on_primary_container"
+                            android:textSize="13sp"
+                            android:lineSpacingMultiplier="1.3"
+                            tools:text="• Visit during morning hours&#10;• Carry water bottle&#10;• Ideal during monsoon" />
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
 
+                <!-- Fun Fact card -->
                 <com.google.android.material.card.MaterialCardView
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:layout_marginStart="8dp"
-                    app:cardBackgroundColor="@color/m3_secondary_container"
+                    android:stateListAnimator="@animator/card_lift"
+                    app:cardBackgroundColor="#FFF8E1"
                     app:cardCornerRadius="16dp"
+                    app:cardElevation="2dp"
                     app:strokeWidth="0dp">
+
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="vertical"
                         android:padding="16dp">
+
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="🎯 Fun Fact"
-                            android:textColor="@color/m3_on_secondary_container"
+                            android:text="🎯  Fun Fact"
+                            android:textColor="#F57F17"
+                            android:textSize="13sp"
                             android:textStyle="bold" />
+
+                        <View
+                            android:layout_width="match_parent"
+                            android:layout_height="1dp"
+                            android:layout_marginTop="8dp"
+                            android:layout_marginBottom="8dp"
+                            android:background="#FFE082"
+                            android:alpha="0.8" />
+
                         <TextView
                             android:id="@+id/detailFunFact"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:layout_marginTop="8dp"
-                            android:textColor="@color/m3_on_secondary_container"
-                            android:textSize="14sp"
-                            tools:text="Believe to be haunted." />
+                            android:lineSpacingExtra="4dp"
+                            android:textColor="#5D4037"
+                            android:textSize="13sp"
+                            android:lineSpacingMultiplier="1.3"
+                            tools:text="Sinhagad was the site of the famous Battle of Sinhagad in 1670." />
                     </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+            </LinearLayout>
+
+            <!-- ───────────────────────────────
+                 MAP PREVIEW
+            ─────────────────────────────── -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="28dp"
+                android:orientation="vertical">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:paddingHorizontal="20dp">
+
+                    <View
+                        android:layout_width="4dp"
+                        android:layout_height="20dp"
+                        android:background="@color/color_primary"
+                        android:layout_marginEnd="10dp" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="🗺  Location"
+                        android:textAppearance="@style/TextAppearance.App.SectionTitle"
+                        android:textColor="@color/color_on_surface" />
+                </LinearLayout>
+
+                <com.google.android.material.card.MaterialCardView
+                    android:layout_width="match_parent"
+                    android:layout_height="200dp"
+                    android:layout_marginHorizontal="20dp"
+                    android:layout_marginTop="12dp"
+                    android:stateListAnimator="@animator/card_lift"
+                    app:cardCornerRadius="20dp"
+                    app:cardElevation="3dp"
+                    app:strokeWidth="0dp">
+
+                    <FrameLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent">
+
+                        <ImageView
+                            android:id="@+id/ivMapPreview"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:scaleType="centerCrop"
+                            android:src="@drawable/timezone_pune"
+                            android:contentDescription="Map Preview" />
+
+                        <!-- Coordinates overlay -->
+                        <TextView
+                            android:id="@+id/tvCoordinates"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="bottom|start"
+                            android:layout_margin="12dp"
+                            android:background="#80000000"
+                            android:paddingHorizontal="8dp"
+                            android:paddingVertical="4dp"
+                            android:textColor="@color/white"
+                            android:textSize="10sp"
+                            tools:text="18.5204° N, 73.8567° E" />
+
+                        <!-- Dark overlay for CTA readability -->
+                        <View
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:background="#55000000" />
+
+                        <!-- CTA button centered -->
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btnExploreMap"
+                            style="@style/Widget.Material3.Button.ElevatedButton"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center"
+                            android:paddingHorizontal="24dp"
+                            android:text="Open in Google Maps"
+                            android:textColor="@color/color_primary"
+                            android:textStyle="bold"
+                            app:cornerRadius="12dp"
+                            app:icon="@android:drawable/ic_dialog_map"
+                            app:iconTint="@color/color_primary"
+                            app:iconPadding="8dp" />
+                    </FrameLayout>
                 </com.google.android.material.card.MaterialCardView>
             </LinearLayout>
 
-            <TextView
-                android:id="@+id/detailStation"
+            <!-- ───────────────────────────────
+                 PHOTO GALLERY
+            ─────────────────────────────── -->
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:gravity="center"
-                android:textColor="@color/m3_on_surface_variant"
-                android:textSize="14sp"
-                app:drawableStartCompat="@android:drawable/ic_dialog_info"
-                android:drawablePadding="8dp"
-                tools:text="Nearest Station: Pune Station (3km)" />
+                android:layout_marginTop="28dp"
+                android:orientation="vertical">
 
-            <!-- Nearby Tourist Spots Section -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:paddingHorizontal="20dp">
+
+                    <View
+                        android:layout_width="4dp"
+                        android:layout_height="20dp"
+                        android:background="@color/color_primary"
+                        android:layout_marginEnd="10dp" />
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="📸  Gallery"
+                        android:textAppearance="@style/TextAppearance.App.SectionTitle"
+                        android:textColor="@color/color_on_surface" />
+                </LinearLayout>
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/rvGalleryPreview"
+                    android:layout_width="match_parent"
+                    android:layout_height="120dp"
+                    android:layout_marginTop="12dp"
+                    android:clipToPadding="false"
+                    android:paddingHorizontal="16dp" />
+            </LinearLayout>
+
+            <!-- ───────────────────────────────
+                 NEARBY ATTRACTIONS
+            ─────────────────────────────── -->
             <LinearLayout
                 android:id="@+id/llNearbyPlaces"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="28dp"
                 android:orientation="vertical"
-                android:layout_marginTop="40dp"
                 android:visibility="gone">
 
-                <TextView
-                    android:layout_width="wrap_content"
+                <LinearLayout
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginBottom="16dp"
-                    android:text="@string/nearby_tourist_spots"
-                    android:textColor="@color/m3_on_surface"
-                    android:textSize="20sp"
-                    android:textStyle="bold" />
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:paddingHorizontal="20dp">
+
+                    <View
+                        android:layout_width="4dp"
+                        android:layout_height="20dp"
+                        android:background="@color/color_primary"
+                        android:layout_marginEnd="10dp" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/nearby_tourist_spots"
+                        android:textAppearance="@style/TextAppearance.App.SectionTitle"
+                        android:textColor="@color/color_on_surface" />
+                </LinearLayout>
 
                 <androidx.recyclerview.widget.RecyclerView
                     android:id="@+id/rvNearbyPlaces"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:clipToPadding="false" />
+                    android:layout_marginTop="12dp"
+                    android:clipToPadding="false"
+                    android:paddingHorizontal="16dp" />
             </LinearLayout>
 
-            <!-- Reviews Section -->
-            <TextView
-                android:layout_width="wrap_content"
+            <!-- ───────────────────────────────
+                 VISITOR RATING SUMMARY
+            ─────────────────────────────── -->
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="40dp"
-                android:layout_marginBottom="16dp"
-                android:text="Ratings &amp; Reviews"
-                android:textColor="@color/m3_on_surface"
-                android:textSize="20sp"
-                android:textStyle="bold" />
+                android:layout_marginHorizontal="20dp"
+                android:layout_marginTop="28dp"
+                android:stateListAnimator="@animator/card_lift"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="2dp"
+                app:cardBackgroundColor="@color/color_surface"
+                app:strokeColor="@color/color_outline_variant"
+                app:strokeWidth="1dp">
 
-            <!-- Review Input Section -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="20dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal">
+
+                        <View
+                            android:layout_width="4dp"
+                            android:layout_height="20dp"
+                            android:background="@color/color_primary"
+                            android:layout_marginEnd="10dp" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="⭐  Visitor Rating"
+                            android:textAppearance="@style/TextAppearance.App.SectionTitle"
+                            android:textColor="@color/color_on_surface" />
+                    </LinearLayout>
+
+                    <!-- Large rating display -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:orientation="horizontal"
+                        android:layout_marginTop="16dp">
+
+                        <!-- Big number -->
+                        <LinearLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:gravity="center"
+                            android:orientation="vertical"
+                            android:layout_marginEnd="20dp">
+
+                            <TextView
+                                android:id="@+id/tvLargeRating"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:textColor="@color/color_primary"
+                                android:textSize="52sp"
+                                android:textStyle="bold"
+                                android:letterSpacing="-0.03"
+                                tools:text="4.7" />
+
+                            <TextView
+                                android:id="@+id/tvLargeStars"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:textColor="@color/color_accent"
+                                android:textSize="20sp"
+                                tools:text="★★★★★" />
+                        </LinearLayout>
+
+                        <!-- Divider -->
+                        <View
+                            android:layout_width="1dp"
+                            android:layout_height="60dp"
+                            android:background="@color/color_outline_variant" />
+
+                        <!-- Review count + summary -->
+                        <LinearLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:gravity="center"
+                            android:orientation="vertical"
+                            android:layout_marginStart="20dp">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Reviews"
+                                android:textColor="@color/color_text_muted"
+                                android:textSize="12sp" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="See all"
+                                android:textColor="@color/color_primary"
+                                android:textSize="12sp"
+                                android:textStyle="bold"
+                                android:layout_marginTop="4dp" />
+                        </LinearLayout>
+
+                    </LinearLayout>
+
+                    <!-- Actual dynamic rating pulled in by Kotlin -->
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:gravity="center"
+                        android:text="Based on visitor reviews"
+                        android:textColor="@color/color_text_muted"
+                        android:textSize="12sp" />
+
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- ───────────────────────────────
+                 RATINGS & REVIEWS SECTION
+            ─────────────────────────────── -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="28dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:paddingHorizontal="20dp">
+
+                <View
+                    android:layout_width="4dp"
+                    android:layout_height="20dp"
+                    android:background="@color/color_primary"
+                    android:layout_marginEnd="10dp" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Ratings &amp; Reviews"
+                    android:textAppearance="@style/TextAppearance.App.SectionTitle"
+                    android:textColor="@color/color_on_surface" />
+            </LinearLayout>
+
+            <!-- Review Input Card -->
             <com.google.android.material.card.MaterialCardView
                 android:id="@+id/cvAddReview"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="24dp"
-                app:cardCornerRadius="24dp"
-                app:cardElevation="0dp"
+                android:layout_marginHorizontal="20dp"
+                android:layout_marginTop="14dp"
+                android:layout_marginBottom="8dp"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="2dp"
                 app:strokeWidth="1dp"
-                app:strokeColor="@color/m3_outline_variant">
+                app:strokeColor="@color/color_outline_variant"
+                app:cardBackgroundColor="@color/color_surface">
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -453,8 +1117,8 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Share your experience"
-                        android:textColor="@color/m3_on_surface"
-                        android:textSize="18sp"
+                        android:textColor="@color/color_on_surface"
+                        android:textSize="16sp"
                         android:textStyle="bold" />
 
                     <RatingBar
@@ -463,9 +1127,9 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="12dp"
+                        android:isIndicator="false"
                         android:numStars="5"
-                        android:stepSize="1.0"
-                        android:isIndicator="false" />
+                        android:stepSize="1.0" />
 
                     <com.google.android.material.textfield.TextInputLayout
                         android:layout_width="match_parent"
@@ -491,9 +1155,10 @@
                         <com.google.android.material.button.MaterialButton
                             android:id="@+id/btnSubmitReview"
                             android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
+                            android:layout_height="52dp"
                             android:text="Post Review"
-                            app:cornerRadius="12dp" />
+                            app:cornerRadius="12dp"
+                            app:backgroundTint="@color/color_primary" />
 
                         <ProgressBar
                             android:id="@+id/pbSubmitReview"
@@ -510,6 +1175,7 @@
                 android:id="@+id/rvReviews"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginHorizontal="20dp"
                 android:nestedScrollingEnabled="false" />
 
             <TextView
@@ -519,7 +1185,7 @@
                 android:gravity="center"
                 android:padding="40dp"
                 android:text="@string/no_reviews_details"
-                android:textColor="@color/m3_on_surface_variant"
+                android:textColor="@color/color_text_muted"
                 android:visibility="gone" />
 
             <ProgressBar
@@ -538,11 +1204,114 @@
                 android:text="@string/retry"
                 android:visibility="gone" />
 
-            <!-- Padding for bottom -->
+            <!-- Bottom padding for sticky CTA -->
             <View
                 android:layout_width="match_parent"
-                android:layout_height="40dp" />
+                android:layout_height="24dp" />
 
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
+
+    <!-- ═══════════════════════════════════════
+         STICKY BOTTOM CTA — Navigate Now
+         Fixed to the bottom, always visible
+    ═══════════════════════════════════════ -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:orientation="vertical"
+        android:elevation="12dp">
+
+        <!-- Gradient fade above button for depth -->
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="24dp"
+            android:background="@drawable/gradient_bottom_shadow" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/color_surface"
+            android:orientation="vertical"
+            android:paddingHorizontal="20dp"
+            android:paddingBottom="20dp"
+            android:paddingTop="12dp">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnNavigateNow"
+                android:layout_width="match_parent"
+                android:layout_height="56dp"
+                android:text="🗺  Navigate Now"
+                android:textColor="@color/white"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                app:backgroundTint="@color/color_primary"
+                app:cornerRadius="16dp"
+                app:icon="@android:drawable/ic_menu_directions"
+                app:iconTint="@color/white"
+                app:iconPadding="8dp"
+                app:elevation="4dp" />
+        </LinearLayout>
+    </LinearLayout>
+
+    <!-- ═══════════════════════════════════════
+         LOADING & EMPTY STATES
+    ═══════════════════════════════════════ -->
+    <LinearLayout
+        android:id="@+id/loadingState"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/color_background"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:visibility="gone">
+
+        <ProgressBar
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:indeterminateTint="@color/color_primary" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="Loading destination details..."
+            android:textColor="@color/color_text_secondary" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/emptyState"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/color_background"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:padding="32dp"
+        android:visibility="gone">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="🏞"
+            android:textSize="64sp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:gravity="center"
+            android:text="Destination information unavailable"
+            android:textAppearance="@style/TextAppearance.App.TitleMedium"
+            android:textColor="@color/color_on_surface" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnRetry"
+            style="@style/Widget.Material3.Button.TonalButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="@string/retry" />
+    </LinearLayout>
+
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

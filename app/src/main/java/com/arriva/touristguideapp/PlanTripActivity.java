@@ -36,7 +36,7 @@ public class PlanTripActivity extends BaseActivity {
         }
 
         if (spinnerType != null) {
-            String[] typeOptions = {"Nature", "Food", "Mixed"};
+            String[] typeOptions = {"Mixed", "Historical", "Nature", "Religious", "Food", "Culture", "Adventure"};
             ArrayAdapter<String> typeAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, typeOptions);
             typeAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
             spinnerType.setAdapter(typeAdapter);

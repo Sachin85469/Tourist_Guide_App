@@ -260,17 +260,23 @@ public class MapActivity extends BaseActivity {
     }
 
     private void setupCategoryButtons() {
-        View chipTemple = findViewById(R.id.chipTemple);
-        if (chipTemple != null) chipTemple.setOnClickListener(v -> loadCategoryMarkers("temple"));
-
-        View chipFort = findViewById(R.id.chipFort);
-        if (chipFort != null) chipFort.setOnClickListener(v -> loadCategoryMarkers("fort"));
+        View chipHistorical = findViewById(R.id.chipHistorical);
+        if (chipHistorical != null) chipHistorical.setOnClickListener(v -> loadCategoryMarkers("historical"));
 
         View chipNature = findViewById(R.id.chipNature);
         if (chipNature != null) chipNature.setOnClickListener(v -> loadCategoryMarkers("nature"));
 
-        View chipMuseum = findViewById(R.id.chipMuseum);
-        if (chipMuseum != null) chipMuseum.setOnClickListener(v -> loadCategoryMarkers("museum"));
+        View chipReligious = findViewById(R.id.chipReligious);
+        if (chipReligious != null) chipReligious.setOnClickListener(v -> loadCategoryMarkers("religious"));
+
+        View chipFood = findViewById(R.id.chipFood);
+        if (chipFood != null) chipFood.setOnClickListener(v -> loadCategoryMarkers("food"));
+
+        View chipCulture = findViewById(R.id.chipCulture);
+        if (chipCulture != null) chipCulture.setOnClickListener(v -> loadCategoryMarkers("culture"));
+
+        View chipAdventure = findViewById(R.id.chipAdventure);
+        if (chipAdventure != null) chipAdventure.setOnClickListener(v -> loadCategoryMarkers("adventure"));
     }
 
     private void startVoiceSearch() {
@@ -344,10 +350,12 @@ public class MapActivity extends BaseActivity {
             try {
                 String osmType;
                 switch (type) {
-                    case "temple": osmType = "node[\"amenity\"=\"place_of_worship\"]"; break;
-                    case "fort": osmType = "node[\"historic\"=\"castle\"]"; break;
+                    case "historical": osmType = "node[\"historic\"]"; break;
                     case "nature": osmType = "node[\"leisure\"=\"park\"]"; break;
-                    case "museum": osmType = "node[\"tourism\"=\"museum\"]"; break;
+                    case "religious": osmType = "node[\"amenity\"=\"place_of_worship\"]"; break;
+                    case "food": osmType = "node[\"amenity\"~\"restaurant|cafe\"]"; break;
+                    case "culture": osmType = "node[\"tourism\"=\"museum\"]"; break;
+                    case "adventure": osmType = "node[\"tourism\"=\"viewpoint\"]"; break;
                     default: osmType = "node[\"amenity\"=\"" + type + "\"]"; break;
                 }
                 String query = "[out:json];" + osmType + "(around:5000," + center.getLatitude() + "," + center.getLongitude() + ");out;";
@@ -377,6 +385,15 @@ public class MapActivity extends BaseActivity {
                 runOnUiThread(() -> {
                     if (isFinishing() || isDestroyed()) return;
                     map.getOverlays().removeIf(o -> o instanceof org.osmdroid.views.overlay.Marker && !((org.osmdroid.views.overlay.Marker)o).getTitle().equals(searchInput.getText().toString()));
+                    
+                    if (points.isEmpty()) {
+                        View emptyView = findViewById(R.id.emptyStateExplore);
+                        if (emptyView != null) {
+                            emptyView.setVisibility(View.VISIBLE);
+                            new Handler().postDelayed(() -> emptyView.setVisibility(View.GONE), 3000);
+                        }
+                    }
+
                     for (int i = 0; i < points.size(); i++) {
                         addMarker(points.get(i), names.get(i), "Category: " + type, R.drawable.ic_map_marker_historical);
                     }

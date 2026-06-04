@@ -2,17 +2,11 @@
 <com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    style="@style/AppCard"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_marginHorizontal="@dimen/screen_margin"
-    android:layout_marginVertical="@dimen/spacing_small"
-    android:clickable="true"
-    android:focusable="true"
-    app:cardCornerRadius="@dimen/corner_radius_large"
-    app:cardElevation="@dimen/card_elevation_soft"
-    app:rippleColor="@color/m3_primary_container"
-    app:strokeWidth="1dp"
-    app:strokeColor="@color/m3_outline_variant">
+    android:layout_marginVertical="8dp">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
@@ -21,7 +15,7 @@
         <com.google.android.material.imageview.ShapeableImageView
             android:id="@+id/favImage"
             android:layout_width="match_parent"
-            android:layout_height="180dp"
+            android:layout_height="220dp"
             android:scaleType="centerCrop"
             app:layout_constraintTop_toTopOf="parent"
             app:shapeAppearanceOverlay="@style/RoundedImage"
@@ -29,7 +23,7 @@
 
         <View
             android:layout_width="match_parent"
-            android:layout_height="100dp"
+            android:layout_height="120dp"
             android:background="@drawable/gradient_shadow"
             app:layout_constraintBottom_toBottomOf="@id/favImage" />
 
@@ -56,18 +50,18 @@
                 <ImageView
                     android:layout_width="12dp"
                     android:layout_height="12dp"
-                    android:src="@android:drawable/btn_star_big_on"
-                    app:tint="@color/rating_gold" />
+                    android:src="@drawable/ic_star"
+                    app:tint="@color/color_accent" />
 
                 <TextView
                     android:id="@+id/favRating"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="4dp"
-                    android:text="4.8"
-                    android:textAppearance="@style/TextAppearance.App.LabelLarge"
+                    android:textAppearance="@style/TextAppearance.App.BodySmall"
                     android:textColor="@color/m3_on_surface"
-                    android:textSize="11sp" />
+                    android:textStyle="bold"
+                    tools:text="4.8" />
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
@@ -79,7 +73,7 @@
             android:layout_margin="12dp"
             app:cardBackgroundColor="@color/white"
             app:cardCornerRadius="18dp"
-            app:cardElevation="2dp"
+            app:cardElevation="4dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:strokeWidth="0dp">
@@ -91,14 +85,14 @@
                 android:background="?attr/selectableItemBackgroundBorderless"
                 android:padding="8dp"
                 android:src="@drawable/ic_favorite"
-                app:tint="@color/m3_error" />
+                app:tint="@color/color_error" />
         </com.google.android.material.card.MaterialCardView>
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:padding="@dimen/spacing_medium"
+            android:padding="16dp"
             app:layout_constraintTop_toBottomOf="@id/favImage">
 
             <TextView
@@ -107,8 +101,8 @@
                 android:layout_height="wrap_content"
                 android:ellipsize="end"
                 android:maxLines="1"
-                android:textAppearance="@style/TextAppearance.App.TitleMedium"
-                android:textColor="@color/m3_on_surface"
+                android:textAppearance="@style/TextAppearance.App.TitleLarge"
+                android:textColor="@color/color_on_surface"
                 tools:text="Aga Khan Palace" />
 
             <LinearLayout
@@ -122,8 +116,8 @@
                     android:id="@+id/favCategory"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:textAppearance="@style/TextAppearance.App.BodySmall"
-                    android:textColor="@color/m3_primary"
+                    android:textAppearance="@style/TextAppearance.App.BodyMedium"
+                    android:textColor="@color/color_primary"
                     android:textStyle="bold"
                     tools:text="HISTORY" />
 
@@ -140,16 +134,10 @@
                     android:layout_weight="1"
                     android:ellipsize="end"
                     android:maxLines="1"
-                    android:textAppearance="@style/TextAppearance.App.BodySmall"
-                    android:textColor="@color/m3_on_surface_variant"
+                    android:textAppearance="@style/TextAppearance.App.BodyMedium"
+                    android:textColor="@color/color_text_secondary"
                     tools:text="Yerwada, Pune" />
             </LinearLayout>
-
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:layout_marginTop="16dp"
-                android:background="@color/m3_outline_variant" />
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -159,24 +147,25 @@
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnPlanTrip"
-                    style="@style/Widget.Material3.Button.TextButton"
+                    style="@style/Widget.Material3.Button.TonalButton"
                     android:layout_width="0dp"
-                    android:layout_height="wrap_content"
+                    android:layout_height="48dp"
                     android:layout_weight="1"
                     android:text="Plan Trip"
-                    android:textAppearance="@style/TextAppearance.App.LabelLarge"
-                    android:textSize="13sp"
+                    android:textAllCaps="false"
                     app:icon="@drawable/ic_trip"
-                    app:iconSize="18dp" />
+                    app:iconSize="18dp"
+                    app:cornerRadius="12dp" />
+
+                <View android:layout_width="12dp" android:layout_height="1dp" />
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnShare"
                     style="@style/Widget.Material3.Button.TextButton"
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/favorites_share"
-                    android:textAppearance="@style/TextAppearance.App.LabelLarge"
-                    android:textSize="13sp"
+                    android:layout_height="48dp"
+                    android:text="Share"
+                    android:textAllCaps="false"
                     app:icon="@drawable/ic_share"
                     app:iconSize="18dp" />
             </LinearLayout>

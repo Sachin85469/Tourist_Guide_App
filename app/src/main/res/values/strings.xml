@@ -79,8 +79,8 @@
     <string name="ai_tooltip_text">Ask me anything!</string>
     <string name="ai_subtitle">Your AI Travel Companion</string>
     <string name="ai_welcome_title">Welcome to ExploreEase AI</string>
-    <string name="ai_welcome_message">I can help you plan trips, find attractions, and discover hidden gems in Pune.</string>
-    <string name="ai_chip_plan">Plan a Pune trip</string>
+    <string name="ai_welcome_message">I can help you plan trips, find attractions, and discover hidden gems.</string>
+    <string name="ai_chip_plan">Plan a trip</string>
     <string name="ai_chip_food">Best food places</string>
     <string name="ai_chip_attractions">Nearby attractions</string>
     <string name="ai_chip_budget">Budget itinerary</string>
@@ -89,7 +89,7 @@
     <string name="ai_generic_error">I\'m sorry, I couldn\'t generate a response.</string>
     <string name="ai_connection_error">I\'m having trouble connecting. Please try again.</string>
     <string name="ai_quota_error">I\'ve reached my limit for now. Try again later!</string>
-    <string name="ai_system_instruction">You are a specialized Tourism AI Assistant named ExploreEase AI. Your ONLY purpose is to answer queries related to tourism, travel, attractions, and local guide information in Pune. Strictly refuse to answer ANY questions that are not related to tourism. Specifically, do NOT perform any mathematical calculations, even basic arithmetic. Maintain a friendly, helpful, and professional tone. If asked about yourself, say you are the ExploreEase Travel Assistant.</string>
+    <string name="ai_system_instruction">You are a specialized Tourism AI Assistant named ExploreEase AI. Your ONLY purpose is to answer queries related to tourism, travel, attractions, and local guide information. Strictly refuse to answer ANY questions that are not related to tourism. Specifically, do NOT perform any mathematical calculations, even basic arithmetic. Maintain a friendly, helpful, and professional tone. If asked about yourself, say you are the ExploreEase Travel Assistant.</string>
 
     <!-- Communication Hub Setup -->
     <string name="setup_title">Language Setup</string>
@@ -145,9 +145,9 @@
     <string name="empty_state_places_title">No Places Found</string>
     <string name="empty_state_places_msg">Explore other categories or try a different search query.</string>
     <string name="favorites_directions">Directions</string>
-    <string name="favorites_empty_title">No Favorites Yet</string>
-    <string name="favorites_empty_msg">Explore tourist destinations and tap the heart icon to save them here.</string>
-    <string name="favorites_explore_btn">Explore Now</string>
+    <string name="favorites_empty_title">❤️ No Favorites Yet</string>
+    <string name="favorites_empty_msg">Save destinations to access them quickly.</string>
+    <string name="favorites_explore_btn">Explore Places</string>
     <string name="favorites_share">Share</string>
     <string name="favorites_title">My Favorites</string>
     <string name="home_action_nearby">Explore Nearby</string>
@@ -212,7 +212,7 @@
     <string name="featured_today">Featured Today</string>
     <string name="browse_all">Browse All</string>
     <string name="search_results">Search Results (%1$d)</string>
-    <string name="explore_pune_local">Explore Pune like a local</string>
+    <string name="explore_pune_local">Explore like a local</string>
     <string name="search_destinations_hint">Search destinations, landmarks...</string>
     <string name="edit_profile_desc">Update your name and photo</string>
     <string name="my_reviews">My Reviews</string>
@@ -281,13 +281,7 @@
     <string name="map_forts">Forts</string>
     <string name="map_nature">Nature</string>
     <string name="map_museums">Museums</string>
-    <string name="cat_nature">Nature</string>
-    <string name="cat_history">History</string>
-    <string name="cat_food">Food</string>
-    <string name="cat_adventure">Adventure</string>
-    <string name="cat_spiritual">Spiritual</string>
-    <string name="cat_shopping">Shopping</string>
-    <string name="cat_entertainment">Entertainment</string>
+
     <string name="home_greeting_with_emoji">Good Morning 👋</string>
     <string name="home_subtitle">Discover amazing places around you</string>
     <string name="travel_insight_title">✨ Ready to Explore?</string>
@@ -302,14 +296,31 @@
     <string name="no_destinations_available">📍 No destinations available</string>
 
     <string name="cat_historical">Historical</string>
+    <string name="cat_nature">Nature</string>
     <string name="cat_religious">Religious</string>
+    <string name="cat_food">Food</string>
     <string name="cat_culture">Culture</string>
+    <string name="cat_adventure">Adventure</string>
+    <string name="cat_shopping">Shopping</string>
+    <string name="cat_entertainment">Entertainment</string>
+    <string name="cat_spiritual">Spiritual</string>
+    <string name="cat_history">History</string>
 
-    <string name="recommended_for_you">Recommended for You</string>
-    <string name="travel_categories">Travel Categories</string>
     <string name="language_assistant">Language Assistant</string>
     <string name="language_assistant_sub">Translate &amp; communicate</string>
     <string name="explore_nearby_sub">Places around you</string>
     <string name="plan_trip_sub">Create your itinerary</string>
     <string name="sos_alert_sub">Emergency assistance</string>
+    <string name="recommended_for_you">💖 Recommended for You</string>
+    <string name="travel_categories">📂 Travel Categories</string>
+    <string name="planner_empty_title">🧳 No Trips Planned Yet</string>
+    <string name="planner_empty_msg">Start planning your next adventure.</string>
+    <string name="explore_empty_title">📍 No Destinations Found</string>
+    <string name="explore_empty_msg">Try searching for something else.</string>
+    <string name="explore_historical">🏛 Historical</string>
+    <string name="explore_nature">🌿 Nature</string>
+    <string name="explore_religious">🙏 Religious</string>
+    <string name="explore_food">🍴 Food</string>
+    <string name="explore_culture">🎨 Culture</string>
+    <string name="explore_adventure">🏕 Adventure</string>
 </resources>

@@ -44,6 +44,9 @@ class PlaceDetailsActivity : BaseActivity() {
     private var rvReviews: RecyclerView? = null
     private var tvNoReviews: TextView? = null
     private var tvRatingSummary: TextView? = null
+    private var tvLargeRating: TextView? = null
+    private var tvLargeStars: TextView? = null
+    private var tvCoordinates: TextView? = null
     private var pbReviewsLoading: ProgressBar? = null
     private var btnRetryReviews: Button? = null
     private var rvNearbyPlaces: RecyclerView? = null
@@ -79,6 +82,9 @@ class PlaceDetailsActivity : BaseActivity() {
         nsvPlaceDetails = findViewById(R.id.nsvPlaceDetails)
         cvAddReview = findViewById(R.id.cvAddReview)
         tvRatingSummary = findViewById(R.id.tvRatingSummary)
+        tvLargeRating = findViewById(R.id.tvLargeRating)
+        tvLargeStars = findViewById(R.id.tvLargeStars)
+        tvCoordinates = findViewById(R.id.tvCoordinates)
         rbInputRating = findViewById(R.id.rbInputRating)
         etReviewComment = findViewById(R.id.etReviewComment)
         btnSubmitReview = findViewById(R.id.btnSubmitReview)
@@ -119,6 +125,10 @@ class PlaceDetailsActivity : BaseActivity() {
         val totalRatings = intent.getLongExtra("totalRatings", 0)
         val totalComments = intent.getLongExtra("totalComments", 0)
 
+        // Show content hide loading
+        findViewById<View>(R.id.loadingState).visibility = View.GONE
+        findViewById<View>(R.id.emptyState).visibility = View.GONE
+
         // Remote / gallery fields
         val imageUrl = intent.getStringExtra("imageUrl")
         val galleryImageUrls = intent.getStringArrayListExtra("galleryImageUrls")
@@ -136,9 +146,20 @@ class PlaceDetailsActivity : BaseActivity() {
         findViewById<TextView>(R.id.detailName).text = placeName
         findViewById<TextView>(R.id.detailCategory).text = category
         findViewById<TextView>(R.id.detailDescription).text = description
-        findViewById<TextView>(R.id.detailTips).text = tips ?: "Explore and enjoy!"
+        
+        // Bullet point tips
+        val formattedTips = if (tips.isNullOrBlank()) {
+            "• Explore and enjoy!"
+        } else {
+            tips.split("\n", ",").filter { it.isNotBlank() }.joinToString("\n") { "• ${it.trim()}" }
+        }
+        findViewById<TextView>(R.id.detailTips).text = formattedTips
+        
         findViewById<TextView>(R.id.detailFunFact).text = funFact ?: "Discover something new!"
         findViewById<TextView>(R.id.detailStation).text = "Nearest: ${station ?: "City Center"}"
+        
+        // Map Coordinates
+        tvCoordinates?.text = String.format(Locale.getDefault(), "%.4f° N, %.4f° E", lat, lng)
 
         setupExpandableDescription(description)
         setupChips(bestTime, crowdLevel, budget)
@@ -157,6 +178,7 @@ class PlaceDetailsActivity : BaseActivity() {
     }
 
     private fun loadPlaceDetails(id: String) {
+        findViewById<View>(R.id.loadingState).visibility = View.VISIBLE
         // Try remote
         PlaceRepository().fetchPublishedPlaces { places, _, _ ->
             val place = places.find { it.id == id }
@@ -165,7 +187,17 @@ class PlaceDetailsActivity : BaseActivity() {
                 PlaceIntentExtras.putPlaceDetails(intent, place)
                 placeName = place.name
                 initUiWithIntent(intent)
+            } else {
+                showEmptyState()
             }
+        }
+    }
+
+    private fun showEmptyState() {
+        findViewById<View>(R.id.loadingState).visibility = View.GONE
+        findViewById<View>(R.id.emptyState).visibility = View.VISIBLE
+        findViewById<View>(R.id.btnRetry).setOnClickListener {
+            placeId?.let { loadPlaceDetails(it) }
         }
     }
 
@@ -182,20 +214,21 @@ class PlaceDetailsActivity : BaseActivity() {
 
     private fun updateFavoriteIcon(isFav: Boolean) {
         btnFavorite?.setImageResource(if (isFav) R.drawable.ic_favorite else R.drawable.ic_favorite_border)
-        findViewById<Button>(R.id.btnSave)?.apply {
-            text = if (isFav) "Saved" else "Save"
-            setCompoundDrawablesWithIntrinsicBounds(if (isFav) R.drawable.ic_favorite else R.drawable.ic_favorite_border, 0, 0, 0)
-        }
+        // btnSave is now a MaterialCardView with an ImageView inside — update the icon
+        val saveIcon = try {
+            (findViewById<com.google.android.material.card.MaterialCardView>(R.id.btnSave))
+                ?.getChildAt(0) as? android.widget.ImageView
+        } catch (e: Exception) { null }
+        saveIcon?.setImageResource(if (isFav) R.drawable.ic_favorite else R.drawable.ic_favorite_border)
     }
 
     private fun setupActionButtons() {
         findViewById<View>(R.id.btnDirections).setOnClickListener { openDirections() }
-        findViewById<View>(R.id.btnCall).setOnClickListener { makeCall() }
+        findViewById<View>(R.id.btnCall).setOnClickListener { sharePlace() }
         findViewById<View>(R.id.btnSave).setOnClickListener { toggleFavorite() }
         findViewById<View>(R.id.btnExploreMap).setOnClickListener { openDirections() }
-        
-        val btnNavigateNow = findViewById<Button>(R.id.btnDirections)
-        btnNavigateNow.text = "Navigate Now"
+        // Sticky CTA
+        findViewById<View>(R.id.btnNavigateNow)?.setOnClickListener { openDirections() }
 
         btnFavorite?.setOnClickListener { toggleFavorite() }
     }
@@ -394,7 +427,17 @@ class PlaceDetailsActivity : BaseActivity() {
     }
 
     private fun updateRatingSummary(avg: Double, total: Long, comments: Long) {
-        tvRatingSummary?.text = if (total == 0L) "No reviews yet" else String.format(Locale.getDefault(), "⭐ %.1f (%d reviews)", avg, total)
+        val summary = if (total == 0L) "No reviews yet" else String.format(Locale.getDefault(), "⭐ %.1f (%d reviews)", avg, total)
+        tvRatingSummary?.text = summary
+        
+        tvLargeRating?.text = String.format(Locale.getDefault(), "%.1f", if (avg > 0) avg else 0.0)
+        
+        val stars = StringBuilder()
+        val fullStars = avg.toInt()
+        for (i in 1..5) {
+            if (i <= fullStars) stars.append("★") else stars.append("☆")
+        }
+        tvLargeStars?.text = stars.toString()
     }
 
     private fun sharePlace() {

@@ -33,6 +33,8 @@ public class ItineraryActivity extends BaseActivity {
     private ExtendedFloatingActionButton btnSaveTrip;
     private List<Place> selectedPlacesList = new ArrayList<>();
 
+    private View emptyState;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -41,6 +43,8 @@ public class ItineraryActivity extends BaseActivity {
         placeRepository = new PlaceRepository();
         tripRepository = new TripRepository();
         notificationRepository = new NotificationRepository(this);
+        
+        emptyState = findViewById(R.id.emptyStatePlanner);
         
         androidx.appcompat.widget.Toolbar toolbar = findViewById(R.id.toolbar);
         if (toolbar != null) {
@@ -64,7 +68,15 @@ public class ItineraryActivity extends BaseActivity {
             if (tvTitle != null && customTitle != null) tvTitle.setText(customTitle);
             
             List<DayPlan> plan = new ArrayList<>();
-            plan.add(new DayPlan("Your Selection", quickPlanText));
+            if (quickPlanText != null && !quickPlanText.isEmpty()) {
+                plan.add(new DayPlan("Your Selection", quickPlanText));
+                emptyState.setVisibility(View.GONE);
+                rvItinerary.setVisibility(View.VISIBLE);
+            } else {
+                emptyState.setVisibility(View.VISIBLE);
+                rvItinerary.setVisibility(View.GONE);
+            }
+            
             adapter = new ItineraryAdapter(plan);
             rvItinerary.setAdapter(adapter);
 
@@ -91,12 +103,24 @@ public class ItineraryActivity extends BaseActivity {
 
     private void loadAndGeneratePlan(int days, String type) {
         placeRepository.fetchPublishedPlaces((places, origin, message) -> {
+            if (places.isEmpty()) {
+                runOnUiThread(() -> {
+                    emptyState.setVisibility(View.VISIBLE);
+                    rvItinerary.setVisibility(View.GONE);
+                });
+                return;
+            }
+
             // Populate selectedPlacesList for Custom Plan
             List<Place> filtered = new ArrayList<>();
-            if (type.equalsIgnoreCase("Nature")) {
-                for (Place p : places) if (p.getCategory().equalsIgnoreCase("Nature")) filtered.add(p);
-            } else if (type.equalsIgnoreCase("Food")) {
-                for (Place p : places) if (p.getCategory().equalsIgnoreCase("Food")) filtered.add(p);
+            if (type != null) {
+                if (type.equalsIgnoreCase("Nature")) {
+                    for (Place p : places) if (p.getCategory() != null && p.getCategory().equalsIgnoreCase("Nature")) filtered.add(p);
+                } else if (type.equalsIgnoreCase("Food")) {
+                    for (Place p : places) if (p.getCategory() != null && p.getCategory().equalsIgnoreCase("Food")) filtered.add(p);
+                } else {
+                    filtered.addAll(places);
+                }
             } else {
                 filtered.addAll(places);
             }
@@ -111,9 +135,18 @@ public class ItineraryActivity extends BaseActivity {
                 }
             }
 
-            List<DayPlan> plan = generateSmartPlan(places, days, type);
-            adapter = new ItineraryAdapter(plan);
-            rvItinerary.setAdapter(adapter);
+            List<DayPlan> plan = generateSmartPlan(places, days, type != null ? type : "All");
+            runOnUiThread(() -> {
+                if (plan.isEmpty()) {
+                    emptyState.setVisibility(View.VISIBLE);
+                    rvItinerary.setVisibility(View.GONE);
+                } else {
+                    emptyState.setVisibility(View.GONE);
+                    rvItinerary.setVisibility(View.VISIBLE);
+                    adapter = new ItineraryAdapter(plan);
+                    rvItinerary.setAdapter(adapter);
+                }
+            });
         });
     }
 
