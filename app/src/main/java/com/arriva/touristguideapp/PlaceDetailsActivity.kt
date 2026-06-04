@@ -451,13 +451,12 @@ class PlaceDetailsActivity : BaseActivity() {
     }
 
     private fun openDirections() {
-        val uri = Uri.parse("google.navigation:q=$lat,$lng")
-        val mapIntent = Intent(Intent.ACTION_VIEW, uri).apply { setPackage("com.google.android.apps.maps") }
-        if (mapIntent.resolveActivity(packageManager) != null) {
-            startActivity(mapIntent)
-        } else {
-            startActivity(Intent(Intent.ACTION_VIEW, uri))
+        val intent = Intent(this, RouteActivity::class.java).apply {
+            putExtra("destLat", lat)
+            putExtra("destLng", lng)
+            putExtra("destName", placeName)
         }
+        startActivity(intent)
     }
 
     private fun makeCall() {

@@ -130,6 +130,14 @@
         <item name="android:textStyle">bold</item>
     </style>
 
+    <!-- Section Title Style -->
+    <style name="SectionTitle" parent="TextAppearance.App.SectionTitle">
+        <item name="android:layout_marginTop">24dp</item>
+        <item name="android:layout_marginBottom">12dp</item>
+        <item name="android:paddingStart">24dp</item>
+        <item name="android:paddingEnd">24dp</item>
+    </style>
+
     <!-- =========================================
          Card Styles (Standardized — Phase 4)
     ========================================= -->

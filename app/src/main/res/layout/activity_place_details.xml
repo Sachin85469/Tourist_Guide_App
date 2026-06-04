@@ -396,64 +396,45 @@
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginHorizontal="20dp"
-                android:layout_marginTop="20dp"
-                android:stateListAnimator="@animator/card_lift"
-                app:cardCornerRadius="16dp"
-                app:cardElevation="2dp"
+                android:layout_marginHorizontal="24dp"
+                android:layout_marginTop="28dp"
+                app:cardCornerRadius="24dp"
+                app:cardElevation="4dp"
                 app:cardBackgroundColor="@color/color_surface"
-                app:strokeColor="@color/color_outline_variant"
-                app:strokeWidth="1dp">
+                app:strokeWidth="1dp"
+                app:strokeColor="@color/color_outline_variant">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
-                    android:padding="20dp">
+                    android:padding="24dp">
 
-                    <!-- Section header -->
-                    <LinearLayout
-                        android:layout_width="match_parent"
+                    <TextView
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:gravity="center_vertical"
-                        android:orientation="horizontal">
+                        android:text="✨ About Destination"
+                        android:textAppearance="@style/TextAppearance.App.SectionTitle"
+                        android:textColor="@color/color_primary" />
 
-                        <View
-                            android:layout_width="4dp"
-                            android:layout_height="20dp"
-                            android:background="@color/color_primary"
-                            android:layout_marginEnd="10dp" />
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="About"
-                            android:textAppearance="@style/TextAppearance.App.SectionTitle"
-                            android:textColor="@color/color_on_surface" />
-                    </LinearLayout>
-
-                    <!-- Description text -->
                     <TextView
                         android:id="@+id/detailDescription"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="12dp"
-                        android:lineSpacingExtra="6dp"
+                        android:layout_marginTop="16dp"
+                        android:lineSpacingMultiplier="1.5"
                         android:textColor="@color/color_text_secondary"
-                        android:textSize="15sp"
-                        android:lineSpacingMultiplier="1.4"
-                        tools:text="Sinhagad Fort is a historic fort located in the Sahyadri ranges near Pune. The fort has been the site of many historical battles..." />
+                        android:textSize="16sp"
+                        tools:text="Sinhagad Fort is a historic fort located in the Sahyadri ranges near Pune..." />
 
-                    <!-- Read More toggle -->
                     <TextView
                         android:id="@+id/btnReadMore"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="8dp"
-                        android:text="Read More"
+                        android:layout_marginTop="12dp"
+                        android:text="Show More"
                         android:textColor="@color/color_primary"
                         android:textStyle="bold"
-                        android:textSize="14sp"
                         android:visibility="gone" />
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
@@ -486,44 +467,47 @@
 
                     <!-- Best Season card -->
                     <com.google.android.material.card.MaterialCardView
-                        android:layout_width="110dp"
+                        android:layout_width="120dp"
                         android:layout_height="wrap_content"
-                        android:layout_marginEnd="12dp"
-                        app:cardCornerRadius="16dp"
-                        app:cardElevation="2dp"
-                        app:cardBackgroundColor="@color/color_primary_container"
-                        app:strokeWidth="0dp">
+                        android:layout_marginEnd="16dp"
+                        app:cardCornerRadius="24dp"
+                        app:cardElevation="4dp"
+                        app:cardBackgroundColor="@color/color_surface"
+                        app:strokeWidth="1dp"
+                        app:strokeColor="@color/color_outline_variant">
 
                         <LinearLayout
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:gravity="center"
                             android:orientation="vertical"
-                            android:padding="16dp">
+                            android:padding="20dp">
 
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="☀"
-                                android:textSize="24sp" />
+                                android:textSize="28sp" />
 
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:layout_marginTop="6dp"
-                                android:text="Best Season"
+                                android:layout_marginTop="8dp"
+                                android:text="Season"
                                 android:textColor="@color/color_text_muted"
                                 android:textSize="11sp"
+                                android:textStyle="bold"
+                                android:textAllCaps="true"
                                 android:gravity="center" />
 
                             <TextView
                                 android:id="@+id/tvQuickInfoSeason"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:layout_marginTop="2dp"
+                                android:layout_marginTop="4dp"
                                 android:text="Monsoon"
-                                android:textColor="@color/color_primary_dark"
-                                android:textSize="13sp"
+                                android:textColor="@color/color_primary"
+                                android:textSize="14sp"
                                 android:textStyle="bold"
                                 android:gravity="center" />
                         </LinearLayout>
@@ -531,44 +515,47 @@
 
                     <!-- Duration card -->
                     <com.google.android.material.card.MaterialCardView
-                        android:layout_width="110dp"
+                        android:layout_width="120dp"
                         android:layout_height="wrap_content"
-                        android:layout_marginEnd="12dp"
-                        app:cardCornerRadius="16dp"
-                        app:cardElevation="2dp"
-                        app:cardBackgroundColor="@color/color_primary_container"
-                        app:strokeWidth="0dp">
+                        android:layout_marginEnd="16dp"
+                        app:cardCornerRadius="24dp"
+                        app:cardElevation="4dp"
+                        app:cardBackgroundColor="@color/color_surface"
+                        app:strokeWidth="1dp"
+                        app:strokeColor="@color/color_outline_variant">
 
                         <LinearLayout
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:gravity="center"
                             android:orientation="vertical"
-                            android:padding="16dp">
+                            android:padding="20dp">
 
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="⏰"
-                                android:textSize="24sp" />
+                                android:textSize="28sp" />
 
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:layout_marginTop="6dp"
+                                android:layout_marginTop="8dp"
                                 android:text="Duration"
                                 android:textColor="@color/color_text_muted"
                                 android:textSize="11sp"
+                                android:textStyle="bold"
+                                android:textAllCaps="true"
                                 android:gravity="center" />
 
                             <TextView
                                 android:id="@+id/tvQuickInfoDuration"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:layout_marginTop="2dp"
-                                android:text="2–3 Hours"
-                                android:textColor="@color/color_primary_dark"
-                                android:textSize="13sp"
+                                android:layout_marginTop="4dp"
+                                android:text="2–3 Hrs"
+                                android:textColor="@color/color_primary"
+                                android:textSize="14sp"
                                 android:textStyle="bold"
                                 android:gravity="center" />
                         </LinearLayout>
@@ -576,44 +563,47 @@
 
                     <!-- Entry Fee card -->
                     <com.google.android.material.card.MaterialCardView
-                        android:layout_width="110dp"
+                        android:layout_width="120dp"
                         android:layout_height="wrap_content"
-                        android:layout_marginEnd="12dp"
-                        app:cardCornerRadius="16dp"
-                        app:cardElevation="2dp"
-                        app:cardBackgroundColor="@color/color_primary_container"
-                        app:strokeWidth="0dp">
+                        android:layout_marginEnd="16dp"
+                        app:cardCornerRadius="24dp"
+                        app:cardElevation="4dp"
+                        app:cardBackgroundColor="@color/color_surface"
+                        app:strokeWidth="1dp"
+                        app:strokeColor="@color/color_outline_variant">
 
                         <LinearLayout
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:gravity="center"
                             android:orientation="vertical"
-                            android:padding="16dp">
+                            android:padding="20dp">
 
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="🎟"
-                                android:textSize="24sp" />
+                                android:textSize="28sp" />
 
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:layout_marginTop="6dp"
-                                android:text="Entry Fee"
+                                android:layout_marginTop="8dp"
+                                android:text="Entry"
                                 android:textColor="@color/color_text_muted"
                                 android:textSize="11sp"
+                                android:textStyle="bold"
+                                android:textAllCaps="true"
                                 android:gravity="center" />
 
                             <TextView
                                 android:id="@+id/tvQuickInfoEntry"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:layout_marginTop="2dp"
+                                android:layout_marginTop="4dp"
                                 android:text="Free"
-                                android:textColor="@color/color_primary_dark"
-                                android:textSize="13sp"
+                                android:textColor="@color/color_primary"
+                                android:textSize="14sp"
                                 android:textStyle="bold"
                                 android:gravity="center" />
                         </LinearLayout>
@@ -621,46 +611,49 @@
 
                     <!-- Location card -->
                     <com.google.android.material.card.MaterialCardView
-                        android:layout_width="110dp"
+                        android:layout_width="120dp"
                         android:layout_height="wrap_content"
-                        app:cardCornerRadius="16dp"
-                        app:cardElevation="2dp"
-                        app:cardBackgroundColor="@color/color_primary_container"
-                        app:strokeWidth="0dp">
+                        app:cardCornerRadius="24dp"
+                        app:cardElevation="4dp"
+                        app:cardBackgroundColor="@color/color_surface"
+                        app:strokeWidth="1dp"
+                        app:strokeColor="@color/color_outline_variant">
 
                         <LinearLayout
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:gravity="center"
                             android:orientation="vertical"
-                            android:padding="16dp">
+                            android:padding="20dp">
 
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="📍"
-                                android:textSize="24sp" />
+                                android:textSize="28sp" />
 
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:layout_marginTop="6dp"
-                                android:text="Location"
+                                android:layout_marginTop="8dp"
+                                android:text="Station"
                                 android:textColor="@color/color_text_muted"
                                 android:textSize="11sp"
+                                android:textStyle="bold"
+                                android:textAllCaps="true"
                                 android:gravity="center" />
 
                             <TextView
                                 android:id="@+id/detailStation"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:layout_marginTop="2dp"
+                                android:layout_marginTop="4dp"
                                 android:text="Pune"
-                                android:textColor="@color/color_primary_dark"
-                                android:textSize="13sp"
+                                android:textColor="@color/color_primary"
+                                android:textSize="14sp"
                                 android:textStyle="bold"
                                 android:gravity="center"
-                                android:maxLines="2"
+                                android:maxLines="1"
                                 android:ellipsize="end" />
                         </LinearLayout>
                     </com.google.android.material.card.MaterialCardView>
@@ -674,20 +667,17 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginHorizontal="20dp"
-                android:layout_marginTop="20dp"
-                android:orientation="horizontal"
-                android:weightSum="2">
+                android:layout_marginHorizontal="24dp"
+                android:layout_marginTop="24dp"
+                android:orientation="vertical">
 
                 <!-- Travel Tips card -->
                 <com.google.android.material.card.MaterialCardView
-                    android:layout_width="0dp"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:layout_marginEnd="8dp"
-                    android:stateListAnimator="@animator/card_lift"
+                    android:layout_marginBottom="16dp"
                     app:cardBackgroundColor="@color/color_primary_container"
-                    app:cardCornerRadius="16dp"
+                    app:cardCornerRadius="24dp"
                     app:cardElevation="2dp"
                     app:strokeWidth="0dp">
 
@@ -695,45 +685,34 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="vertical"
-                        android:padding="16dp">
+                        android:padding="24dp">
 
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="💡  Travel Tips"
-                            android:textColor="@color/color_primary_dark"
-                            android:textSize="13sp"
+                            android:text="💡  Pro Travel Tips"
+                            android:textColor="@color/color_on_primary_container"
+                            android:textSize="16sp"
                             android:textStyle="bold" />
-
-                        <View
-                            android:layout_width="match_parent"
-                            android:layout_height="1dp"
-                            android:layout_marginTop="8dp"
-                            android:layout_marginBottom="8dp"
-                            android:background="@color/color_outline_variant"
-                            android:alpha="0.5" />
 
                         <TextView
                             android:id="@+id/detailTips"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:lineSpacingExtra="4dp"
+                            android:layout_marginTop="12dp"
+                            android:lineSpacingMultiplier="1.4"
                             android:textColor="@color/color_on_primary_container"
-                            android:textSize="13sp"
-                            android:lineSpacingMultiplier="1.3"
+                            android:textSize="15sp"
                             tools:text="• Visit during morning hours&#10;• Carry water bottle&#10;• Ideal during monsoon" />
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
 
                 <!-- Fun Fact card -->
                 <com.google.android.material.card.MaterialCardView
-                    android:layout_width="0dp"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:layout_marginStart="8dp"
-                    android:stateListAnimator="@animator/card_lift"
                     app:cardBackgroundColor="#FFF8E1"
-                    app:cardCornerRadius="16dp"
+                    app:cardCornerRadius="24dp"
                     app:cardElevation="2dp"
                     app:strokeWidth="0dp">
 
@@ -741,32 +720,24 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="vertical"
-                        android:padding="16dp">
+                        android:padding="24dp">
 
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="🎯  Fun Fact"
+                            android:text="🎯  Did You Know?"
                             android:textColor="#F57F17"
-                            android:textSize="13sp"
+                            android:textSize="16sp"
                             android:textStyle="bold" />
-
-                        <View
-                            android:layout_width="match_parent"
-                            android:layout_height="1dp"
-                            android:layout_marginTop="8dp"
-                            android:layout_marginBottom="8dp"
-                            android:background="#FFE082"
-                            android:alpha="0.8" />
 
                         <TextView
                             android:id="@+id/detailFunFact"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:lineSpacingExtra="4dp"
+                            android:layout_marginTop="12dp"
+                            android:lineSpacingMultiplier="1.4"
                             android:textColor="#5D4037"
-                            android:textSize="13sp"
-                            android:lineSpacingMultiplier="1.3"
+                            android:textSize="15sp"
                             tools:text="Sinhagad was the site of the famous Battle of Sinhagad in 1670." />
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
@@ -805,12 +776,11 @@
 
                 <com.google.android.material.card.MaterialCardView
                     android:layout_width="match_parent"
-                    android:layout_height="200dp"
-                    android:layout_marginHorizontal="20dp"
-                    android:layout_marginTop="12dp"
-                    android:stateListAnimator="@animator/card_lift"
-                    app:cardCornerRadius="20dp"
-                    app:cardElevation="3dp"
+                    android:layout_height="220dp"
+                    android:layout_marginHorizontal="24dp"
+                    android:layout_marginTop="16dp"
+                    app:cardCornerRadius="24dp"
+                    app:cardElevation="6dp"
                     app:strokeWidth="0dp">
 
                     <FrameLayout
@@ -831,19 +801,20 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_gravity="bottom|start"
-                            android:layout_margin="12dp"
-                            android:background="#80000000"
-                            android:paddingHorizontal="8dp"
-                            android:paddingVertical="4dp"
+                            android:layout_margin="16dp"
+                            android:background="#99000000"
+                            android:paddingHorizontal="10dp"
+                            android:paddingVertical="6dp"
                             android:textColor="@color/white"
-                            android:textSize="10sp"
+                            android:textSize="11sp"
+                            android:textStyle="bold"
                             tools:text="18.5204° N, 73.8567° E" />
 
                         <!-- Dark overlay for CTA readability -->
                         <View
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"
-                            android:background="#55000000" />
+                            android:background="#40000000" />
 
                         <!-- CTA button centered -->
                         <com.google.android.material.button.MaterialButton
@@ -853,10 +824,10 @@
                             android:layout_height="wrap_content"
                             android:layout_gravity="center"
                             android:paddingHorizontal="24dp"
-                            android:text="Open in Google Maps"
+                            android:text="View Full Map"
                             android:textColor="@color/color_primary"
                             android:textStyle="bold"
-                            app:cornerRadius="12dp"
+                            app:cornerRadius="16dp"
                             app:icon="@android:drawable/ic_dialog_map"
                             app:iconTint="@color/color_primary"
                             app:iconPadding="8dp" />
@@ -870,38 +841,24 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="28dp"
+                android:layout_marginTop="32dp"
                 android:orientation="vertical">
 
-                <LinearLayout
-                    android:layout_width="match_parent"
+                <TextView
+                    style="@style/SectionTitle"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:gravity="center_vertical"
-                    android:orientation="horizontal"
-                    android:paddingHorizontal="20dp">
-
-                    <View
-                        android:layout_width="4dp"
-                        android:layout_height="20dp"
-                        android:background="@color/color_primary"
-                        android:layout_marginEnd="10dp" />
-
-                    <TextView
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:text="📸  Gallery"
-                        android:textAppearance="@style/TextAppearance.App.SectionTitle"
-                        android:textColor="@color/color_on_surface" />
-                </LinearLayout>
+                    android:text="📸  Photo Gallery"
+                    android:paddingStart="24dp"
+                    android:paddingEnd="24dp" />
 
                 <androidx.recyclerview.widget.RecyclerView
                     android:id="@+id/rvGalleryPreview"
                     android:layout_width="match_parent"
-                    android:layout_height="120dp"
+                    android:layout_height="140dp"
                     android:layout_marginTop="12dp"
                     android:clipToPadding="false"
-                    android:paddingHorizontal="16dp" />
+                    android:paddingHorizontal="20dp" />
             </LinearLayout>
 
             <!-- ───────────────────────────────
@@ -911,30 +868,17 @@
                 android:id="@+id/llNearbyPlaces"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="28dp"
+                android:layout_marginTop="32dp"
                 android:orientation="vertical"
                 android:visibility="gone">
 
-                <LinearLayout
-                    android:layout_width="match_parent"
+                <TextView
+                    style="@style/SectionTitle"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:gravity="center_vertical"
-                    android:orientation="horizontal"
-                    android:paddingHorizontal="20dp">
-
-                    <View
-                        android:layout_width="4dp"
-                        android:layout_height="20dp"
-                        android:background="@color/color_primary"
-                        android:layout_marginEnd="10dp" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/nearby_tourist_spots"
-                        android:textAppearance="@style/TextAppearance.App.SectionTitle"
-                        android:textColor="@color/color_on_surface" />
-                </LinearLayout>
+                    android:text="📍  Explore Nearby"
+                    android:paddingStart="24dp"
+                    android:paddingEnd="24dp" />
 
                 <androidx.recyclerview.widget.RecyclerView
                     android:id="@+id/rvNearbyPlaces"
@@ -1221,12 +1165,11 @@
         android:layout_height="wrap_content"
         android:layout_gravity="bottom"
         android:orientation="vertical"
-        android:elevation="12dp">
+        android:elevation="24dp">
 
-        <!-- Gradient fade above button for depth -->
         <View
             android:layout_width="match_parent"
-            android:layout_height="24dp"
+            android:layout_height="32dp"
             android:background="@drawable/gradient_bottom_shadow" />
 
         <LinearLayout
@@ -1234,24 +1177,26 @@
             android:layout_height="wrap_content"
             android:background="@color/color_surface"
             android:orientation="vertical"
-            android:paddingHorizontal="20dp"
-            android:paddingBottom="20dp"
-            android:paddingTop="12dp">
+            android:paddingHorizontal="24dp"
+            android:paddingBottom="24dp"
+            android:paddingTop="8dp">
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnNavigateNow"
                 android:layout_width="match_parent"
-                android:layout_height="56dp"
+                android:layout_height="64dp"
                 android:text="🗺  Navigate Now"
+                android:textAllCaps="false"
                 android:textColor="@color/white"
-                android:textSize="16sp"
+                android:textSize="18sp"
                 android:textStyle="bold"
                 app:backgroundTint="@color/color_primary"
-                app:cornerRadius="16dp"
+                app:cornerRadius="20dp"
                 app:icon="@android:drawable/ic_menu_directions"
                 app:iconTint="@color/white"
-                app:iconPadding="8dp"
-                app:elevation="4dp" />
+                app:iconSize="24dp"
+                app:iconPadding="12dp"
+                app:elevation="8dp" />
         </LinearLayout>
     </LinearLayout>
 

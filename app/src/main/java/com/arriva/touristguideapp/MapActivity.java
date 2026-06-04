@@ -309,14 +309,12 @@ public class MapActivity extends BaseActivity {
             return;
         }
         
-        Uri uri = Uri.parse("google.navigation:q=" + searchedPoint.getLatitude() + "," + searchedPoint.getLongitude());
-        Intent mapIntent = new Intent(Intent.ACTION_VIEW, uri);
-        mapIntent.setPackage("com.google.android.apps.maps");
-        if (mapIntent.resolveActivity(getPackageManager()) != null) {
-            startActivity(mapIntent);
-        } else {
-            startActivity(new Intent(Intent.ACTION_VIEW, uri));
-        }
+        Intent intent = new Intent(this, RouteActivity.class);
+        intent.putExtra("destLat", searchedPoint.getLatitude());
+        intent.putExtra("destLng", searchedPoint.getLongitude());
+        intent.putExtra("destName", selectedMarker != null ? selectedMarker.getTitle() : "Searched Location");
+        startActivity(intent);
+
         bottomSheetBehavior.setState(BottomSheetBehavior.STATE_HIDDEN);
     }
 
