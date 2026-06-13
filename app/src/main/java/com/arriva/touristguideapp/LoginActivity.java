@@ -123,7 +123,7 @@ public class LoginActivity extends BaseActivity {
                             if (user != null) {
                                 checkUserInFirestore(user);
                             } else {
-                                navigateToMap();
+                                navigateToHome();
                             }
                         } else {
                             // If sign in fails, display a message to the user.
@@ -151,10 +151,10 @@ public class LoginActivity extends BaseActivity {
                             db.collection("users").document(user.getUid()).set(newUser);
                         }
                         Toast.makeText(LoginActivity.this, "Welcome " + (user.getDisplayName() != null ? user.getDisplayName() : ""), Toast.LENGTH_SHORT).show();
-                        navigateToMap();
+                        navigateToHome();
                     } else {
                         Log.e(TAG, "Firestore check failed", task.getException());
-                        navigateToMap(); // Still navigate even if check fails, better than blocking user
+                        navigateToHome(); // Still navigate even if check fails, better than blocking user
                     }
                 });
     }
@@ -178,7 +178,7 @@ public class LoginActivity extends BaseActivity {
                 .addOnCompleteListener(this, task -> {
                     progressBar.setVisibility(View.GONE);
                     if (task.isSuccessful()) {
-                        navigateToMap();
+                        navigateToHome();
                     } else {
                         Toast.makeText(LoginActivity.this, "Login Failed: " + task.getException().getMessage(),
                                 Toast.LENGTH_SHORT).show();
@@ -226,9 +226,9 @@ public class LoginActivity extends BaseActivity {
                 .add(historyData);
     }
 
-    private void navigateToMap() {
+    private void navigateToHome() {
         recordLoginSession();
-        Intent intent = new Intent(LoginActivity.this, MapActivity.class);
+        Intent intent = new Intent(LoginActivity.this, MainActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         startActivity(intent);
         finish();

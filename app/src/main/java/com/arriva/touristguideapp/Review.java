@@ -87,4 +87,12 @@ public class Review implements Serializable {
 
     public String getReviewText() { return getComment(); }
     public void setReviewText(String reviewText) { setComment(reviewText); }
+
+    public Date getTimestamp() { return getUpdatedAt() != null ? getUpdatedAt() : getCreatedAt(); }
+    public void setTimestamp(Date timestamp) {
+        setUpdatedAt(timestamp);
+        if (getCreatedAt() == null) {
+            setCreatedAt(timestamp);
+        }
+    }
 }

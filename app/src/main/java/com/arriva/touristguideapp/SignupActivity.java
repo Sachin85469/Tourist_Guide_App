@@ -104,7 +104,9 @@ public class SignupActivity extends BaseActivity {
         db.collection("users").document(uid).set(user)
                 .addOnSuccessListener(aVoid -> {
                     progressBar.setVisibility(View.GONE);
-                    startActivity(new Intent(SignupActivity.this, MainActivity.class));
+                    Intent intent = new Intent(SignupActivity.this, MainActivity.class);
+                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                    startActivity(intent);
                     finishAffinity();
                 })
                 .addOnFailureListener(e -> {

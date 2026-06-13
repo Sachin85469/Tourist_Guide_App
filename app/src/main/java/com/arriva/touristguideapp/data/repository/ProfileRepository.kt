@@ -173,7 +173,7 @@ class ProfileRepository(private val context: Context) {
     /**
      * Recent activity from the local action tracker (newest first), with Firestore fallback if empty.
      */
-    suspend fun getRecentActivity(limit: Int = 15): List<ProfileActivityItem> = withContext(Dispatchers.IO) {
+    suspend fun getRecentActivity(limit: Int = 10): List<ProfileActivityItem> = withContext(Dispatchers.IO) {
         val tracked = ProfileActivityTracker.getRecentEvents(context, limit)
         if (tracked.isNotEmpty()) {
             return@withContext tracked

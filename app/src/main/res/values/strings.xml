@@ -90,6 +90,13 @@
     <string name="ai_connection_error">I\'m having trouble connecting. Please try again.</string>
     <string name="ai_quota_error">I\'ve reached my limit for now. Try again later!</string>
     <string name="ai_system_instruction">You are a specialized Tourism AI Assistant named ExploreEase AI. Your ONLY purpose is to answer queries related to tourism, travel, attractions, and local guide information. Strictly refuse to answer ANY questions that are not related to tourism. Specifically, do NOT perform any mathematical calculations, even basic arithmetic. Maintain a friendly, helpful, and professional tone. If asked about yourself, say you are the ExploreEase Travel Assistant.</string>
+    <string name="ai_login_required">Sign in to use chat history.</string>
+    <string name="ai_history_load_failed">Could not load previous messages.</string>
+    <string name="ai_message_save_failed">Message could not be saved.</string>
+    <string name="ai_clear_chat">Clear chat</string>
+    <string name="ai_clear_chat_confirm">Delete all messages in this conversation?</string>
+    <string name="ai_chat_cleared">Chat cleared</string>
+    <string name="ai_clear_chat_failed">Could not clear the chat.</string>
 
     <!-- Communication Hub Setup -->
     <string name="setup_title">Language Setup</string>
@@ -323,4 +330,6 @@
     <string name="explore_food">🍴 Food</string>
     <string name="explore_culture">🎨 Culture</string>
     <string name="explore_adventure">🏕 Adventure</string>
+    <string name="all">All</string>
+    <string name="see_more">See more</string>
 </resources>

@@ -12,6 +12,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.arriva.touristguideapp.data.repository.ProfileRepository
+import com.arriva.touristguideapp.profile.ProfileActivityItem
 import com.arriva.touristguideapp.profile.ProfileCompletionHelper
 import com.arriva.touristguideapp.profile.ProfileRecentActivityAdapter
 import com.arriva.touristguideapp.sos.ui.SOSSettingsActivity
@@ -40,10 +41,18 @@ class ProfileActivity : BaseActivity() {
     private lateinit var cardCompleteProfileBanner: MaterialCardView
     private lateinit var tvBannerSubtitle: TextView
     private lateinit var recentActivityAdapter: ProfileRecentActivityAdapter
+    private lateinit var tvSeeMoreActivity: TextView
 
     private var dashboardJob: Job? = null
     private var lastStats: Map<String, Long> = emptyMap()
+    private var recentActivityItems: List<ProfileActivityItem> = emptyList()
+    private var isRecentActivityExpanded = false
     private val dateTimeFormat = SimpleDateFormat("dd MMM yyyy, hh:mm a", Locale.getDefault())
+
+    private companion object {
+        const val DEFAULT_ACTIVITY_LIMIT = 10
+        const val EXPANDED_ACTIVITY_LIMIT = 50
+    }
 
     private val editProfileLauncher = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()
@@ -99,6 +108,11 @@ class ProfileActivity : BaseActivity() {
         recentActivityAdapter = ProfileRecentActivityAdapter()
         rvRecentActivity.layoutManager = LinearLayoutManager(this)
         rvRecentActivity.adapter = recentActivityAdapter
+        tvSeeMoreActivity = findViewById(R.id.tvSeeMoreActivity)
+        tvSeeMoreActivity.setOnClickListener {
+            isRecentActivityExpanded = true
+            updateRecentActivityList()
+        }
 
         findViewById<MaterialButton>(R.id.btnCompleteNow).setOnClickListener {
             openEditProfile()
@@ -368,23 +382,36 @@ class ProfileActivity : BaseActivity() {
                 )
                 updateQuickAccessCounts(stats)
 
-                val activities = repository.getRecentActivity()
-                recentActivityAdapter.submitList(activities)
-                val emptyView = findViewById<TextView>(R.id.tvRecentActivityEmpty)
-                val listView = findViewById<RecyclerView>(R.id.rvRecentActivity)
-                if (activities.isEmpty()) {
-                    emptyView.visibility = View.VISIBLE
-                    listView.visibility = View.GONE
-                } else {
-                    emptyView.visibility = View.GONE
-                    listView.visibility = View.VISIBLE
-                }
+                recentActivityItems = repository.getRecentActivity(EXPANDED_ACTIVITY_LIMIT)
+                updateRecentActivityList()
             } catch (e: Exception) {
                 if (lastStats.isNotEmpty()) {
                     updateQuickAccessCounts(lastStats)
                 }
             }
         }
+    }
+
+    private fun updateRecentActivityList() {
+        val displayLimit = if (isRecentActivityExpanded) {
+            EXPANDED_ACTIVITY_LIMIT
+        } else {
+            DEFAULT_ACTIVITY_LIMIT
+        }
+        val displayedItems = recentActivityItems.take(displayLimit)
+        recentActivityAdapter.submitList(displayedItems)
+
+        val emptyView = findViewById<TextView>(R.id.tvRecentActivityEmpty)
+        val listView = findViewById<RecyclerView>(R.id.rvRecentActivity)
+        val isEmpty = displayedItems.isEmpty()
+        emptyView.visibility = if (isEmpty) View.VISIBLE else View.GONE
+        listView.visibility = if (isEmpty) View.GONE else View.VISIBLE
+        tvSeeMoreActivity.visibility =
+            if (!isRecentActivityExpanded && recentActivityItems.size > DEFAULT_ACTIVITY_LIMIT) {
+                View.VISIBLE
+            } else {
+                View.GONE
+            }
     }
 
     private fun updateStat(rowId: Int, value: Long, label: String, emptyMessage: String) {

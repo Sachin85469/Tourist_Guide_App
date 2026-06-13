@@ -48,8 +48,10 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 import com.arriva.touristguideapp.data.places.PlaceRepository;
 import com.arriva.touristguideapp.data.places.PlaceDto;
@@ -87,6 +89,8 @@ public class MapActivity extends BaseActivity {
     
     private PlaceRepository placeRepository;
     private List<Place> allTouristPlaces = new ArrayList<>();
+    private final Map<org.osmdroid.views.overlay.Marker, String> touristMarkers = new LinkedHashMap<>();
+    private String selectedCategory = "All";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -260,23 +264,26 @@ public class MapActivity extends BaseActivity {
     }
 
     private void setupCategoryButtons() {
+        View chipAll = findViewById(R.id.chipAll);
+        if (chipAll != null) chipAll.setOnClickListener(v -> filterMarkers("All"));
+
         View chipHistorical = findViewById(R.id.chipHistorical);
-        if (chipHistorical != null) chipHistorical.setOnClickListener(v -> loadCategoryMarkers("historical"));
+        if (chipHistorical != null) chipHistorical.setOnClickListener(v -> filterMarkers("Historical"));
 
         View chipNature = findViewById(R.id.chipNature);
-        if (chipNature != null) chipNature.setOnClickListener(v -> loadCategoryMarkers("nature"));
+        if (chipNature != null) chipNature.setOnClickListener(v -> filterMarkers("Nature"));
 
         View chipReligious = findViewById(R.id.chipReligious);
-        if (chipReligious != null) chipReligious.setOnClickListener(v -> loadCategoryMarkers("religious"));
+        if (chipReligious != null) chipReligious.setOnClickListener(v -> filterMarkers("Religious"));
 
         View chipFood = findViewById(R.id.chipFood);
-        if (chipFood != null) chipFood.setOnClickListener(v -> loadCategoryMarkers("food"));
+        if (chipFood != null) chipFood.setOnClickListener(v -> filterMarkers("Food"));
 
         View chipCulture = findViewById(R.id.chipCulture);
-        if (chipCulture != null) chipCulture.setOnClickListener(v -> loadCategoryMarkers("culture"));
+        if (chipCulture != null) chipCulture.setOnClickListener(v -> filterMarkers("Culture"));
 
         View chipAdventure = findViewById(R.id.chipAdventure);
-        if (chipAdventure != null) chipAdventure.setOnClickListener(v -> loadCategoryMarkers("adventure"));
+        if (chipAdventure != null) chipAdventure.setOnClickListener(v -> filterMarkers("Adventure"));
     }
 
     private void startVoiceSearch() {
@@ -440,6 +447,7 @@ public class MapActivity extends BaseActivity {
         // Remove existing tourist markers, keep location overlay and search markers
         map.getOverlays().removeIf(o -> o instanceof org.osmdroid.views.overlay.Marker && 
                 !((org.osmdroid.views.overlay.Marker)o).getTitle().equals(searchInput.getText().toString()));
+        touristMarkers.clear();
 
         for (Place p : allTouristPlaces) {
             GeoPoint point = new GeoPoint(p.getLat(), p.getLng());
@@ -451,6 +459,7 @@ public class MapActivity extends BaseActivity {
             
             int iconRes = getMarkerIconForCategory(p.getCategory());
             marker.setIcon(androidx.core.content.ContextCompat.getDrawable(this, iconRes));
+            marker.setRelatedObject(p);
             
             marker.setOnMarkerClickListener((m, mapView) -> {
                 selectMarker(m, p);
@@ -458,22 +467,76 @@ public class MapActivity extends BaseActivity {
             });
             
             map.getOverlays().add(marker);
+            touristMarkers.put(marker, normalizeFilterCategory(p.getCategory()));
         }
+        filterMarkers(selectedCategory);
         map.invalidate();
         Log.d("MapActivity", "MAP_MARKERS_RENDERED count=" + allTouristPlaces.size());
     }
 
     private int getMarkerIconForCategory(String category) {
-        if (category == null) return R.drawable.ic_map_marker_historical;
+        if (category == null) return R.drawable.ic_marker_default_purple;
         String cat = category.toLowerCase();
-        if (cat.contains("temple")) return R.drawable.ic_map_marker_temple;
-        if (cat.contains("fort")) return R.drawable.ic_map_marker_fort;
-        if (cat.contains("museum")) return R.drawable.ic_map_marker_museum;
-        if (cat.contains("nature") || cat.contains("park") || cat.contains("hill")) return R.drawable.ic_map_marker_nature;
-        if (cat.contains("food") || cat.contains("restaurant") || cat.contains("cafe")) return R.drawable.ic_map_marker_food;
-        if (cat.contains("shop") || cat.contains("mall") || cat.contains("market")) return R.drawable.ic_map_marker_shopping;
-        if (cat.contains("adventure") || cat.contains("trek") || cat.contains("sport")) return R.drawable.ic_map_marker_adventure;
-        return R.drawable.ic_map_marker_historical;
+        if (cat.contains("historical") || cat.contains("history") || cat.contains("fort") || cat.contains("museum")) {
+            return R.drawable.ic_marker_historical_amber;
+        }
+        if (cat.contains("nature") || cat.contains("park") || cat.contains("hill")) {
+            return R.drawable.ic_marker_nature_green;
+        }
+        if (cat.contains("religious") || cat.contains("temple") || cat.contains("spiritual")) {
+            return R.drawable.ic_marker_religious_orange;
+        }
+        if (cat.contains("food") || cat.contains("restaurant") || cat.contains("cafe")) {
+            return R.drawable.ic_marker_food_red;
+        }
+        if (cat.contains("adventure") || cat.contains("trek") || cat.contains("sport")) {
+            return R.drawable.ic_marker_adventure_blue;
+        }
+        return R.drawable.ic_marker_default_purple;
+    }
+
+    private String normalizeFilterCategory(String category) {
+        if (category == null) return "";
+        String cat = category.trim().toLowerCase(Locale.ROOT);
+        if (cat.contains("historical") || cat.contains("history") || cat.contains("fort") || cat.contains("museum")) {
+            return "Historical";
+        }
+        if (cat.contains("nature") || cat.contains("park") || cat.contains("hill")) {
+            return "Nature";
+        }
+        if (cat.contains("religious") || cat.contains("temple") || cat.contains("spiritual")) {
+            return "Religious";
+        }
+        if (cat.contains("food") || cat.contains("restaurant") || cat.contains("cafe")) {
+            return "Food";
+        }
+        if (cat.contains("adventure") || cat.contains("trek") || cat.contains("sport")) {
+            return "Adventure";
+        }
+        if (cat.contains("culture") || cat.contains("art")) {
+            return "Culture";
+        }
+        return category.trim();
+    }
+
+    private void filterMarkers(String category) {
+        selectedCategory = category;
+        boolean showAll = "All".equalsIgnoreCase(category);
+
+        for (Map.Entry<org.osmdroid.views.overlay.Marker, String> entry : touristMarkers.entrySet()) {
+            String markerCategory = entry.getValue();
+            boolean visible = showAll
+                    || (markerCategory != null && markerCategory.equalsIgnoreCase(category));
+            // osmdroid's equivalent of Google Maps Marker#setVisible.
+            entry.getKey().setEnabled(visible);
+        }
+
+        if (selectedMarker != null && !selectedMarker.isEnabled()) {
+            selectedMarker = null;
+            searchedPoint = null;
+            bottomSheetBehavior.setState(BottomSheetBehavior.STATE_HIDDEN);
+        }
+        map.invalidate();
     }
 
     private void selectMarker(org.osmdroid.views.overlay.Marker marker, Place p) {

@@ -52,6 +52,14 @@
     <color name="color_rating_gold">#FFD600</color>
     <color name="color_success">#4CAF50</color>
 
+    <!-- Map marker categories -->
+    <color name="marker_historical">#FFC107</color>
+    <color name="marker_nature">#2E7D32</color>
+    <color name="marker_religious">#F57C00</color>
+    <color name="marker_food">#D32F2F</color>
+    <color name="marker_adventure">#1976D2</color>
+    <color name="marker_default">#7C4DFF</color>
+
     <!-- Shadows / Overlays -->
     <color name="color_shadow">#1A000000</color>
     <color name="color_shadow_medium">#33000000</color>

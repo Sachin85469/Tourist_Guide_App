@@ -20,13 +20,15 @@ android {
             abiFilters 'arm64-v8a', 'armeabi-v7a'
         }
 
-        // Secure Gemini API Key loading
+        // AI API keys are loaded from local.properties and excluded from source control.
         Properties properties = new Properties()
         if (project.rootProject.file('local.properties').exists()) {
             properties.load(project.rootProject.file('local.properties').newDataInputStream())
         }
-        def geminiKey = properties.getProperty('GEMINI_API_KEY') ?: ""
+        def geminiKey = properties.getProperty('GEMINI_API_KEY', '').trim()
+        def anthropicKey = properties.getProperty('ANTHROPIC_API_KEY', '').trim()
         buildConfigField "String", "GEMINI_API_KEY", "\"${geminiKey}\""
+        buildConfigField "String", "ANTHROPIC_API_KEY", "\"${anthropicKey}\""
     }
 
     packaging {

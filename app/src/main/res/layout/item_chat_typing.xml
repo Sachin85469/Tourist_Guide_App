@@ -30,26 +30,33 @@
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:gravity="center_vertical"
             android:orientation="horizontal"
             android:paddingHorizontal="16dp"
             android:paddingVertical="12dp">
 
-            <com.google.android.material.progressindicator.CircularProgressIndicator
-                android:layout_width="16dp"
-                android:layout_height="16dp"
-                android:indeterminate="true"
-                app:indicatorSize="16dp"
-                app:trackThickness="2dp"
-                app:indicatorColor="@color/m3_primary" />
+            <View
+                android:id="@+id/dotOne"
+                android:layout_width="8dp"
+                android:layout_height="8dp"
+                android:alpha="0.25"
+                android:background="@drawable/bg_typing_dot" />
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
-                android:text="Assistant is thinking..."
-                android:textColor="@color/black"
-                android:textSize="13sp"
-                android:textStyle="italic" />
+            <View
+                android:id="@+id/dotTwo"
+                android:layout_width="8dp"
+                android:layout_height="8dp"
+                android:layout_marginStart="6dp"
+                android:alpha="0.25"
+                android:background="@drawable/bg_typing_dot" />
+
+            <View
+                android:id="@+id/dotThree"
+                android:layout_width="8dp"
+                android:layout_height="8dp"
+                android:layout_marginStart="6dp"
+                android:alpha="0.25"
+                android:background="@drawable/bg_typing_dot" />
         </LinearLayout>
     </com.google.android.material.card.MaterialCardView>
 

@@ -1,0 +1,9 @@
+// Merge this match block into the deployed Firestore rules under:
+// service cloud.firestore { match /databases/{database}/documents { ... } }
+//
+// Requiring the UID to match userId prevents authenticated users from reading
+// another user's private conversation.
+match /chats/{userId}/messages/{messageId} {
+  allow read, write: if request.auth != null
+                     && request.auth.uid == userId;
+}

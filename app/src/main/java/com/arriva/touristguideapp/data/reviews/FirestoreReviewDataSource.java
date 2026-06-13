@@ -12,6 +12,9 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.ListenerRegistration;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.firestore.SetOptions;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Date;
 
 /**
@@ -56,6 +59,13 @@ public class FirestoreReviewDataSource {
      * Ensure mandatory fields are ALWAYS present and aggregates are consistent.
      */
     public Task<Void> submitReview(String placeId, Review review) {
+        if (placeId == null || placeId.trim().isEmpty()) {
+            return Tasks.forException(new IllegalArgumentException("Destination ID is required"));
+        }
+        if (review.getUserId() == null || review.getUserId().trim().isEmpty()) {
+            return Tasks.forException(new IllegalArgumentException("User ID is required"));
+        }
+
         if (review.getReviewId() == null || review.getReviewId().isEmpty()) {
             review.setReviewId(placeId + "_" + review.getUserId());
         }
@@ -114,7 +124,7 @@ public class FirestoreReviewDataSource {
             } else {
                 // If it was already active, just adjust the average. 
                 // If it was NOT active, it's a "new" contribution to the visible total.
-                if (wasActive) {
+                if (wasActive && currentTotal > 0) {
                     newAvg = ((currentAvg * currentTotal) - oldRating + newRating) / currentTotal;
                 } else {
                     newTotal = currentTotal + 1;
@@ -122,13 +132,19 @@ public class FirestoreReviewDataSource {
                 }
                 
                 String oldComment = reviewSnapshot.getString(ReviewsFirestoreContract.FIELD_COMMENT);
+                if (oldComment == null) {
+                    oldComment = reviewSnapshot.getString(ReviewsFirestoreContract.FIELD_REVIEW_TEXT);
+                }
                 boolean hadComment = wasActive && oldComment != null && !oldComment.trim().isEmpty();
                 boolean hasComment = review.getComment() != null && !review.getComment().trim().isEmpty();
                 
                 if (!hadComment && hasComment) newComments = currentComments + 1;
-                else if (hadComment && !hasComment) newComments = currentComments - 1;
+                else if (hadComment && !hasComment) newComments = Math.max(0, currentComments - 1);
 
                 Date originalCreatedAt = reviewSnapshot.getDate(ReviewsFirestoreContract.FIELD_CREATED_AT);
+                if (originalCreatedAt == null) {
+                    originalCreatedAt = reviewSnapshot.getDate(ReviewsFirestoreContract.FIELD_TIMESTAMP);
+                }
                 if (originalCreatedAt != null) review.setCreatedAt(originalCreatedAt);
                 else if (review.getCreatedAt() == null) review.setCreatedAt(new Date());
 
@@ -138,26 +154,68 @@ public class FirestoreReviewDataSource {
             review.setUpdatedAt(new Date());
             review.setStatus(Review.STATUS_ACTIVE); // Editing always restores to active
 
-            transaction.set(reviewRef, review);
-            transaction.set(reviewRootRef, review);
-            transaction.update(placeRef, 
-                ReviewsFirestoreContract.FIELD_PLACE_AVG_RATING, newAvg,
-                ReviewsFirestoreContract.FIELD_PLACE_TOTAL_RATINGS, newTotal,
-                ReviewsFirestoreContract.FIELD_PLACE_TOTAL_COMMENTS, newComments
-            );
+            Map<String, Object> finalReviewData = createReviewData(placeId, review);
+            transaction.set(reviewRef, finalReviewData, SetOptions.merge());
+
+            Map<String, Object> aggregateData = new HashMap<>();
+            aggregateData.put(ReviewsFirestoreContract.FIELD_PLACE_AVG_RATING, newAvg);
+            aggregateData.put(ReviewsFirestoreContract.FIELD_PLACE_TOTAL_RATINGS, newTotal);
+            aggregateData.put(ReviewsFirestoreContract.FIELD_PLACE_TOTAL_COMMENTS, newComments);
+
+            // set(..., merge) also works for local fallback destinations that do not yet
+            // have a parent document in Firestore.
+            transaction.set(placeRef, aggregateData, SetOptions.merge());
 
             return null;
         }).continueWithTask(task -> {
             if (task.isSuccessful()) {
                 Log.i(TAG, "REVIEW_UPLOAD_SUCCESS placeId=" + placeId + " userId=" + review.getUserId());
                 Log.d(TAG, "Review Saved successfully: " + review.getReviewId());
-                return Tasks.forResult(null);
+                // Keep the existing top-level index for My Reviews/Profile queries. A
+                // failure here must not roll back the canonical destination review.
+                return reviewRootRef.set(createReviewData(placeId, review), SetOptions.merge())
+                        .continueWithTask(indexTask -> {
+                            if (!indexTask.isSuccessful()) {
+                                Log.w(TAG, "REVIEW_INDEX_WRITE_FAILED: "
+                                        + (indexTask.getException() != null
+                                        ? indexTask.getException().getMessage()
+                                        : "unknown"));
+                            }
+                            return Tasks.forResult(null);
+                        });
             } else {
                 Exception e = task.getException();
                 Log.e(TAG, "REVIEW_UPLOAD_FAILED placeId=" + placeId + " error=" + (e != null ? e.getMessage() : "unknown"), e);
                 return Tasks.forException(e != null ? e : new Exception("Transaction failed"));
             }
         });
+    }
+
+    private Map<String, Object> createReviewData(String placeId, Review review) {
+        Date now = review.getUpdatedAt() != null ? review.getUpdatedAt() : new Date();
+        Date createdAt = review.getCreatedAt() != null ? review.getCreatedAt() : now;
+        String reviewText = review.getComment() != null ? review.getComment() : "";
+
+        Map<String, Object> data = new HashMap<>();
+        data.put(ReviewsFirestoreContract.FIELD_USER_ID, review.getUserId());
+        data.put(ReviewsFirestoreContract.FIELD_RATING, review.getRating());
+        data.put(ReviewsFirestoreContract.FIELD_REVIEW_TEXT, reviewText);
+        data.put(ReviewsFirestoreContract.FIELD_TIMESTAMP, now);
+
+        // Compatibility fields used by the existing review list and profile screens.
+        data.put(ReviewsFirestoreContract.FIELD_COMMENT, reviewText);
+        data.put(ReviewsFirestoreContract.FIELD_CREATED_AT, createdAt);
+        data.put(ReviewsFirestoreContract.FIELD_UPDATED_AT, now);
+        data.put(ReviewsFirestoreContract.FIELD_STATUS, Review.STATUS_ACTIVE);
+        data.put(ReviewsFirestoreContract.FIELD_PLACE_ID, placeId);
+        data.put("destinationId", placeId);
+        data.put(ReviewsFirestoreContract.FIELD_REVIEW_ID, review.getReviewId());
+        data.put(ReviewsFirestoreContract.FIELD_USER_NAME, review.getUserName());
+        data.put(ReviewsFirestoreContract.FIELD_USER_PHOTO_URL, review.getUserPhotoUrl());
+        data.put(ReviewsFirestoreContract.FIELD_PLACE_NAME, review.getPlaceName());
+        data.put("destinationName", review.getPlaceName());
+        data.put(ReviewsFirestoreContract.FIELD_PLACE_IMAGE_URL, review.getPlaceImageUrl());
+        return data;
     }
 
     public Task<QuerySnapshot> fetchReviews(String placeId) {

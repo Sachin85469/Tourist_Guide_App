@@ -17,10 +17,10 @@ public class SplashActivity extends BaseActivity {
         new Handler().postDelayed(() -> {
             FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
             if (currentUser != null) {
-                // User is logged in, go to MainActivity
-                startActivity(new Intent(SplashActivity.this, MainActivity.class));
+                Intent intent = new Intent(SplashActivity.this, MainActivity.class);
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                startActivity(intent);
             } else {
-                // No user logged in, go to LoginActivity
                 startActivity(new Intent(SplashActivity.this, LoginActivity.class));
             }
             finish();
