@@ -31,6 +31,7 @@ import com.google.android.libraries.places.api.Places;
 import com.arriva.touristguideapp.data.places.PlaceMigrationHelper;
 import com.arriva.touristguideapp.data.places.PlaceRepository;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -81,6 +82,23 @@ public class MainActivity extends BaseActivity {
         Log.d("APP_DEBUG", "MainActivity started");
         PerformanceTracker.startTimer("MAIN_ACTIVITY_INIT");
         super.onCreate(savedInstanceState);
+        if (isFinishing()) {
+            return;
+        }
+
+        FirebaseAuth auth = FirebaseAuth.getInstance();
+        FirebaseUser currentUser = auth.getCurrentUser();
+        if (!BaseActivity.canEnterMainActivity(currentUser)) {
+            auth.signOut();
+            Toast.makeText(
+                    this,
+                    "Please sign in with Google or verify your email before continuing.",
+                    Toast.LENGTH_LONG
+            ).show();
+            redirectToLogin();
+            return;
+        }
+
         setContentView(R.layout.activity_main);
         Log.d("APP_DEBUG", "Layout loaded");
 

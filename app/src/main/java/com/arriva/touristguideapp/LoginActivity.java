@@ -13,8 +13,6 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
-
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
@@ -34,6 +32,8 @@ public class LoginActivity extends BaseActivity {
 
     private static final int RC_SIGN_IN = 9001;
     private static final String TAG = "GoogleSignIn";
+    private static final String VERIFICATION_MESSAGE =
+            "Please verify your email before logging in.";
 
     private EditText etEmail, etPassword;
     private Button btnLogin;
@@ -123,7 +123,11 @@ public class LoginActivity extends BaseActivity {
                             if (user != null) {
                                 checkUserInFirestore(user);
                             } else {
-                                navigateToHome();
+                                Toast.makeText(
+                                        LoginActivity.this,
+                                        "Authentication failed.",
+                                        Toast.LENGTH_SHORT
+                                ).show();
                             }
                         } else {
                             // If sign in fails, display a message to the user.
@@ -161,7 +165,7 @@ public class LoginActivity extends BaseActivity {
 
     private void loginUser() {
         String email = etEmail.getText().toString().trim();
-        String password = etPassword.getText().toString().trim();
+        String password = etPassword.getText().toString();
 
         if (TextUtils.isEmpty(email)) {
             etEmail.setError("Email is required");
@@ -176,11 +180,51 @@ public class LoginActivity extends BaseActivity {
         progressBar.setVisibility(View.VISIBLE);
         mAuth.signInWithEmailAndPassword(email, password)
                 .addOnCompleteListener(this, task -> {
-                    progressBar.setVisibility(View.GONE);
                     if (task.isSuccessful()) {
-                        navigateToHome();
+                        FirebaseUser user = mAuth.getCurrentUser();
+                        if (user == null) {
+                            progressBar.setVisibility(View.GONE);
+                            mAuth.signOut();
+                            Toast.makeText(
+                                    LoginActivity.this,
+                                    "Login failed. Please try again.",
+                                    Toast.LENGTH_SHORT
+                            ).show();
+                            return;
+                        }
+
+                        user.reload().addOnCompleteListener(reloadTask -> {
+                            progressBar.setVisibility(View.GONE);
+                            FirebaseUser refreshedUser = mAuth.getCurrentUser();
+
+                            if (!reloadTask.isSuccessful() || refreshedUser == null) {
+                                mAuth.signOut();
+                                Toast.makeText(
+                                        LoginActivity.this,
+                                        "Could not verify your email status. Please try again.",
+                                        Toast.LENGTH_LONG
+                                ).show();
+                                return;
+                            }
+
+                            if (!refreshedUser.isEmailVerified()) {
+                                mAuth.signOut();
+                                Toast.makeText(
+                                        LoginActivity.this,
+                                        VERIFICATION_MESSAGE,
+                                        Toast.LENGTH_LONG
+                                ).show();
+                                return;
+                            }
+
+                            navigateToHome();
+                        });
                     } else {
-                        Toast.makeText(LoginActivity.this, "Login Failed: " + task.getException().getMessage(),
+                        progressBar.setVisibility(View.GONE);
+                        String message = task.getException() != null
+                                ? task.getException().getMessage()
+                                : "Unknown error";
+                        Toast.makeText(LoginActivity.this, "Login Failed: " + message,
                                 Toast.LENGTH_SHORT).show();
                     }
                 });

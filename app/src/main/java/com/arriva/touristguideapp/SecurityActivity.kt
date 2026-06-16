@@ -2,6 +2,8 @@ package com.arriva.touristguideapp
 
 import android.content.Intent
 import android.os.Bundle
+import android.text.InputType
+import android.util.Log
 import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
@@ -11,15 +13,81 @@ import androidx.lifecycle.lifecycleScope
 import com.arriva.touristguideapp.data.repository.ProfileRepository
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.textfield.TextInputEditText
+import com.google.android.material.textfield.TextInputLayout
 import com.google.firebase.auth.EmailAuthProvider
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.FirebaseException
+import com.google.firebase.auth.PhoneAuthCredential
+import com.google.firebase.auth.PhoneAuthOptions
+import com.google.firebase.auth.PhoneAuthProvider
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
+import java.util.concurrent.TimeUnit
 
 class SecurityActivity : BaseActivity() {
 
+    companion object {
+        private const val TAG = "SecurityActivity"
+        private const val PHONE_AUTH_TIMEOUT_SECONDS = 60L
+    }
+
     private lateinit var auth: FirebaseAuth
     private lateinit var profileRepository: ProfileRepository
+    private var verificationId: String? = null
+    private var resendToken: PhoneAuthProvider.ForceResendingToken? = null
+    private var pendingPhoneNumber: String? = null
+    private var otpDialog: AlertDialog? = null
+    private var otpCodeInput: TextInputEditText? = null
+    private var isCompletingPhoneVerification = false
+
+    private val phoneVerificationCallbacks =
+        object : PhoneAuthProvider.OnVerificationStateChangedCallbacks() {
+
+            override fun onCodeSent(
+                newVerificationId: String,
+                token: PhoneAuthProvider.ForceResendingToken
+            ) {
+                super.onCodeSent(newVerificationId, token)
+                verificationId = newVerificationId
+                resendToken = token
+                isCompletingPhoneVerification = false
+
+                val phoneNumber = pendingPhoneNumber ?: return
+                Log.d(TAG, "Phone OTP sent")
+                Toast.makeText(
+                    this@SecurityActivity,
+                    "OTP sent to $phoneNumber",
+                    Toast.LENGTH_SHORT
+                ).show()
+                showOtpEntryDialog(phoneNumber)
+            }
+
+            override fun onVerificationCompleted(credential: PhoneAuthCredential) {
+                Log.d(TAG, "Phone verification completed automatically")
+                verifyPhoneCredential(credential)
+            }
+
+            override fun onVerificationFailed(exception: FirebaseException) {
+                isCompletingPhoneVerification = false
+                Log.e(TAG, "Phone verification failed", exception)
+                Toast.makeText(
+                    this@SecurityActivity,
+                    "Verification failed: ${exception.message ?: "Unable to send OTP"}",
+                    Toast.LENGTH_LONG
+                ).show()
+            }
+
+            override fun onCodeAutoRetrievalTimeOut(expiredVerificationId: String) {
+                verificationId = expiredVerificationId
+                isCompletingPhoneVerification = false
+                Log.d(TAG, "Phone OTP auto-retrieval timed out")
+                Toast.makeText(
+                    this@SecurityActivity,
+                    "Automatic OTP detection timed out. Enter the code or tap Resend OTP.",
+                    Toast.LENGTH_LONG
+                ).show()
+            }
+        }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -257,57 +325,173 @@ class SecurityActivity : BaseActivity() {
                 
                 val view = layoutInflater.inflate(R.layout.dialog_reauth, null)
                 val etPhoneInput = view.findViewById<TextInputEditText>(R.id.etPassword)
-                etPhoneInput.hint = "Phone Number"
-                etPhoneInput.inputType = android.text.InputType.TYPE_CLASS_PHONE
+                val inputLayout = view.findViewById<TextInputLayout>(R.id.textInputLayout)
+                inputLayout.hint = "Phone Number with country code"
+                inputLayout.endIconMode = TextInputLayout.END_ICON_NONE
+                etPhoneInput.inputType = InputType.TYPE_CLASS_PHONE
                 
                 if (!profile?.phoneNumber.isNullOrEmpty()) {
                     etPhoneInput.setText(profile?.phoneNumber)
                 }
 
-                MaterialAlertDialogBuilder(this@SecurityActivity)
+                val dialog = MaterialAlertDialogBuilder(this@SecurityActivity)
                     .setTitle("Phone Verification")
-                    .setMessage("Enter your phone number to receive a verification OTP code.")
+                    .setMessage("Enter your phone number with country code, for example +919876543210.")
                     .setView(view)
-                    .setPositiveButton("Send OTP") { _, _ ->
+                    .setPositiveButton("Send OTP", null)
+                    .setNegativeButton("Cancel", null)
+                    .create()
+
+                dialog.setOnShowListener {
+                    dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener {
                         val phoneNumber = etPhoneInput.text.toString().trim()
-                        if (phoneNumber.length >= 7) {
-                            simulateOtpFlow(phoneNumber)
+                        if (isValidPhoneNumber(phoneNumber)) {
+                            dialog.dismiss()
+                            sendOtp(phoneNumber)
                         } else {
-                            Toast.makeText(this@SecurityActivity, "Please enter a valid phone number.", Toast.LENGTH_SHORT).show()
+                            inputLayout.error = "Use international format, for example +919876543210"
                         }
                     }
-                    .setNegativeButton("Cancel", null)
-                    .show()
+                }
+                dialog.show()
             } catch (e: Exception) {
                 Toast.makeText(this@SecurityActivity, "Error: ${e.message}", Toast.LENGTH_SHORT).show()
             }
         }
     }
 
-    private fun simulateOtpFlow(phoneNumber: String) {
-        val simulatedCode = (100000 + (Math.random() * 900000).toInt()).toString()
-        
-        Toast.makeText(this, "SMS Sent! Code: $simulatedCode", Toast.LENGTH_LONG).show()
+    private fun isValidPhoneNumber(phoneNumber: String): Boolean {
+        return phoneNumber.matches(Regex("^\\+[1-9]\\d{7,14}$"))
+    }
 
+    private fun sendOtp(
+        phoneNumber: String,
+        forceResendingToken: PhoneAuthProvider.ForceResendingToken? = null
+    ) {
+        pendingPhoneNumber = phoneNumber
+        isCompletingPhoneVerification = false
+
+        val optionsBuilder = PhoneAuthOptions.newBuilder(auth)
+            .setPhoneNumber(phoneNumber)
+            .setTimeout(PHONE_AUTH_TIMEOUT_SECONDS, TimeUnit.SECONDS)
+            .setActivity(this)
+            .setCallbacks(phoneVerificationCallbacks)
+
+        if (forceResendingToken != null) {
+            optionsBuilder.setForceResendingToken(forceResendingToken)
+        }
+
+        try {
+            PhoneAuthProvider.verifyPhoneNumber(optionsBuilder.build())
+            Toast.makeText(this, "Sending OTP...", Toast.LENGTH_SHORT).show()
+        } catch (exception: IllegalArgumentException) {
+            Log.e(TAG, "Could not start phone verification", exception)
+            Toast.makeText(
+                this,
+                "Could not send OTP: ${exception.message}",
+                Toast.LENGTH_LONG
+            ).show()
+        }
+    }
+
+    private fun showOtpEntryDialog(phoneNumber: String) {
+        otpDialog?.dismiss()
         val view = layoutInflater.inflate(R.layout.dialog_reauth, null)
+        val inputLayout = view.findViewById<TextInputLayout>(R.id.textInputLayout)
         val etCodeInput = view.findViewById<TextInputEditText>(R.id.etPassword)
-        etCodeInput.hint = "6-Digit OTP Code"
-        etCodeInput.inputType = android.text.InputType.TYPE_CLASS_NUMBER
+        inputLayout.hint = "6-digit OTP code"
+        inputLayout.endIconMode = TextInputLayout.END_ICON_NONE
+        etCodeInput.inputType = InputType.TYPE_CLASS_NUMBER
+        otpCodeInput = etCodeInput
 
-        MaterialAlertDialogBuilder(this)
+        val dialog = MaterialAlertDialogBuilder(this)
             .setTitle("Confirm OTP")
-            .setMessage("We simulated sending an SMS to $phoneNumber. Please enter the OTP code displayed in the popup toast.")
+            .setMessage("Enter the verification code sent to $phoneNumber.")
             .setView(view)
-            .setPositiveButton("Verify") { _, _ ->
+            .setPositiveButton("Verify", null)
+            .setNeutralButton("Resend OTP", null)
+            .setNegativeButton("Cancel", null)
+            .create()
+
+        dialog.setOnShowListener {
+            dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener {
                 val code = etCodeInput.text.toString().trim()
-                if (code == simulatedCode) {
-                    saveVerifiedPhone(phoneNumber)
+                val currentVerificationId = verificationId
+                if (code.length != 6) {
+                    inputLayout.error = "Enter the 6-digit OTP"
+                    return@setOnClickListener
+                }
+                if (currentVerificationId == null) {
+                    Toast.makeText(this, "OTP session expired. Please resend.", Toast.LENGTH_SHORT).show()
+                    return@setOnClickListener
+                }
+
+                inputLayout.error = null
+                val credential = PhoneAuthProvider.getCredential(currentVerificationId, code)
+                verifyPhoneCredential(credential)
+            }
+
+            dialog.getButton(AlertDialog.BUTTON_NEUTRAL).setOnClickListener {
+                val token = resendToken
+                if (token == null) {
+                    Toast.makeText(this, "Please wait before resending.", Toast.LENGTH_SHORT).show()
                 } else {
-                    Toast.makeText(this, "Incorrect OTP code. Verification failed.", Toast.LENGTH_SHORT).show()
+                    sendOtp(phoneNumber, token)
                 }
             }
-            .setNegativeButton("Cancel", null)
-            .show()
+        }
+
+        dialog.setOnDismissListener {
+            if (otpDialog === dialog) {
+                otpDialog = null
+                otpCodeInput = null
+            }
+        }
+        otpDialog = dialog
+        dialog.show()
+    }
+
+    private fun verifyPhoneCredential(credential: PhoneAuthCredential) {
+        if (isCompletingPhoneVerification) return
+
+        val user = auth.currentUser
+        val phoneNumber = pendingPhoneNumber
+        if (user == null || phoneNumber.isNullOrEmpty()) {
+            Toast.makeText(this, "Your verification session expired.", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        isCompletingPhoneVerification = true
+        otpDialog?.getButton(AlertDialog.BUTTON_POSITIVE)?.isEnabled = false
+        otpDialog?.getButton(AlertDialog.BUTTON_NEUTRAL)?.isEnabled = false
+
+        user.updatePhoneNumber(credential).addOnCompleteListener { task ->
+            if (task.isSuccessful) {
+                Log.d(TAG, "Firebase phone verification succeeded")
+                otpDialog?.dismiss()
+                clearPhoneVerificationState()
+                saveVerifiedPhone(phoneNumber)
+            } else {
+                isCompletingPhoneVerification = false
+                otpDialog?.getButton(AlertDialog.BUTTON_POSITIVE)?.isEnabled = true
+                otpDialog?.getButton(AlertDialog.BUTTON_NEUTRAL)?.isEnabled = true
+                Log.e(TAG, "Firebase phone verification failed", task.exception)
+                Toast.makeText(
+                    this,
+                    "Incorrect or expired OTP: ${task.exception?.message ?: "Verification failed"}",
+                    Toast.LENGTH_LONG
+                ).show()
+            }
+        }
+    }
+
+    private fun clearPhoneVerificationState() {
+        verificationId = null
+        resendToken = null
+        pendingPhoneNumber = null
+        otpCodeInput = null
+        otpDialog = null
+        isCompletingPhoneVerification = false
     }
 
     private fun saveVerifiedPhone(phoneNumber: String) {
@@ -324,6 +508,12 @@ class SecurityActivity : BaseActivity() {
                 Toast.makeText(this@SecurityActivity, "Error saving: ${e.message}", Toast.LENGTH_SHORT).show()
             }
         }
+    }
+
+    override fun onDestroy() {
+        otpDialog?.dismiss()
+        otpDialog = null
+        super.onDestroy()
     }
 
     private fun showDeleteAccountConfirmation() {

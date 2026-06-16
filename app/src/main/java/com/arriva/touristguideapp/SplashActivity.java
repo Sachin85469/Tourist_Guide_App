@@ -3,7 +3,6 @@ package com.arriva.touristguideapp;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
-import androidx.appcompat.app.AppCompatActivity;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
@@ -15,15 +14,50 @@ public class SplashActivity extends BaseActivity {
         setContentView(R.layout.activity_splash);
 
         new Handler().postDelayed(() -> {
-            FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
-            if (currentUser != null) {
-                Intent intent = new Intent(SplashActivity.this, MainActivity.class);
-                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                startActivity(intent);
-            } else {
-                startActivity(new Intent(SplashActivity.this, LoginActivity.class));
+            FirebaseAuth auth = FirebaseAuth.getInstance();
+            FirebaseUser currentUser = auth.getCurrentUser();
+
+            if (currentUser == null) {
+                openLogin();
+                return;
             }
-            finish();
+
+            if (BaseActivity.isGoogleUser(currentUser)) {
+                openMain();
+                return;
+            }
+
+            if (!BaseActivity.isEmailPasswordUser(currentUser)) {
+                auth.signOut();
+                openLogin();
+                return;
+            }
+
+            currentUser.reload().addOnCompleteListener(task -> {
+                FirebaseUser refreshedUser = auth.getCurrentUser();
+                if (task.isSuccessful()
+                        && refreshedUser != null
+                        && refreshedUser.isEmailVerified()) {
+                    openMain();
+                } else {
+                    auth.signOut();
+                    openLogin();
+                }
+            });
         }, 2000);
+    }
+
+    private void openMain() {
+        Intent intent = new Intent(SplashActivity.this, MainActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        startActivity(intent);
+        finish();
+    }
+
+    private void openLogin() {
+        Intent intent = new Intent(SplashActivity.this, LoginActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        startActivity(intent);
+        finish();
     }
 }

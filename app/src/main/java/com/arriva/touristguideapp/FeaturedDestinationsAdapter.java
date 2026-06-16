@@ -38,7 +38,13 @@ public class FeaturedDestinationsAdapter extends RecyclerView.Adapter<FeaturedDe
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         Place place = featuredPlaces.get(position);
         holder.tvTitle.setText(place.getName());
-        holder.tvRating.setText(String.format(Locale.getDefault(), "⭐ %.1f", place.getRating()));
+        if (place.getTotalRatings() > 0) {
+            holder.tvRating.setText(String.format(Locale.getDefault(), "⭐ %.1f", place.getRating()));
+            holder.tvRating.setVisibility(View.VISIBLE);
+        } else {
+            holder.tvRating.setText("New");
+            holder.tvRating.setVisibility(View.VISIBLE);
+        }
         
         if (isPopularMode) {
             holder.tvCategory.setVisibility(View.GONE);
