@@ -121,6 +121,7 @@ public class ItineraryActivity extends BaseActivity {
     private void renderQuickPlan() {
         String customTitle = getIntent().getStringExtra("title");
         String quickPlanText = getIntent().getStringExtra("quickPlanText");
+        ArrayList<String> quickPlaceIds = getIntent().getStringArrayListExtra("quickPlaceIds");
         currentTripTitle = valueOrDefault(customTitle, "Your Selection");
         currentGeneralTips = "";
         if (tvTitle != null) tvTitle.setText(currentTripTitle);
@@ -134,19 +135,37 @@ public class ItineraryActivity extends BaseActivity {
             showEmptyState();
         }
 
-        int count = 2;
-        if (customTitle != null) {
-            if (customTitle.contains("Half Day")) count = 4;
-            else if (customTitle.contains("Full Day")) count = 5;
-        }
-        List<Place> topPicks = DataProvider.getTopPicks();
-        if (topPicks.isEmpty()) {
-            topPicks = DataProvider.getAllPlaces();
-        }
+        loadQuickPlanSelectedPlaces(quickPlaceIds);
+    }
+
+    private void loadQuickPlanSelectedPlaces(ArrayList<String> quickPlaceIds) {
         selectedPlacesList.clear();
-        for (int i = 0; i < Math.min(count, topPicks.size()); i++) {
-            selectedPlacesList.add(topPicks.get(i));
+        if (quickPlaceIds == null || quickPlaceIds.isEmpty()) {
+            return;
         }
+
+        if (btnSaveTrip != null) {
+            btnSaveTrip.setEnabled(false);
+        }
+
+        placeRepository.fetchPublishedPlaces((places, origin, message) ->
+                runOnUiThread(() -> {
+                    loadedPlaces.clear();
+                    loadedPlaces.addAll(places);
+
+                    Map<String, Place> placesById = buildPlaceIdLookup(places);
+                    selectedPlacesList.clear();
+                    for (String placeId : quickPlaceIds) {
+                        Place place = placesById.get(placeId);
+                        if (place != null) {
+                            selectedPlacesList.add(place);
+                        }
+                    }
+
+                    if (btnSaveTrip != null) {
+                        btnSaveTrip.setEnabled(true);
+                    }
+                }));
     }
 
     private void loadAndGeneratePlan(int days, String type, String budget) {
@@ -492,7 +511,7 @@ public class ItineraryActivity extends BaseActivity {
 
     private void updateSelectedPlacesFromPlan() {
         selectedPlacesList.clear();
-        Map<String, Place> lookup = buildPlaceLookup(loadedPlaces.isEmpty() ? DataProvider.getAllPlaces() : loadedPlaces);
+        Map<String, Place> lookup = buildPlaceLookup(loadedPlaces);
         Set<String> added = new HashSet<>();
         for (DayPlan day : currentPlan) {
             for (ItineraryStop stop : day.stops) {
@@ -515,12 +534,31 @@ public class ItineraryActivity extends BaseActivity {
         return lookup;
     }
 
+    private Map<String, Place> buildPlaceIdLookup(List<Place> places) {
+        Map<String, Place> lookup = new HashMap<>();
+        for (Place place : places) {
+            if (!isBlank(place.getId())) {
+                lookup.put(place.getId(), place);
+            }
+        }
+        return lookup;
+    }
+
     private List<String> collectStopNames() {
         List<String> names = new ArrayList<>();
         for (DayPlan day : currentPlan) {
             for (ItineraryStop stop : day.stops) {
                 if (!isBlank(stop.placeName)) {
                     names.add(stop.placeName);
+                }
+            }
+            if (names.isEmpty() && !isBlank(day.rawText)) {
+                String[] rawLines = day.rawText.split("\\n");
+                for (String rawLine : rawLines) {
+                    String name = rawLine.replaceFirst("^-\\s*", "").trim();
+                    if (!isBlank(name)) {
+                        names.add(name);
+                    }
                 }
             }
         }
