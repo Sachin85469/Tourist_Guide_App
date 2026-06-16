@@ -155,9 +155,13 @@ public class ItineraryActivity extends BaseActivity {
         List<Place> filtered = new ArrayList<>();
         
         if (type.equalsIgnoreCase("Nature")) {
-            for (Place p : allPlaces) if (p.getCategory().equalsIgnoreCase("Nature")) filtered.add(p);
+            for (Place p : allPlaces) {
+                if (p.getCategory() != null && p.getCategory().equalsIgnoreCase("Nature")) filtered.add(p);
+            }
         } else if (type.equalsIgnoreCase("Food")) {
-            for (Place p : allPlaces) if (p.getCategory().equalsIgnoreCase("Food")) filtered.add(p);
+            for (Place p : allPlaces) {
+                if (p.getCategory() != null && p.getCategory().equalsIgnoreCase("Food")) filtered.add(p);
+            }
         } else {
             filtered.addAll(allPlaces);
         }
