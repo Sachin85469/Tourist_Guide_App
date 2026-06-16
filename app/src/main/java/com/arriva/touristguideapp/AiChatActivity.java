@@ -1,6 +1,9 @@
 package com.arriva.touristguideapp;
 
 import android.animation.ObjectAnimator;
+import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextUtils;
@@ -51,6 +54,8 @@ public class AiChatActivity extends BaseActivity {
     private LinearProgressIndicator progressIndicator;
     private View emptyStateView;
     private View suggestedPromptsScroll;
+    private TextView offlineBanner;
+    private boolean isOffline;
 
     // The canonical conversation is persisted and sent to the selected provider.
     private final ArrayList<ChatMessage> conversation = new ArrayList<>();
@@ -95,6 +100,35 @@ public class AiChatActivity extends BaseActivity {
         progressIndicator = findViewById(R.id.progressIndicator);
         emptyStateView = findViewById(R.id.emptyStateView);
         suggestedPromptsScroll = findViewById(R.id.suggestedPromptsScroll);
+        
+        // Create offline banner programmatically
+        offlineBanner = new TextView(this);
+        offlineBanner.setId(View.generateViewId());
+        offlineBanner.setText("⚠️ AI assistant offline — connect to internet to chat");
+        offlineBanner.setBackgroundColor(0xFFFFA500);
+        offlineBanner.setTextColor(0xFFFFFFFF);
+        offlineBanner.setPadding(16, 12, 16, 12);
+        offlineBanner.setTextSize(14);
+        offlineBanner.setVisibility(View.GONE);
+        
+        // Add banner to the ConstraintLayout
+        androidx.constraintlayout.widget.ConstraintLayout constraintLayout = 
+            (androidx.constraintlayout.widget.ConstraintLayout) findViewById(R.id.recyclerViewChat).getParent();
+        androidx.constraintlayout.widget.ConstraintLayout.LayoutParams params = 
+            new androidx.constraintlayout.widget.ConstraintLayout.LayoutParams(
+                androidx.constraintlayout.widget.ConstraintLayout.LayoutParams.MATCH_PARENT,
+                androidx.constraintlayout.widget.ConstraintLayout.LayoutParams.WRAP_CONTENT
+            );
+        params.topToTop = androidx.constraintlayout.widget.ConstraintLayout.LayoutParams.PARENT_ID;
+        offlineBanner.setLayoutParams(params);
+        constraintLayout.addView(offlineBanner, 0); // Add at index 0 to be on top
+        
+        // Adjust recyclerViewChat constraint to be below banner
+        androidx.constraintlayout.widget.ConstraintLayout.LayoutParams recyclerViewParams = 
+            (androidx.constraintlayout.widget.ConstraintLayout.LayoutParams) recyclerViewChat.getLayoutParams();
+        recyclerViewParams.topToBottom = offlineBanner.getId();
+        recyclerViewChat.setLayoutParams(recyclerViewParams);
+        
         updateEmptyState();
     }
 
@@ -169,13 +203,55 @@ public class AiChatActivity extends BaseActivity {
             }
         }
 
-        Toast.makeText(this, R.string.ai_config_missing, Toast.LENGTH_LONG).show();
+        // No keys configured or no network - show offline state
+        if (chatClient == null) {
+            isOffline = true;
+            showOfflineState();
+        }
+    }
+
+    private void showOfflineState() {
+        // Add system message with helpful info
+        String offlineMessage = "I'm currently offline or not configured. Here are some things I can help you with once connected:\n" +
+                "• Plan a trip itinerary\n" +
+                "• Find the best food spots in Pune\n" +
+                "• Get tips for visiting temples and forts\n" +
+                "• Learn about budget and crowd levels at any place";
+        
+        ChatMessage systemMessage = new ChatMessage(
+                ChatMessage.ROLE_ASSISTANT,
+                offlineMessage,
+                System.currentTimeMillis()
+        );
+        addDisplayMessage(systemMessage);
+        
+        // Show offline banner
+        offlineBanner.setVisibility(View.VISIBLE);
+        
+        // Disable send button and typing field
+        btnSend.setEnabled(false);
+        etMessage.setEnabled(false);
+        etMessage.setHint("AI assistant offline");
+    }
+
+    private void hideOfflineState() {
+        offlineBanner.setVisibility(View.GONE);
+        btnSend.setEnabled(true);
+        etMessage.setEnabled(true);
+        etMessage.setHint(getString(R.string.ai_input_hint));
     }
 
     private boolean isConfiguredKey(String apiKey) {
         return !apiKey.isEmpty()
                 && !apiKey.equalsIgnoreCase("YOUR_KEY")
                 && !apiKey.startsWith("YOUR_");
+    }
+
+    private boolean isNetworkAvailable() {
+        ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        if (cm == null) return false;
+        NetworkInfo ni = cm.getActiveNetworkInfo();
+        return ni != null && ni.isConnected();
     }
 
     private void loadChatHistory() {
@@ -434,6 +510,18 @@ public class AiChatActivity extends BaseActivity {
                     updateLoadingState();
                     Toast.makeText(this, R.string.ai_clear_chat_failed, Toast.LENGTH_SHORT).show();
                 });
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        
+        // Re-check network if we were previously offline
+        if (isOffline && isNetworkAvailable()) {
+            isOffline = false;
+            hideOfflineState();
+            initChatClient();
+        }
     }
 
     @Override
