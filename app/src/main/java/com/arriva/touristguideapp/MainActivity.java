@@ -104,7 +104,7 @@ public class MainActivity extends BaseActivity {
 
         // Initialize Places SDK
         if (!Places.isInitialized()) {
-            Places.initialize(getApplicationContext(), "YOUR_API_KEY");
+            Places.initialize(getApplicationContext(), BuildConfig.GOOGLE_PLACES_API_KEY);
         }
 
         rvHome = findViewById(R.id.rvHome);

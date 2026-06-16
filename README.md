@@ -1,3 +1,20 @@
+# Setup
+
+Before building the app, add your local API keys to `local.properties`. Do not commit real key values.
+
+```properties
+# Required: Add your Google Places API key here
+GOOGLE_PLACES_API_KEY=your_key_here
+
+# Required: Add your Anthropic API key here
+ANTHROPIC_API_KEY=your_key_here
+
+# Required: Add your Gemini API key here (optional fallback)
+GEMINI_API_KEY=your_key_here
+```
+
+Get the Google Places key from Google Cloud Console after enabling the Places SDK/API for your project. Get the Anthropic key from the Anthropic Console. Get the Gemini key from Google AI Studio; it is used as an optional AI fallback.
+
 wlogin system
 profile of individual
 changes in planner system
