@@ -1,71 +1,60 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="horizontal"
-    android:paddingStart="16dp"
-    android:paddingEnd="16dp">
+    android:orientation="vertical"
+    android:paddingStart="20dp"
+    android:paddingEnd="20dp"
+    android:paddingBottom="28dp">
 
-    <!-- Timeline Line -->
     <LinearLayout
-        android:layout_width="32dp"
-        android:layout_height="match_parent"
-        android:gravity="center_horizontal"
-        android:orientation="vertical">
-
-        <View
-            android:layout_width="2dp"
-            android:layout_height="24dp"
-            android:background="@color/m3_outline_variant" />
-
-        <ImageView
-            android:layout_width="24dp"
-            android:layout_height="24dp"
-            android:src="@drawable/ic_check_circle"
-            app:tint="@color/m3_primary" />
-
-        <View
-            android:layout_width="2dp"
-            android:layout_height="match_parent"
-            android:background="@color/m3_outline_variant" />
-    </LinearLayout>
-
-    <com.google.android.material.card.MaterialCardView
-        style="@style/AppCard"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:layout_marginBottom="24dp"
-        app:cardElevation="2dp"
-        app:cardBackgroundColor="@color/white">
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
 
-        <LinearLayout
-            android:layout_width="match_parent"
+        <TextView
+            android:id="@+id/tvDayTitle"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:padding="20dp">
+            android:textAppearance="@style/TextAppearance.App.TitleMedium"
+            android:textColor="@color/color_primary"
+            tools:text="Day 1" />
 
-            <TextView
-                android:id="@+id/tvDayTitle"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textAppearance="@style/TextAppearance.App.TitleMedium"
-                android:textColor="@color/m3_primary"
-                tools:text="Day 1" />
+        <View
+            android:layout_width="0dp"
+            android:layout_height="1dp"
+            android:layout_marginStart="16dp"
+            android:layout_weight="1"
+            android:background="@color/color_outline_variant" />
+    </LinearLayout>
 
-            <TextView
-                android:id="@+id/tvDayPlaces"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
-                android:lineSpacingExtra="8dp"
-                android:textAppearance="@style/TextAppearance.App.BodyLarge"
-                android:textColor="@color/m3_on_surface"
-                android:lineSpacingMultiplier="1.2"
-                tools:text="• Shaniwar Wada\n• Raja Dinkar Kelkar Museum" />
+    <TextView
+        android:id="@+id/tvDayTheme"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="6dp"
+        android:textAppearance="@style/TextAppearance.App.BodyMedium"
+        android:textColor="@color/color_text_secondary"
+        tools:text="Morning freshness and green trails" />
 
-        </LinearLayout>
-    </com.google.android.material.card.MaterialCardView>
+    <LinearLayout
+        android:id="@+id/stopContainer"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="14dp"
+        android:orientation="vertical" />
+
+    <TextView
+        android:id="@+id/tvDayPlaces"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:lineSpacingExtra="8dp"
+        android:lineSpacingMultiplier="1.2"
+        android:textAppearance="@style/TextAppearance.App.BodyLarge"
+        android:textColor="@color/m3_on_surface"
+        android:visibility="gone"
+        tools:text="- Shaniwar Wada\n- Raja Dinkar Kelkar Museum" />
 </LinearLayout>
