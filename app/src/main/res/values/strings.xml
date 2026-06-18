@@ -222,6 +222,8 @@
     <string name="explore_pune_local">Explore like a local</string>
     <string name="search_destinations_hint">Search destinations, landmarks...</string>
     <string name="edit_profile_desc">Update your name and photo</string>
+    <string name="edit_travel_interests">Edit Travel Interests</string>
+    <string name="edit_travel_interests_desc">Tune your place recommendations</string>
     <string name="my_reviews">My Reviews</string>
     <string name="my_reviews_desc">View and manage your feedback</string>
     <string name="trip_history">Trip History</string>
@@ -297,7 +299,9 @@
     <string name="quick_actions_header">⚡ Quick Actions</string>
     <string name="browse_destinations_header">🗺️ Browse Destinations</string>
     <string name="featured_destinations_header">🌟 Featured Destinations</string>
+    <string name="your_picks_for_you_header">Your Picks for You</string>
     <string name="explore_categories_header">🧭 Explore By Category</string>
+    <string name="top_rated_arriva_header">Top Rated in Arriva</string>
     <string name="popular_this_week_header">🔥 Popular This Week</string>
     <string name="view_all">View All</string>
     <string name="no_destinations_available">📍 No destinations available</string>

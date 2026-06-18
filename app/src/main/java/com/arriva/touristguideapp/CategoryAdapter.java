@@ -8,6 +8,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
+import com.google.android.material.card.MaterialCardView;
 import java.util.List;
 
 public class CategoryAdapter extends RecyclerView.Adapter<CategoryAdapter.ViewHolder> {
@@ -49,26 +50,33 @@ public class CategoryAdapter extends RecyclerView.Adapter<CategoryAdapter.ViewHo
 
         holder.categoryName.setText(category.getName());
         holder.categoryIcon.setImageResource(category.getIconResId());
+        holder.categoryIcon.clearColorFilter();
         
         // Highlight logic
         boolean isSelected = position == selectedPosition;
-        
+
+        MaterialCardView card = (MaterialCardView) holder.itemView;
         if (isSelected) {
-            holder.categoryName.setTextColor(ContextCompat.getColor(holder.itemView.getContext(), R.color.m3_on_primary_container));
-            holder.categoryIcon.setColorFilter(ContextCompat.getColor(holder.itemView.getContext(), R.color.m3_on_primary_container));
-            ((com.google.android.material.card.MaterialCardView) holder.itemView).setCardBackgroundColor(ContextCompat.getColor(holder.itemView.getContext(), R.color.m3_primary_container));
+            float density = holder.itemView.getResources().getDisplayMetrics().density;
+            card.setStrokeWidth((int) (2 * density));
+            card.setStrokeColor(ContextCompat.getColor(holder.itemView.getContext(), R.color.color_primary));
         } else {
-            holder.categoryName.setTextColor(ContextCompat.getColor(holder.itemView.getContext(), R.color.m3_on_surface_variant));
-            holder.categoryIcon.setColorFilter(ContextCompat.getColor(holder.itemView.getContext(), R.color.m3_primary));
-            ((com.google.android.material.card.MaterialCardView) holder.itemView).setCardBackgroundColor(ContextCompat.getColor(holder.itemView.getContext(), R.color.m3_surface_variant));
+            card.setStrokeWidth(0);
         }
+        holder.categoryName.setTextColor(ContextCompat.getColor(holder.itemView.getContext(), R.color.white));
 
         holder.itemView.setOnClickListener(v -> {
             int previousSelected = selectedPosition;
-            selectedPosition = holder.getAdapterPosition();
+            int currentPosition = holder.getAdapterPosition();
+            if (currentPosition == RecyclerView.NO_POSITION) {
+                return;
+            }
+            selectedPosition = currentPosition;
             
             // Notify changes to reset previous and set current selection
-            notifyItemChanged(previousSelected);
+            if (previousSelected != RecyclerView.NO_POSITION && previousSelected >= 0) {
+                notifyItemChanged(previousSelected);
+            }
             notifyItemChanged(selectedPosition);
 
             if (listener != null) {

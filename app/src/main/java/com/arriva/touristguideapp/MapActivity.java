@@ -400,7 +400,7 @@ public class MapActivity extends BaseActivity {
                     }
 
                     for (int i = 0; i < points.size(); i++) {
-                        addMarker(points.get(i), names.get(i), "Category: " + type, R.drawable.ic_map_marker_historical);
+                        addMarker(points.get(i), names.get(i), "Category: " + type, R.drawable.ic_map_marker_fort);
                     }
                     map.invalidate();
                 });

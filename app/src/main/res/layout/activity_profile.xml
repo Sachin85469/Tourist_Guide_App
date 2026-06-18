@@ -390,6 +390,10 @@
                 layout="@layout/item_setting_row" />
 
             <include
+                android:id="@+id/btnEditTravelInterests"
+                layout="@layout/item_setting_row" />
+
+            <include
                 android:id="@+id/btnMyReviews"
                 layout="@layout/item_setting_row" />
 

@@ -195,6 +195,13 @@ class ProfileActivity : BaseActivity() {
             openEditProfile()
         }
 
+        setupRow(findViewById(R.id.btnEditTravelInterests), R.drawable.ic_edit, getString(R.string.edit_travel_interests), getString(R.string.edit_travel_interests_desc)) {
+            startActivity(
+                Intent(this, InterestSelectionActivity::class.java)
+                    .putExtra(InterestSelectionActivity.EXTRA_PROFILE_EDIT_MODE, true)
+            )
+        }
+
         setupRow(findViewById(R.id.btnMyReviews), R.drawable.ic_star, getString(R.string.my_reviews), getString(R.string.my_reviews_desc)) {
             startActivity(Intent(this, MyReviewsActivity::class.java))
         }

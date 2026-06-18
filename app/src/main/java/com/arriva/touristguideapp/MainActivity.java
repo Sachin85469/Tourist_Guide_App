@@ -35,18 +35,22 @@ import com.google.firebase.auth.FirebaseUser;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
 
 public class MainActivity extends BaseActivity {
 
     private static final String TAG = "MainActivity";
     private static final int VOICE_SEARCH_REQUEST_CODE = 101;
+    private static final int HOME_CAROUSEL_LIMIT = 15;
     private RecyclerView rvHome;
     private HomeAdapter homeAdapter;
     private List<HomeSection> sections;
     private List<Place> allPlaces;
     private List<Place> topPicks;
+    private List<String> userTravelInterests;
     private List<Category> categories;
     
     private FusedLocationProviderClient fusedLocationClient;
@@ -342,6 +346,7 @@ public class MainActivity extends BaseActivity {
 
         // Initial Top Picks row until location + catalog are ready (unchanged UX).
         topPicks = new ArrayList<>(DataProvider.getDefaultTopPicks());
+        userTravelInterests = new ArrayList<>();
 
         categories = new ArrayList<>();
         categories.add(new Category(getString(R.string.cat_historical), R.drawable.ic_map_marker_historical));
@@ -415,11 +420,7 @@ public class MainActivity extends BaseActivity {
         // Sort all places by distance
         Collections.sort(allPlaces, Comparator.comparingDouble(Place::getDistance));
 
-        // Select top 5 nearest places
-        List<Place> nearestPlaces = new ArrayList<>();
-        for (int i = 0; i < Math.min(5, allPlaces.size()); i++) {
-            nearestPlaces.add(allPlaces.get(i));
-        }
+        List<Place> nearestPlaces = selectTopPicksFromOrderedPlaces(allPlaces);
 
         // Debug-safe fallback logic
         if (nearestPlaces.isEmpty()) {
@@ -428,29 +429,123 @@ public class MainActivity extends BaseActivity {
         }
 
         Log.d("NearbyDebug", "Nearest places size: " + nearestPlaces.size());
-
-        // Update topPicks list
-        topPicks.clear();
-        topPicks.addAll(nearestPlaces);
-
-        // Refresh sections to update Browse All order and distances
-        if (sections != null) {
-            sections.clear();
-            addDefaultSections();
-        }
-
-        // Update UI
-        if (homeAdapter != null) {
-            homeAdapter.updateSections(new ArrayList<>(sections));
-        }
+        applyTopPicks(nearestPlaces);
     }
 
     private void useFallbackTopPicks() {
-        topPicks.clear();
-        topPicks.addAll(DataProvider.getDefaultTopPicks());
-        
-        Log.d("NearbyDebug", "Using fallback. Nearest places size: " + topPicks.size());
+        updateTopPicksWithoutLocation(true);
+    }
 
+    private void updateTopPicksWithoutLocation(boolean showToast) {
+        List<Place> sourcePlaces = allPlaces != null && !allPlaces.isEmpty()
+                ? new ArrayList<>(allPlaces)
+                : DataProvider.getAllPlaces();
+
+        sourcePlaces.sort(
+                Comparator.comparing(Place::isTopPick).reversed()
+                        .thenComparing(Comparator.comparingDouble(Place::getRating).reversed())
+        );
+
+        List<Place> selectedPlaces = selectTopPicksFromOrderedPlaces(sourcePlaces);
+        if (selectedPlaces.isEmpty()) {
+            selectedPlaces = DataProvider.getDefaultTopPicks();
+        }
+
+        Log.d("NearbyDebug", "Using fallback. Nearest places size: " + selectedPlaces.size());
+        applyTopPicks(selectedPlaces);
+        if (showToast) {
+            Toast.makeText(this, "Location unavailable, using default top picks", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private List<Place> selectTopPicksFromOrderedPlaces(List<Place> orderedPlaces) {
+        List<Place> selectedPlaces = new ArrayList<>();
+        if (orderedPlaces == null || orderedPlaces.isEmpty()) {
+            return selectedPlaces;
+        }
+
+        List<Place> candidatePlaces = new ArrayList<>();
+        if (userTravelInterests != null && !userTravelInterests.isEmpty()) {
+            for (Place place : orderedPlaces) {
+                if (placeMatchesTravelInterests(place)) {
+                    candidatePlaces.add(place);
+                }
+            }
+        }
+
+        if (candidatePlaces.isEmpty()) {
+            candidatePlaces.addAll(orderedPlaces);
+        }
+
+        for (int i = 0; i < Math.min(5, candidatePlaces.size()); i++) {
+            selectedPlaces.add(candidatePlaces.get(i));
+        }
+        return selectedPlaces;
+    }
+
+    private boolean placeMatchesTravelInterests(Place place) {
+        if (place == null || userTravelInterests == null || userTravelInterests.isEmpty()) {
+            return false;
+        }
+
+        String category = normalizeTravelInterest(place.getCategory());
+        String categoryId = normalizeTravelInterest(place.getCategoryId());
+        for (String interest : userTravelInterests) {
+            if (interest.equals(category) || interest.equals(categoryId)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private void updateTravelInterests(@Nullable List<String> travelInterests) {
+        List<String> normalizedInterests = new ArrayList<>();
+        if (travelInterests != null) {
+            for (String interest : travelInterests) {
+                String normalized = normalizeTravelInterest(interest);
+                if (!normalized.isEmpty() && !normalizedInterests.contains(normalized)) {
+                    normalizedInterests.add(normalized);
+                }
+            }
+        }
+
+        if (userTravelInterests == null) {
+            userTravelInterests = new ArrayList<>();
+        }
+
+        Set<String> oldInterests = new HashSet<>(userTravelInterests);
+        Set<String> newInterests = new HashSet<>(normalizedInterests);
+        if (oldInterests.equals(newInterests)) {
+            return;
+        }
+
+        userTravelInterests.clear();
+        userTravelInterests.addAll(normalizedInterests);
+        refreshHomeSections();
+    }
+
+    private String normalizeTravelInterest(@Nullable String value) {
+        if (value == null) {
+            return "";
+        }
+        String normalized = value.trim().toLowerCase(Locale.US);
+        if (normalized.equals("history") || normalized.equals("historic") || normalized.equals("historical")) {
+            return "historical";
+        }
+        if (normalized.equals("spiritual") || normalized.equals("religion")
+                || normalized.equals("religious") || normalized.equals("temple") || normalized.equals("temples")) {
+            return "religious";
+        }
+        return normalized;
+    }
+
+    private void applyTopPicks(List<Place> selectedPlaces) {
+        topPicks.clear();
+        topPicks.addAll(selectedPlaces);
+        refreshHomeSections();
+    }
+
+    private void refreshHomeSections() {
         if (sections != null) {
             sections.clear();
             addDefaultSections();
@@ -459,7 +554,6 @@ public class MainActivity extends BaseActivity {
         if (homeAdapter != null) {
             homeAdapter.updateSections(new ArrayList<>(sections));
         }
-        Toast.makeText(this, "Location unavailable, using default top picks", Toast.LENGTH_SHORT).show();
     }
 
     @Override
@@ -514,27 +608,60 @@ public class MainActivity extends BaseActivity {
     private void addDefaultSections() {
         sections.add(new HomeSection(HomeSection.TYPE_WELCOME));
 
-        // Featured Destinations Horizontal Scroll
-        if (topPicks != null && !topPicks.isEmpty()) {
-            sections.add(new HomeSection(HomeSection.TYPE_FEATURED_DESTINATIONS, new ArrayList<>(topPicks)));
-        } else {
-            // Show empty state placeholder if no featured destinations
-            sections.add(new HomeSection(HomeSection.TYPE_ALL_PLACES_HEADER, getString(R.string.no_destinations_available)));
+        List<Place> forYouPlaces = buildForYouPlaces();
+        if (!forYouPlaces.isEmpty()) {
+            sections.add(new HomeSection(HomeSection.TYPE_FOR_YOU, getString(R.string.your_picks_for_you_header), forYouPlaces));
         }
 
-        // Explore By Category
+        List<Place> topRatedPlaces = buildTopRatedPlaces();
+        if (!topRatedPlaces.isEmpty()) {
+            sections.add(new HomeSection(HomeSection.TYPE_POPULAR_THIS_WEEK, getString(R.string.top_rated_arriva_header), topRatedPlaces));
+        }
+
         sections.add(new HomeSection(HomeSection.TYPE_CATEGORIES, getString(R.string.explore_categories_header)));
+    }
 
-        // Popular This Week
-        if (allPlaces != null && !allPlaces.isEmpty()) {
-            List<Place> popular = new ArrayList<>(allPlaces.subList(0, Math.min(allPlaces.size(), 5)));
-            sections.add(new HomeSection(HomeSection.TYPE_POPULAR_THIS_WEEK, popular));
+    private List<Place> buildForYouPlaces() {
+        List<Place> forYouPlaces = new ArrayList<>();
+        if (allPlaces == null || allPlaces.isEmpty()
+                || userTravelInterests == null || userTravelInterests.isEmpty()) {
+            return forYouPlaces;
         }
 
-        sections.add(new HomeSection(HomeSection.TYPE_ALL_PLACES_HEADER, getString(R.string.browse_destinations_header)));
-        for (Place p : allPlaces) {
-            sections.add(new HomeSection(HomeSection.TYPE_PLACE, p));
+        for (Place place : allPlaces) {
+            if (placeMatchesTravelInterests(place)) {
+                forYouPlaces.add(place);
+            }
         }
+        sortPlacesByRating(forYouPlaces);
+        return limitedPlaces(forYouPlaces);
+    }
+
+    private List<Place> buildTopRatedPlaces() {
+        List<Place> topRatedPlaces = new ArrayList<>();
+        if (allPlaces == null || allPlaces.isEmpty()) {
+            return topRatedPlaces;
+        }
+
+        for (Place place : allPlaces) {
+            if (place != null && place.getTotalRatings() > 0) {
+                topRatedPlaces.add(place);
+            }
+        }
+        sortPlacesByRating(topRatedPlaces);
+        return limitedPlaces(topRatedPlaces);
+    }
+
+    private void sortPlacesByRating(List<Place> places) {
+        places.sort(
+                Comparator.comparingDouble(Place::getRating).reversed()
+                        .thenComparing(Comparator.comparingLong(Place::getTotalRatings).reversed())
+                        .thenComparing(place -> place.getName() != null ? place.getName() : "", String.CASE_INSENSITIVE_ORDER)
+        );
+    }
+
+    private List<Place> limitedPlaces(List<Place> places) {
+        return new ArrayList<>(places.subList(0, Math.min(HOME_CAROUSEL_LIMIT, places.size())));
     }
 
     /**
@@ -549,7 +676,7 @@ public class MainActivity extends BaseActivity {
     }
 
     /**
-     * Loads published places for the home "Browse All" list (Firestore, else {@link DataProvider} via repository fallback).
+     * Loads published places for the curated home sections (Firestore, else {@link DataProvider} via repository fallback).
      */
     private void loadPublishedPlacesCatalog() {
         if (placeRepository == null) {
@@ -588,23 +715,9 @@ public class MainActivity extends BaseActivity {
             }
 
             if (homeAdapter != null) {
-                Log.d(TAG, "HomeAdapter item count=" + homeAdapter.getItemCount()
-                        + " browseAllPlaceRows=" + countBrowseAllPlaceRows());
+                Log.d(TAG, "HomeAdapter item count=" + homeAdapter.getItemCount());
             }
         });
-    }
-
-    private int countBrowseAllPlaceRows() {
-        if (sections == null) {
-            return 0;
-        }
-        int n = 0;
-        for (HomeSection s : sections) {
-            if (HomeSection.TYPE_PLACE.equals(s.getType())) {
-                n++;
-            }
-        }
-        return n;
     }
 
     private void openDetails(Place place) {
@@ -629,6 +742,7 @@ public class MainActivity extends BaseActivity {
                     if (tvMainUserName != null) tvMainUserName.setText(formatName(userModel.getName()));
                     if (tvMainUserEmail != null) tvMainUserEmail.setText(userModel.getEmail());
                     ProfileUtils.loadAvatar(MainActivity.this, ivProfileIcon, userModel);
+                    updateTravelInterests(userModel.getTravelInterests());
                 }
 
                 @Override

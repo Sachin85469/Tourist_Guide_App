@@ -35,6 +35,7 @@ public class HomeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private static final int TYPE_FEATURED_DESTINATIONS = 11;
     private static final int TYPE_CATEGORIES = 12;
     private static final int TYPE_POPULAR_THIS_WEEK = 13;
+    private static final int TYPE_FOR_YOU = 14;
 
     private List<HomeSection> sections;
     private List<Category> categories;
@@ -118,6 +119,7 @@ public class HomeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             case HomeSection.TYPE_PLACE: return TYPE_PLACE;
             case HomeSection.TYPE_FEATURED_CAROUSEL: return TYPE_FEATURED_CAROUSEL;
             case HomeSection.TYPE_FEATURED_DESTINATIONS: return TYPE_FEATURED_DESTINATIONS;
+            case HomeSection.TYPE_FOR_YOU: return TYPE_FOR_YOU;
             case HomeSection.TYPE_CATEGORIES: return TYPE_CATEGORIES;
             case HomeSection.TYPE_POPULAR_THIS_WEEK: return TYPE_POPULAR_THIS_WEEK;
             default: return -1;
@@ -138,6 +140,8 @@ public class HomeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             case TYPE_FEATURED_CAROUSEL:
                 return new FeaturedViewHolder(inflater.inflate(R.layout.item_featured_carousel, parent, false));
             case TYPE_FEATURED_DESTINATIONS:
+                return new FeaturedDestinationsViewHolder(inflater.inflate(R.layout.layout_featured_destinations_carousel, parent, false), placeClickListener);
+            case TYPE_FOR_YOU:
                 return new FeaturedDestinationsViewHolder(inflater.inflate(R.layout.layout_featured_destinations_carousel, parent, false), placeClickListener);
             case TYPE_CATEGORIES:
                 return new CategoriesViewHolder(inflater.inflate(R.layout.layout_home_categories, parent, false), categoryClickListener);
@@ -162,7 +166,7 @@ public class HomeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             ((FeaturedViewHolder) holder).bind(section.getSinglePlace(), placeClickListener);
         } else if (holder instanceof FeaturedDestinationsViewHolder) {
             boolean isPopular = HomeSection.TYPE_POPULAR_THIS_WEEK.equals(section.getType());
-            ((FeaturedDestinationsViewHolder) holder).bind(section.getData(), isPopular);
+            ((FeaturedDestinationsViewHolder) holder).bind(section.getData(), isPopular, section.getTitle());
         } else if (holder instanceof CategoriesViewHolder) {
             ((CategoriesViewHolder) holder).bind(categories, section.getTitle());
         }
@@ -195,15 +199,19 @@ public class HomeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         }
 
         void bind(List<Place> places) {
-            bind(places, false);
+            bind(places, false, null);
         }
 
-        void bind(List<Place> places, boolean isPopular) {
+        void bind(List<Place> places, boolean isPopular, String sectionTitle) {
             TextView tvHeader = itemView.findViewById(R.id.tvFeaturedHeader);
             View btnViewAll = itemView.findViewById(R.id.btnViewAll);
             
             if (tvHeader != null) {
-                tvHeader.setText(isPopular ? R.string.popular_this_week_header : R.string.featured_destinations_header);
+                if (!TextUtils.isEmpty(sectionTitle)) {
+                    tvHeader.setText(sectionTitle);
+                } else {
+                    tvHeader.setText(isPopular ? R.string.popular_this_week_header : R.string.featured_destinations_header);
+                }
             }
 
             if (places == null || places.isEmpty()) {
