@@ -15,16 +15,17 @@ public class LocalPlaceCatalog {
 
     @NonNull
     public List<Place> getAllPlaces() {
-        return DataProvider.getAllPlaces();
+        // Return empty list to avoid using hardcoded fallback data; rely on Firestore.
+        return new java.util.ArrayList<>();
     }
 
     @NonNull
     public List<Place> getTopPicks() {
-        return DataProvider.getTopPicks();
+        return new java.util.ArrayList<>();
     }
 
     @NonNull
     public List<Place> getPlacesByCategory(@NonNull String category) {
-        return DataProvider.getPlacesByCategory(category);
+        return new java.util.ArrayList<>();
     }
 }

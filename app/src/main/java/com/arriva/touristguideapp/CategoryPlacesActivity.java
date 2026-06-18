@@ -89,6 +89,19 @@ public class CategoryPlacesActivity extends BaseActivity implements PlaceAdapter
     }
 
     private void loadData(List<String> categories) {
+        // If a single category is requested, prefer a targeted Firestore query for that category.
+        if (categories != null && categories.size() == 1) {
+            String category = categories.get(0);
+            placeRepository.fetchPublishedByCategory(category, (places, origin, message) -> {
+                showOfflineCacheBanner(false);
+                filteredList = new ArrayList<>(places);
+
+                // proceed with same UI update flow below
+                onPlacesLoadedPostFetch();
+            });
+            return;
+        }
+
         placeRepository.getPlacesOfflineFirst(null, categories, (places, origin, cacheEmpty, message) -> {
             showOfflineCacheBanner(origin == PlaceRepository.DataOrigin.ROOM_CACHE && !cacheEmpty);
             filteredList = new ArrayList<>(places);
@@ -105,26 +118,43 @@ public class CategoryPlacesActivity extends BaseActivity implements PlaceAdapter
                 place.setDistance(distanceKm);
             }
 
-            // Sort by distance
-            DataProvider.sortByDistance(filteredList);
-
-            progressBar.setVisibility(View.GONE);
-
-            if (filteredList.isEmpty()) {
-                emptyLayout.setVisibility(View.VISIBLE);
-                recyclerView.setVisibility(View.GONE);
-                emptyLayout.setAlpha(0f);
-                emptyLayout.animate().alpha(1f).setDuration(300);
-            } else {
-                emptyLayout.setVisibility(View.GONE);
-                recyclerView.setVisibility(View.VISIBLE);
-                recyclerView.setAlpha(0f);
-                recyclerView.animate().alpha(1f).setDuration(300);
-                adapter = new PlaceAdapter(filteredList, this);
-                recyclerView.setAdapter(adapter);
-                recyclerView.setLayoutManager(new LinearLayoutManager(this));
-            }
+            // proceed with same UI update flow
+            onPlacesLoadedPostFetch();
         });
+    }
+
+    private void onPlacesLoadedPostFetch() {
+        // Calculate distances from mock user location
+        for (Place place : filteredList) {
+            float[] results = new float[1];
+            android.location.Location.distanceBetween(
+                USER_LAT, USER_LNG,
+                place.getLatitude(), place.getLongitude(),
+                results
+            );
+            double distanceKm = results[0] / 1000.0;
+            place.setDistance(distanceKm);
+        }
+
+        // Sort by distance
+        DataProvider.sortByDistance(filteredList);
+
+        progressBar.setVisibility(View.GONE);
+
+        if (filteredList.isEmpty()) {
+            emptyLayout.setVisibility(View.VISIBLE);
+            recyclerView.setVisibility(View.GONE);
+            emptyLayout.setAlpha(0f);
+            emptyLayout.animate().alpha(1f).setDuration(300);
+        } else {
+            emptyLayout.setVisibility(View.GONE);
+            recyclerView.setVisibility(View.VISIBLE);
+            recyclerView.setAlpha(0f);
+            recyclerView.animate().alpha(1f).setDuration(300);
+            adapter = new PlaceAdapter(filteredList, this);
+            recyclerView.setAdapter(adapter);
+            recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        }
     }
 
     private void showOfflineCacheBanner(boolean show) {
