@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Tourist Guide - Web Prototype</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Sora:wght@600&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        :root {
+            --primary: #2D4A2D;
+            --accent: #C8A96E;
+            --bg: #F7F6F2;
+            --card: #FFFFFF;
+        }
+        body { font-family: 'Inter', sans-serif; background-color: var(--bg); color: var(--primary); }
+        h1, h2, h3 { font-family: 'Sora', sans-serif; }
+        .tab-pill { transition: all 0.3s ease; border-radius: 50px; cursor: pointer; }
+        .active-tab { background-color: var(--primary) !important; color: white !important; opacity: 1 !important; }
+        .card { border-radius: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+        .btn-primary { background-color: var(--primary); color: white; border-radius: 12px; transition: transform 0.2s; }
+        .btn-primary:active { transform: scale(0.98); }
+        .btn-primary:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+        .accent-gold { color: var(--accent); }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+        .fade-enter { opacity: 0; transform: translateY(10px); }
+        .fade-enter-active { opacity: 1; transform: translateY(0); transition: opacity 0.3s, transform 0.3s; }
+
+        @media (prefers-reduced-motion: reduce) {
+            * { transition: none !important; animation: none !important; }
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col">
+
+    <!-- Global Localization Engine -->
+    <script>
+        const locales = {
+            en: {
+                appName: "Smart Tourist Guide",
+                login: "Join/Login",
+                tabs: { discover: "Discover", interactive: "Interactive", ai: "AI", trip: "Trip", phrasebook: "Phrasebook", favorites: "Favs" },
+                home: {
+                    welcome: "Ready for Adventure?",
+                    subtitle: "Explore the hidden gems of the city.",
+                    planner: "Trip Planner",
+                    generate: "Generate Itinerary",
+                    days: "How many days?",
+                    vibe: "What's your vibe?"
+                },
+                favs: {
+                    title: "Saved Trips",
+                    empty: "No saved trips yet",
+                    emptySub: "Start planning your next adventure!",
+                    delete: "Delete"
+                },
+                sos: { title: "Emergency SOS", desc: "Get immediate help" },
+                error: { msg: "Something went wrong", retry: "Retry" }
+            },
+            hi: {
+                appName: "स्मार्ट टूरिस्ट गाइड",
+                login: "लॉगिन करें",
+                tabs: { discover: "खोजें", interactive: "नक्शा", ai: "एआई", trip: "यात्रा", phrasebook: "शब्दकोश", favorites: "पसंद" },
+                home: {
+                    welcome: "रोमांच के लिए तैयार हैं?",
+                    subtitle: "शहर के छिपे हुए रत्नों का अन्वेषण करें।",
+                    planner: "यात्रा योजनाकार",
+                    generate: "यात्रा कार्यक्रम बनाएं",
+                    days: "कितने दिन?",
+                    vibe: "आपका मूड कैसा है?"
+                },
+                favs: {
+                    title: "सहेजी गई यात्राएं",
+                    empty: "अभी तक कोई सहेजी गई यात्रा नहीं",
+                    emptySub: "अपनी अगली यात्रा की योजना बनाना शुरू करें!",
+                    delete: "मिटाएं"
+                },
+                sos: { title: "आपातकालीन SOS", desc: "तुरंत मदद पाएं" },
+                error: { msg: "कुछ गलत हो गया", retry: "पुनः प्रयास करें" }
+            },
+            mr: {
+                appName: "स्मार्ट टुरिस्ट गाईड",
+                login: "लॉगिन करा",
+                tabs: { discover: "शोधा", interactive: "नकाशा", ai: "एआय", trip: "सहली", phrasebook: "शब्दसंग्रह", favorites: "आवडते" },
+                home: {
+                    welcome: "साहसासाठी तयार आहात का?",
+                    subtitle: "शहरातील लपलेली ठिकाणे शोधा.",
+                    planner: "सहल नियोजक",
+                    generate: "मार्गदर्शिका तयार करा",
+                    days: "किती दिवस?",
+                    vibe: "तुमची आवड काय आहे?"
+                },
+                favs: {
+                    title: "जतन केलेल्या सहली",
+                    empty: "अद्याप एकही सहल जतन केलेली नाही",
+                    emptySub: "तुमच्या पुढच्या सहलीचे नियोजन सुरू करा!",
+                    delete: "काढून टाका"
+                },
+                sos: { title: "आणीबाणी SOS", desc: "त्वरीत मदत मिळवा" },
+                error: { msg: "काहीतरी चुकले आहे", retry: "पुन्हा प्रयत्न करा" }
+            }
+        };
+
+        let currentLang = localStorage.getItem('app_lang') || 'en';
+        let currentTab = 'trip';
+        let favs = JSON.parse(localStorage.getItem('saved_trips')) || [];
+
+        function t(path) {
+            const keys = path.split('.');
+            let result = locales[currentLang];
+            for (const key of keys) {
+                result = result ? result[key] : null;
+            }
+            return result || locales['en'][path] || path;
+        }
+
+        function setLanguage(lang) {
+            currentLang = lang;
+            localStorage.setItem('app_lang', lang);
+            render();
+        }
+
+        function switchTab(tabId) {
+            currentTab = tabId;
+            render();
+        }
+
+        function saveTrip() {
+            const newTrip = {
+                destination: "Pune Heritage Walk",
+                days: document.querySelector('.days-btn-active')?.innerText || "3",
+                plan: "Visit Shaniwar Wada, Aga Khan Palace, and Raja Dinkar Kelkar Museum."
+            };
+            favs.push(newTrip);
+            localStorage.setItem('saved_trips', JSON.stringify(favs));
+            render();
+        }
+
+        function deleteTrip(index) {
+            favs.splice(index, 1);
+            localStorage.setItem('saved_trips', JSON.stringify(favs));
+            render();
+        }
+    </script>
+
+    <!-- Header -->
+    <header class="bg-white px-6 py-4 flex justify-between items-center fixed top-0 w-full z-50 border-b border-gray-100">
+        <div class="flex items-center gap-2">
+            <div class="w-8 h-8 bg-[#2D4A2D] rounded-lg flex items-center justify-center">
+                <i data-lucide="map-pin" class="text-white w-5 h-5"></i>
+            </div>
+            <h1 class="text-lg font-bold" id="app-name"></h1>
+        </div>
+        <button class="text-sm font-semibold px-4 py-2 border border-[#2D4A2D] rounded-xl hover:bg-gray-50 focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[#2D4A2D]" id="btn-login"></button>
+    </header>
+
+    <!-- Navigation Tab Bar -->
+    <nav class="mt-20 px-4 bg-white py-3 overflow-x-auto no-scrollbar flex items-center gap-4 border-b border-gray-50 sticky top-[68px] z-40">
+        <div onclick="switchTab('discover')" class="tab-item flex flex-col items-center gap-1 min-w-[70px] opacity-60 transition-all hover:opacity-100" id="nav-discover">
+            <i data-lucide="compass" class="w-5 h-5"></i>
+            <span class="text-[10px] font-medium" id="tab-discover"></span>
+        </div>
+        <div onclick="switchTab('interactive')" class="tab-item flex flex-col items-center gap-1 min-w-[70px] opacity-60 transition-all hover:opacity-100" id="nav-interactive">
+            <i data-lucide="map" class="w-5 h-5"></i>
+            <span class="text-[10px] font-medium" id="tab-interactive-label"></span>
+        </div>
+        <div onclick="switchTab('ai')" class="tab-item flex flex-col items-center gap-1 min-w-[70px] opacity-60 transition-all hover:opacity-100" id="nav-ai">
+            <i data-lucide="bot" class="w-5 h-5"></i>
+            <span class="text-[10px] font-medium" id="tab-ai-label"></span>
+        </div>
+        <div onclick="switchTab('trip')" class="tab-item tab-pill flex items-center gap-2 px-4 py-2 min-w-[80px] opacity-60 transition-all hover:opacity-100" id="nav-trip">
+            <i data-lucide="calendar" class="w-4 h-4"></i>
+            <span class="text-xs font-bold" id="tab-trip-label"></span>
+        </div>
+        <div onclick="switchTab('phrasebook')" class="tab-item flex flex-col items-center gap-1 min-w-[70px] opacity-60 transition-all hover:opacity-100" id="nav-phrasebook">
+            <i data-lucide="languages" class="w-5 h-5"></i>
+            <span class="text-[10px] font-medium" id="tab-phrase"></span>
+        </div>
+        <div onclick="switchTab('favorites')" class="tab-item flex flex-col items-center gap-1 min-w-[70px] opacity-60 transition-all hover:opacity-100" id="nav-favorites">
+            <div class="relative">
+                <i data-lucide="heart" class="w-5 h-5"></i>
+                <span id="fav-badge" class="absolute -top-1 -right-1 bg-red-500 text-white text-[8px] rounded-full w-3 h-3 flex items-center justify-center hidden">0</span>
+            </div>
+            <span class="text-[10px] font-medium" id="tab-favs"></span>
+        </div>
+    </nav>
+
+    <!-- Main Content Area -->
+    <main id="content-area" class="flex-grow p-6 transition-all duration-300">
+        <!-- Content will be injected here -->
+    </main>
+
+    <!-- Templates -->
+    <template id="trip-template">
+        <div class="card bg-white p-6 min-h-[400px] fade-enter-active">
+            <div class="flex justify-between items-start mb-6">
+                <div>
+                    <h2 class="text-2xl font-bold mb-1" id="welcome-text"></h2>
+                    <p class="text-sm text-gray-500" id="subtitle-text"></p>
+                </div>
+                <div class="flex flex-col gap-1">
+                    <label for="lang-select" class="text-[10px] font-bold text-gray-400 uppercase">Language</label>
+                    <select id="lang-select" onchange="setLanguage(this.value)" class="bg-gray-50 text-xs p-2 rounded-lg border-none focus:ring-2 focus:ring-[#2D4A2D]">
+                        <option value="en">English</option>
+                        <option value="hi">हिंदी</option>
+                        <option value="mr">मराठी</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="space-y-6">
+                <div class="p-4 bg-[#F7F6F2] rounded-2xl border border-gray-100">
+                    <h3 class="font-bold mb-4 flex items-center gap-2 text-[#2D4A2D]">
+                        <i data-lucide="sparkles" class="w-4 h-4 accent-gold"></i>
+                        <span id="planner-title"></span>
+                    </h3>
+
+                    <div class="space-y-4">
+                        <div>
+                            <label class="text-xs font-bold text-gray-400 uppercase mb-2 block" id="label-days"></label>
+                            <div class="flex gap-2">
+                                <button onclick="this.parentElement.querySelectorAll('button').forEach(b => b.classList.remove('days-btn-active', 'bg-[#2D4A2D]', 'text-white')); this.classList.add('days-btn-active', 'bg-[#2D4A2D]', 'text-white')" class="w-10 h-10 rounded-full border border-gray-200 flex items-center justify-center text-sm font-bold transition-all">1</button>
+                                <button onclick="this.parentElement.querySelectorAll('button').forEach(b => b.classList.remove('days-btn-active', 'bg-[#2D4A2D]', 'text-white')); this.classList.add('days-btn-active', 'bg-[#2D4A2D]', 'text-white')" class="w-10 h-10 rounded-full border border-gray-200 flex items-center justify-center text-sm font-bold transition-all bg-[#2D4A2D] text-white days-btn-active">3</button>
+                                <button onclick="this.parentElement.querySelectorAll('button').forEach(b => b.classList.remove('days-btn-active', 'bg-[#2D4A2D]', 'text-white')); this.classList.add('days-btn-active', 'bg-[#2D4A2D]', 'text-white')" class="w-10 h-10 rounded-full border border-gray-200 flex items-center justify-center text-sm font-bold transition-all">5</button>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="text-xs font-bold text-gray-400 uppercase mb-2 block" id="label-vibe"></label>
+                            <div class="flex flex-wrap gap-2">
+                                <span class="px-4 py-2 bg-white rounded-full border border-gray-100 text-xs font-medium cursor-pointer hover:border-[#2D4A2D]">🏛️ Culture</span>
+                                <span class="px-4 py-2 bg-white rounded-full border border-gray-100 text-xs font-medium cursor-pointer hover:border-[#2D4A2D]">🍕 Foodie</span>
+                                <span class="px-4 py-2 bg-white rounded-full border border-gray-100 text-xs font-medium cursor-pointer hover:border-[#2D4A2D]">🌲 Nature</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <button onclick="saveTrip()" class="w-full btn-primary py-4 font-bold flex items-center justify-center gap-2 shadow-lg shadow-[#2d4a2d33] active:scale-95">
+                    <span id="btn-generate"></span>
+                    <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                </button>
+
+                <div class="p-4 border-2 border-dashed border-red-100 rounded-2xl bg-red-50 flex items-center justify-between">
+                    <div>
+                        <p class="text-xs font-bold text-red-600 uppercase" id="sos-title"></p>
+                        <p class="text-[10px] text-red-400" id="sos-desc"></p>
+                    </div>
+                    <div class="w-10 h-10 bg-red-600 rounded-full flex items-center justify-center shadow-md cursor-pointer active:scale-90 transition-transform">
+                        <i data-lucide="phone-call" class="text-white w-5 h-5"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </template>
+
+    <template id="favorites-template">
+        <div class="card bg-white p-6 min-h-[400px] fade-enter-active">
+            <h2 class="text-2xl font-bold mb-6" id="fav-title"></h2>
+
+            <div id="fav-list" class="space-y-3">
+                <!-- Fav cards injected here -->
+            </div>
+
+            <div id="fav-empty" class="flex flex-col items-center justify-center py-20 text-center hidden">
+                <div class="w-24 h-24 bg-gray-50 rounded-full flex items-center justify-center mb-4">
+                    <i data-lucide="compass" class="w-12 h-12 text-gray-300"></i>
+                </div>
+                <h3 class="font-bold text-gray-800" id="fav-empty-title"></h3>
+                <p class="text-sm text-gray-400" id="fav-empty-sub"></p>
+            </div>
+        </div>
+    </template>
+
+    <template id="placeholder-template">
+        <div class="card bg-white p-6 min-h-[400px] flex items-center justify-center text-center fade-enter-active">
+            <div>
+                <i data-lucide="construction" class="w-12 h-12 text-gray-200 mx-auto mb-4"></i>
+                <h3 class="font-bold text-gray-400">Coming Soon</h3>
+                <p class="text-xs text-gray-300">Section under development</p>
+            </div>
+        </div>
+    </template>
+
+    <script>
+        function render() {
+            const main = document.getElementById('content-area');
+            main.innerHTML = ''; // Clear content
+
+            // Handle Navigation Highlights
+            document.querySelectorAll('.tab-item').forEach(item => {
+                item.classList.remove('active-tab');
+                item.querySelectorAll('span, i').forEach(el => el.classList.remove('text-white'));
+            });
+            const activeNav = document.getElementById('nav-' + currentTab);
+            if (activeNav) {
+                activeNav.classList.add('active-tab');
+                activeNav.querySelectorAll('span, i').forEach(el => el.classList.add('text-white'));
+            }
+
+            // Update Tab Labels
+            document.getElementById('tab-discover').innerText = t('tabs.discover');
+            document.getElementById('tab-interactive-label').innerText = t('tabs.interactive');
+            document.getElementById('tab-ai-label').innerText = t('tabs.ai');
+            document.getElementById('tab-trip-label').innerText = t('tabs.trip');
+            document.getElementById('tab-phrase').innerText = t('tabs.phrasebook');
+            document.getElementById('tab-favs').innerText = t('tabs.favorites');
+
+            // Update Fav Badge
+            const badge = document.getElementById('fav-badge');
+            if (favs.length > 0) {
+                badge.innerText = favs.length;
+                badge.classList.remove('hidden');
+            } else {
+                badge.classList.add('hidden');
+            }
+
+            // Inject Content based on tab
+            if (currentTab === 'trip') {
+                const temp = document.getElementById('trip-template').content.cloneNode(true);
+                main.appendChild(temp);
+
+                document.getElementById('app-name').innerText = t('appName');
+                document.getElementById('btn-login').innerText = t('login');
+                document.getElementById('welcome-text').innerText = t('home.welcome');
+                document.getElementById('subtitle-text').innerText = t('home.subtitle');
+                document.getElementById('planner-title').innerText = t('home.planner');
+                document.getElementById('label-days').innerText = t('home.days');
+                document.getElementById('label-vibe').innerText = t('home.vibe');
+                document.getElementById('btn-generate').innerText = t('home.generate');
+                document.getElementById('sos-title').innerText = t('sos.title');
+                document.getElementById('sos-desc').innerText = t('sos.desc');
+                document.getElementById('lang-select').value = currentLang;
+            } else if (currentTab === 'favorites') {
+                const temp = document.getElementById('favorites-template').content.cloneNode(true);
+                main.appendChild(temp);
+
+                document.getElementById('fav-title').innerText = t('favs.title');
+                const list = document.getElementById('fav-list');
+                const empty = document.getElementById('fav-empty');
+
+                if (favs.length === 0) {
+                    empty.classList.remove('hidden');
+                    document.getElementById('fav-empty-title').innerText = t('favs.empty');
+                    document.getElementById('fav-empty-sub').innerText = t('favs.emptySub');
+                } else {
+                    favs.forEach((trip, idx) => {
+                        const card = document.createElement('div');
+                        card.className = "flex items-center justify-between p-4 border border-gray-100 rounded-xl hover:bg-gray-50 transition-colors";
+                        card.innerHTML = `
+                            <div>
+                                <h4 class="font-bold text-sm">${trip.destination}</h4>
+                                <p class="text-xs text-gray-400">${trip.days} Days • ${trip.plan.substring(0, 30)}...</p>
+                            </div>
+                            <button onclick="deleteTrip(${idx})" class="p-2 text-red-300 hover:text-red-500 transition-colors" title="${t('favs.delete')}">
+                                <i data-lucide="trash-2" class="w-4 h-4"></i>
+                            </button>
+                        `;
+                        list.appendChild(card);
+                    });
+                }
+            } else {
+                const temp = document.getElementById('placeholder-template').content.cloneNode(true);
+                main.appendChild(temp);
+            }
+
+            lucide.createIcons();
+        }
+
+        render();
+    </script>
+</body>
+</html>

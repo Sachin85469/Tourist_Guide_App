@@ -1,0 +1,43 @@
+{
+  "common": {
+    "app_name": "Smart Tourist Guide",
+    "loading": "Loading...",
+    "retry": "Retry",
+    "back": "Back",
+    "save": "Save",
+    "cancel": "Cancel"
+  },
+  "dashboard": {
+    "welcome": "Ready for Adventure?",
+    "subtitle": "Explore the hidden gems of the city.",
+    "categories": "Categories",
+    "recommended": "Recommended for You",
+    "trending": "Trending Now",
+    "search_hint": "Search places..."
+  },
+  "planner": {
+    "title": "Trip Planner",
+    "how_many_days": "How many days?",
+    "vibe": "What's your vibe?",
+    "generate": "Generate Itinerary",
+    "itinerary": "Your Itinerary"
+  },
+  "profile": {
+    "title": "Profile",
+    "account": "Account",
+    "preferences": "Preferences",
+    "safety": "Safety & Support",
+    "logout": "Log Out"
+  },
+  "sos": {
+    "title": "Emergency SOS",
+    "subtitle": "Immediate assistance",
+    "confirm": "Confirm SOS",
+    "cancel": "I am safe"
+  },
+  "settings": {
+    "notifications": "Notifications",
+    "language": "Language",
+    "dark_mode": "Dark Mode"
+  }
+}

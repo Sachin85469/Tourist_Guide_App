@@ -1,0 +1,43 @@
+{
+  "common": {
+    "app_name": "स्मार्ट टुरिस्ट गाईड",
+    "loading": "लोड होत आहे...",
+    "retry": "पुन्हा प्रयत्न करा",
+    "back": "मागे",
+    "save": "जतन करा",
+    "cancel": "रद्द करा"
+  },
+  "dashboard": {
+    "welcome": "साहसासाठी तयार आहात का?",
+    "subtitle": "शहरातील लपलेली ठिकाणे शोधा.",
+    "categories": "श्रेणी",
+    "recommended": "तुमच्यासाठी शिफारस केलेले",
+    "trending": "आता ट्रेंडिंग",
+    "search_hint": "ठिकाणे शोधा..."
+  },
+  "planner": {
+    "title": "सहल नियोजक",
+    "how_many_days": "किती दिवस?",
+    "vibe": "तुमची आवड काय आहे?",
+    "generate": "मार्गदर्शिका तयार करा",
+    "itinerary": "तुमची मार्गदर्शिका"
+  },
+  "profile": {
+    "title": "प्रोफाइल",
+    "account": "खाते",
+    "preferences": "पसंती",
+    "safety": "सुरक्षा आणि समर्थन",
+    "logout": "लॉग आउट"
+  },
+  "sos": {
+    "title": "आणीबाणी SOS",
+    "subtitle": "त्वरीत मदत",
+    "confirm": "SOS ची पुष्टी करा",
+    "cancel": "मी सुरक्षित आहे"
+  },
+  "settings": {
+    "notifications": "सूचना",
+    "language": "भाषा",
+    "dark_mode": "डार्क मोड"
+  }
+}
