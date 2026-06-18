@@ -429,6 +429,14 @@ class PlaceDetailsActivity : BaseActivity() {
     private fun updateRatingSummary(avg: Double, total: Long, comments: Long) {
         val summary = if (total == 0L) "No reviews yet" else String.format(Locale.getDefault(), "⭐ %.1f (%d reviews)", avg, total)
         tvRatingSummary?.text = summary
+
+        if (total == 0L) {
+            tvLargeRating?.text = "New"
+            tvLargeStars?.visibility = View.GONE
+            return
+        }
+
+        tvLargeStars?.visibility = View.VISIBLE
         
         tvLargeRating?.text = String.format(Locale.getDefault(), "%.1f", if (avg > 0) avg else 0.0)
         

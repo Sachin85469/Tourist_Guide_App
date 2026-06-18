@@ -26,7 +26,6 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.arriva.touristguideapp.data.chat.AnthropicChatClient;
 import com.arriva.touristguideapp.data.chat.ChatClient;
 import com.arriva.touristguideapp.data.chat.ChatMessage;
 import com.arriva.touristguideapp.data.chat.ChatRepository;
@@ -173,17 +172,7 @@ public class AiChatActivity extends BaseActivity {
     }
 
     private void initChatClient() {
-        String anthropicKey = BuildConfig.ANTHROPIC_API_KEY.trim();
         String systemInstruction = getString(R.string.ai_system_instruction);
-
-        if (isConfiguredKey(anthropicKey)) {
-            chatClient = new AnthropicChatClient(
-                    this,
-                    anthropicKey,
-                    systemInstruction
-            );
-            return;
-        }
 
         String geminiKey = BuildConfig.GEMINI_API_KEY.trim();
         if (!isConfiguredKey(geminiKey)) {

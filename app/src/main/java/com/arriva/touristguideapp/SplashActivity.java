@@ -48,10 +48,7 @@ public class SplashActivity extends BaseActivity {
     }
 
     private void openMain() {
-        Intent intent = new Intent(SplashActivity.this, MainActivity.class);
-        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-        startActivity(intent);
-        finish();
+        InterestSelectionNavigator.openNext(this);
     }
 
     private void openLogin() {

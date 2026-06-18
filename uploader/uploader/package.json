@@ -4,6 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "cleanup:zero-rating-avg": "node cleanup-zero-rating-avg.js",
+    "cleanup:zero-rating-avg:commit": "node cleanup-zero-rating-avg.js --commit",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],

@@ -46,10 +46,12 @@ import java.util.Set;
 public class ItineraryActivity extends BaseActivity {
 
     private static final String TAG = "ItineraryActivity";
-    private static final String API_URL = "https://api.anthropic.com/v1/messages";
-    private static final String ANTHROPIC_MODEL = "claude-sonnet-4-6";
+    private static final String API_URL = BuildConfig.ITINERARY_BACKEND_URL;
     private static final String REQUEST_TAG = "ai_trip_plan";
     private static final int MAX_CONTEXT_PLACES = 30;
+    private static final double EARTH_RADIUS_KM = 6371.0;
+    private static final double INITIAL_PROXIMITY_RADIUS_KM = 15.0;
+    private static final double MAX_PROXIMITY_RADIUS_KM = 60.0;
 
     private RecyclerView rvItinerary;
     private ItineraryAdapter adapter;
@@ -183,7 +185,7 @@ public class ItineraryActivity extends BaseActivity {
                     loadedPlaces.clear();
                     loadedPlaces.addAll(places);
 
-                    if (!isNetworkAvailable() || !isConfiguredKey(BuildConfig.ANTHROPIC_API_KEY)) {
+                    if (!isNetworkAvailable() || !isConfiguredEndpoint(API_URL)) {
                         showFallbackPlan(places, days, type, budget);
                         return;
                     }
@@ -195,16 +197,10 @@ public class ItineraryActivity extends BaseActivity {
     private void generateAiPlan(int days, String type, String budget, List<Place> places) {
         try {
             JSONObject body = new JSONObject();
-            body.put("model", ANTHROPIC_MODEL);
-            body.put("max_tokens", 2000);
-            body.put("system", "You are a travel guide assistant. Always respond with valid JSON only.");
-
-            JSONArray messages = new JSONArray();
-            JSONObject userMessage = new JSONObject();
-            userMessage.put("role", "user");
-            userMessage.put("content", buildAiPrompt(days, type, budget, places));
-            messages.put(userMessage);
-            body.put("messages", messages);
+            body.put("days", days);
+            body.put("type", type);
+            body.put("budget", budget);
+            body.put("places", buildPlacesPayload(type, budget, places));
 
             JsonObjectRequest request = new JsonObjectRequest(
                     Request.Method.POST,
@@ -215,16 +211,7 @@ public class ItineraryActivity extends BaseActivity {
                         Log.w(TAG, "AI itinerary request failed", error);
                         showFallbackPlan(places, days, type, budget);
                     }
-            ) {
-                @Override
-                public Map<String, String> getHeaders() {
-                    Map<String, String> headers = new HashMap<>();
-                    headers.put("x-api-key", BuildConfig.ANTHROPIC_API_KEY.trim());
-                    headers.put("anthropic-version", "2023-06-01");
-                    headers.put("content-type", "application/json");
-                    return headers;
-                }
-            };
+            );
             request.setTag(REQUEST_TAG);
             request.setRetryPolicy(new DefaultRetryPolicy(
                     30000,
@@ -238,41 +225,7 @@ public class ItineraryActivity extends BaseActivity {
         }
     }
 
-    private String buildAiPrompt(int days, String type, String budget, List<Place> places) {
-        String contextString = buildPlacesContext(type, budget, places);
-        return "You are a travel expert for Pune, India. The user wants a "
-                + days + "-day " + type + " trip on a " + budget + " budget.\n"
-                + "Available places:\n" + contextString + "\n\n"
-                + "Return ONLY a valid JSON object (no extra text, no markdown) in this exact format:\n"
-                + "{\n"
-                + "  \"tripTitle\": \"Your 2-Day Nature Escape in Pune\",\n"
-                + "  \"days\": [\n"
-                + "    {\n"
-                + "      \"dayNumber\": 1,\n"
-                + "      \"dayTheme\": \"Morning freshness and green trails\",\n"
-                + "      \"stops\": [\n"
-                + "        {\n"
-                + "          \"placeName\": \"Sinhagad Fort\",\n"
-                + "          \"timeSlot\": \"Morning (8am-11am)\",\n"
-                + "          \"duration\": \"3 hours\",\n"
-                + "          \"whyVisit\": \"Best experienced at sunrise before crowds arrive.\",\n"
-                + "          \"tips\": \"Carry water and wear comfortable shoes.\"\n"
-                + "        }\n"
-                + "      ]\n"
-                + "    }\n"
-                + "  ],\n"
-                + "  \"generalTips\": \"Book accommodation near Koregaon Park for easy access.\"\n"
-                + "}\n\n"
-                + "Rules:\n"
-                + "- Only use places from the provided list.\n"
-                + "- Do not repeat a place on the same day.\n"
-                + "- Spread stops sensibly across morning/afternoon/evening.\n"
-                + "- Match the type filter: if type is 'Nature', only include nature places.\n"
-                + "- If type is 'Mixed', use variety across categories.\n"
-                + "- Respect the budget: for 'Budget' trips, avoid places with budget='High'.";
-    }
-
-    private String buildPlacesContext(String type, String budget, List<Place> places) {
+    private JSONArray buildPlacesPayload(String type, String budget, List<Place> places) throws JSONException {
         List<Place> contextPlaces = filterPlacesForPlan(places, type, budget);
         if (contextPlaces.isEmpty()) {
             contextPlaces = new ArrayList<>(places);
@@ -280,34 +233,30 @@ public class ItineraryActivity extends BaseActivity {
 
         contextPlaces.sort((p1, p2) -> Double.compare(p2.getRating(), p1.getRating()));
 
-        StringBuilder context = new StringBuilder();
+        JSONArray placesJson = new JSONArray();
         int count = Math.min(MAX_CONTEXT_PLACES, contextPlaces.size());
         for (int i = 0; i < count; i++) {
             Place place = contextPlaces.get(i);
-            String category = valueOrDefault(place.getCategory(), "Mixed");
-            String rating = place.getTotalRatings() > 0
-                    ? String.format(Locale.US, "%.1f (%d reviews)", place.getRating(), place.getTotalRatings())
-                    : "New (0 reviews)";
-            String bestFor = valueOrDefault(place.getTag(), category + " lovers");
-            String placeBudget = valueOrDefault(place.getBudget(), "Medium");
-            String description = trimToLength(valueOrDefault(place.getDescription(), "No description available."), 140);
-
-            context.append("Place: ").append(valueOrDefault(place.getName(), "Unnamed place"))
-                    .append(" | Category: ").append(category)
-                    .append(" | Rating: ").append(rating)
-                    .append(" | Best for: ").append(bestFor)
-                    .append(" | Budget: ").append(placeBudget)
-                    .append(" | City: ").append(valueOrDefault(place.getCity(), "Pune"))
-                    .append(" | Description: ").append(description)
-                    .append('\n');
+            JSONObject placeJson = new JSONObject();
+            placeJson.put("name", valueOrDefault(place.getName(), "Unnamed place"));
+            placeJson.put("category", valueOrDefault(place.getCategory(), "Mixed"));
+            placeJson.put("rating", place.getRating());
+            placeJson.put("totalRatings", place.getTotalRatings());
+            placeJson.put("tag", valueOrDefault(place.getTag(), ""));
+            placeJson.put("budget", valueOrDefault(place.getBudget(), "Medium"));
+            placeJson.put("bestTime", valueOrDefault(place.getBestTime(), "Any"));
+            placeJson.put("city", valueOrDefault(place.getCity(), "Pune"));
+            placeJson.put("latitude", place.getLatitude());
+            placeJson.put("longitude", place.getLongitude());
+            placeJson.put("description", trimToLength(valueOrDefault(place.getDescription(), "No description available."), 280));
+            placesJson.put(placeJson);
         }
-        return context.toString();
+        return placesJson;
     }
 
     private void handleAiResponse(JSONObject response, List<Place> places, int days, String type, String budget) {
         try {
-            String jsonText = extractAssistantText(response);
-            ParsedAiPlan parsedPlan = parseAiPlan(jsonText, places);
+            ParsedAiPlan parsedPlan = parseAiPlan(response.toString(), places);
             if (parsedPlan.days.isEmpty()) {
                 throw new JSONException("AI response did not include usable itinerary days.");
             }
@@ -316,43 +265,6 @@ public class ItineraryActivity extends BaseActivity {
             Log.w(TAG, "Could not parse AI itinerary response", e);
             showFallbackPlan(places, days, type, budget);
         }
-    }
-
-    private String extractAssistantText(JSONObject response) throws JSONException {
-        JSONArray content = response.optJSONArray("content");
-        if (content == null) {
-            throw new JSONException("Missing content array.");
-        }
-
-        StringBuilder result = new StringBuilder();
-        for (int i = 0; i < content.length(); i++) {
-            JSONObject block = content.optJSONObject(i);
-            if (block != null && "text".equals(block.optString("type"))) {
-                String text = block.optString("text");
-                if (!isBlank(text)) {
-                    if (result.length() > 0) result.append('\n');
-                    result.append(text);
-                }
-            }
-        }
-        if (result.length() == 0) {
-            throw new JSONException("Empty assistant response.");
-        }
-        return extractJsonObject(result.toString());
-    }
-
-    private String extractJsonObject(String text) throws JSONException {
-        String cleaned = text.trim();
-        if (cleaned.startsWith("```")) {
-            cleaned = cleaned.replace("```json", "").replace("```", "").trim();
-        }
-
-        int start = cleaned.indexOf('{');
-        int end = cleaned.lastIndexOf('}');
-        if (start < 0 || end <= start) {
-            throw new JSONException("No JSON object found.");
-        }
-        return cleaned.substring(start, end + 1);
     }
 
     private ParsedAiPlan parseAiPlan(String jsonText, List<Place> places) throws JSONException {
@@ -396,6 +308,7 @@ public class ItineraryActivity extends BaseActivity {
                             placeName,
                             valueOrDefault(stopJson.optString("timeSlot"), fallbackTimeSlot(j)),
                             valueOrDefault(stopJson.optString("duration"), "Flexible"),
+                            valueOrDefault(stopJson.optString("travelNote"), ""),
                             valueOrDefault(stopJson.optString("whyVisit"), "A strong fit for this trip."),
                             valueOrDefault(stopJson.optString("tips"), "Check opening hours before visiting.")
                     ));
@@ -410,31 +323,55 @@ public class ItineraryActivity extends BaseActivity {
     }
 
     private void showFallbackPlan(List<Place> places, int days, String type, String budget) {
-        List<DayPlan> fallbackPlan = generateSmartPlan(places, days, type, budget);
+        SmartPlanResult fallbackPlan = generateSmartPlan(places, days, type, budget);
         String fallbackTitle = "Your " + days + "-Day " + type + " Trip";
-        renderPlan(fallbackTitle, "Generated using the basic offline planner.", fallbackPlan, true);
+        renderPlan(fallbackTitle, fallbackPlan.generalTips, fallbackPlan.days, true);
     }
 
-    private List<DayPlan> generateSmartPlan(List<Place> allPlaces, int days, String type, String budget) {
+    private SmartPlanResult generateSmartPlan(List<Place> allPlaces, int days, String type, String budget) {
+        SmartPlanResult result = new SmartPlanResult();
         List<DayPlan> plan = new ArrayList<>();
         List<Place> filtered = filterPlacesForPlan(allPlaces, type, budget);
-
-        filtered.sort((p1, p2) -> Double.compare(p2.getRating(), p1.getRating()));
-
-        int placesPerDay = 3;
-        int currentIdx = 0;
+        List<Place> alternatives = buildAlternativePlaces(allPlaces, type, budget, filtered);
+        Set<String> usedPlaceKeys = new HashSet<>();
+        boolean addedAlternatives = false;
+        TimeSlotAffinity[] slots = {
+                TimeSlotAffinity.MORNING,
+                TimeSlotAffinity.AFTERNOON,
+                TimeSlotAffinity.EVENING
+        };
 
         for (int i = 1; i <= days; i++) {
             DayPlan dayPlan = new DayPlan(i, fallbackDayTheme(type, i));
-            for (int j = 0; j < placesPerDay && currentIdx < filtered.size(); j++) {
-                Place place = filtered.get(currentIdx++);
-                dayPlan.stops.add(new ItineraryStop(
-                        valueOrDefault(place.getName(), "Unnamed place"),
-                        fallbackTimeSlot(j),
-                        fallbackDuration(j),
-                        fallbackWhyVisit(place),
-                        valueOrDefault(place.getTips(), "Check timings and travel time before you leave.")
-                ));
+            Place previousStop = null;
+
+            for (int j = 0; j < slots.length; j++) {
+                Place place = j == 0
+                        ? pickHighestRatedUnusedPlace(filtered, usedPlaceKeys, budget)
+                        : pickNearestPlaceForSlot(filtered, usedPlaceKeys, previousStop, slots[j], budget);
+                if (place == null) {
+                    break;
+                }
+
+                addStopToDay(dayPlan, place, previousStop, j, usedPlaceKeys);
+                previousStop = place;
+            }
+
+            if (dayPlan.stops.size() < 2) {
+                int originalStopCount = dayPlan.stops.size();
+                while (dayPlan.stops.size() < slots.length) {
+                    int slotIndex = dayPlan.stops.size();
+                    Place alternative = previousStop == null
+                            ? pickHighestRatedUnusedPlace(alternatives, usedPlaceKeys, budget)
+                            : pickNearestPlaceForSlot(alternatives, usedPlaceKeys, previousStop, slots[slotIndex], budget);
+                    if (alternative == null) {
+                        break;
+                    }
+
+                    addStopToDay(dayPlan, alternative, previousStop, slotIndex, usedPlaceKeys);
+                    previousStop = alternative;
+                }
+                addedAlternatives = addedAlternatives || dayPlan.stops.size() > originalStopCount;
             }
 
             if (dayPlan.stops.isEmpty()) {
@@ -443,7 +380,383 @@ public class ItineraryActivity extends BaseActivity {
 
             plan.add(dayPlan);
         }
-        return plan;
+        result.days.addAll(plan);
+        result.generalTips = addedAlternatives
+                ? buildLimitedSpotsTip(type)
+                : "Generated using the basic offline planner.";
+        return result;
+    }
+
+    private void addStopToDay(DayPlan dayPlan,
+                              Place place,
+                              Place previousStop,
+                              int slotIndex,
+                              Set<String> usedPlaceKeys) {
+        usedPlaceKeys.add(placeKey(place));
+        dayPlan.stops.add(new ItineraryStop(
+                valueOrDefault(place.getName(), "Unnamed place"),
+                fallbackTimeSlot(slotIndex),
+                fallbackDuration(slotIndex),
+                fallbackWhyVisit(place, previousStop),
+                valueOrDefault(place.getTips(), "Check timings and travel time before you leave.")
+        ));
+    }
+
+    private Place pickHighestRatedUnusedPlace(List<Place> places, Set<String> usedPlaceKeys, String budget) {
+        Place best = null;
+        for (Place place : places) {
+            if (isUsedPlace(place, usedPlaceKeys)) {
+                continue;
+            }
+            if (best == null || comparePlacePriority(place, best, budget) > 0) {
+                best = place;
+            }
+        }
+        return best;
+    }
+
+    private Place pickHighestRatedUnusedPlaceForSlot(List<Place> places,
+                                                     Set<String> usedPlaceKeys,
+                                                     TimeSlotAffinity slot,
+                                                     String budget) {
+        Place best = null;
+        for (Place place : places) {
+            if (isUsedPlace(place, usedPlaceKeys) || !fitsTimeSlot(place, slot)) {
+                continue;
+            }
+            if (best == null || comparePlacePriority(place, best, budget) > 0) {
+                best = place;
+            }
+        }
+        return best;
+    }
+
+    private Place pickNearestPlaceForSlot(List<Place> places,
+                                          Set<String> usedPlaceKeys,
+                                          Place previousStop,
+                                          TimeSlotAffinity slot,
+                                          String budget) {
+        if (!hasValidCoordinates(previousStop)) {
+            Place timeMatch = pickHighestRatedUnusedPlaceForSlot(places, usedPlaceKeys, slot, budget);
+            return timeMatch != null ? timeMatch : pickHighestRatedUnusedPlace(places, usedPlaceKeys, budget);
+        }
+
+        double radiusKm = INITIAL_PROXIMITY_RADIUS_KM;
+        while (radiusKm <= MAX_PROXIMITY_RADIUS_KM) {
+            Place place = findNearestUnusedPlace(places, usedPlaceKeys, previousStop, slot, true, radiusKm, budget);
+            if (place != null) {
+                return place;
+            }
+            radiusKm *= 2.0;
+        }
+
+        Place nearestAnyTime = findNearestUnusedPlace(
+                places,
+                usedPlaceKeys,
+                previousStop,
+                slot,
+                false,
+                Double.POSITIVE_INFINITY,
+                budget
+        );
+        return nearestAnyTime != null ? nearestAnyTime : pickHighestRatedUnusedPlace(places, usedPlaceKeys, budget);
+    }
+
+    private Place findNearestUnusedPlace(List<Place> places,
+                                         Set<String> usedPlaceKeys,
+                                         Place previousStop,
+                                         TimeSlotAffinity slot,
+                                         boolean requireTimeMatch,
+                                         double radiusKm,
+                                         String budget) {
+        Place best = null;
+        double bestDistanceKm = Double.POSITIVE_INFINITY;
+        for (Place place : places) {
+            if (isUsedPlace(place, usedPlaceKeys)
+                    || !hasValidCoordinates(place)
+                    || (requireTimeMatch && !fitsTimeSlot(place, slot))) {
+                continue;
+            }
+
+            double distanceKm = haversineDistanceKm(previousStop, place);
+            if (!Double.isFinite(distanceKm) || distanceKm > radiusKm) {
+                continue;
+            }
+
+            if (best == null
+                    || distanceKm < bestDistanceKm
+                    || (Math.abs(distanceKm - bestDistanceKm) < 0.1 && comparePlacePriority(place, best, budget) > 0)) {
+                best = place;
+                bestDistanceKm = distanceKm;
+            }
+        }
+        return best;
+    }
+
+    private int comparePlacePriority(Place first, Place second, String budget) {
+        int budgetCompare = Integer.compare(budgetPreferenceScore(first, budget), budgetPreferenceScore(second, budget));
+        if (budgetCompare != 0) {
+            return budgetCompare;
+        }
+
+        int ratingCompare = Double.compare(first.getRating(), second.getRating());
+        if (ratingCompare != 0) {
+            return ratingCompare;
+        }
+        return Long.compare(first.getTotalRatings(), second.getTotalRatings());
+    }
+
+    private int budgetPreferenceScore(Place place, String budget) {
+        int tier = budgetTier(place.getBudget());
+        if (isBlank(budget)) {
+            return 0;
+        }
+
+        if (budget.equalsIgnoreCase("Luxury")) {
+            if (tier >= 3) return 3;
+            if (tier == 2) return 2;
+            if (tier == 1) return 1;
+            return 0;
+        }
+
+        if (budget.equalsIgnoreCase("Budget")) {
+            if (tier == 1) return 3;
+            if (tier == 2) return 1;
+            if (tier >= 3) return -3;
+            return 0;
+        }
+
+        if (budget.equalsIgnoreCase("Mid-range")) {
+            if (tier == 2) return 3;
+            if (tier == 1) return 2;
+            if (tier >= 3) return -2;
+            return 0;
+        }
+
+        return 0;
+    }
+
+    private int budgetTier(String budget) {
+        String value = valueOrDefault(budget, "").toLowerCase(Locale.US);
+        if (containsAny(value, "luxury", "premium", "high", "expensive")) {
+            return 3;
+        }
+        if (containsAny(value, "mid", "medium", "moderate")) {
+            return 2;
+        }
+        if (containsAny(value, "budget", "low", "free", "cheap")) {
+            return 1;
+        }
+        return 0;
+    }
+
+    private List<Place> buildAlternativePlaces(List<Place> allPlaces,
+                                               String type,
+                                               String budget,
+                                               List<Place> primaryPlaces) {
+        Set<String> primaryKeys = new HashSet<>();
+        for (Place place : primaryPlaces) {
+            primaryKeys.add(placeKey(place));
+        }
+
+        List<String> adjacentCategories = adjacentCategoriesForType(type);
+        List<Place> adjacentBudgetMatches = collectAlternativePlaces(
+                allPlaces,
+                primaryKeys,
+                adjacentCategories,
+                budget,
+                true
+        );
+        if (!adjacentBudgetMatches.isEmpty()) {
+            return adjacentBudgetMatches;
+        }
+
+        List<Place> budgetMatches = collectAlternativePlaces(
+                allPlaces,
+                primaryKeys,
+                new ArrayList<>(),
+                budget,
+                true
+        );
+        if (!budgetMatches.isEmpty()) {
+            return budgetMatches;
+        }
+
+        List<Place> adjacentAnyBudget = collectAlternativePlaces(
+                allPlaces,
+                primaryKeys,
+                adjacentCategories,
+                budget,
+                false
+        );
+        if (!adjacentAnyBudget.isEmpty()) {
+            return adjacentAnyBudget;
+        }
+
+        return collectAlternativePlaces(
+                allPlaces,
+                primaryKeys,
+                new ArrayList<>(),
+                budget,
+                false
+        );
+    }
+
+    private List<Place> collectAlternativePlaces(List<Place> allPlaces,
+                                                 Set<String> primaryKeys,
+                                                 List<String> categories,
+                                                 String budget,
+                                                 boolean requireBudgetMatch) {
+        List<Place> alternatives = new ArrayList<>();
+        for (Place place : allPlaces) {
+            if (primaryKeys.contains(placeKey(place))) {
+                continue;
+            }
+            if (!categories.isEmpty() && !categoryMatchesAny(place, categories)) {
+                continue;
+            }
+            if (requireBudgetMatch && !matchesBudget(place, budget)) {
+                continue;
+            }
+            alternatives.add(place);
+        }
+        return alternatives;
+    }
+
+    private List<String> adjacentCategoriesForType(String type) {
+        List<String> categories = new ArrayList<>();
+        if (isBlank(type) || type.equalsIgnoreCase("Mixed") || type.equalsIgnoreCase("All")) {
+            return categories;
+        }
+
+        String normalizedType = type.trim().toLowerCase(Locale.US);
+        if (normalizedType.equals("nature")) {
+            categories.add("Adventure");
+            categories.add("Spiritual");
+        } else if (normalizedType.equals("adventure")) {
+            categories.add("Nature");
+            categories.add("History");
+        } else if (normalizedType.equals("history")) {
+            categories.add("Spiritual");
+            categories.add("Shopping");
+        } else if (normalizedType.equals("spiritual")) {
+            categories.add("History");
+            categories.add("Nature");
+        } else if (normalizedType.equals("food")) {
+            categories.add("Shopping");
+            categories.add("Entertainment");
+        } else if (normalizedType.equals("shopping")) {
+            categories.add("Food");
+            categories.add("Entertainment");
+        } else if (normalizedType.equals("entertainment")) {
+            categories.add("Food");
+            categories.add("Shopping");
+        }
+        return categories;
+    }
+
+    private boolean categoryMatchesAny(Place place, List<String> categories) {
+        String category = place.getCategory();
+        if (isBlank(category)) {
+            return false;
+        }
+        for (String candidate : categories) {
+            if (category.equalsIgnoreCase(candidate)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private boolean fitsTimeSlot(Place place, TimeSlotAffinity slot) {
+        TimeSlotAffinity affinity = classifyTimeSlotAffinity(place);
+        return affinity == TimeSlotAffinity.ANY || affinity == slot;
+    }
+
+    private TimeSlotAffinity classifyTimeSlotAffinity(Place place) {
+        String bestTime = valueOrDefault(place.getBestTime(), "").toLowerCase(Locale.US);
+        if (containsAny(bestTime, "any", "all day", "full day")) {
+            return TimeSlotAffinity.ANY;
+        }
+
+        boolean morning = containsAny(bestTime, "morning", "sunrise", "early");
+        boolean afternoon = containsAny(bestTime, "afternoon", "noon", "day");
+        boolean evening = containsAny(bestTime, "evening", "sunset", "night");
+        int explicitMatches = (morning ? 1 : 0) + (afternoon ? 1 : 0) + (evening ? 1 : 0);
+
+        if (explicitMatches == 1) {
+            if (morning) return TimeSlotAffinity.MORNING;
+            if (afternoon) return TimeSlotAffinity.AFTERNOON;
+            return TimeSlotAffinity.EVENING;
+        }
+        if (explicitMatches > 1) {
+            return TimeSlotAffinity.ANY;
+        }
+
+        String category = valueOrDefault(place.getCategory(), "").toLowerCase(Locale.US);
+        if (containsAny(category, "nature", "adventure", "spiritual", "temple", "trek")) {
+            return TimeSlotAffinity.MORNING;
+        }
+        if (containsAny(category, "shopping", "history", "museum", "culture", "art")) {
+            return TimeSlotAffinity.AFTERNOON;
+        }
+        if (containsAny(category, "food", "entertainment", "nightlife")) {
+            return TimeSlotAffinity.EVENING;
+        }
+        return TimeSlotAffinity.ANY;
+    }
+
+    private boolean containsAny(String value, String... needles) {
+        for (String needle : needles) {
+            if (value.contains(needle)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private double haversineDistanceKm(Place first, Place second) {
+        if (!hasValidCoordinates(first) || !hasValidCoordinates(second)) {
+            return Double.POSITIVE_INFINITY;
+        }
+
+        double latDistance = Math.toRadians(second.getLatitude() - first.getLatitude());
+        double lngDistance = Math.toRadians(second.getLongitude() - first.getLongitude());
+        double startLat = Math.toRadians(first.getLatitude());
+        double endLat = Math.toRadians(second.getLatitude());
+
+        double a = Math.sin(latDistance / 2.0) * Math.sin(latDistance / 2.0)
+                + Math.cos(startLat) * Math.cos(endLat)
+                * Math.sin(lngDistance / 2.0) * Math.sin(lngDistance / 2.0);
+        double c = 2.0 * Math.atan2(Math.sqrt(a), Math.sqrt(1.0 - a));
+        return EARTH_RADIUS_KM * c;
+    }
+
+    private boolean hasValidCoordinates(Place place) {
+        if (place == null) {
+            return false;
+        }
+        double latitude = place.getLatitude();
+        double longitude = place.getLongitude();
+        return latitude >= -90.0
+                && latitude <= 90.0
+                && longitude >= -180.0
+                && longitude <= 180.0
+                && !(Math.abs(latitude) < 0.000001 && Math.abs(longitude) < 0.000001);
+    }
+
+    private boolean isUsedPlace(Place place, Set<String> usedPlaceKeys) {
+        return usedPlaceKeys.contains(placeKey(place));
+    }
+
+    private String placeKey(Place place) {
+        if (place == null) {
+            return "";
+        }
+        if (!isBlank(place.getId())) {
+            return "id:" + place.getId().trim();
+        }
+        return "name:" + normalizeName(place.getName());
     }
 
     private List<Place> filterPlacesForPlan(List<Place> places, String type, String budget) {
@@ -464,7 +777,12 @@ public class ItineraryActivity extends BaseActivity {
     }
 
     private boolean matchesBudget(Place place, String budget) {
-        if (isBlank(budget) || budget.equalsIgnoreCase("Luxury")) {
+        if (isBlank(budget)) {
+            return true;
+        }
+
+        if (budget.equalsIgnoreCase("Luxury")) {
+            // Luxury travelers can consider any place; ranking prefers High/Luxury places first.
             return true;
         }
 
@@ -474,11 +792,11 @@ public class ItineraryActivity extends BaseActivity {
         }
 
         if (budget.equalsIgnoreCase("Budget")) {
-            return !placeBudget.equalsIgnoreCase("High") && !placeBudget.equalsIgnoreCase("Luxury");
+            return budgetTier(placeBudget) < 3;
         }
 
         if (budget.equalsIgnoreCase("Mid-range")) {
-            return !placeBudget.equalsIgnoreCase("High") && !placeBudget.equalsIgnoreCase("Luxury");
+            return budgetTier(placeBudget) < 3;
         }
 
         return true;
@@ -603,11 +921,9 @@ public class ItineraryActivity extends BaseActivity {
         return activeNetwork != null && activeNetwork.isConnected();
     }
 
-    private boolean isConfiguredKey(String apiKey) {
-        String key = apiKey == null ? "" : apiKey.trim();
-        return !key.isEmpty()
-                && !key.equalsIgnoreCase("YOUR_KEY")
-                && !key.startsWith("YOUR_");
+    private boolean isConfiguredEndpoint(String url) {
+        String endpoint = url == null ? "" : url.trim();
+        return endpoint.startsWith("https://") || endpoint.startsWith("http://");
     }
 
     private int clampDays(int days) {
@@ -633,13 +949,63 @@ public class ItineraryActivity extends BaseActivity {
         return type + " picks for Day " + dayNumber;
     }
 
+    private String buildLimitedSpotsTip(String type) {
+        String typeLabel = (isBlank(type) || type.equalsIgnoreCase("Mixed") || type.equalsIgnoreCase("All"))
+                ? "matching"
+                : type.trim();
+        return "Limited " + typeLabel + " spots found near you - we've added some nearby alternatives.";
+    }
+
     private String fallbackWhyVisit(Place place) {
+        return fallbackWhyVisit(place, null);
+    }
+
+    private String fallbackWhyVisit(Place place, Place previousStop) {
         String description = trimToLength(place.getDescription(), 120);
+        String proximity = buildProximityReason(place, previousStop);
+
+        String baseReason;
         if (!isBlank(description)) {
-            return description;
+            baseReason = description;
+        } else {
+            String category = valueOrDefault(place.getCategory(), "Pune");
+            baseReason = "A popular " + category.toLowerCase(Locale.US) + " stop for this itinerary.";
         }
-        String category = valueOrDefault(place.getCategory(), "Pune");
-        return "A popular " + category.toLowerCase(Locale.US) + " stop for this itinerary.";
+
+        if (!isBlank(proximity)) {
+            return proximity + " " + baseReason;
+        }
+        return baseReason;
+    }
+
+    private String buildProximityReason(Place place, Place previousStop) {
+        double distanceKm = haversineDistanceKm(previousStop, place);
+        if (!Double.isFinite(distanceKm) || distanceKm > 20.0) {
+            return "";
+        }
+        return "Just " + formatDistanceKm(distanceKm) + " from your last stop.";
+    }
+
+    private String formatDistanceKm(double distanceKm) {
+        if (distanceKm < 1.0) {
+            int meters = Math.max(100, (int) Math.round(distanceKm * 1000.0 / 100.0) * 100);
+            return meters + "m";
+        }
+        if (distanceKm < 10.0) {
+            double rounded = Math.round(distanceKm * 10.0) / 10.0;
+            if (Math.abs(rounded - Math.round(rounded)) < 0.01) {
+                return String.format(Locale.US, "%.0fkm", rounded);
+            }
+            return String.format(Locale.US, "%.1fkm", rounded);
+        }
+        return String.format(Locale.US, "%.0fkm", distanceKm);
+    }
+
+    private enum TimeSlotAffinity {
+        MORNING,
+        AFTERNOON,
+        EVENING,
+        ANY
     }
 
     private String trimToLength(String value, int maxLength) {
@@ -664,6 +1030,11 @@ public class ItineraryActivity extends BaseActivity {
     private static class ParsedAiPlan {
         String tripTitle = "Your AI Trip in Pune";
         String generalTips = "";
+        final List<DayPlan> days = new ArrayList<>();
+    }
+
+    private static class SmartPlanResult {
+        String generalTips = "Generated using the basic offline planner.";
         final List<DayPlan> days = new ArrayList<>();
     }
 
@@ -693,13 +1064,19 @@ public class ItineraryActivity extends BaseActivity {
         String placeName;
         String timeSlot;
         String duration;
+        String travelNote;
         String whyVisit;
         String tips;
 
         ItineraryStop(String placeName, String timeSlot, String duration, String whyVisit, String tips) {
+            this(placeName, timeSlot, duration, "", whyVisit, tips);
+        }
+
+        ItineraryStop(String placeName, String timeSlot, String duration, String travelNote, String whyVisit, String tips) {
             this.placeName = placeName;
             this.timeSlot = timeSlot;
             this.duration = duration;
+            this.travelNote = travelNote;
             this.whyVisit = whyVisit;
             this.tips = tips;
         }
@@ -758,6 +1135,8 @@ public class ItineraryActivity extends BaseActivity {
             TextView tvTimeSlot = stopView.findViewById(R.id.tvStopTimeSlot);
             TextView tvPlaceName = stopView.findViewById(R.id.tvStopPlaceName);
             TextView tvDuration = stopView.findViewById(R.id.tvStopDuration);
+            TextView tvTravelNote = stopView.findViewById(R.id.tvStopTravelNote);
+            TextView tvTravelNoteLabel = stopView.findViewById(R.id.tvStopTravelNoteLabel);
             TextView tvWhyVisit = stopView.findViewById(R.id.tvStopWhyVisit);
             TextView tvTips = stopView.findViewById(R.id.tvStopTips);
             TextView tvTipsLabel = stopView.findViewById(R.id.tvStopTipsLabel);
@@ -767,6 +1146,15 @@ public class ItineraryActivity extends BaseActivity {
             tvPlaceName.setText(valueOrDefault(stop.placeName, "Place"));
             tvDuration.setText(valueOrDefault(stop.duration, "Flexible"));
             tvWhyVisit.setText(valueOrDefault(stop.whyVisit, "A good fit for this day."));
+
+            if (isBlank(stop.travelNote)) {
+                tvTravelNote.setVisibility(View.GONE);
+                tvTravelNoteLabel.setVisibility(View.GONE);
+            } else {
+                tvTravelNote.setVisibility(View.VISIBLE);
+                tvTravelNoteLabel.setVisibility(View.VISIBLE);
+                tvTravelNote.setText(stop.travelNote);
+            }
 
             if (isBlank(stop.tips)) {
                 tvTips.setVisibility(View.GONE);

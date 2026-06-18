@@ -52,6 +52,11 @@
             android:theme="@style/Theme.TouristGuideApp" />
 
         <activity
+            android:name=".InterestSelectionActivity"
+            android:exported="false"
+            android:theme="@style/Theme.TouristGuideApp" />
+
+        <activity
             android:name=".MainActivity"
             android:exported="false" />
 

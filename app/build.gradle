@@ -27,10 +27,10 @@ android {
         }
         def googlePlacesKey = properties.getProperty('GOOGLE_PLACES_API_KEY', '').trim()
         def geminiKey = properties.getProperty('GEMINI_API_KEY', '').trim()
-        def anthropicKey = properties.getProperty('ANTHROPIC_API_KEY', '').trim()
+        def itineraryBackendUrl = properties.getProperty('ITINERARY_BACKEND_URL', '').trim()
         buildConfigField "String", "GOOGLE_PLACES_API_KEY", "\"${googlePlacesKey}\""
         buildConfigField "String", "GEMINI_API_KEY", "\"${geminiKey}\""
-        buildConfigField "String", "ANTHROPIC_API_KEY", "\"${anthropicKey}\""
+        buildConfigField "String", "ITINERARY_BACKEND_URL", "\"${itineraryBackendUrl}\""
     }
 
     packaging {

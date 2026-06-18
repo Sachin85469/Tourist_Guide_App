@@ -152,7 +152,15 @@ public class LoginActivity extends BaseActivity {
                                     user.getEmail(),
                                     "" // profileImage initially empty
                             );
-                            db.collection("users").document(user.getUid()).set(newUser);
+                            db.collection("users").document(user.getUid()).set(newUser)
+                                    .addOnCompleteListener(createTask -> {
+                                        if (!createTask.isSuccessful()) {
+                                            Log.e(TAG, "Failed to create Google user document", createTask.getException());
+                                        }
+                                        Toast.makeText(LoginActivity.this, "Welcome " + (user.getDisplayName() != null ? user.getDisplayName() : ""), Toast.LENGTH_SHORT).show();
+                                        navigateToHome();
+                                    });
+                            return;
                         }
                         Toast.makeText(LoginActivity.this, "Welcome " + (user.getDisplayName() != null ? user.getDisplayName() : ""), Toast.LENGTH_SHORT).show();
                         navigateToHome();
@@ -272,9 +280,6 @@ public class LoginActivity extends BaseActivity {
 
     private void navigateToHome() {
         recordLoginSession();
-        Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-        startActivity(intent);
-        finish();
+        InterestSelectionNavigator.openNext(this);
     }
 }

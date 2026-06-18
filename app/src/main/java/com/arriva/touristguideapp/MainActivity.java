@@ -103,8 +103,11 @@ public class MainActivity extends BaseActivity {
         Log.d("APP_DEBUG", "Layout loaded");
 
         // Initialize Places SDK
-        if (!Places.isInitialized()) {
-            Places.initialize(getApplicationContext(), BuildConfig.GOOGLE_PLACES_API_KEY);
+        String googlePlacesKey = BuildConfig.GOOGLE_PLACES_API_KEY.trim();
+        if (!Places.isInitialized() && isConfiguredApiKey(googlePlacesKey)) {
+            Places.initialize(getApplicationContext(), googlePlacesKey);
+        } else if (!Places.isInitialized()) {
+            Log.w(TAG, "Google Places SDK not initialized: GOOGLE_PLACES_API_KEY is missing.");
         }
 
         rvHome = findViewById(R.id.rvHome);
@@ -205,6 +208,13 @@ public class MainActivity extends BaseActivity {
                 overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
             });
         }
+    }
+
+    private boolean isConfiguredApiKey(String apiKey) {
+        return apiKey != null
+                && !apiKey.isEmpty()
+                && !apiKey.equalsIgnoreCase("YOUR_API_KEY")
+                && !apiKey.startsWith("YOUR_");
     }
 
     @Override
