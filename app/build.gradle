@@ -28,9 +28,14 @@ android {
         def googlePlacesKey = properties.getProperty('GOOGLE_PLACES_API_KEY', '').trim()
         def geminiKey = properties.getProperty('GEMINI_API_KEY', '').trim()
         def itineraryBackendUrl = properties.getProperty('ITINERARY_BACKEND_URL', '').trim()
+        // Arriva backend proxy URL and shared app token (no AI keys on device)
+        def arrivaBackendUrl = properties.getProperty('ARRIVA_BACKEND_URL', '').trim()
+        def arrivaAppToken   = properties.getProperty('ARRIVA_APP_TOKEN', '').trim()
         buildConfigField "String", "GOOGLE_PLACES_API_KEY", "\"${googlePlacesKey}\""
         buildConfigField "String", "GEMINI_API_KEY", "\"${geminiKey}\""
         buildConfigField "String", "ITINERARY_BACKEND_URL", "\"${itineraryBackendUrl}\""
+        buildConfigField "String", "ARRIVA_BACKEND_URL", "\"${arrivaBackendUrl}\""
+        buildConfigField "String", "ARRIVA_APP_TOKEN",    "\"${arrivaAppToken}\""
     }
 
     packaging {

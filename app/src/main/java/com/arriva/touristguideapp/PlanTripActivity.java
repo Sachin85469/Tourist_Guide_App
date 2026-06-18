@@ -1,19 +1,43 @@
 package com.arriva.touristguideapp;
 
+import android.animation.ObjectAnimator;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
-import android.widget.ArrayAdapter;
-import android.widget.Button;
+import android.view.animation.CycleInterpolator;
 import android.widget.ProgressBar;
-import android.widget.Spinner;
+import android.widget.TextView;
+
+import com.google.android.material.snackbar.Snackbar;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class PlanTripActivity extends BaseActivity {
 
-    private Spinner spinnerDays;
-    private Spinner spinnerType;
-    private Spinner spinnerBudget;
-    private Button btnGeneratePlan;
+    // ─── Duration chips ───────────────────────────────────────────────────────
+    private TextView chipDay1, chipDay2, chipDay3, chipDay4;
+    private int selectedDays = 1;
+
+    // ─── Vibe / spot-type chips (multi-select) ────────────────────────────────
+    private TextView chipVibeHistorical;
+    private TextView chipVibeNature;
+    private TextView chipVibeReligious;
+    private TextView chipVibeFood;
+    private TextView chipVibeCulture;
+    private TextView chipVibeAdventure;
+    private TextView chipVibeScenic;
+    private TextView chipVibeShopping;
+    /** Mutable set of currently selected vibe labels (display labels, trimmed). */
+    private final List<TextView> vibeChips = new ArrayList<>();
+
+    // ─── Budget chips ─────────────────────────────────────────────────────────
+    private TextView chipBudgetBudget, chipBudgetMid, chipBudgetPremium;
+    private String selectedBudget = "Mid-range";
+
+    // ─── CTA ──────────────────────────────────────────────────────────────────
+    private View   cardVibes;
+    private TextView btnGeneratePlan;
     private ProgressBar progressGeneratePlan;
 
     @Override
@@ -21,65 +45,19 @@ public class PlanTripActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_plan_trip);
 
-        androidx.appcompat.widget.Toolbar toolbar = findViewById(R.id.toolbar);
-        if (toolbar != null) {
-            toolbar.setNavigationOnClickListener(v -> finish());
-        }
+        // Back button in the custom header
+        View btnBack = findViewById(R.id.btnBack);
+        if (btnBack != null) btnBack.setOnClickListener(v -> finish());
 
-        spinnerDays = findViewById(R.id.spinnerDays);
-        spinnerType = findViewById(R.id.spinnerType);
-        spinnerBudget = findViewById(R.id.spinnerBudget);
-        btnGeneratePlan = findViewById(R.id.btnGeneratePlan);
-        progressGeneratePlan = findViewById(R.id.progressGeneratePlan);
+        bindViews();
+        setupDurationChips();
+        setupVibeChips();
+        setupBudgetChips();
+        setupCta();
 
-        if (spinnerDays != null) {
-            String[] daysOptions = {"1 Day", "2 Days", "3 Days", "4 Days", "5 Days", "6 Days", "7 Days"};
-            ArrayAdapter<String> daysAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, daysOptions);
-            daysAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-            spinnerDays.setAdapter(daysAdapter);
-        }
-
-        if (spinnerType != null) {
-            String[] typeOptions = {"Mixed", "Historical", "Nature", "Religious", "Food", "Culture", "Adventure"};
-            ArrayAdapter<String> typeAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, typeOptions);
-            typeAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-            spinnerType.setAdapter(typeAdapter);
-        }
-
-        if (spinnerBudget != null) {
-            String[] budgetOptions = {"Budget", "Mid-range", "Luxury"};
-            ArrayAdapter<String> budgetAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, budgetOptions);
-            budgetAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-            spinnerBudget.setAdapter(budgetAdapter);
-            spinnerBudget.setSelection(1);
-        }
-
-        if (btnGeneratePlan != null) {
-            btnGeneratePlan.setOnClickListener(v -> {
-                setGeneratingState(true);
-
-                int days = 1;
-                if (spinnerDays != null && spinnerDays.getSelectedItem() != null) {
-                    days = spinnerDays.getSelectedItemPosition() + 1;
-                }
-
-                String type = "Mixed";
-                if (spinnerType != null && spinnerType.getSelectedItem() != null) {
-                    type = spinnerType.getSelectedItem().toString();
-                }
-
-                String budget = "Mid-range";
-                if (spinnerBudget != null && spinnerBudget.getSelectedItem() != null) {
-                    budget = spinnerBudget.getSelectedItem().toString();
-                }
-
-                Intent intent = new Intent(PlanTripActivity.this, ItineraryActivity.class);
-                intent.putExtra("days", days);
-                intent.putExtra("type", type);
-                intent.putExtra("budget", budget);
-                startActivity(intent);
-            });
-        }
+        // Default selections on first load
+        selectDurationChip(chipDay1, 1);
+        selectBudgetChip(chipBudgetMid, "Mid-range");
     }
 
     @Override
@@ -88,16 +66,204 @@ public class PlanTripActivity extends BaseActivity {
         setGeneratingState(false);
     }
 
+    // ─── View binding ─────────────────────────────────────────────────────────
+
+    private void bindViews() {
+        chipDay1 = findViewById(R.id.chipDay1);
+        chipDay2 = findViewById(R.id.chipDay2);
+        chipDay3 = findViewById(R.id.chipDay3);
+        chipDay4 = findViewById(R.id.chipDay4);
+
+        chipVibeHistorical = findViewById(R.id.chipVibeHistorical);
+        chipVibeNature     = findViewById(R.id.chipVibeNature);
+        chipVibeReligious  = findViewById(R.id.chipVibeReligious);
+        chipVibeFood       = findViewById(R.id.chipVibeFood);
+        chipVibeCulture    = findViewById(R.id.chipVibeCulture);
+        chipVibeAdventure  = findViewById(R.id.chipVibeAdventure);
+        chipVibeScenic     = findViewById(R.id.chipVibeScenic);
+        chipVibeShopping   = findViewById(R.id.chipVibeShopping);
+
+        chipBudgetBudget  = findViewById(R.id.chipBudgetBudget);
+        chipBudgetMid     = findViewById(R.id.chipBudgetMid);
+        chipBudgetPremium = findViewById(R.id.chipBudgetPremium);
+
+        cardVibes         = findViewById(R.id.cardVibes);
+        btnGeneratePlan   = findViewById(R.id.btnGeneratePlan);
+        progressGeneratePlan = findViewById(R.id.progressGeneratePlan);
+    }
+
+    // ─── Duration chips: single-select ────────────────────────────────────────
+
+    private void setupDurationChips() {
+        chipDay1.setOnClickListener(v -> selectDurationChip(chipDay1, 1));
+        chipDay2.setOnClickListener(v -> selectDurationChip(chipDay2, 2));
+        chipDay3.setOnClickListener(v -> selectDurationChip(chipDay3, 3));
+        chipDay4.setOnClickListener(v -> selectDurationChip(chipDay4, 4));
+    }
+
+    private void selectDurationChip(TextView selected, int days) {
+        selectedDays = days;
+        applyChipSelected(chipDay1, selected == chipDay1);
+        applyChipSelected(chipDay2, selected == chipDay2);
+        applyChipSelected(chipDay3, selected == chipDay3);
+        applyChipSelected(chipDay4, selected == chipDay4);
+    }
+
+    // ─── Vibe chips: multi-select ──────────────────────────────────────────────
+
+    private void setupVibeChips() {
+        // Register chips with their backend category label (matches ItineraryActivity/server)
+        registerVibeChip(chipVibeHistorical, "Historical");
+        registerVibeChip(chipVibeNature,     "Nature");
+        registerVibeChip(chipVibeReligious,  "Religious");
+        registerVibeChip(chipVibeFood,       "Food");
+        registerVibeChip(chipVibeCulture,    "Culture");
+        registerVibeChip(chipVibeAdventure,  "Adventure");
+        registerVibeChip(chipVibeScenic,     "Scenic");
+        registerVibeChip(chipVibeShopping,   "Shopping");
+    }
+
+    /**
+     * Registers a vibe chip. The chip stores its category label in the tag,
+     * and its selected state is tracked by the {@code vibeChips} list.
+     */
+    private void registerVibeChip(TextView chip, String categoryLabel) {
+        chip.setTag(categoryLabel);
+        chip.setOnClickListener(v -> toggleVibeChip(chip));
+    }
+
+    private void toggleVibeChip(TextView chip) {
+        boolean isNowSelected = !vibeChips.contains(chip);
+        if (isNowSelected) {
+            vibeChips.add(chip);
+        } else {
+            vibeChips.remove(chip);
+        }
+        applyChipSelected(chip, isNowSelected);
+    }
+
+    /** Returns a list of the backend category strings for all selected vibe chips. */
+    private ArrayList<String> getSelectedVibes() {
+        ArrayList<String> labels = new ArrayList<>();
+        for (TextView chip : vibeChips) {
+            Object tag = chip.getTag();
+            if (tag instanceof String) {
+                labels.add((String) tag);
+            }
+        }
+        return labels;
+    }
+
+    // ─── Budget chips: single-select ──────────────────────────────────────────
+
+    private void setupBudgetChips() {
+        chipBudgetBudget.setOnClickListener(v  -> selectBudgetChip(chipBudgetBudget, "Budget"));
+        chipBudgetMid.setOnClickListener(v     -> selectBudgetChip(chipBudgetMid, "Mid-range"));
+        chipBudgetPremium.setOnClickListener(v -> selectBudgetChip(chipBudgetPremium, "Luxury"));
+    }
+
+    private void selectBudgetChip(TextView selected, String budget) {
+        selectedBudget = budget;
+        applyChipSelected(chipBudgetBudget,  selected == chipBudgetBudget);
+        applyChipSelected(chipBudgetMid,     selected == chipBudgetMid);
+        applyChipSelected(chipBudgetPremium, selected == chipBudgetPremium);
+    }
+
+    // ─── Chip visual helper ────────────────────────────────────────────────────
+
+    /**
+     * Switches a chip between selected (solid purple, white text) and
+     * unselected (white fill, purple text/outline) states by toggling the
+     * drawable's checked state via the view's background state list.
+     */
+    private void applyChipSelected(TextView chip, boolean selected) {
+        if (chip == null) return;
+        chip.setSelected(selected);
+        chip.getBackground().setState(selected
+                ? new int[]{android.R.attr.state_checked}
+                : new int[]{});
+        chip.setTextColor(selected
+                ? 0xFFFFFFFF   // white on filled purple
+                : 0xFF7C4DFF); // purple on white
+    }
+
+    // ─── CTA ──────────────────────────────────────────────────────────────────
+
+    private void setupCta() {
+        if (btnGeneratePlan == null) return;
+        btnGeneratePlan.setOnClickListener(v -> onCreateTripClicked());
+    }
+
+    private void onCreateTripClicked() {
+        ArrayList<String> selectedVibes = getSelectedVibes();
+
+        // Validate: at least one vibe must be selected
+        if (selectedVibes.isEmpty()) {
+            shakeView(cardVibes);
+            Snackbar.make(
+                    btnGeneratePlan,
+                    "Please select at least one type of spot",
+                    Snackbar.LENGTH_SHORT
+            ).setBackgroundTint(0xFF7C4DFF)
+             .setTextColor(0xFFFFFFFF)
+             .show();
+            return;
+        }
+
+        setGeneratingState(true);
+
+        // Build a comma-joined type string for the backend (ItineraryActivity passes
+        // it to generateAiPlan and the server handles comma-separated multi-vibe).
+        String typeString = selectedVibes.size() == 1
+                ? selectedVibes.get(0)
+                : String.join(", ", selectedVibes);
+
+        Intent intent = new Intent(PlanTripActivity.this, ItineraryActivity.class);
+        intent.putExtra("days",   selectedDays);
+        intent.putExtra("type",   typeString);
+        intent.putExtra("budget", selectedBudget);
+        intent.putStringArrayListExtra("vibes", selectedVibes);
+        startActivity(intent);
+    }
+
+    // ─── Shake animation for empty vibe validation ────────────────────────────
+
+    private void shakeView(View view) {
+        if (view == null) return;
+        ObjectAnimator shake = ObjectAnimator.ofFloat(view, "translationX",
+                0f, -16f, 16f, -12f, 12f, -8f, 8f, 0f);
+        shake.setDuration(500);
+        shake.setInterpolator(new CycleInterpolator(1f));
+        shake.start();
+    }
+
+    // ─── Loading / generating state ───────────────────────────────────────────
+
     private void setGeneratingState(boolean isGenerating) {
         if (btnGeneratePlan != null) {
             btnGeneratePlan.setEnabled(!isGenerating);
-            btnGeneratePlan.setText(isGenerating ? "Creating your AI trip..." : "Create My Trip");
+            btnGeneratePlan.setText(isGenerating ? "Creating your AI trip…" : "✨  Create My Trip");
+            btnGeneratePlan.setAlpha(isGenerating ? 0.75f : 1.0f);
         }
         if (progressGeneratePlan != null) {
             progressGeneratePlan.setVisibility(isGenerating ? View.VISIBLE : View.GONE);
         }
-        if (spinnerDays != null) spinnerDays.setEnabled(!isGenerating);
-        if (spinnerType != null) spinnerType.setEnabled(!isGenerating);
-        if (spinnerBudget != null) spinnerBudget.setEnabled(!isGenerating);
+        // Disable all chips during generation
+        setChipsEnabled(!isGenerating);
+    }
+
+    private void setChipsEnabled(boolean enabled) {
+        View[] allChips = {
+                chipDay1, chipDay2, chipDay3, chipDay4,
+                chipVibeHistorical, chipVibeNature, chipVibeReligious, chipVibeFood,
+                chipVibeCulture, chipVibeAdventure, chipVibeScenic, chipVibeShopping,
+                chipBudgetBudget, chipBudgetMid, chipBudgetPremium
+        };
+        for (View chip : allChips) {
+            if (chip != null) {
+                chip.setEnabled(enabled);
+                chip.setAlpha(enabled ? 1.0f : 0.6f);
+            }
+        }
     }
 }

@@ -26,6 +26,7 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.arriva.touristguideapp.data.chat.AnthropicChatClient;
 import com.arriva.touristguideapp.data.chat.ChatClient;
 import com.arriva.touristguideapp.data.chat.ChatMessage;
 import com.arriva.touristguideapp.data.chat.ChatRepository;
@@ -62,6 +63,11 @@ public class AiChatActivity extends BaseActivity {
     private final ArrayList<ChatMessage> displayMessages = new ArrayList<>();
 
     private ChatRepository chatRepository;
+    /** Primary chat client (proxy → Anthropic on the server). */
+    private ChatClient primaryClient;
+    /** Fallback chat client (Gemini directly) — used only when the proxy is unreachable. */
+    private ChatClient fallbackClient;
+    /** Alias for the currently active client (primary or fallback). */
     private ChatClient chatClient;
     private String userId;
     private boolean isThinking;
@@ -172,27 +178,39 @@ public class AiChatActivity extends BaseActivity {
     }
 
     private void initChatClient() {
-        String systemInstruction = getString(R.string.ai_system_instruction);
+        // ─── 1. Build the proxy client (always primary if a backend URL is configured) ───
+        String backendUrl = BuildConfig.ARRIVA_BACKEND_URL.trim();
+        String appToken   = BuildConfig.ARRIVA_APP_TOKEN.trim();
+        if (isConfiguredUrl(backendUrl)) {
+            String chatUrl = backendUrl.endsWith("/")
+                    ? backendUrl + "api/chat"
+                    : backendUrl + "/api/chat";
+            primaryClient = new AnthropicChatClient(this, chatUrl, appToken);
+            chatClient    = primaryClient;
+        }
 
+        // ─── 2. Build the Gemini fallback ───
         String geminiKey = BuildConfig.GEMINI_API_KEY.trim();
         if (!isConfiguredKey(geminiKey)) {
             geminiKey = getString(R.string.gemini_api_key).trim();
         }
-
         if (isConfiguredKey(geminiKey)) {
             try {
-                chatClient = new GeminiChatClient(
+                fallbackClient = new GeminiChatClient(
                         this,
                         geminiKey,
-                        systemInstruction
+                        getString(R.string.ai_system_instruction)
                 );
-                return;
-            } catch (RuntimeException error) {
-                android.util.Log.e("AiChatActivity", "Failed to initialize Gemini", error);
+                // If we have no primary, promote Gemini to primary.
+                if (chatClient == null) {
+                    chatClient = fallbackClient;
+                }
+            } catch (RuntimeException e) {
+                android.util.Log.e(TAG, "Failed to initialize Gemini fallback", e);
             }
         }
 
-        // No keys configured or no network - show offline state
+        // ─── 3. No client at all — show offline state ───
         if (chatClient == null) {
             isOffline = true;
             showOfflineState();
@@ -234,6 +252,14 @@ public class AiChatActivity extends BaseActivity {
         return !apiKey.isEmpty()
                 && !apiKey.equalsIgnoreCase("YOUR_KEY")
                 && !apiKey.startsWith("YOUR_");
+    }
+
+    private boolean isConfiguredUrl(String url) {
+        return url != null
+                && !url.isEmpty()
+                && !url.equalsIgnoreCase("YOUR_BACKEND_URL")
+                && !url.startsWith("YOUR_")
+                && (url.startsWith("http://") || url.startsWith("https://"));
     }
 
     private boolean isNetworkAvailable() {
@@ -333,6 +359,9 @@ public class AiChatActivity extends BaseActivity {
         int generation = ++requestGeneration;
         ArrayList<ChatMessage> historySnapshot = new ArrayList<>(conversation);
 
+        // Determines whether this call is already using the fallback.
+        final boolean usingFallback = (chatClient == fallbackClient);
+
         chatClient.sendConversation(historySnapshot, new ChatClient.Callback() {
             @Override
             public void onSuccess(@NonNull String response) {
@@ -355,6 +384,40 @@ public class AiChatActivity extends BaseActivity {
                     return;
                 }
 
+                // ─── Fallback: if primary (proxy) failed and we have a Gemini client, try it ───
+                if (!usingFallback && fallbackClient != null) {
+                    android.util.Log.w(TAG, "Proxy failed, falling back to Gemini: " + message);
+                    chatClient = fallbackClient;
+                    // Retry silently using Gemini — still within the same generation/spinner
+                    fallbackClient.sendConversation(historySnapshot, new ChatClient.Callback() {
+                        @Override
+                        public void onSuccess(@NonNull String response) {
+                            if (generation != requestGeneration || isFinishing() || isDestroyed()) {
+                                return;
+                            }
+                            setThinkingState(false);
+                            ChatMessage assistantMessage = new ChatMessage(
+                                    ChatMessage.ROLE_ASSISTANT,
+                                    response,
+                                    System.currentTimeMillis()
+                            );
+                            addConversationMessage(assistantMessage, true);
+                        }
+
+                        @Override
+                        public void onError(@NonNull String fallbackMessage) {
+                            if (generation != requestGeneration || isFinishing() || isDestroyed()) {
+                                return;
+                            }
+                            setThinkingState(false);
+                            addDisplayMessage(ChatMessage.error(
+                                    "Could not reach the assistant. " + fallbackMessage));
+                        }
+                    });
+                    return;
+                }
+
+                // Both primary and fallback failed (or we were already on fallback).
                 setThinkingState(false);
                 addDisplayMessage(ChatMessage.error(message));
             }
@@ -516,9 +579,8 @@ public class AiChatActivity extends BaseActivity {
     @Override
     protected void onDestroy() {
         requestGeneration++;
-        if (chatClient != null) {
-            chatClient.cancelRequests();
-        }
+        if (primaryClient != null) primaryClient.cancelRequests();
+        if (fallbackClient != null) fallbackClient.cancelRequests();
         super.onDestroy();
     }
 

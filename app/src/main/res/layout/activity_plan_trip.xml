@@ -1,203 +1,622 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/m3_background">
+    android:background="@color/color_background">
 
-    <com.google.android.material.appbar.AppBarLayout
+    <!-- ═══════════════════════════════════════════
+         FULL-BLEED GRADIENT HEADER
+    ═══════════════════════════════════════════ -->
+    <FrameLayout
+        android:id="@+id/planTripHeader"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="@color/white"
-        app:elevation="0dp">
+        android:layout_height="220dp"
+        android:background="@drawable/bg_plan_trip_header">
 
-        <androidx.appcompat.widget.Toolbar
-            android:id="@+id/toolbar"
+        <!-- Back button -->
+        <ImageView
+            android:id="@+id/btnBack"
+            android:layout_width="44dp"
+            android:layout_height="44dp"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="8dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:clickable="true"
+            android:contentDescription="Back"
+            android:focusable="true"
+            android:padding="10dp"
+            android:src="@drawable/ic_back"
+            android:tint="@color/white" />
+
+        <!-- Header text centered -->
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="?attr/actionBarSize"
-            app:navigationIcon="@drawable/ic_back">
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:orientation="vertical"
+            android:paddingTop="16dp"
+            android:paddingBottom="32dp">
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Plan Your Trip"
-                android:textAppearance="@style/TextAppearance.App.TitleLarge" />
-        </androidx.appcompat.widget.Toolbar>
-    </com.google.android.material.appbar.AppBarLayout>
+                android:textColor="@color/white"
+                android:textSize="30sp"
+                android:textStyle="bold"
+                android:letterSpacing="-0.02"
+                android:shadowColor="#44000000"
+                android:shadowDx="0"
+                android:shadowDy="2"
+                android:shadowRadius="6" />
 
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="Let AI craft your perfect Maharashtra day"
+                android:textColor="#CCffffff"
+                android:textSize="14sp" />
+
+            <!-- Decorative subtle landmark dots row -->
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:text="🏯" android:textSize="18sp" android:alpha="0.7"/>
+                <View android:layout_width="20dp" android:layout_height="1dp"
+                    android:background="#44FFFFFF" android:layout_marginHorizontal="6dp"/>
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:text="🌅" android:textSize="18sp" android:alpha="0.7"/>
+                <View android:layout_width="20dp" android:layout_height="1dp"
+                    android:background="#44FFFFFF" android:layout_marginHorizontal="6dp"/>
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:text="🗺️" android:textSize="18sp" android:alpha="0.7"/>
+            </LinearLayout>
+        </LinearLayout>
+    </FrameLayout>
+
+    <!-- ═══════════════════════════════════════════
+         SCROLLABLE CONTENT (offset below header)
+    ═══════════════════════════════════════════ -->
     <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@color/m3_background"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+        android:layout_marginTop="196dp"
+        android:clipToPadding="false"
+        android:fillViewport="true"
+        android:overScrollMode="never"
+        android:paddingBottom="32dp">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:padding="24dp">
+            android:paddingHorizontal="16dp"
+            android:paddingTop="8dp">
 
-            <!-- Step 1 Header -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:gravity="center_vertical"
-                android:orientation="horizontal">
-                <TextView
-                    android:layout_width="32dp"
-                    android:layout_height="32dp"
-                    android:background="@drawable/bg_favorite_circle"
-                    android:backgroundTint="@color/m3_primary"
-                    android:gravity="center"
-                    android:text="1"
-                    android:textColor="@color/white"
-                    android:textStyle="bold" />
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="12dp"
-                    android:text="Set Duration"
-                    android:textAppearance="@style/TextAppearance.App.TitleMedium" />
-            </LinearLayout>
-
+            <!-- ─────────────────────────────────────
+                 CARD 1: DURATION
+            ───────────────────────────────────── -->
             <com.google.android.material.card.MaterialCardView
-                style="@style/AppCard"
+                android:id="@+id/cardDuration"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
-                android:layout_marginStart="44dp"
-                app:cardElevation="0dp"
+                android:layout_marginBottom="12dp"
                 app:cardBackgroundColor="@color/white"
-                app:strokeWidth="1dp"
-                app:strokeColor="@color/m3_outline_variant">
-                <Spinner
-                    android:id="@+id/spinnerDays"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="4dp"
+                app:strokeColor="@color/color_outline_variant"
+                app:strokeWidth="0dp">
+
+                <LinearLayout
                     android:layout_width="match_parent"
-                    android:layout_height="56dp"
-                    android:paddingHorizontal="12dp" />
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="20dp">
+
+                    <!-- Card header row -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal"
+                        android:layout_marginBottom="16dp">
+
+                        <TextView
+                            android:layout_width="36dp"
+                            android:layout_height="36dp"
+                            android:background="@drawable/bg_favorite_circle"
+                            android:backgroundTint="@color/color_primary_container"
+                            android:gravity="center"
+                            android:text="⏱"
+                            android:textSize="16sp" />
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:layout_marginStart="12dp"
+                            android:orientation="vertical">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="How long?"
+                                android:textAppearance="@style/TextAppearance.App.TitleMedium"
+                                android:textColor="@color/color_on_surface" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Select trip duration"
+                                android:textColor="@color/color_text_secondary"
+                                android:textSize="12sp" />
+                        </LinearLayout>
+                    </LinearLayout>
+
+                    <!-- Duration chip row — single select via CheckBox logic in code -->
+                    <LinearLayout
+                        android:id="@+id/chipGroupDays"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:id="@+id/chipDay1"
+                            android:layout_width="0dp"
+                            android:layout_height="44dp"
+                            android:layout_weight="1"
+                            android:layout_marginEnd="6dp"
+                            android:background="@drawable/bg_plan_chip_toggle"
+                            android:clickable="true"
+                            android:focusable="true"
+                            android:gravity="center"
+                            android:stateListAnimator="@animator/chip_press"
+                            android:text="1 Day"
+                            android:textColor="@color/color_primary"
+                            android:textSize="13sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:id="@+id/chipDay2"
+                            android:layout_width="0dp"
+                            android:layout_height="44dp"
+                            android:layout_weight="1"
+                            android:layout_marginEnd="6dp"
+                            android:background="@drawable/bg_plan_chip_toggle"
+                            android:clickable="true"
+                            android:focusable="true"
+                            android:gravity="center"
+                            android:stateListAnimator="@animator/chip_press"
+                            android:text="2 Days"
+                            android:textColor="@color/color_primary"
+                            android:textSize="13sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:id="@+id/chipDay3"
+                            android:layout_width="0dp"
+                            android:layout_height="44dp"
+                            android:layout_weight="1"
+                            android:layout_marginEnd="6dp"
+                            android:background="@drawable/bg_plan_chip_toggle"
+                            android:clickable="true"
+                            android:focusable="true"
+                            android:gravity="center"
+                            android:stateListAnimator="@animator/chip_press"
+                            android:text="3 Days"
+                            android:textColor="@color/color_primary"
+                            android:textSize="13sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:id="@+id/chipDay4"
+                            android:layout_width="0dp"
+                            android:layout_height="44dp"
+                            android:layout_weight="1"
+                            android:background="@drawable/bg_plan_chip_toggle"
+                            android:clickable="true"
+                            android:focusable="true"
+                            android:gravity="center"
+                            android:stateListAnimator="@animator/chip_press"
+                            android:text="4+ Days"
+                            android:textColor="@color/color_primary"
+                            android:textSize="13sp"
+                            android:textStyle="bold" />
+                    </LinearLayout>
+                </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
-            <!-- Step 2 Header -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="32dp"
-                android:gravity="center_vertical"
-                android:orientation="horizontal">
-                <TextView
-                    android:layout_width="32dp"
-                    android:layout_height="32dp"
-                    android:background="@drawable/bg_favorite_circle"
-                    android:backgroundTint="@color/m3_primary"
-                    android:gravity="center"
-                    android:text="2"
-                    android:textColor="@color/white"
-                    android:textStyle="bold" />
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="12dp"
-                    android:text="Choose Vibe"
-                    android:textAppearance="@style/TextAppearance.App.TitleMedium" />
-            </LinearLayout>
-
+            <!-- ─────────────────────────────────────
+                 CARD 2: SPOT TYPES (multi-select)
+            ───────────────────────────────────── -->
             <com.google.android.material.card.MaterialCardView
-                style="@style/AppCard"
+                android:id="@+id/cardVibes"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
-                android:layout_marginStart="44dp"
-                app:cardElevation="0dp"
+                android:layout_marginBottom="12dp"
                 app:cardBackgroundColor="@color/white"
-                app:strokeWidth="1dp"
-                app:strokeColor="@color/m3_outline_variant">
-                <Spinner
-                    android:id="@+id/spinnerType"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="4dp"
+                app:strokeColor="@color/color_outline_variant"
+                app:strokeWidth="0dp">
+
+                <LinearLayout
                     android:layout_width="match_parent"
-                    android:layout_height="56dp"
-                    android:paddingHorizontal="12dp" />
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="20dp">
+
+                    <!-- Card header row -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal"
+                        android:layout_marginBottom="16dp">
+
+                        <TextView
+                            android:layout_width="36dp"
+                            android:layout_height="36dp"
+                            android:background="@drawable/bg_favorite_circle"
+                            android:backgroundTint="@color/color_primary_container"
+                            android:gravity="center"
+                            android:text="✨"
+                            android:textSize="16sp" />
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:layout_marginStart="12dp"
+                            android:orientation="vertical">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="What interests you?"
+                                android:textAppearance="@style/TextAppearance.App.TitleMedium"
+                                android:textColor="@color/color_on_surface" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Pick one or more types of spots"
+                                android:textColor="@color/color_text_secondary"
+                                android:textSize="12sp" />
+                        </LinearLayout>
+                    </LinearLayout>
+
+                    <!-- Row 1 of vibe chips -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:layout_marginBottom="8dp">
+
+                        <TextView
+                            android:id="@+id/chipVibeHistorical"
+                            android:layout_width="0dp"
+                            android:layout_height="48dp"
+                            android:layout_weight="1"
+                            android:layout_marginEnd="8dp"
+                            android:background="@drawable/bg_plan_chip_toggle"
+                            android:clickable="true"
+                            android:focusable="true"
+                            android:gravity="center"
+                            android:stateListAnimator="@animator/chip_press"
+                            android:text="🏛 Historical"
+                            android:textColor="@color/color_primary"
+                            android:textSize="12sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:id="@+id/chipVibeNature"
+                            android:layout_width="0dp"
+                            android:layout_height="48dp"
+                            android:layout_weight="1"
+                            android:background="@drawable/bg_plan_chip_toggle"
+                            android:clickable="true"
+                            android:focusable="true"
+                            android:gravity="center"
+                            android:stateListAnimator="@animator/chip_press"
+                            android:text="🌿 Nature"
+                            android:textColor="@color/color_primary"
+                            android:textSize="12sp"
+                            android:textStyle="bold" />
+                    </LinearLayout>
+
+                    <!-- Row 2 -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:layout_marginBottom="8dp">
+
+                        <TextView
+                            android:id="@+id/chipVibeReligious"
+                            android:layout_width="0dp"
+                            android:layout_height="48dp"
+                            android:layout_weight="1"
+                            android:layout_marginEnd="8dp"
+                            android:background="@drawable/bg_plan_chip_toggle"
+                            android:clickable="true"
+                            android:focusable="true"
+                            android:gravity="center"
+                            android:stateListAnimator="@animator/chip_press"
+                            android:text="🙏 Religious"
+                            android:textColor="@color/color_primary"
+                            android:textSize="12sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:id="@+id/chipVibeFood"
+                            android:layout_width="0dp"
+                            android:layout_height="48dp"
+                            android:layout_weight="1"
+                            android:background="@drawable/bg_plan_chip_toggle"
+                            android:clickable="true"
+                            android:focusable="true"
+                            android:gravity="center"
+                            android:stateListAnimator="@animator/chip_press"
+                            android:text="🍜 Food"
+                            android:textColor="@color/color_primary"
+                            android:textSize="12sp"
+                            android:textStyle="bold" />
+                    </LinearLayout>
+
+                    <!-- Row 3 -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:layout_marginBottom="8dp">
+
+                        <TextView
+                            android:id="@+id/chipVibeCulture"
+                            android:layout_width="0dp"
+                            android:layout_height="48dp"
+                            android:layout_weight="1"
+                            android:layout_marginEnd="8dp"
+                            android:background="@drawable/bg_plan_chip_toggle"
+                            android:clickable="true"
+                            android:focusable="true"
+                            android:gravity="center"
+                            android:stateListAnimator="@animator/chip_press"
+                            android:text="🎭 Culture"
+                            android:textColor="@color/color_primary"
+                            android:textSize="12sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:id="@+id/chipVibeAdventure"
+                            android:layout_width="0dp"
+                            android:layout_height="48dp"
+                            android:layout_weight="1"
+                            android:background="@drawable/bg_plan_chip_toggle"
+                            android:clickable="true"
+                            android:focusable="true"
+                            android:gravity="center"
+                            android:stateListAnimator="@animator/chip_press"
+                            android:text="⛺ Adventure"
+                            android:textColor="@color/color_primary"
+                            android:textSize="12sp"
+                            android:textStyle="bold" />
+                    </LinearLayout>
+
+                    <!-- Row 4 -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:id="@+id/chipVibeScenic"
+                            android:layout_width="0dp"
+                            android:layout_height="48dp"
+                            android:layout_weight="1"
+                            android:layout_marginEnd="8dp"
+                            android:background="@drawable/bg_plan_chip_toggle"
+                            android:clickable="true"
+                            android:focusable="true"
+                            android:gravity="center"
+                            android:stateListAnimator="@animator/chip_press"
+                            android:text="🏖 Scenic"
+                            android:textColor="@color/color_primary"
+                            android:textSize="12sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:id="@+id/chipVibeShopping"
+                            android:layout_width="0dp"
+                            android:layout_height="48dp"
+                            android:layout_weight="1"
+                            android:background="@drawable/bg_plan_chip_toggle"
+                            android:clickable="true"
+                            android:focusable="true"
+                            android:gravity="center"
+                            android:stateListAnimator="@animator/chip_press"
+                            android:text="🛍 Shopping"
+                            android:textColor="@color/color_primary"
+                            android:textSize="12sp"
+                            android:textStyle="bold" />
+                    </LinearLayout>
+                </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
-            <!-- Step 3 Header -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="32dp"
-                android:gravity="center_vertical"
-                android:orientation="horizontal">
-
-                <TextView
-                    android:layout_width="32dp"
-                    android:layout_height="32dp"
-                    android:background="@drawable/bg_favorite_circle"
-                    android:backgroundTint="@color/m3_primary"
-                    android:gravity="center"
-                    android:text="3"
-                    android:textColor="@color/white"
-                    android:textStyle="bold" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="12dp"
-                    android:text="Choose Budget"
-                    android:textAppearance="@style/TextAppearance.App.TitleMedium" />
-            </LinearLayout>
-
+            <!-- ─────────────────────────────────────
+                 CARD 3: BUDGET (single-select)
+            ───────────────────────────────────── -->
             <com.google.android.material.card.MaterialCardView
-                style="@style/AppCard"
+                android:id="@+id/cardBudget"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
-                android:layout_marginStart="44dp"
-                app:cardElevation="0dp"
+                android:layout_marginBottom="24dp"
                 app:cardBackgroundColor="@color/white"
-                app:strokeWidth="1dp"
-                app:strokeColor="@color/m3_outline_variant">
+                app:cardCornerRadius="16dp"
+                app:cardElevation="4dp"
+                app:strokeColor="@color/color_outline_variant"
+                app:strokeWidth="0dp">
 
-                <Spinner
-                    android:id="@+id/spinnerBudget"
+                <LinearLayout
                     android:layout_width="match_parent"
-                    android:layout_height="56dp"
-                    android:paddingHorizontal="12dp" />
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="20dp">
+
+                    <!-- Card header row -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal"
+                        android:layout_marginBottom="16dp">
+
+                        <TextView
+                            android:layout_width="36dp"
+                            android:layout_height="36dp"
+                            android:background="@drawable/bg_favorite_circle"
+                            android:backgroundTint="@color/color_primary_container"
+                            android:gravity="center"
+                            android:text="💰"
+                            android:textSize="16sp" />
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:layout_marginStart="12dp"
+                            android:orientation="vertical">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Your budget?"
+                                android:textAppearance="@style/TextAppearance.App.TitleMedium"
+                                android:textColor="@color/color_on_surface" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="We'll tailor recommendations"
+                                android:textColor="@color/color_text_secondary"
+                                android:textSize="12sp" />
+                        </LinearLayout>
+                    </LinearLayout>
+
+                    <!-- Budget chip row -->
+                    <LinearLayout
+                        android:id="@+id/chipGroupBudget"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:id="@+id/chipBudgetBudget"
+                            android:layout_width="0dp"
+                            android:layout_height="44dp"
+                            android:layout_weight="1"
+                            android:layout_marginEnd="6dp"
+                            android:background="@drawable/bg_plan_chip_toggle"
+                            android:clickable="true"
+                            android:focusable="true"
+                            android:gravity="center"
+                            android:stateListAnimator="@animator/chip_press"
+                            android:text="💵 Budget"
+                            android:textColor="@color/color_primary"
+                            android:textSize="12sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:id="@+id/chipBudgetMid"
+                            android:layout_width="0dp"
+                            android:layout_height="44dp"
+                            android:layout_weight="1"
+                            android:layout_marginEnd="6dp"
+                            android:background="@drawable/bg_plan_chip_toggle"
+                            android:clickable="true"
+                            android:focusable="true"
+                            android:gravity="center"
+                            android:stateListAnimator="@animator/chip_press"
+                            android:text="💳 Mid-range"
+                            android:textColor="@color/color_primary"
+                            android:textSize="11sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:id="@+id/chipBudgetPremium"
+                            android:layout_width="0dp"
+                            android:layout_height="44dp"
+                            android:layout_weight="1"
+                            android:background="@drawable/bg_plan_chip_toggle"
+                            android:clickable="true"
+                            android:focusable="true"
+                            android:gravity="center"
+                            android:stateListAnimator="@animator/chip_press"
+                            android:text="💎 Premium"
+                            android:textColor="@color/color_primary"
+                            android:textSize="12sp"
+                            android:textStyle="bold" />
+                    </LinearLayout>
+                </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
+            <!-- ─────────────────────────────────────
+                 CTA: CREATE MY TRIP BUTTON
+            ───────────────────────────────────── -->
             <FrameLayout
                 android:layout_width="match_parent"
                 android:layout_height="60dp"
-                android:layout_marginTop="48dp">
+                android:layout_marginBottom="16dp">
 
-                <com.google.android.material.button.MaterialButton
+                <TextView
                     android:id="@+id/btnGeneratePlan"
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:text="Create My Trip"
-                    android:textAllCaps="false"
-                    android:textSize="16sp"
-                    android:textStyle="bold"
-                    app:cornerRadius="16dp"
-                    app:backgroundTint="@color/m3_primary" />
+                    android:layout_height="60dp"
+                    android:background="@drawable/bg_create_trip_btn"
+                    android:clickable="true"
+                    android:elevation="6dp"
+                    android:focusable="true"
+                    android:gravity="center"
+                    android:stateListAnimator="@animator/chip_press"
+                    android:text="✨  Create My Trip"
+                    android:textColor="@color/white"
+                    android:textSize="17sp"
+                    android:textStyle="bold" />
 
+                <!-- Spinner overlay -->
                 <ProgressBar
                     android:id="@+id/progressGeneratePlan"
                     style="?android:attr/progressBarStyleSmall"
                     android:layout_width="28dp"
                     android:layout_height="28dp"
                     android:layout_gravity="end|center_vertical"
-                    android:layout_marginEnd="24dp"
+                    android:layout_marginEnd="20dp"
                     android:indeterminate="true"
+                    android:indeterminateTint="@color/white"
                     android:visibility="gone" />
             </FrameLayout>
 
+            <!-- Powered by AI badge -->
             <TextView
-                android:id="@+id/planner_empty_title"
+                android:id="@+id/tvPoweredByAi"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="60dp"
+                android:layout_marginBottom="24dp"
                 android:gravity="center"
-                android:text="🏞 Powered by AI Guide"
-                android:textColor="@color/m3_outline"
-                android:textSize="12sp" />
+                android:text="✦  Powered by Arriva AI"
+                android:textColor="@color/color_text_muted"
+                android:textSize="12sp"
+                android:letterSpacing="0.05" />
 
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>

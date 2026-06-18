@@ -106,7 +106,15 @@ public class ItineraryActivity extends BaseActivity {
             renderQuickPlan();
         } else {
             int days = clampDays(getIntent().getIntExtra("days", 1));
-            String type = valueOrDefault(getIntent().getStringExtra("type"), "Mixed");
+            // Support multi-vibe ArrayList (from PlanTripActivity redesign).
+            // Fall back to the single "type" string for backward compatibility.
+            ArrayList<String> vibes = getIntent().getStringArrayListExtra("vibes");
+            String type;
+            if (vibes != null && !vibes.isEmpty()) {
+                type = vibes.size() == 1 ? vibes.get(0) : String.join(", ", vibes);
+            } else {
+                type = valueOrDefault(getIntent().getStringExtra("type"), "Mixed");
+            }
             currentBudget = valueOrDefault(getIntent().getStringExtra("budget"), "Mid-range");
             loadAndGeneratePlan(days, type, currentBudget);
         }
@@ -760,6 +768,23 @@ public class ItineraryActivity extends BaseActivity {
     }
 
     private List<Place> filterPlacesForPlan(List<Place> places, String type, String budget) {
+        // Multi-vibe support: if type is comma-separated, apply OR logic across all vibes.
+        if (type != null && type.contains(",")) {
+            String[] types = type.split(",");
+            List<Place> filtered = new ArrayList<>();
+            for (Place place : places) {
+                if (matchesBudget(place, budget)) {
+                    for (String t : types) {
+                        if (matchesType(place, t.trim())) {
+                            filtered.add(place);
+                            break; // OR logic: first match is enough
+                        }
+                    }
+                }
+            }
+            return filtered;
+        }
+        // Single vibe — original path
         List<Place> filtered = new ArrayList<>();
         for (Place place : places) {
             if (matchesType(place, type) && matchesBudget(place, budget)) {
