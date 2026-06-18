@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Offline cache banner — shown when places are served from Room (no connectivity).
+  Parent: activity_main.xml CollapsingToolbar header LinearLayout.
+  Controlled by MainActivity.showOfflineCacheBanner(boolean).
+-->
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/offlineCacheBanner"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginTop="10dp"
+    android:background="#FFF59D"
+    android:gravity="center_vertical"
+    android:orientation="horizontal"
+    android:paddingHorizontal="14dp"
+    android:paddingVertical="10dp"
+    android:visibility="gone">
+
+    <TextView
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:drawablePadding="8dp"
+        android:text="📡 Offline mode — showing saved data"
+        android:textColor="#5D4037"
+        android:textSize="13sp"
+        android:textStyle="bold" />
+
+    <!-- Dismiss button -->
+    <TextView
+        android:id="@+id/btnDismissOfflineBanner"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:clickable="true"
+        android:focusable="true"
+        android:padding="4dp"
+        android:text="✕"
+        android:textColor="#8D6E63"
+        android:textSize="16sp"
+        android:textStyle="bold" />
+</LinearLayout>

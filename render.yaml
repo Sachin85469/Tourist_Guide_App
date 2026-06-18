@@ -1,0 +1,12 @@
+services:
+  - type: web
+    name: arriva-backend
+    runtime: node
+    rootDir: arriva-backend
+    buildCommand: npm ci
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: ANTHROPIC_API_KEY
+        sync: false
