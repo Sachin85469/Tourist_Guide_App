@@ -107,12 +107,15 @@ public class PlaceEditorActivity extends BaseActivity {
     }
 
     private void deletePlace() {
-        dataSource.deletePlace(currentPlace.getId()).addOnCompleteListener(task -> {
-            if (task.isSuccessful()) {
+        dataSource.deletePlace(currentPlace.getId())
+            .addOnSuccessListener(aVoid -> {
                 AuditLogger.logAction("PLACE_DELETED", currentPlace.getId(), currentPlace.getName());
                 Toast.makeText(this, "Place deleted", Toast.LENGTH_SHORT).show();
                 finish();
-            }
-        });
+            })
+            .addOnFailureListener(e -> {
+                android.util.Log.e("PlaceEditorActivity", "Admin delete failed", e);
+                Toast.makeText(this, "Delete failed: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+            });
     }
 }
