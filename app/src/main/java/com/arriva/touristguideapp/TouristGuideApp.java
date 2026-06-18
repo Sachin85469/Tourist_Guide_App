@@ -4,6 +4,7 @@ import android.app.Application;
 import android.util.Log;
 
 import android.content.Context;
+import com.arriva.touristguideapp.data.places.PlaceSyncManager;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreSettings;
@@ -39,6 +40,7 @@ public class TouristGuideApp extends Application {
 
         FirebaseApp.initializeApp(this);
         configureFirestorePersistence();
+        new PlaceSyncManager(this).syncIfNeeded();
         
         PerformanceTracker.endTimer("APP_STARTUP");
     }
