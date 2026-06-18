@@ -417,6 +417,8 @@
                 </LinearLayout>
             </HorizontalScrollView>
 
+            <include layout="@layout/view_offline_cache_banner" />
+
             <!-- Section: Recommended -->
             <TextView
                 android:layout_width="wrap_content"
@@ -448,6 +450,22 @@
 
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
+
+    <!-- Nearby Now FAB — purple, above the AI chat FAB -->
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fabNearbyNow"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:layout_margin="24dp"
+        android:layout_marginBottom="152dp"
+        android:contentDescription="Nearby Now"
+        app:srcCompat="@android:drawable/ic_menu_mylocation"
+        app:tint="@color/white"
+        app:backgroundTint="#7C3AED"
+        app:elevation="8dp"
+        app:rippleColor="#6D28D9"
+        app:fabSize="normal" />
 
     <!-- AI FAB — home screen standalone -->
     <com.google.android.material.floatingactionbutton.FloatingActionButton

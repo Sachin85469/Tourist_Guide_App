@@ -1,23 +1,36 @@
 package com.arriva.touristguideapp;
 
+import android.Manifest;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.speech.RecognizerIntent;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import com.arriva.touristguideapp.data.places.AppDatabase;
+import com.arriva.touristguideapp.data.places.PlaceDao;
+import com.arriva.touristguideapp.data.places.PlaceEntity;
+import com.arriva.touristguideapp.data.places.PlaceRepository;
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationServices;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class HomeActivity extends BaseActivity {
 
@@ -28,8 +41,16 @@ public class HomeActivity extends BaseActivity {
     private ImageView btnVoiceSearch, ivProfileIcon;
     private TextView tvHomeUserName, tvHomeUserEmail;
     private View fabAiChat;
+    private View fabNearbyNow;
+    private View offlineCacheBanner;
+    private PlaceRepository placeRepository;
+    private final List<Place> allPlaces = new ArrayList<>();
     private long lastSearchLogTime = 0;
     private static final long SEARCH_LOG_DEBOUNCE = 2000;
+    private boolean offlineCacheBannerDismissed = false;
+    private static final int REQUEST_NEARBY_LOCATION = 301;
+    private static final ExecutorService BG_EXECUTOR = Executors.newSingleThreadExecutor();
+    private FusedLocationProviderClient fusedLocationClient;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,6 +65,17 @@ public class HomeActivity extends BaseActivity {
         tvHomeUserName = findViewById(R.id.tvHomeUserName);
         tvHomeUserEmail = findViewById(R.id.tvHomeUserEmail);
         fabAiChat = findViewById(R.id.fabAiChat);
+        fabNearbyNow = findViewById(R.id.fabNearbyNow);
+        offlineCacheBanner = findViewById(R.id.offlineCacheBanner);
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
+        View btnDismissOfflineBanner = findViewById(R.id.btnDismissOfflineBanner);
+        if (btnDismissOfflineBanner != null) {
+            btnDismissOfflineBanner.setOnClickListener(v -> {
+                offlineCacheBannerDismissed = true;
+                showOfflineCacheBanner(false);
+            });
+        }
+        placeRepository = new PlaceRepository(this);
 
         // AI Chatbot setup
         if (fabAiChat != null) {
@@ -69,11 +101,8 @@ public class HomeActivity extends BaseActivity {
         // 2. Set LayoutManager (Vertical)
         recyclerViewPlaces.setLayoutManager(new LinearLayoutManager(this));
 
-        // 3. Get data from DataProvider
-        List<Place> allPlaces = DataProvider.getAllPlaces();
-
         // 4. Create Adapter and set it to RecyclerView
-        placeAdapter = new PlaceAdapter(new ArrayList<>(allPlaces), place -> {
+        placeAdapter = new PlaceAdapter(new ArrayList<>(), place -> {
             // Track search click (Requirement 2)
             String query = editTextSearch != null ? editTextSearch.getText().toString().trim() : "";
             if (!query.isEmpty()) {
@@ -92,6 +121,7 @@ public class HomeActivity extends BaseActivity {
 
         // 6. Update Category Counts
         updateCategoryCounts();
+        loadPlaces();
 
         // 8. Add Search Functionality
         if (editTextSearch != null) {
@@ -113,11 +143,142 @@ public class HomeActivity extends BaseActivity {
         if (btnVoiceSearch != null) {
             btnVoiceSearch.setOnClickListener(v -> startVoiceSearch());
         }
+
+        // 10. Nearby Now FAB
+        setupNearbyNowButton();
+    }
+
+    // ─── Nearby Now ──────────────────────────────────────────────────────────
+
+    private void setupNearbyNowButton() {
+        if (fabNearbyNow == null) return;
+        fabNearbyNow.setOnClickListener(v -> {
+            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
+                    == PackageManager.PERMISSION_GRANTED) {
+                fetchNearbyPlaces();
+            } else {
+                ActivityCompat.requestPermissions(this,
+                        new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                        REQUEST_NEARBY_LOCATION);
+            }
+        });
+    }
+
+    private void fetchNearbyPlaces() {
+        fusedLocationClient.getLastLocation()
+            .addOnSuccessListener(this, location -> {
+                if (location == null) {
+                    Toast.makeText(this, "Unable to get current location", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                double userLat = location.getLatitude();
+                double userLng = location.getLongitude();
+                Log.d("HomeActivity", "NEARBY_NOW: lat=" + userLat + " lng=" + userLng);
+
+                // Query Room cache on background thread, merge Firestore if online
+                BG_EXECUTOR.execute(() -> {
+                    List<Place> cachedPlaces = loadAllFromRoom();
+                    runOnUiThread(() -> {
+                        if (isOnline() && placeRepository != null) {
+                            // Merge Firestore results into cached list
+                            placeRepository.fetchPublishedPlaces((remotePlaces, origin, msg) -> {
+                                List<Place> merged = mergePlaces(cachedPlaces, remotePlaces);
+                                showNearbySheet(merged, userLat, userLng);
+                            });
+                        } else {
+                            showNearbySheet(cachedPlaces, userLat, userLng);
+                        }
+                    });
+                });
+            })
+            .addOnFailureListener(e -> {
+                Log.w("HomeActivity", "NEARBY_NOW location error: " + e.getMessage());
+                Toast.makeText(this, "Could not get location", Toast.LENGTH_SHORT).show();
+            });
+    }
+
+    /** Loads all Place rows from Room on the calling (background) thread. */
+    private List<Place> loadAllFromRoom() {
+        try {
+            PlaceDao dao = AppDatabase.getInstance(this).placeDao();
+            List<PlaceEntity> entities = dao.getAll();
+            List<Place> places = new ArrayList<>();
+            for (PlaceEntity e : entities) {
+                if (e != null) places.add(e.toPlace());
+            }
+            return places;
+        } catch (Exception ex) {
+            Log.w("HomeActivity", "NEARBY_NOW room load failed: " + ex.getMessage());
+            return new ArrayList<>();
+        }
+    }
+
+    /** Merges Firestore places into the base list, adding those not already present (by ID). */
+    private List<Place> mergePlaces(List<Place> base, List<Place> remote) {
+        if (remote == null || remote.isEmpty()) return base;
+        java.util.Set<String> existingIds = new java.util.HashSet<>();
+        for (Place p : base) if (p.getId() != null) existingIds.add(p.getId());
+        List<Place> merged = new ArrayList<>(base);
+        for (Place p : remote) {
+            if (p.getId() != null && !existingIds.contains(p.getId())) {
+                merged.add(p);
+            }
+        }
+        return merged;
+    }
+
+    private void showNearbySheet(List<Place> allPlacesForNearby, double userLat, double userLng) {
+        // Set distances on all places
+        for (Place p : allPlacesForNearby) {
+            p.setDistance(LocationUtils.calculateDistance(userLat, userLng, p.getLat(), p.getLng()));
+        }
+
+        // Try 5km first
+        List<Place> within5km = filterByRadius(allPlacesForNearby, 5.0);
+        List<Place> results;
+        String title;
+
+        if (!within5km.isEmpty()) {
+            results = within5km;
+            title = "📍 Within 5km of you";
+        } else {
+            // Expand to 15km
+            results = filterByRadius(allPlacesForNearby, 15.0);
+            title = results.isEmpty() ? "📍 Nearby places" : "📍 Within 15km of you";
+        }
+
+        // Sort by distance ascending
+        java.util.Collections.sort(results,
+            (a, b) -> Double.compare(a.getDistance(), b.getDistance()));
+
+        BottomSheetNearbyFragment sheet = BottomSheetNearbyFragment.withPlaces(title, results);
+        sheet.show(getSupportFragmentManager(), BottomSheetNearbyFragment.TAG);
+    }
+
+    private List<Place> filterByRadius(List<Place> places, double radiusKm) {
+        List<Place> nearby = new ArrayList<>();
+        for (Place p : places) {
+            if (p.getDistance() >= 0 && p.getDistance() <= radiusKm) {
+                nearby.add(p);
+            }
+        }
+        return nearby;
+    }
+
+    private boolean isOnline() {
+        android.net.ConnectivityManager cm =
+            (android.net.ConnectivityManager) getSystemService(android.content.Context.CONNECTIVITY_SERVICE);
+        if (cm == null) return false;
+        android.net.Network net = cm.getActiveNetwork();
+        if (net == null) return false;
+        android.net.NetworkCapabilities caps = cm.getNetworkCapabilities(net);
+        return caps != null && (caps.hasTransport(android.net.NetworkCapabilities.TRANSPORT_WIFI)
+            || caps.hasTransport(android.net.NetworkCapabilities.TRANSPORT_CELLULAR)
+            || caps.hasTransport(android.net.NetworkCapabilities.TRANSPORT_ETHERNET));
     }
 
     private void updateCategoryCounts() {
-        Map<String, Integer> categoryCount = DataProvider.getCategoryCount(DataProvider.getAllPlaces());
-
+        Map<String, Integer> categoryCount = DataProvider.getCategoryCount(allPlaces);
         TextView txtHistory = findViewById(R.id.txtHistoryCount);
         if (txtHistory != null) txtHistory.setText("🏛️ History (" + categoryCount.getOrDefault("History", 0) + ")");
 
@@ -216,7 +377,7 @@ public class HomeActivity extends BaseActivity {
 
     // Method to filter the list based on search text using DataProvider utility
     private void filter(String query) {
-        List<Place> filteredList = DataProvider.searchPlaces(query);
+        List<Place> filteredList = searchLoadedPlaces(query);
 
         // Update the adapter with the filtered list
         if (placeAdapter != null) {
@@ -230,6 +391,53 @@ public class HomeActivity extends BaseActivity {
                 new com.arriva.touristguideapp.data.analytics.AnalyticsRepository().logSearch(query, filteredList.size());
                 lastSearchLogTime = currentTime;
             }
+        }
+    }
+
+    private void loadPlaces() {
+        placeRepository.getPlacesOfflineFirst(null, null, (places, origin, cacheEmpty, message) -> {
+            showOfflineCacheBanner(origin == PlaceRepository.DataOrigin.ROOM_CACHE && !cacheEmpty);
+            allPlaces.clear();
+            allPlaces.addAll(places);
+            updateCategoryCounts();
+
+            String query = editTextSearch != null && editTextSearch.getText() != null
+                    ? editTextSearch.getText().toString()
+                    : "";
+            if (placeAdapter != null) {
+                placeAdapter.updateList(query.trim().isEmpty() ? allPlaces : searchLoadedPlaces(query));
+            }
+        });
+    }
+
+    private List<Place> searchLoadedPlaces(String query) {
+        String normalized = query == null ? "" : query.trim().toLowerCase(Locale.US);
+        if (normalized.isEmpty()) {
+            return new ArrayList<>(allPlaces);
+        }
+
+        List<Place> filtered = new ArrayList<>();
+        for (Place place : allPlaces) {
+            if (place == null) {
+                continue;
+            }
+            if (containsIgnoreCase(place.getName(), normalized)
+                    || containsIgnoreCase(place.getCategory(), normalized)
+                    || containsIgnoreCase(place.getCity(), normalized)
+                    || containsIgnoreCase(place.getDescription(), normalized)) {
+                filtered.add(place);
+            }
+        }
+        return filtered;
+    }
+
+    private boolean containsIgnoreCase(String value, String normalizedQuery) {
+        return value != null && value.toLowerCase(Locale.US).contains(normalizedQuery);
+    }
+
+    private void showOfflineCacheBanner(boolean show) {
+        if (offlineCacheBanner != null) {
+            offlineCacheBanner.setVisibility(show && !offlineCacheBannerDismissed ? View.VISIBLE : View.GONE);
         }
     }
 
@@ -261,5 +469,19 @@ public class HomeActivity extends BaseActivity {
     protected void onResume() {
         super.onResume();
         loadUserInfo();
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode,
+                                           @NonNull String[] permissions,
+                                           @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == REQUEST_NEARBY_LOCATION
+                && grantResults.length > 0
+                && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+            fetchNearbyPlaces();
+        } else if (requestCode == REQUEST_NEARBY_LOCATION) {
+            Toast.makeText(this, "Location permission needed for Nearby Now", Toast.LENGTH_SHORT).show();
+        }
     }
 }

@@ -253,6 +253,8 @@
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
 
+                <include layout="@layout/view_offline_cache_banner" />
+
             </LinearLayout>
         </com.google.android.material.appbar.CollapsingToolbarLayout>
     </com.google.android.material.appbar.AppBarLayout>

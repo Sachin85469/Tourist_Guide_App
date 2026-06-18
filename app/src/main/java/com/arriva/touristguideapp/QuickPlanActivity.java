@@ -23,7 +23,7 @@ public class QuickPlanActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_quick_plan);
 
-        placeRepository = new PlaceRepository();
+        placeRepository = new PlaceRepository(this);
         progressQuickPlan = findViewById(R.id.progressQuickPlan);
         card2Hours = findViewById(R.id.card2Hours);
         cardHalfDay = findViewById(R.id.cardHalfDay);
@@ -36,7 +36,7 @@ public class QuickPlanActivity extends BaseActivity {
 
     private void generateQuickPlan(int count) {
         setLoadingState(true);
-        placeRepository.fetchPublishedPlaces((places, origin, message) -> {
+        placeRepository.getPlacesOfflineFirst(null, null, (places, origin, cacheEmpty, message) -> {
             List<Place> sorted = new ArrayList<>(places);
             sorted.sort((a, b) -> Double.compare(b.getRating(), a.getRating()));
             runOnUiThread(() -> {

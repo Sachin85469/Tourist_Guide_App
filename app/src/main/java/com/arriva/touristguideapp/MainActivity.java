@@ -63,6 +63,7 @@ public class MainActivity extends BaseActivity {
     private ImageView ivProfileIcon;
     private BottomNavigationView bottomNavigationView;
     private View fabAiChat;
+    private View offlineCacheBanner;
     private ProgressBar progressBar;
     private View emptyStateContainer;
     private EditText searchBox;
@@ -80,6 +81,7 @@ public class MainActivity extends BaseActivity {
     /** Last fix used to sort "Top Picks Near You" after the Firestore catalog arrives. */
     @Nullable
     private Location cachedUserLocation;
+    private boolean offlineCacheBannerDismissed = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -157,6 +159,14 @@ public class MainActivity extends BaseActivity {
         emptyStateContainer = findViewById(R.id.tvEmptyState);
         searchBox = findViewById(R.id.searchBox);
         btnVoiceSearch = findViewById(R.id.btnVoiceSearch);
+        offlineCacheBanner = findViewById(R.id.offlineCacheBanner);
+        View btnDismissOfflineBanner = findViewById(R.id.btnDismissOfflineBanner);
+        if (btnDismissOfflineBanner != null) {
+            btnDismissOfflineBanner.setOnClickListener(v -> {
+                offlineCacheBannerDismissed = true;
+                showOfflineCacheBanner(false);
+            });
+        }
 
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
 
@@ -334,7 +344,7 @@ public class MainActivity extends BaseActivity {
     }
 
     private void initData() {
-        placeRepository = new PlaceRepository();
+        placeRepository = new PlaceRepository(this);
         analyticsRepository = new com.arriva.touristguideapp.data.analytics.AnalyticsRepository();
         discoveryRepository = new com.arriva.touristguideapp.data.places.DiscoveryRepository();
         searchHistoryManager = new com.arriva.touristguideapp.data.places.SearchHistoryManager(this);
@@ -680,15 +690,23 @@ public class MainActivity extends BaseActivity {
      */
     private void loadPublishedPlacesCatalog() {
         if (placeRepository == null) {
-            placeRepository = new PlaceRepository();
+            placeRepository = new PlaceRepository(this);
         }
-        placeRepository.fetchPublishedPlaces((places, origin, message) -> {
+        placeRepository.getPlacesOfflineFirst(null, null, (places, origin, cacheEmpty, message) -> {
             boolean fromFirestore = origin == PlaceRepository.DataOrigin.FIRESTORE;
+            boolean fromRoomCache = origin == PlaceRepository.DataOrigin.ROOM_CACHE;
             if (fromFirestore) {
                 Log.d(TAG, "fetchPublishedPlaces: Firestore success (main home) count=" + places.size());
+                showOfflineCacheBanner(false);
+            } else if (fromRoomCache) {
+                Log.w(TAG, "getPlacesOfflineFirst: ROOM_CACHE (main home) count=" + places.size()
+                        + " cacheEmpty=" + cacheEmpty
+                        + (message != null ? (" detail=" + message) : ""));
+                showOfflineCacheBanner(!cacheEmpty);
             } else {
                 Log.w(TAG, "fetchPublishedPlaces: LOCAL_FALLBACK (main home) count=" + places.size()
                         + (message != null ? (" detail=" + message) : ""));
+                showOfflineCacheBanner(false);
             }
 
             allPlaces.clear();
@@ -718,6 +736,12 @@ public class MainActivity extends BaseActivity {
                 Log.d(TAG, "HomeAdapter item count=" + homeAdapter.getItemCount());
             }
         });
+    }
+
+    private void showOfflineCacheBanner(boolean show) {
+        if (offlineCacheBanner != null) {
+            offlineCacheBanner.setVisibility(show && !offlineCacheBannerDismissed ? View.VISIBLE : View.GONE);
+        }
     }
 
     private void openDetails(Place place) {

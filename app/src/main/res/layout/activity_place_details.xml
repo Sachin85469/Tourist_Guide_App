@@ -880,6 +880,8 @@
                     android:paddingStart="24dp"
                     android:paddingEnd="24dp" />
 
+                <include layout="@layout/view_offline_cache_banner" />
+
                 <androidx.recyclerview.widget.RecyclerView
                     android:id="@+id/rvNearbyPlaces"
                     android:layout_width="match_parent"

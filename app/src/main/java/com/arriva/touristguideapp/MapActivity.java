@@ -81,6 +81,7 @@ public class MapActivity extends BaseActivity {
     private TextView placeNameTv, placeDetailsTv, tvPlaceCategory, tvPlaceRating, tvPlaceDistance;
     private ImageView ivPlaceImage;
     private Button btnSheetGo, btnViewDetails;
+    private View offlineCacheBanner;
     
     // Route UI
     private View routeSummaryCard;
@@ -91,6 +92,7 @@ public class MapActivity extends BaseActivity {
     private List<Place> allTouristPlaces = new ArrayList<>();
     private final Map<org.osmdroid.views.overlay.Marker, String> touristMarkers = new LinkedHashMap<>();
     private String selectedCategory = "All";
+    private boolean offlineCacheBannerDismissed = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -123,6 +125,14 @@ public class MapActivity extends BaseActivity {
         micBtn = findViewById(R.id.micBtn);
         btnDirections = findViewById(R.id.btnDirections);
         ivProfileIcon = findViewById(R.id.ivProfileIcon);
+        offlineCacheBanner = findViewById(R.id.offlineCacheBanner);
+        View btnDismissOfflineBanner = findViewById(R.id.btnDismissOfflineBanner);
+        if (btnDismissOfflineBanner != null) {
+            btnDismissOfflineBanner.setOnClickListener(v -> {
+                offlineCacheBannerDismissed = true;
+                showOfflineCacheBanner(false);
+            });
+        }
 
         setupBottomNavigation();
         setupBottomSheet();
@@ -189,7 +199,7 @@ public class MapActivity extends BaseActivity {
 
         btnSheetGo.setOnClickListener(v -> getDirectionsToSearched());
 
-        placeRepository = new PlaceRepository();
+        placeRepository = new PlaceRepository(this);
         loadAllTouristPlaces();
 
         // Request permissions and init location
@@ -435,12 +445,19 @@ public class MapActivity extends BaseActivity {
     }
 
     private void loadAllTouristPlaces() {
-        placeRepository.fetchPublishedPlaces((places, origin, message) -> {
+        placeRepository.getPlacesOfflineFirst(null, null, (places, origin, cacheEmpty, message) -> {
+            showOfflineCacheBanner(origin == PlaceRepository.DataOrigin.ROOM_CACHE && !cacheEmpty);
             if (!places.isEmpty()) {
                 allTouristPlaces = places;
                 renderPlaceMarkers();
             }
         });
+    }
+
+    private void showOfflineCacheBanner(boolean show) {
+        if (offlineCacheBanner != null) {
+            offlineCacheBanner.setVisibility(show && !offlineCacheBannerDismissed ? View.VISIBLE : View.GONE);
+        }
     }
 
     private void renderPlaceMarkers() {

@@ -225,6 +225,8 @@
 
             </com.google.android.material.chip.ChipGroup>
         </HorizontalScrollView>
+
+        <include layout="@layout/view_offline_cache_banner" />
     </LinearLayout>
 
     <!-- Hidden Go Button (Logic compatibility) -->

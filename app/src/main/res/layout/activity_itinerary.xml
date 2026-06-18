@@ -57,6 +57,8 @@
                 android:textColor="#5D4600" />
         </com.google.android.material.card.MaterialCardView>
 
+        <include layout="@layout/view_offline_cache_banner" />
+
         <LinearLayout
             android:id="@+id/loadingStatePlanner"
             android:layout_width="match_parent"

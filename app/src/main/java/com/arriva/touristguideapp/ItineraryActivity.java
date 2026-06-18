@@ -66,25 +66,35 @@ public class ItineraryActivity extends BaseActivity {
 
     private View emptyState;
     private View offlineBanner;
+    private View offlineCacheBanner;
     private View loadingState;
     private RequestQueue requestQueue;
     private String currentTripTitle = "Your Custom Trip";
     private String currentGeneralTips = "";
     private String currentBudget = "Mid-range";
+    private boolean offlineCacheBannerDismissed = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_itinerary);
 
-        placeRepository = new PlaceRepository();
+        placeRepository = new PlaceRepository(this);
         tripRepository = new TripRepository();
         notificationRepository = new NotificationRepository(this);
         requestQueue = Volley.newRequestQueue(getApplicationContext());
 
         emptyState = findViewById(R.id.emptyStatePlanner);
         offlineBanner = findViewById(R.id.offlinePlanBanner);
+        offlineCacheBanner = findViewById(R.id.offlineCacheBanner);
         loadingState = findViewById(R.id.loadingStatePlanner);
+        View btnDismissOfflineBanner = findViewById(R.id.btnDismissOfflineBanner);
+        if (btnDismissOfflineBanner != null) {
+            btnDismissOfflineBanner.setOnClickListener(v -> {
+                offlineCacheBannerDismissed = true;
+                showOfflineCacheBanner(false);
+            });
+        }
 
         androidx.appcompat.widget.Toolbar toolbar = findViewById(R.id.toolbar);
         if (toolbar != null) {
@@ -158,8 +168,9 @@ public class ItineraryActivity extends BaseActivity {
             btnSaveTrip.setEnabled(false);
         }
 
-        placeRepository.fetchPublishedPlaces((places, origin, message) ->
+        placeRepository.getPlacesOfflineFirst(null, null, (places, origin, cacheEmpty, message) ->
                 runOnUiThread(() -> {
+                    showOfflineCacheBanner(origin == PlaceRepository.DataOrigin.ROOM_CACHE && !cacheEmpty);
                     loadedPlaces.clear();
                     loadedPlaces.addAll(places);
 
@@ -181,10 +192,12 @@ public class ItineraryActivity extends BaseActivity {
     private void loadAndGeneratePlan(int days, String type, String budget) {
         setLoadingState(true);
         showOfflineBanner(false);
+        showOfflineCacheBanner(false);
         if (tvTitle != null) tvTitle.setText("Creating your AI trip");
 
-        placeRepository.fetchPublishedPlaces((places, origin, message) ->
+        placeRepository.getPlacesOfflineFirst(null, null, (places, origin, cacheEmpty, message) ->
                 runOnUiThread(() -> {
+                    showOfflineCacheBanner(origin == PlaceRepository.DataOrigin.ROOM_CACHE && !cacheEmpty);
                     if (places.isEmpty()) {
                         showEmptyState();
                         return;
@@ -933,6 +946,12 @@ public class ItineraryActivity extends BaseActivity {
     private void showOfflineBanner(boolean show) {
         if (offlineBanner != null) {
             offlineBanner.setVisibility(show ? View.VISIBLE : View.GONE);
+        }
+    }
+
+    private void showOfflineCacheBanner(boolean show) {
+        if (offlineCacheBanner != null) {
+            offlineCacheBanner.setVisibility(show && !offlineCacheBannerDismissed ? View.VISIBLE : View.GONE);
         }
     }
 

@@ -16,6 +16,8 @@
         android:textSize="20sp"
         android:textStyle="bold" />
 
+    <include layout="@layout/view_offline_cache_banner" />
+
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">

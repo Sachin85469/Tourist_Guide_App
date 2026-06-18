@@ -51,6 +51,7 @@ class PlaceDetailsActivity : BaseActivity() {
     private var btnRetryReviews: Button? = null
     private var rvNearbyPlaces: RecyclerView? = null
     private var llNearbyPlaces: View? = null
+    private var offlineCacheBanner: View? = null
     private var nsvPlaceDetails: androidx.core.widget.NestedScrollView? = null
     private var cvAddReview: View? = null
     private var rbInputRating: RatingBar? = null
@@ -60,6 +61,7 @@ class PlaceDetailsActivity : BaseActivity() {
 
     private var lastSubmitTime: Long = 0
     private val SUBMIT_COOLDOWN_MS: Long = 10000
+    private var offlineCacheBannerDismissed = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         PerformanceTracker.startTimer("PLACE_DETAILS_INIT")
@@ -91,6 +93,11 @@ class PlaceDetailsActivity : BaseActivity() {
         pbSubmitReview = findViewById(R.id.pbSubmitReview)
         llNearbyPlaces = findViewById(R.id.llNearbyPlaces)
         rvNearbyPlaces = findViewById(R.id.rvNearbyPlaces)
+        offlineCacheBanner = findViewById(R.id.offlineCacheBanner)
+        findViewById<View>(R.id.btnDismissOfflineBanner)?.setOnClickListener {
+            offlineCacheBannerDismissed = true
+            showOfflineCacheBanner(false)
+        }
 
         findViewById<View>(R.id.btnBack).setOnClickListener { finish() }
         findViewById<View>(R.id.btnShare).setOnClickListener { sharePlace() }
@@ -180,7 +187,7 @@ class PlaceDetailsActivity : BaseActivity() {
     private fun loadPlaceDetails(id: String) {
         findViewById<View>(R.id.loadingState).visibility = View.VISIBLE
         // Try remote
-        PlaceRepository().fetchPublishedPlaces { places, _, _ ->
+        PlaceRepository(this).getPlacesOfflineFirst(null, null) { places, _, _, _ ->
             val place = places.find { it.id == id }
             if (place != null) {
                 val intent = Intent()
@@ -538,20 +545,27 @@ class PlaceDetailsActivity : BaseActivity() {
         // Radius options: 2, 5, 10 km
         val currentRadius = 5.0
         
-        PlaceRepository().fetchPublishedPlaces { places, _, _ ->
+        PlaceRepository(this).getPlacesOfflineFirst(null, null) { places, origin, cacheEmpty, _ ->
             val nearby = LocationUtils.getNearbyPlaces(places.filter { it.id != placeId }, lat, lng, 10)
             // Filter by current radius (simplification: showing top 10 within 5km by default)
             val filteredNearby = nearby.filter { it.distance <= currentRadius }
             
             if (filteredNearby.isNotEmpty()) {
                 llNearbyPlaces?.visibility = View.VISIBLE
+                showOfflineCacheBanner(origin == PlaceRepository.DataOrigin.ROOM_CACHE && !cacheEmpty)
                 rvNearbyPlaces?.adapter = TopPickAdapter(filteredNearby) {
                     val intent = Intent(this, PlaceDetailsActivity::class.java)
                     PlaceIntentExtras.putPlaceDetails(intent, it)
                     startActivity(intent)
                 }
+            } else {
+                showOfflineCacheBanner(false)
             }
         }
+    }
+
+    private fun showOfflineCacheBanner(show: Boolean) {
+        offlineCacheBanner?.visibility = if (show && !offlineCacheBannerDismissed) View.VISIBLE else View.GONE
     }
 
     private fun animateEntrance() {
