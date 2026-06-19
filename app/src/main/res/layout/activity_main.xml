@@ -350,21 +350,49 @@
         </LinearLayout>
     </com.google.android.material.card.MaterialCardView>
 
-    <!-- AI FAB Button -->
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/fabAiChat"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+    <!-- AI Assistant Quick Launch -->
+    <FrameLayout
+        android:id="@+id/aiAssistantLauncher"
+        android:layout_width="72dp"
+        android:layout_height="72dp"
         android:layout_gravity="bottom|end"
-        android:layout_marginBottom="108dp"
-        android:layout_marginEnd="20dp"
-        app:srcCompat="@drawable/ic_robot_assistant"
-        app:fabSize="normal"
-        app:maxImageSize="34dp"
-        app:tint="@null"
-        app:backgroundTint="@color/color_primary"
-        app:elevation="10dp"
-        app:rippleColor="@color/color_primary_dark" />
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="88dp"
+        android:foreground="?attr/selectableItemBackgroundBorderless"
+        android:clipToPadding="false"
+        android:clickable="true"
+        android:focusable="true">
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@drawable/bg_ai_assistant_glow"
+            android:translationZ="2dp" />
+
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/cardAiAssistant"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_gravity="center"
+            android:clickable="true"
+            android:focusable="true"
+            android:foreground="?attr/selectableItemBackgroundBorderless"
+            app:cardBackgroundColor="@color/white"
+            app:cardCornerRadius="20dp"
+            app:cardElevation="10dp"
+            app:strokeColor="@color/color_primary"
+            app:strokeWidth="1dp">
+
+            <ImageView
+                android:id="@+id/ivAiAssistantIcon"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_gravity="center"
+                android:src="@drawable/ic_robot_assistant"
+                android:tint="@color/color_primary" />
+
+        </com.google.android.material.card.MaterialCardView>
+    </FrameLayout>
 
     <!-- ===========================
          Bottom Navigation Bar

@@ -52,16 +52,18 @@ public class CategoryAdapter extends RecyclerView.Adapter<CategoryAdapter.ViewHo
         holder.categoryIcon.setImageResource(category.getIconResId());
         holder.categoryIcon.clearColorFilter();
         
-        // Highlight logic
+        // Highlight logic (purple border + scale)
         boolean isSelected = position == selectedPosition;
 
         MaterialCardView card = (MaterialCardView) holder.itemView;
+        float density = holder.itemView.getResources().getDisplayMetrics().density;
         if (isSelected) {
-            float density = holder.itemView.getResources().getDisplayMetrics().density;
             card.setStrokeWidth((int) (2 * density));
-            card.setStrokeColor(ContextCompat.getColor(holder.itemView.getContext(), R.color.color_primary));
+            card.setStrokeColor(ContextCompat.getColor(holder.itemView.getContext(), R.color.premium_purple));
+            holder.itemView.animate().scaleX(1.04f).scaleY(1.04f).setDuration(180).start();
         } else {
             card.setStrokeWidth(0);
+            holder.itemView.animate().scaleX(1f).scaleY(1f).setDuration(180).start();
         }
         holder.categoryName.setTextColor(ContextCompat.getColor(holder.itemView.getContext(), R.color.white));
 

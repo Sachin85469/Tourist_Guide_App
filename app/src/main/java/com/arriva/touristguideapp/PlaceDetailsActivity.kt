@@ -1,6 +1,7 @@
 package com.arriva.touristguideapp
 
 import android.content.Intent
+import android.content.res.ColorStateList
 import android.net.Uri
 import android.os.Bundle
 import android.view.View
@@ -10,6 +11,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.widget.ViewPager2
+import com.arriva.touristguideapp.data.repository.ImageRepository
 import com.arriva.touristguideapp.data.analytics.AnalyticsRepository
 import com.arriva.touristguideapp.data.places.PlaceRepository
 import com.arriva.touristguideapp.data.reviews.ReviewAdapter
@@ -142,19 +144,6 @@ class PlaceDetailsActivity : BaseActivity() {
         findViewById<View>(R.id.loadingState).visibility = View.GONE
         findViewById<View>(R.id.emptyState).visibility = View.GONE
 
-        // Remote / gallery fields
-        val imageUrl = intent.getStringExtra("imageUrl")
-        val galleryImageUrls = intent.getStringArrayListExtra("galleryImageUrls")
-        val galleryUrlsExtra = intent.getStringArrayListExtra("galleryUrls")
-        val mergedGalleryUrls = mergeGalleryUrlExtras(galleryImageUrls, galleryUrlsExtra)
-        
-        if (!imageUrl.isNullOrBlank()) {
-            val u = imageUrl.trim()
-            if (!mergedGalleryUrls.contains(u)) {
-                mergedGalleryUrls.add(0, u)
-            }
-        }
-
         // Basic Info
         findViewById<TextView>(R.id.detailName).text = placeName
         findViewById<TextView>(R.id.detailCategory).text = category ?: "Destination"
@@ -192,13 +181,27 @@ class PlaceDetailsActivity : BaseActivity() {
         setupChips(bestTime, crowdLevel, budget)
         setupQuickFacts(budget, avgRating, totalRatings)
         setupInfoCards(bestTime, crowdLevel, budget, stationText)
-        setupGallery(mergedGalleryUrls)
+        
+        // Resolve images from ImageRepository
+        val tempPlace = Place().apply {
+            id = placeId
+            name = placeName
+        }
+        val mainImage = ImageRepository.getMainImageForPlace(tempPlace)
+        val galleryRes = ImageRepository.getGalleryImagesForPlace(tempPlace).toList()
+        
+        // Hero area (ViewPager2) always shows at least the main image
+        val heroList = if (galleryRes.isEmpty()) listOf(mainImage) else galleryRes
+        viewPagerGallery?.adapter = GalleryAdapter(heroList)
+
+        setupGallery(galleryRes)
+        
         setupActionButtons()
 
         checkStatus()
         setupReviewUI()
         updateRatingSummary(avgRating, totalRatings, totalComments)
-        trackVisit(imageUrl, category, avgRating, totalRatings, intent)
+        trackVisit(category, avgRating, totalRatings, intent)
         
         AnalyticsRepository().trackPlaceView(placeId)
 
@@ -246,16 +249,43 @@ class PlaceDetailsActivity : BaseActivity() {
         // btnSave is now a MaterialCardView with an ImageView inside — update the icon
         val saveIcon = findViewById<ImageView?>(R.id.ivSaveIcon)
         saveIcon?.setImageResource(if (isFav) R.drawable.ic_favorite else R.drawable.ic_favorite_border)
+        saveIcon?.imageTintList = ColorStateList.valueOf(
+            if (isFav) android.graphics.Color.WHITE else getColor(R.color.color_primary)
+        )
+
+        findViewById<View?>(R.id.btnSave)?.apply {
+            backgroundTintList = ColorStateList.valueOf(
+                if (isFav) getColor(R.color.color_primary) else getColor(R.color.place_detail_soft_purple)
+            )
+            elevation = if (isFav) resources.displayMetrics.density * 4f else 0f
+        }
     }
 
     private fun setupActionButtons() {
-        findViewById<View>(R.id.btnDirections).setOnClickListener { openDirections() }
-        findViewById<View>(R.id.btnQuickShare)?.setOnClickListener { sharePlace() }
-        findViewById<View>(R.id.btnCall).setOnClickListener { makeCall() }
-        findViewById<View>(R.id.btnSave).setOnClickListener { toggleFavorite() }
-        findViewById<View>(R.id.btnExploreMap).setOnClickListener { openDirections() }
-        // Sticky CTA
-        findViewById<View>(R.id.btnNavigateNow)?.setOnClickListener { openDirections() }
+        findViewById<View>(R.id.btnDirections).setOnClickListener {
+            animateTap(it)
+            openDirections()
+        }
+        findViewById<View>(R.id.btnQuickShare)?.setOnClickListener {
+            animateTap(it)
+            sharePlace()
+        }
+        findViewById<View>(R.id.btnCall).setOnClickListener {
+            animateTap(it)
+            makeCall()
+        }
+        findViewById<View>(R.id.btnSave).setOnClickListener {
+            animateTap(it)
+            toggleFavorite()
+        }
+        findViewById<View>(R.id.btnExploreMap).setOnClickListener {
+            animateTap(it)
+            openDirections()
+        }
+        findViewById<View>(R.id.btnNavigateNow)?.setOnClickListener {
+            animateNavigateIcon()
+            openDirections()
+        }
 
         btnFavorite?.setOnClickListener { toggleFavorite() }
     }
@@ -366,7 +396,6 @@ class PlaceDetailsActivity : BaseActivity() {
         val review = Review(user.uid, user.displayName ?: "Anonymous", user.photoUrl?.toString(), rating, comment).apply {
             placeId = this@PlaceDetailsActivity.placeId
             placeName = this@PlaceDetailsActivity.placeName
-            placeImageUrl = this@PlaceDetailsActivity.currentPlace?.imageUrl
             reviewId = "${this@PlaceDetailsActivity.placeId}_${user.uid}"
         }
 
@@ -535,31 +564,58 @@ class PlaceDetailsActivity : BaseActivity() {
 
     private fun setupChips(bestTime: String?, crowd: String?, budget: String?) {
         findViewById<Chip>(R.id.chipBestTime).apply {
-            if (bestTime != null) text = "Best: $bestTime" else visibility = View.GONE
+            if (bestTime != null) text = "Best Time: $bestTime" else visibility = View.GONE
         }
         findViewById<Chip>(R.id.chipCrowd).apply {
-            if (crowd != null) text = "$crowd Crowd" else visibility = View.GONE
+            if (crowd != null) text = "Crowd Level: $crowd" else visibility = View.GONE
         }
         findViewById<Chip>(R.id.chipBudget).apply {
             if (budget != null) text = "Budget: $budget" else visibility = View.GONE
         }
     }
 
-    private fun setupGallery(urls: List<String>) {
-        if (urls.isEmpty()) return
-        viewPagerGallery?.adapter = GalleryAdapter(urls)
-        findViewById<RecyclerView>(R.id.rvGalleryPreview).apply {
-            layoutManager = LinearLayoutManager(this@PlaceDetailsActivity, LinearLayoutManager.HORIZONTAL, false)
-            adapter = GalleryPreviewAdapter(urls) { viewPagerGallery?.setCurrentItem(it, true) }
+    private fun setupGallery(resList: List<Int>) {
+        if (resList.isNotEmpty()) {
+            findViewById<View>(R.id.llGalleryContent)?.visibility = View.VISIBLE
+            findViewById<View>(R.id.tvNoGallery)?.visibility = View.GONE
+        } else {
+            findViewById<View>(R.id.llGalleryContent)?.visibility = View.GONE
+            findViewById<TextView>(R.id.tvNoGallery)?.apply {
+                visibility = View.VISIBLE
+                text = "No gallery images available yet."
+            }
+        }
+
+        val imageIds = intArrayOf(
+            R.id.ivGalleryGrid1,
+            R.id.ivGalleryGrid2,
+            R.id.ivGalleryGrid3,
+            R.id.ivGalleryGrid4
+        )
+        val cardIds = intArrayOf(
+            R.id.galleryCard1,
+            R.id.galleryCard2,
+            R.id.galleryCard3,
+            R.id.galleryCard4
+        )
+
+        for (i in imageIds.indices) {
+            bindGalleryTile(cardIds[i], imageIds[i], resList.getOrNull(i), i, resList.size)
+        }
+
+        findViewById<View>(R.id.btnViewAllPhotos)?.setOnClickListener {
+            if (resList.isNotEmpty()) {
+                viewPagerGallery?.setCurrentItem(0, true)
+                nsvPlaceDetails?.smoothScrollTo(0, 0)
+            }
         }
     }
 
-    private fun trackVisit(imageUrl: String?, category: String?, avgRating: Double, totalRatings: Long, intent: Intent) {
+    private fun trackVisit(category: String?, avgRating: Double, totalRatings: Long, intent: Intent) {
         currentPlace = Place().apply {
             id = placeId
             name = placeName
             this.category = category
-            this.imageUrl = imageUrl
             rating = avgRating
             this.totalRatings = totalRatings
             this.totalComments = intent.getLongExtra("totalComments", 0)
@@ -613,13 +669,61 @@ class PlaceDetailsActivity : BaseActivity() {
             scaleY = 0f
             animate().scaleX(1f).scaleY(1f).setDuration(400).setStartDelay(400).start()
         }
+        findViewById<LinearLayout?>(R.id.placeContentRoot)?.let { root ->
+            for (i in 0 until root.childCount) {
+                val child = root.getChildAt(i)
+                child.alpha = 0f
+                child.translationY = 28f
+                child.animate()
+                    .alpha(1f)
+                    .translationY(0f)
+                    .setStartDelay((80L + i * 45L).coerceAtMost(520L))
+                    .setDuration(360L)
+                    .start()
+            }
+        }
+        animateNavigateIcon()
     }
 
-    private fun mergeGalleryUrlExtras(a: ArrayList<String>?, b: ArrayList<String>?): ArrayList<String> {
-        val set = LinkedHashSet<String>()
-        a?.forEach { if (it.isNotBlank()) set.add(it.trim()) }
-        b?.forEach { if (it.isNotBlank()) set.add(it.trim()) }
-        return ArrayList(set)
+    private fun bindGalleryTile(
+        cardId: Int,
+        imageId: Int,
+        resId: Int?,
+        position: Int,
+        resCount: Int
+    ) {
+        val image = findViewById<ImageView?>(imageId) ?: return
+        if (resId == null || resId == 0) {
+            findViewById<View?>(cardId)?.visibility = View.GONE
+        } else {
+            findViewById<View?>(cardId)?.visibility = View.VISIBLE
+            image.setImageResource(resId)
+            image.scaleType = ImageView.ScaleType.CENTER_CROP
+        }
+
+        findViewById<View?>(cardId)?.setOnClickListener { card ->
+            animateTap(card)
+            if (resCount > 0) {
+                viewPagerGallery?.setCurrentItem(position.coerceAtMost(resCount - 1), true)
+                nsvPlaceDetails?.smoothScrollTo(0, 0)
+            }
+        }
+    }
+
+    private fun animateTap(view: View?) {
+        view ?: return
+        view.animate()
+            .scaleX(0.96f)
+            .scaleY(0.96f)
+            .setDuration(90L)
+            .withEndAction {
+                view.animate().scaleX(1f).scaleY(1f).setDuration(130L).start()
+            }
+            .start()
+    }
+
+    private fun animateNavigateIcon() {
+        // Implementation for navigation icon animation if needed
     }
 
     override fun onStart() {

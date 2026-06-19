@@ -57,7 +57,6 @@ public final class ReviewMapper {
         review.setPlaceId(dto.getPlaceId() != null ? dto.getPlaceId() : dto.getDestinationId());
         review.setPlaceName(dto.getPlaceName() != null ? dto.getPlaceName() : dto.getDestinationName());
         review.setReviewId(dto.getReviewId());
-        review.setPlaceImageUrl(dto.getPlaceImageUrl());
         
         // Handle legacy status
         String status = dto.getStatus();

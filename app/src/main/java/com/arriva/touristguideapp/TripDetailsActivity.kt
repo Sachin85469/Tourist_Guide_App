@@ -15,7 +15,7 @@ import com.arriva.touristguideapp.data.notifications.NotificationRepository
 import com.arriva.touristguideapp.data.trips.Trip
 import com.arriva.touristguideapp.data.trips.TripRepository
 import com.arriva.touristguideapp.profile.ProfileActivityTracker
-import com.bumptech.glide.Glide
+import com.arriva.touristguideapp.utils.ImageUtils
 import com.google.android.material.appbar.MaterialToolbar
 import kotlinx.coroutines.launch
 
@@ -120,16 +120,7 @@ class TripDetailsActivity : BaseActivity() {
         tvDetailBudget.text = trip.budget.ifBlank { "Budget not set" }
         tvDetailSavedPlaces.text = trip.savedPlacesLabel()
 
-        val imageUrl = trip.heroImageUrl()
-        if (imageUrl.isNotBlank()) {
-            Glide.with(this)
-                .load(imageUrl)
-                .placeholder(R.drawable.ic_trip)
-                .centerCrop()
-                .into(ivDetailImage)
-        } else {
-            ivDetailImage.setImageResource(R.drawable.ic_trip)
-        }
+        ImageUtils.loadDrawable(ivDetailImage, trip.heroImageRes())
     }
 
     private fun showEditDialog(trip: Trip) {

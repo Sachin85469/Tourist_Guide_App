@@ -8,7 +8,7 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.arriva.touristguideapp.data.trips.Trip
-import com.bumptech.glide.Glide
+import com.arriva.touristguideapp.utils.ImageUtils
 
 class TripHistoryAdapter(
     private val trips: List<Trip>,
@@ -55,16 +55,7 @@ class TripHistoryAdapter(
             val placesPreview = trip.places.take(3).joinToString("\n") { "- ${it.name}" }
             tvTripPlaces.text = placesPreview.ifBlank { "No saved places" }
 
-            val imageUrl = trip.heroImageUrl()
-            if (imageUrl.isNotBlank()) {
-                Glide.with(itemView.context)
-                    .load(imageUrl)
-                    .placeholder(R.drawable.ic_trip)
-                    .centerCrop()
-                    .into(ivTripImage)
-            } else {
-                ivTripImage.setImageResource(R.drawable.ic_trip)
-            }
+            ImageUtils.loadDrawable(ivTripImage, trip.heroImageRes())
 
             itemView.setOnClickListener { onTripClick(trip) }
             btnEditTrip.setOnClickListener { onEditClick(trip) }

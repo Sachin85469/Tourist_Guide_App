@@ -50,6 +50,8 @@ public class GeminiChatClient implements ChatClient {
         callbackExecutor = ContextCompat.getMainExecutor(context.getApplicationContext());
     }
 
+    private static final String TAG = "GeminiChatClient";
+
     @Override
     public void sendConversation(@NonNull List<ChatMessage> conversation,
                                  @NonNull Callback callback) {
@@ -70,12 +72,16 @@ public class GeminiChatClient implements ChatClient {
             return;
         }
 
+        // Log request details (avoid accessing Content internals to remain compatible)
+        android.util.Log.d(TAG, "Sending to Gemini model=" + MODEL + " messagesCount=" + history.size());
+
         activeRequest = model.generateContent(history.toArray(new Content[0]));
         Futures.addCallback(activeRequest, new FutureCallback<GenerateContentResponse>() {
             @Override
             public void onSuccess(GenerateContentResponse result) {
                 activeRequest = null;
                 String response = result != null ? result.getText() : null;
+                android.util.Log.d(TAG, "Gemini success response=" + response);
                 if (response == null || response.trim().isEmpty()) {
                     callback.onError("The assistant returned an empty response.");
                 } else {
@@ -86,10 +92,13 @@ public class GeminiChatClient implements ChatClient {
             @Override
             public void onFailure(@NonNull Throwable error) {
                 activeRequest = null;
+                android.util.Log.e(TAG, "Gemini request failed", error);
                 String details = error.getMessage();
                 if (details != null
                         && details.toLowerCase(Locale.US).contains("quota")) {
                     callback.onError("The Gemini quota has been reached. Please try again later.");
+                } else if (details != null && details.toLowerCase(Locale.US).contains("401")) {
+                    callback.onError("Gemini authentication failed (invalid API key).");
                 } else {
                     callback.onError("Could not connect to the assistant.");
                 }

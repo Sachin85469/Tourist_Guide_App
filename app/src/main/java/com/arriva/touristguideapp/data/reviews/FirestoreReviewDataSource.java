@@ -214,7 +214,6 @@ public class FirestoreReviewDataSource {
         data.put(ReviewsFirestoreContract.FIELD_USER_PHOTO_URL, review.getUserPhotoUrl());
         data.put(ReviewsFirestoreContract.FIELD_PLACE_NAME, review.getPlaceName());
         data.put("destinationName", review.getPlaceName());
-        data.put(ReviewsFirestoreContract.FIELD_PLACE_IMAGE_URL, review.getPlaceImageUrl());
         return data;
     }
 

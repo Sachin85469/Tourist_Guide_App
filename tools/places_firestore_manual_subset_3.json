@@ -25,7 +25,7 @@
         "nearestStation": "Pune Station (3 km)",
         "tag": "Popular",
         "drawableAssetKey": "shaniwar_wada",
-        "galleryDrawableKeys": ["shaniwar_wada", "sinhagad", "dagadusheth"]
+        "galleryDrawableKeys": ["shaniwar_wada", "sinhagad_fort_gallery_1", "dagadusheth"]
       }
     },
     {
@@ -77,7 +77,7 @@
         "nearestStation": "Shivajinagar (15 km)",
         "tag": "Couple",
         "drawableAssetKey": "khadakwasla",
-        "galleryDrawableKeys": ["khadakwasla", "sinhagad"]
+        "galleryDrawableKeys": ["khadakwasla", "sinhagad_fort_gallery_1"]
       }
     }
   ]

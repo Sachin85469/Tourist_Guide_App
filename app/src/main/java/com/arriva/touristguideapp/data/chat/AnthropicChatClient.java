@@ -94,42 +94,64 @@ public class AnthropicChatClient implements ChatClient {
 
         final String token = appToken;
 
+        // Detailed debug logging
+        try {
+            android.util.Log.d(TAG, "Sending chat request to: " + chatEndpointUrl + " payload: " + body.toString());
+        } catch (Exception e) {
+            android.util.Log.w(TAG, "Failed to log request payload", e);
+        }
+
         JsonObjectRequest request = new JsonObjectRequest(
                 Request.Method.POST,
                 chatEndpointUrl,
                 body,
                 response -> {
                     // Success path
-                    String content = response.optString("content", "").trim();
-                    if (content.isEmpty()) {
+                    try {
+                        String content = response.optString("content", "").trim();
+                        android.util.Log.d(TAG, "Received success response: " + response.toString());
+                        if (content.isEmpty()) {
+                            callback.onError("The assistant returned an empty response.");
+                        } else {
+                            callback.onSuccess(content);
+                        }
+                    } catch (Exception e) {
+                        android.util.Log.e(TAG, "Error parsing success response", e);
                         callback.onError("The assistant returned an empty response.");
-                    } else {
-                        callback.onSuccess(content);
                     }
                 },
                 error -> {
                     // Error path — decode the body if the server sent a JSON error
                     String errorMessage = "Could not connect to the Arriva assistant.";
-                    if (error.networkResponse != null) {
-                        int statusCode = error.networkResponse.statusCode;
-                        if (statusCode == 429) {
-                            errorMessage = "Too many requests. Please wait a moment and try again.";
-                        } else if (statusCode == 403) {
-                            errorMessage = "Authentication error. Please reinstall the app.";
-                        } else if (statusCode >= 500) {
-                            errorMessage = "The Arriva assistant is temporarily unavailable.";
-                        }
-                        try {
-                            String body2 = new String(error.networkResponse.data, "UTF-8");
-                            JSONObject errJson = new JSONObject(body2);
-                            String serverMsg = errJson.optString("error", "");
-                            if (!serverMsg.isEmpty()) {
-                                errorMessage = serverMsg;
+                    try {
+                        if (error.networkResponse != null) {
+                            int statusCode = error.networkResponse.statusCode;
+                            android.util.Log.e(TAG, "Server returned status: " + statusCode);
+                            if (statusCode == 429) {
+                                errorMessage = "Too many requests. Please wait a moment and try again.";
+                            } else if (statusCode == 403) {
+                                errorMessage = "Authentication error. Please reinstall the app.";
+                            } else if (statusCode >= 500) {
+                                errorMessage = "The Arriva assistant is temporarily unavailable.";
                             }
-                        } catch (Exception ignored2) {}
-                    } else if (error.getMessage() != null
-                            && error.getMessage().contains("timed out")) {
-                        errorMessage = "Request timed out. Please try again.";
+                            try {
+                                String body2 = new String(error.networkResponse.data, "UTF-8");
+                                android.util.Log.e(TAG, "Server error body: " + body2);
+                                JSONObject errJson = new JSONObject(body2);
+                                String serverMsg = errJson.optString("error", "");
+                                if (!serverMsg.isEmpty()) {
+                                    errorMessage = serverMsg;
+                                }
+                            } catch (Exception ignored2) {
+                                android.util.Log.w(TAG, "Failed to parse server error body", ignored2);
+                            }
+                        } else if (error.getMessage() != null
+                                && error.getMessage().contains("timed out")) {
+                            errorMessage = "Request timed out. Please try again.";
+                        }
+                        android.util.Log.e(TAG, "Chat request failed: " + error.toString(), error);
+                    } catch (Exception logEx) {
+                        android.util.Log.e(TAG, "Unexpected error handling chat failure", logEx);
                     }
                     callback.onError(errorMessage);
                 }

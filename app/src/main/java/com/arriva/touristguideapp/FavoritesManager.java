@@ -45,7 +45,6 @@ public class FavoritesManager {
         prefs.edit().putBoolean(placeId, next).apply();
 
         String placeName = place != null ? place.getName() : "Destination";
-        String placeImage = place != null ? place.getImageUrl() : "";
 
         // Track Analytics
         if (next) {
@@ -76,7 +75,6 @@ public class FavoritesManager {
                 favData.put("userId", uid);
                 favData.put("destinationId", placeId);
                 favData.put("destinationName", placeName);
-                favData.put("destinationImage", placeImage);
                 if (place != null) {
                     favData.put("city", place.getCity());
                     favData.put("latitude", place.getLatitude());

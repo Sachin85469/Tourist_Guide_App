@@ -7,7 +7,8 @@ import android.widget.ImageView
 import android.widget.RatingBar
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
-import com.bumptech.glide.Glide
+import com.arriva.touristguideapp.data.repository.ImageRepository
+import com.arriva.touristguideapp.utils.ImageUtils
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -57,16 +58,11 @@ class MyReviewsAdapter(
             }
 
             // Load Place Image
-            if (!review.placeImageUrl.isNullOrEmpty()) {
-                Glide.with(itemView.context)
-                    .load(review.placeImageUrl)
-                    .placeholder(R.drawable.placeholder)
-                    .error(R.drawable.placeholder)
-                    .centerCrop()
-                    .into(ivPlaceImage)
-            } else {
-                ivPlaceImage.setImageResource(R.drawable.placeholder)
+            val tempPlace = Place().apply {
+                id = review.placeId
+                name = review.placeName
             }
+            ImageUtils.loadPlaceMainImage(ivPlaceImage, tempPlace)
 
             itemView.setOnClickListener { onReviewClick(review) }
             btnEdit.setOnClickListener { onEditClick(review) }

@@ -37,12 +37,6 @@
             android:hint="Description"
             android:minLines="3" />
 
-        <EditText
-            android:id="@+id/etEditorImageUrl"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="Image URL" />
-
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

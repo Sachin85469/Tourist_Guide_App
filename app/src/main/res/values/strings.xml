@@ -245,7 +245,7 @@
     <string name="cancel">Cancel</string>
     <string name="ok">OK</string>
     <string name="no_reviews_yet">No reviews yet</string>
-    <string name="no_reviews_details">No reviews yet. Be the first to share your thoughts!</string>
+    <string name="no_reviews_details">Be the first traveler to share your experience.</string>
     <string name="no_trips_yet">No trips planned yet</string>
     <string name="no_notifications_yet">No notifications yet</string>
     <string name="notification_history_title">Notification History</string>
@@ -302,13 +302,15 @@
     <string name="place_about_title">About Destination</string>
     <string name="place_insider_notes">Insider Notes</string>
     <string name="place_location_title">Location</string>
-    <string name="place_open_route">Open route map</string>
+    <string name="place_open_route">Open Route Map</string>
     <string name="place_nearby_title">Explore Nearby</string>
     <string name="place_reviews_title">Ratings and Reviews</string>
     <string name="place_review_form_title">Write a Review</string>
     <string name="place_review_hint">Share what travelers should know...</string>
     <string name="place_rating_feedback_default">Tap a star to rate your visit.</string>
     <string name="place_navigate_now">Navigate Now</string>
+    <string name="place_photo_gallery">Photo Gallery</string>
+    <string name="place_view_all_photos">View All Photos</string>
     <string name="place_loading">Loading destination details...</string>
     <string name="place_unavailable_title">Destination information unavailable</string>
 
@@ -334,6 +336,9 @@
     <string name="cat_culture">Culture</string>
     <string name="cat_adventure">Adventure</string>
     <string name="cat_shopping">Shopping</string>
+    <string name="cat_scenic">Scenic</string>
+    <string name="cat_educational">Educational</string>
+    <string name="cat_park">Park</string>
     <string name="cat_entertainment">Entertainment</string>
     <string name="cat_spiritual">Spiritual</string>
     <string name="cat_history">History</string>

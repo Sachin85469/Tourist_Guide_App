@@ -8,6 +8,7 @@ import android.speech.RecognizerIntent;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -79,6 +80,16 @@ public class HomeActivity extends BaseActivity {
 
         // AI Chatbot setup
         if (fabAiChat != null) {
+            fabAiChat.setOnTouchListener((v, event) -> {
+                if (event.getActionMasked() == MotionEvent.ACTION_DOWN) {
+                    v.animate().scaleX(0.95f).scaleY(0.95f).setDuration(100).start();
+                } else if (event.getActionMasked() == MotionEvent.ACTION_UP
+                        || event.getActionMasked() == MotionEvent.ACTION_CANCEL) {
+                    v.animate().scaleX(1f).scaleY(1f).setDuration(100).start();
+                }
+                return false;
+            });
+
             fabAiChat.setOnClickListener(v -> {
                 try {
                     android.util.Log.d("HomeActivity", "Navigating to AiChatActivity");

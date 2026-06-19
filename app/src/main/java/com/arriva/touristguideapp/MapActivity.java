@@ -25,7 +25,6 @@ import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
-import com.bumptech.glide.Glide;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.location.Priority;
@@ -602,8 +601,8 @@ public class MapActivity extends BaseActivity {
             if (tvPlaceDistance != null) tvPlaceDistance.setText(String.format(java.util.Locale.getDefault(), "%.1f km away", results[0] / 1000f));
         }
 
-        if (ivPlaceImage != null && place.getImageUrl() != null) {
-            Glide.with(this).load(place.getImageUrl()).into(ivPlaceImage);
+        if (ivPlaceImage != null) {
+            PlaceImageHelper.loadThumbnail(ivPlaceImage, place);
         }
         
         btnSheetGo.setText("Get Directions");

@@ -49,7 +49,6 @@ public final class PlaceMapper {
             place.setTopPick(dto.isTopPick());
             place.setCategoryId(dto.getCategoryId());
             place.setLegacyCatalogId(dto.getLegacyId());
-            place.setGalleryUrls(dto.getGalleryUrls());
             return place;
         } catch (Exception e) {
             Log.e(TAG, "toPlace FAILED for docId=" + dto.getDocumentId(), e);

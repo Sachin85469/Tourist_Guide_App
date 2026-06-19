@@ -17,7 +17,6 @@ data class Trip(
     var notes: String = "",
     var activities: List<String> = emptyList(),
     var budget: String = "",
-    var imageUrl: String = "",
     var createdAt: Date? = null,
     var updatedAt: Date? = null
 ) : Serializable

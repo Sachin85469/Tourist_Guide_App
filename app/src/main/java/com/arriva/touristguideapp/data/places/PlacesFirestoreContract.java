@@ -36,7 +36,6 @@ public final class PlacesFirestoreContract {
     public static final String FIELD_NEAREST_STATION = "nearestStation";
     public static final String FIELD_TAG = "tag";
     public static final String FIELD_LEGACY_ID = "legacyId";
-    public static final String FIELD_GALLERY_URLS = "galleryUrls";
 
     private PlacesFirestoreContract() {
     }

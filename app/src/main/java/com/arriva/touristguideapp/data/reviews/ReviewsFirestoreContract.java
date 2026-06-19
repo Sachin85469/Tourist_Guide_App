@@ -23,7 +23,6 @@ public final class ReviewsFirestoreContract {
     public static final String FIELD_PLACE_ID = "placeId";
     public static final String FIELD_PLACE_NAME = "placeName";
     public static final String FIELD_REVIEW_ID = "reviewId";
-    public static final String FIELD_PLACE_IMAGE_URL = "placeImageUrl";
 
     /** Fields on the parent place document to support fast summaries. */
     public static final String FIELD_PLACE_AVG_RATING = "avgRating";

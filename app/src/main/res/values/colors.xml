@@ -158,4 +158,25 @@
     <color name="cat_food_bg">@color/color_surface_variant</color>
     <color name="cat_nature_bg">@color/color_surface_variant</color>
     <color name="cat_adventure_bg">@color/color_surface_variant</color>
+
+    <!-- Plan Trip premium redesign -->
+    <color name="plan_header_start">#5B3FD6</color>
+    <color name="plan_header_end">#7B61FF</color>
+    <color name="plan_primary">#6C4CF1</color>
+    <color name="plan_secondary">#8A6CFF</color>
+    <color name="plan_surface">#F8F9FC</color>
+    <color name="plan_surface_card">#FFFFFF</color>
+    <color name="plan_surface_soft">#F0F2FA</color>
+    <color name="plan_text_primary">#1F2937</color>
+    <color name="plan_text_secondary">#6B7280</color>
+    <color name="plan_outline">#E5E7F1</color>
+
+    <!-- Place details premium redesign -->
+    <color name="place_detail_surface">#F8F9FC</color>
+    <color name="place_detail_text_primary">#1F2937</color>
+    <color name="place_detail_text_secondary">#6B7280</color>
+    <color name="place_detail_soft_purple">#F0EAFF</color>
+    <color name="place_detail_soft_blue">#EEF6FF</color>
+    <color name="place_detail_soft_gold">#FFF7E6</color>
+    <color name="place_detail_outline">#E5E7F1</color>
 </resources>

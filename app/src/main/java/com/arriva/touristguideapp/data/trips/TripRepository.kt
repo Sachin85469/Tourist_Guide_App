@@ -58,9 +58,6 @@ class TripRepository {
                 .distinct()
                 .joinToString(", ")
         }
-        if (trip.imageUrl.isBlank()) {
-            trip.imageUrl = trip.places.firstOrNull { !it.imageUrl.isNullOrBlank() }?.imageUrl ?: ""
-        }
 
         if (trip.id.isEmpty()) {
             val ref = db.collection("trips").document()

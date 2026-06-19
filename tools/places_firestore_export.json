@@ -91,8 +91,8 @@
         "nearestStation": "Pune Station (30 km)",
         "tag": "Adventure",
         "isTopPick": true,
-        "drawableAssetKey": "sinhagad",
-        "galleryDrawableKeys": ["sinhagad", "khadakwasla"]
+        "drawableAssetKey": "sinhagad_fort_main",
+        "galleryDrawableKeys": ["sinhagad_fort_gallery_1", "sinhagad_fort_gallery_2", "sinhagad_fort_gallery_3", "sinhagad_fort_gallery_4"]
       }
     },
     {
@@ -169,8 +169,8 @@
         "nearestStation": "Pune Station (6 km)",
         "tag": "Family",
         "isTopPick": false,
-        "drawableAssetKey": "rajiv_gandi_zoological_park",
-        "galleryDrawableKeys": ["rajiv_gandi_zoological_park"]
+        "drawableAssetKey": "rajiv_gandhi_zoological_park_main",
+        "galleryDrawableKeys": ["rajiv_gandhi_zoological_park_gallery_1"]
       }
     },
     {

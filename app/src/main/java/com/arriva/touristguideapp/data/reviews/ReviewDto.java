@@ -29,8 +29,6 @@ public class ReviewDto {
     private String placeName;
     @PropertyName(ReviewsFirestoreContract.FIELD_REVIEW_ID)
     private String reviewId;
-    @PropertyName(ReviewsFirestoreContract.FIELD_PLACE_IMAGE_URL)
-    private String placeImageUrl;
 
     @PropertyName("destinationId")
     private String destinationId;
@@ -95,11 +93,6 @@ public class ReviewDto {
     public String getReviewId() { return reviewId; }
     @PropertyName(ReviewsFirestoreContract.FIELD_REVIEW_ID)
     public void setReviewId(String reviewId) { this.reviewId = reviewId; }
-
-    @PropertyName(ReviewsFirestoreContract.FIELD_PLACE_IMAGE_URL)
-    public String getPlaceImageUrl() { return placeImageUrl; }
-    @PropertyName(ReviewsFirestoreContract.FIELD_PLACE_IMAGE_URL)
-    public void setPlaceImageUrl(String placeImageUrl) { this.placeImageUrl = placeImageUrl; }
 
     @PropertyName("destinationId")
     public String getDestinationId() { return destinationId; }

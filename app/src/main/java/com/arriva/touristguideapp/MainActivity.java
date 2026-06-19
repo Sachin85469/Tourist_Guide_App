@@ -10,6 +10,7 @@ import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -135,8 +136,19 @@ public class MainActivity extends BaseActivity {
         View aiTooltip = findViewById(R.id.ai_tooltip);
 
         if (fabAiChat != null) {
+            fabAiChat.setOnTouchListener((v, event) -> {
+                if (event.getActionMasked() == MotionEvent.ACTION_DOWN) {
+                    v.animate().scaleX(0.95f).scaleY(0.95f).setDuration(100).start();
+                } else if (event.getActionMasked() == MotionEvent.ACTION_UP
+                        || event.getActionMasked() == MotionEvent.ACTION_CANCEL) {
+                    v.animate().scaleX(1f).scaleY(1f).setDuration(100).start();
+                }
+                return false;
+            });
+
             fabAiChat.setOnClickListener(v -> {
                 startActivity(new Intent(this, AiChatActivity.class));
+                overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
             });
 
             // Delay tooltip entrance
@@ -359,12 +371,16 @@ public class MainActivity extends BaseActivity {
         userTravelInterests = new ArrayList<>();
 
         categories = new ArrayList<>();
-        categories.add(new Category(getString(R.string.cat_historical), R.drawable.ic_map_marker_historical));
-        categories.add(new Category(getString(R.string.cat_nature), R.drawable.ic_map_marker_nature));
-        categories.add(new Category(getString(R.string.cat_religious), R.drawable.ic_map_marker_temple));
-        categories.add(new Category(getString(R.string.cat_food), R.drawable.ic_map_marker_food));
-        categories.add(new Category(getString(R.string.cat_culture), R.drawable.ic_mood));
-        categories.add(new Category(getString(R.string.cat_adventure), R.drawable.ic_map_marker_adventure));
+        categories.add(new Category(getString(R.string.cat_historical), R.drawable.historical_category));
+        categories.add(new Category(getString(R.string.cat_nature), R.drawable.nature_category));
+        categories.add(new Category(getString(R.string.cat_religious), R.drawable.religious_category));
+        categories.add(new Category(getString(R.string.cat_food), R.drawable.food_category));
+        categories.add(new Category(getString(R.string.cat_culture), R.drawable.culture_category));
+        categories.add(new Category(getString(R.string.cat_adventure), R.drawable.adventure_category));
+        categories.add(new Category(getString(R.string.cat_scenic), R.drawable.scenic_category));
+        categories.add(new Category(getString(R.string.cat_shopping), R.drawable.shopping_category));
+        categories.add(new Category(getString(R.string.cat_educational), R.drawable.educational_category));
+        categories.add(new Category(getString(R.string.cat_park), R.drawable.park_category));
     }
 
     private void checkLocationPermission() {

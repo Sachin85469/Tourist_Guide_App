@@ -25,7 +25,6 @@ public class PlaceEntity {
     public String city;
     public String district;
     public String description;
-    public String imageUrl;
     public double rating;
     public double latitude;
     public double longitude;
@@ -38,7 +37,6 @@ public class PlaceEntity {
                        String city,
                        String district,
                        String description,
-                       String imageUrl,
                        double rating,
                        double latitude,
                        double longitude,
@@ -50,7 +48,6 @@ public class PlaceEntity {
         this.city = city;
         this.district = district;
         this.description = description;
-        this.imageUrl = imageUrl;
         this.rating = rating;
         this.latitude = latitude;
         this.longitude = longitude;
@@ -71,7 +68,6 @@ public class PlaceEntity {
                 clean(place.getCity()),
                 "",
                 clean(place.getDescription()),
-                clean(place.getImageUrl()),
                 place.getRating(),
                 place.getLatitude(),
                 place.getLongitude(),
@@ -88,7 +84,6 @@ public class PlaceEntity {
         place.setCategory(category);
         place.setCity(city);
         place.setDescription(description);
-        place.setImageUrl(imageUrl);
         place.setRating(rating);
         place.setLatitude(latitude);
         place.setLongitude(longitude);

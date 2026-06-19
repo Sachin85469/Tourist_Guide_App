@@ -1271,13 +1271,6 @@ public class ItineraryActivity extends BaseActivity {
             activities.add("Visit " + stopName);
         }
 
-        for (Place place : selectedPlacesList) {
-            if ((trip.getImageUrl() == null || trip.getImageUrl().trim().isEmpty())
-                    && place.getImageUrl() != null
-                    && !place.getImageUrl().trim().isEmpty()) {
-                trip.setImageUrl(place.getImageUrl());
-            }
-        }
         trip.setActivities(activities);
         trip.setNotes(isBlank(currentGeneralTips) ? "Generated from the trip planner." : currentGeneralTips);
         trip.setBudget(currentBudget);

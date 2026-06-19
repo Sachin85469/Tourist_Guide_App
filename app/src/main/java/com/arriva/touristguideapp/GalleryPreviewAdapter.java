@@ -4,22 +4,25 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
-import com.bumptech.glide.Glide;
+
+import com.arriva.touristguideapp.utils.ImageUtils;
+
 import java.util.List;
 
 public class GalleryPreviewAdapter extends RecyclerView.Adapter<GalleryPreviewAdapter.ViewHolder> {
 
-    private final List<String> imageUrls;
+    private final List<Integer> imageResources;
     private final OnImageClickListener listener;
 
     public interface OnImageClickListener {
         void onImageClick(int position);
     }
 
-    public GalleryPreviewAdapter(List<String> imageUrls, OnImageClickListener listener) {
-        this.imageUrls = imageUrls;
+    public GalleryPreviewAdapter(List<Integer> imageResources, OnImageClickListener listener) {
+        this.imageResources = imageResources;
         this.listener = listener;
     }
 
@@ -32,13 +35,7 @@ public class GalleryPreviewAdapter extends RecyclerView.Adapter<GalleryPreviewAd
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        String url = imageUrls.get(position);
-        Glide.with(holder.itemView.getContext())
-                .load(url)
-                .centerCrop()
-                .placeholder(R.drawable.placeholder)
-                .into(holder.imageView);
-
+        ImageUtils.loadDrawable(holder.imageView, imageResources.get(position));
         holder.itemView.setOnClickListener(v -> {
             if (listener != null) {
                 listener.onImageClick(position);
@@ -48,11 +45,12 @@ public class GalleryPreviewAdapter extends RecyclerView.Adapter<GalleryPreviewAd
 
     @Override
     public int getItemCount() {
-        return imageUrls.size();
+        return imageResources.size();
     }
 
     static class ViewHolder extends RecyclerView.ViewHolder {
         ImageView imageView;
+
         ViewHolder(View itemView) {
             super(itemView);
             imageView = itemView.findViewById(R.id.ivGalleryThumb);

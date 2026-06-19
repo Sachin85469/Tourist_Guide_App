@@ -185,14 +185,20 @@ public class AiChatActivity extends BaseActivity {
             String chatUrl = backendUrl.endsWith("/")
                     ? backendUrl + "api/chat"
                     : backendUrl + "/api/chat";
+            android.util.Log.d(TAG, "Configuring primary proxy client -> " + chatUrl);
             primaryClient = new AnthropicChatClient(this, chatUrl, appToken);
             chatClient    = primaryClient;
+        } else {
+            android.util.Log.d(TAG, "No Arriva backend configured.");
         }
 
         // ─── 2. Build the Gemini fallback ───
         String geminiKey = BuildConfig.GEMINI_API_KEY.trim();
         if (!isConfiguredKey(geminiKey)) {
             geminiKey = getString(R.string.gemini_api_key).trim();
+            android.util.Log.d(TAG, "Using gemini key from strings.xml (length=" + geminiKey.length() + ")");
+        } else {
+            android.util.Log.d(TAG, "Using gemini key from BuildConfig (length=" + geminiKey.length() + ")");
         }
         if (isConfiguredKey(geminiKey)) {
             try {
@@ -201,13 +207,17 @@ public class AiChatActivity extends BaseActivity {
                         geminiKey,
                         getString(R.string.ai_system_instruction)
                 );
+                android.util.Log.d(TAG, "Gemini fallback initialized.");
                 // If we have no primary, promote Gemini to primary.
                 if (chatClient == null) {
                     chatClient = fallbackClient;
+                    android.util.Log.d(TAG, "Promoted Gemini to primary chat client.");
                 }
             } catch (RuntimeException e) {
                 android.util.Log.e(TAG, "Failed to initialize Gemini fallback", e);
             }
+        } else {
+            android.util.Log.w(TAG, "No Gemini API key configured.");
         }
 
         // ─── 3. No client at all — show offline state ───

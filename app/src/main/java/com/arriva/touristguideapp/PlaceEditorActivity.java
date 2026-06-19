@@ -14,7 +14,7 @@ import com.arriva.touristguideapp.data.places.FirestorePlaceDataSource;
 
 public class PlaceEditorActivity extends BaseActivity {
 
-    private EditText etName, etCity, etDescription, etImageUrl, etLat, etLng;
+    private EditText etName, etCity, etDescription, etLat, etLng;
     private Spinner spinnerStatus;
     private Button btnSave, btnDelete;
     private Place currentPlace;
@@ -44,7 +44,6 @@ public class PlaceEditorActivity extends BaseActivity {
         etName = findViewById(R.id.etEditorName);
         etCity = findViewById(R.id.etEditorCity);
         etDescription = findViewById(R.id.etEditorDescription);
-        etImageUrl = findViewById(R.id.etEditorImageUrl);
         etLat = findViewById(R.id.etEditorLat);
         etLng = findViewById(R.id.etEditorLng);
         spinnerStatus = findViewById(R.id.spinnerEditorStatus);
@@ -61,7 +60,6 @@ public class PlaceEditorActivity extends BaseActivity {
         etName.setText(currentPlace.getName());
         etCity.setText(currentPlace.getCity());
         etDescription.setText(currentPlace.getDescription());
-        etImageUrl.setText(currentPlace.getImageUrl());
         etLat.setText(String.valueOf(currentPlace.getLatitude()));
         etLng.setText(String.valueOf(currentPlace.getLongitude()));
         
@@ -75,7 +73,6 @@ public class PlaceEditorActivity extends BaseActivity {
         currentPlace.setName(etName.getText().toString().trim());
         currentPlace.setCity(etCity.getText().toString().trim());
         currentPlace.setDescription(etDescription.getText().toString().trim());
-        currentPlace.setImageUrl(etImageUrl.getText().toString().trim());
         currentPlace.setCatalogStatus(spinnerStatus.getSelectedItem().toString());
 
         try {

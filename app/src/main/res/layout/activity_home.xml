@@ -467,18 +467,46 @@
         app:rippleColor="#6D28D9"
         app:fabSize="normal" />
 
-    <!-- AI FAB — home screen standalone -->
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
+    <!-- AI Assistant Quick Launch -->
+    <FrameLayout
         android:id="@+id/fabAiChat"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="72dp"
+        android:layout_height="72dp"
         android:layout_gravity="bottom|end"
         android:layout_margin="24dp"
         android:layout_marginBottom="80dp"
-        app:srcCompat="@android:drawable/ic_menu_help"
-        app:tint="@color/white"
-        app:backgroundTint="@color/color_primary"
-        app:elevation="8dp"
-        app:rippleColor="@color/color_primary_dark" />
+        android:foreground="?attr/selectableItemBackgroundBorderless"
+        android:clickable="true"
+        android:focusable="true">
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@drawable/bg_ai_assistant_glow"
+            android:translationZ="2dp" />
+
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/cardAiAssistant"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_gravity="center"
+            android:clickable="false"
+            android:focusable="false"
+            app:cardBackgroundColor="@color/white"
+            app:cardCornerRadius="20dp"
+            app:cardElevation="10dp"
+            app:strokeColor="@color/color_primary"
+            app:strokeWidth="1dp">
+
+            <ImageView
+                android:id="@+id/ivAiAssistantIcon"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_gravity="center"
+                android:src="@drawable/ic_robot_assistant"
+                android:tint="@color/color_primary" />
+
+        </com.google.android.material.card.MaterialCardView>
+    </FrameLayout>
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

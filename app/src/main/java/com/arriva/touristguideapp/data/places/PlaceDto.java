@@ -51,7 +51,6 @@ public final class PlaceDto {
     private final String nearestStation;
     private final String tag;
     private final String legacyId;
-    private final List<String> galleryUrls;
     private final boolean topPick;
     @NonNull
     private final String status;
@@ -76,7 +75,6 @@ public final class PlaceDto {
             String nearestStation,
             String tag,
             String legacyId,
-            List<String> galleryUrls,
             boolean topPick,
             @NonNull String status
     ) {
@@ -99,7 +97,6 @@ public final class PlaceDto {
         this.nearestStation = nearestStation;
         this.tag = tag;
         this.legacyId = legacyId;
-        this.galleryUrls = Collections.unmodifiableList(new ArrayList<>(galleryUrls));
         this.topPick = topPick;
         this.status = status;
     }
@@ -210,8 +207,6 @@ public final class PlaceDto {
                 snap, documentId, PlacesFirestoreContract.FIELD_TAG, DEFAULT_TAG);
         String legacyId = readOptionalStringOrNull(
                 snap, documentId, PlacesFirestoreContract.FIELD_LEGACY_ID);
-        List<String> galleryUrls = readOptionalStringList(
-                snap, documentId, PlacesFirestoreContract.FIELD_GALLERY_URLS);
 
         boolean topPick = readOptionalBoolean(
                 snap, documentId, PlacesFirestoreContract.FIELD_IS_TOP_PICK, false);
@@ -238,7 +233,6 @@ public final class PlaceDto {
                 nearestStation,
                 tag,
                 legacyId,
-                galleryUrls,
                 topPick,
                 status
         );
@@ -275,7 +269,6 @@ public final class PlaceDto {
                 DEFAULT_DESCRIPTION,
                 DEFAULT_TAG,
                 null,
-                new ArrayList<>(),
                 false,
                 status
         );
@@ -458,48 +451,6 @@ public final class PlaceDto {
         return fallback;
     }
 
-    @NonNull
-    private static List<String> readOptionalStringList(@NonNull DocumentSnapshot snap,
-                                                       @NonNull String docId,
-                                                       @NonNull String field) {
-        Object raw = snap.get(field);
-        List<String> out = new ArrayList<>();
-        if (raw == null) {
-            return out;
-        }
-        if (raw instanceof String) {
-            String s = ((String) raw).trim();
-            if (!s.isEmpty()) {
-                out.add(s);
-            } else {
-                Log.w(TAG, "docId=" + docId + " optional field=" + field
-                        + " expected=List|non_empty_String actualType=String(empty) action=empty_list");
-            }
-            return out;
-        }
-        if (!(raw instanceof List<?>)) {
-            warnFieldParse(docId, field, "List|String", raw, "action=empty_list");
-            return out;
-        }
-        List<?> list = (List<?>) raw;
-        int index = 0;
-        for (Object item : list) {
-            String element = coerceToNonEmptyString(item);
-            if (element != null) {
-                out.add(element);
-            } else if (item != null) {
-                warnFieldParse(
-                        docId,
-                        field + "[" + index + "]",
-                        "String|Number|Boolean|Timestamp",
-                        item,
-                        "skipped_array_item");
-            }
-            index++;
-        }
-        return out;
-    }
-
     private static boolean hasField(@NonNull DocumentSnapshot snap, @NonNull String field) {
         return snap.get(field) != null;
     }
@@ -588,11 +539,6 @@ public final class PlaceDto {
 
     public String getLegacyId() {
         return legacyId;
-    }
-
-    @NonNull
-    public List<String> getGalleryUrls() {
-        return galleryUrls;
     }
 
     public boolean isTopPick() {
