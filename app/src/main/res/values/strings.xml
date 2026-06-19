@@ -283,6 +283,10 @@
     <string name="map_walk">Walk</string>
     <string name="map_view_details">View Details</string>
     <string name="map_get_directions">Get Directions</string>
+    <string name="map_my_location">My location</string>
+    <string name="map_enable_location_title">Enable location services</string>
+    <string name="map_enable_location_message">Turn on GPS to center the map on your current location.</string>
+    <string name="map_enable_location_settings">Settings</string>
     <string name="map_open_now">Open Now</string>
     <string name="map_closed">Closed</string>
     <string name="map_distance_away">%1$s away</string>
@@ -290,6 +294,23 @@
     <string name="map_forts">Forts</string>
     <string name="map_nature">Nature</string>
     <string name="map_museums">Museums</string>
+
+    <string name="place_action_navigate">Navigate</string>
+    <string name="place_action_save">Save</string>
+    <string name="place_action_info">Info</string>
+    <string name="place_duration_default">2-3 hrs</string>
+    <string name="place_about_title">About Destination</string>
+    <string name="place_insider_notes">Insider Notes</string>
+    <string name="place_location_title">Location</string>
+    <string name="place_open_route">Open route map</string>
+    <string name="place_nearby_title">Explore Nearby</string>
+    <string name="place_reviews_title">Ratings and Reviews</string>
+    <string name="place_review_form_title">Write a Review</string>
+    <string name="place_review_hint">Share what travelers should know...</string>
+    <string name="place_rating_feedback_default">Tap a star to rate your visit.</string>
+    <string name="place_navigate_now">Navigate Now</string>
+    <string name="place_loading">Loading destination details...</string>
+    <string name="place_unavailable_title">Destination information unavailable</string>
 
     <string name="home_greeting_with_emoji">Good Morning 👋</string>
     <string name="home_subtitle">Discover amazing places around you</string>

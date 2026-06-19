@@ -232,42 +232,19 @@
     <!-- Hidden Go Button (Logic compatibility) -->
     <Button android:id="@+id/btnDirections" android:layout_width="0dp" android:layout_height="0dp" android:visibility="gone" />
 
-    <!-- Map Utilities (Floating Buttons) -->
-    <LinearLayout
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fabMyLocation"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="end|center_vertical"
-        android:layout_marginEnd="16dp"
-        android:orientation="vertical">
-
-        <com.google.android.material.floatingactionbutton.FloatingActionButton
-            android:id="@+id/fabCompass"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="12dp"
-            app:fabSize="mini"
-            app:srcCompat="@android:drawable/ic_menu_compass"
-            app:backgroundTint="@color/white"
-            app:tint="@color/m3_primary" />
-
-        <com.google.android.material.floatingactionbutton.FloatingActionButton
-            android:id="@+id/fabRecenter"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="12dp"
-            app:fabSize="mini"
-            app:srcCompat="@android:drawable/ic_menu_mylocation"
-            app:backgroundTint="@color/white"
-            app:tint="@color/m3_primary" />
-
-        <com.google.android.material.floatingactionbutton.FloatingActionButton
-            android:id="@+id/fabMyLocation"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            app:srcCompat="@android:drawable/ic_menu_mylocation"
-            app:backgroundTint="@color/m3_primary"
-            app:tint="@color/white" />
-    </LinearLayout>
+        android:layout_gravity="bottom|end"
+        android:layout_marginEnd="20dp"
+        android:layout_marginBottom="112dp"
+        android:contentDescription="@string/map_my_location"
+        app:backgroundTint="@color/m3_primary"
+        app:fabSize="normal"
+        app:rippleColor="@color/m3_primary_container"
+        app:srcCompat="@android:drawable/ic_menu_mylocation"
+        app:tint="@color/white" />
 
     <!-- Bottom Sheet -->
     <com.google.android.material.card.MaterialCardView

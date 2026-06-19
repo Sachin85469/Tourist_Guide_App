@@ -42,10 +42,13 @@ class PlaceDetailsActivity : BaseActivity() {
     private var isPaginationLoading = false
     private var hasMoreReviews = true
     private var rvReviews: RecyclerView? = null
-    private var tvNoReviews: TextView? = null
+    private var tvNoReviews: View? = null
     private var tvRatingSummary: TextView? = null
     private var tvLargeRating: TextView? = null
     private var tvLargeStars: TextView? = null
+    private var tvReviewCount: TextView? = null
+    private var tvRatingFeedback: TextView? = null
+    private var tvSubmitReviewLabel: TextView? = null
     private var tvCoordinates: TextView? = null
     private var pbReviewsLoading: ProgressBar? = null
     private var btnRetryReviews: Button? = null
@@ -56,7 +59,7 @@ class PlaceDetailsActivity : BaseActivity() {
     private var cvAddReview: View? = null
     private var rbInputRating: RatingBar? = null
     private var etReviewComment: EditText? = null
-    private var btnSubmitReview: Button? = null
+    private var btnSubmitReview: View? = null
     private var pbSubmitReview: ProgressBar? = null
 
     private var lastSubmitTime: Long = 0
@@ -86,6 +89,9 @@ class PlaceDetailsActivity : BaseActivity() {
         tvRatingSummary = findViewById(R.id.tvRatingSummary)
         tvLargeRating = findViewById(R.id.tvLargeRating)
         tvLargeStars = findViewById(R.id.tvLargeStars)
+        tvReviewCount = findViewById(R.id.tvReviewCount)
+        tvRatingFeedback = findViewById(R.id.tvRatingFeedback)
+        tvSubmitReviewLabel = findViewById(R.id.tvSubmitReviewLabel)
         tvCoordinates = findViewById(R.id.tvCoordinates)
         rbInputRating = findViewById(R.id.rbInputRating)
         etReviewComment = findViewById(R.id.etReviewComment)
@@ -151,8 +157,8 @@ class PlaceDetailsActivity : BaseActivity() {
 
         // Basic Info
         findViewById<TextView>(R.id.detailName).text = placeName
-        findViewById<TextView>(R.id.detailCategory).text = category
-        findViewById<TextView>(R.id.detailDescription).text = description
+        findViewById<TextView>(R.id.detailCategory).text = category ?: "Destination"
+        findViewById<TextView>(R.id.detailDescription).text = description ?: "Destination details will be updated soon."
         
         // Bullet point tips
         val formattedTips = if (tips.isNullOrBlank()) {
@@ -168,8 +174,24 @@ class PlaceDetailsActivity : BaseActivity() {
         // Map Coordinates
         tvCoordinates?.text = String.format(Locale.getDefault(), "%.4f° N, %.4f° E", lat, lng)
 
+        val cleanTips = if (tips.isNullOrBlank()) {
+            "- Explore at a relaxed pace."
+        } else {
+            tips.split("\n", ",").filter { it.isNotBlank() }.joinToString("\n") { "- ${it.trim()}" }
+        }
+        val funFactText = funFact ?: "A memorable stop for travelers exploring Maharashtra."
+        val stationText = "Nearest: ${station ?: "City Center"}"
+        findViewById<TextView>(R.id.detailTips).text = cleanTips
+        findViewById<TextView>(R.id.tvTipsDisplay).text = cleanTips
+        findViewById<TextView>(R.id.detailFunFact).text = funFactText
+        findViewById<TextView>(R.id.tvFunFactDisplay).text = funFactText
+        findViewById<TextView>(R.id.detailStation).text = stationText
+        tvCoordinates?.text = String.format(Locale.getDefault(), "%.4f N, %.4f E", lat, lng)
+
         setupExpandableDescription(description)
         setupChips(bestTime, crowdLevel, budget)
+        setupQuickFacts(budget, avgRating, totalRatings)
+        setupInfoCards(bestTime, crowdLevel, budget, stationText)
         setupGallery(mergedGalleryUrls)
         setupActionButtons()
 
@@ -222,16 +244,14 @@ class PlaceDetailsActivity : BaseActivity() {
     private fun updateFavoriteIcon(isFav: Boolean) {
         btnFavorite?.setImageResource(if (isFav) R.drawable.ic_favorite else R.drawable.ic_favorite_border)
         // btnSave is now a MaterialCardView with an ImageView inside — update the icon
-        val saveIcon = try {
-            (findViewById<com.google.android.material.card.MaterialCardView>(R.id.btnSave))
-                ?.getChildAt(0) as? android.widget.ImageView
-        } catch (e: Exception) { null }
+        val saveIcon = findViewById<ImageView?>(R.id.ivSaveIcon)
         saveIcon?.setImageResource(if (isFav) R.drawable.ic_favorite else R.drawable.ic_favorite_border)
     }
 
     private fun setupActionButtons() {
         findViewById<View>(R.id.btnDirections).setOnClickListener { openDirections() }
-        findViewById<View>(R.id.btnCall).setOnClickListener { sharePlace() }
+        findViewById<View>(R.id.btnQuickShare)?.setOnClickListener { sharePlace() }
+        findViewById<View>(R.id.btnCall).setOnClickListener { makeCall() }
         findViewById<View>(R.id.btnSave).setOnClickListener { toggleFavorite() }
         findViewById<View>(R.id.btnExploreMap).setOnClickListener { openDirections() }
         // Sticky CTA
@@ -292,11 +312,21 @@ class PlaceDetailsActivity : BaseActivity() {
         }
 
         rvReviews?.layoutManager = LinearLayoutManager(this)
+        rvReviews?.itemAnimator = androidx.recyclerview.widget.DefaultItemAnimator()
         reviewAdapter = ReviewAdapter().apply {
+            setOnReviewEditListener { editReview(it) }
             setOnReviewDeleteListener { deleteReview(it) }
             setOnReviewReportListener { showReportDialog(it) }
         }
         rvReviews?.adapter = reviewAdapter
+
+        rbInputRating?.setOnRatingBarChangeListener { _, rating, fromUser ->
+            updateRatingFeedback(rating)
+            if (fromUser) {
+                tvRatingFeedback?.alpha = 0f
+                tvRatingFeedback?.animate()?.alpha(1f)?.setDuration(180)?.start()
+            }
+        }
 
         val currentUser = FirebaseAuth.getInstance().currentUser
         if (currentUser != null) {
@@ -305,7 +335,8 @@ class PlaceDetailsActivity : BaseActivity() {
                 if (review != null) {
                     rbInputRating?.rating = review.rating
                     etReviewComment?.setText(review.comment)
-                    btnSubmitReview?.setText(R.string.update_review)
+                    tvSubmitReviewLabel?.setText(R.string.update_review)
+                    updateRatingFeedback(review.rating)
                 }
             }
             btnSubmitReview?.setOnClickListener { submitReview(currentUser) }
@@ -346,7 +377,7 @@ class PlaceDetailsActivity : BaseActivity() {
 
             if (task.isSuccessful) {
                 android.util.Log.d("PlaceDetailsActivity", "Review saved successfully")
-                val isUpdate = btnSubmitReview?.text?.toString() == getString(R.string.update_review)
+                val isUpdate = tvSubmitReviewLabel?.text?.toString() == getString(R.string.update_review)
                 val placeLabel = review.placeName ?: placeName ?: "destination"
                 com.arriva.touristguideapp.profile.ProfileActivityTracker.log(
                     this,
@@ -359,7 +390,10 @@ class PlaceDetailsActivity : BaseActivity() {
                 )
                 lastSubmitTime = System.currentTimeMillis()
                 Toast.makeText(this, "Success!", Toast.LENGTH_SHORT).show()
-                btnSubmitReview?.setText(R.string.update_review)
+                tvSubmitReviewLabel?.setText(R.string.update_review)
+                btnSubmitReview?.scaleX = 0.96f
+                btnSubmitReview?.scaleY = 0.96f
+                btnSubmitReview?.animate()?.scaleX(1f)?.scaleY(1f)?.setDuration(180)?.start()
                 
                 // Add success notification
                 try {
@@ -618,7 +652,7 @@ class PlaceDetailsActivity : BaseActivity() {
                         }
                         rbInputRating?.rating = 0f
                         etReviewComment?.setText("")
-                        btnSubmitReview?.setText(R.string.submit_review)
+                        tvSubmitReviewLabel?.setText(R.string.submit_review)
                     }
                 }
             }
@@ -640,5 +674,35 @@ class PlaceDetailsActivity : BaseActivity() {
         reviewRepository.reportReview(placeId, review.userId, uid, reason).addOnCompleteListener {
             if (it.isSuccessful) Toast.makeText(this, "Review reported", Toast.LENGTH_SHORT).show()
         }
+    }
+
+    private fun editReview(review: Review) {
+        rbInputRating?.rating = review.rating
+        etReviewComment?.setText(review.comment)
+        tvSubmitReviewLabel?.setText(R.string.update_review)
+        updateRatingFeedback(review.rating)
+        cvAddReview?.let {
+            nsvPlaceDetails?.smoothScrollTo(0, it.top)
+        }
+    }
+
+    private fun updateRatingFeedback(rating: Float) {
+        val feedback = when {
+            rating >= 4.5f -> "Excellent!"
+            rating >= 3.5f -> "Good"
+            rating >= 2.5f -> "Average"
+            rating >= 1.5f -> "Poor"
+            rating > 0f -> "Terrible"
+            else -> getString(R.string.place_rating_feedback_default)
+        }
+        tvRatingFeedback?.text = feedback
+    }
+
+    private fun setupQuickFacts(budget: String?, avgRating: Double, totalRatings: Long) {
+        // Implementation for quick facts
+    }
+
+    private fun setupInfoCards(bestTime: String?, crowdLevel: String?, budget: String?, stationText: String) {
+        // Implementation for info cards
     }
 }

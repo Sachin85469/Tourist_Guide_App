@@ -65,6 +65,10 @@
     <color name="color_shadow_medium">#33000000</color>
     <color name="color_glass">#D9FFFFFF</color>
     <color name="color_scrim">#80000000</color>
+    <color name="premium_lavender_surface">#F0EAFF</color>
+    <color name="premium_lavender_surface_strong">#E5DAFF</color>
+    <color name="premium_card_stroke">#DED7EA</color>
+    <color name="premium_purple_pressed">#6D3FE6</color>
 
     <!-- Text -->
     <color name="color_text_primary">@color/color_on_surface</color>

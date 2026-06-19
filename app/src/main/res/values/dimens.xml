@@ -24,4 +24,13 @@
     <dimen name="card_elevation_soft">2dp</dimen>
     <dimen name="card_elevation_medium">4dp</dimen>
     <dimen name="card_elevation_high">8dp</dimen>
+
+    <!-- Place details premium layout -->
+    <dimen name="place_hero_height">360dp</dimen>
+    <dimen name="place_screen_margin">20dp</dimen>
+    <dimen name="place_card_padding">20dp</dimen>
+    <dimen name="premium_card_radius">22dp</dimen>
+    <dimen name="place_toolbar_icon_container">44dp</dimen>
+    <dimen name="place_action_icon_container">56dp</dimen>
+    <dimen name="place_icon_size_large">26dp</dimen>
 </resources>

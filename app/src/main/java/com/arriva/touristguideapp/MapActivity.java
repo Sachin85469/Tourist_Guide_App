@@ -1,34 +1,37 @@
 package com.arriva.touristguideapp;
 
 import android.Manifest;
+import android.app.AlertDialog;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Address;
 import android.location.Geocoder;
-import android.net.Uri;
+import android.location.Location;
+import android.location.LocationManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.provider.Settings;
 import android.speech.RecognizerIntent;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
 import com.bumptech.glide.Glide;
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.location.Priority;
+import com.google.android.gms.tasks.CancellationTokenSource;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.auth.UserInfo;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -54,8 +57,6 @@ import java.util.Locale;
 import java.util.Map;
 
 import com.arriva.touristguideapp.data.places.PlaceRepository;
-import com.arriva.touristguideapp.data.places.PlaceDto;
-import com.arriva.touristguideapp.data.places.PlaceMapper;
 
 import org.osmdroid.bonuspack.routing.OSRMRoadManager;
 import org.osmdroid.bonuspack.routing.Road;
@@ -69,12 +70,15 @@ public class MapActivity extends BaseActivity {
     private ImageView searchBtn;
     private ImageView micBtn, ivProfileIcon;
     private Button btnDirections;
+    private FloatingActionButton fabMyLocation;
     private MyLocationNewOverlay locationOverlay;
+    private FusedLocationProviderClient fusedLocationClient;
     private static final int REQUEST_PERMISSIONS_REQUEST_CODE = 1;
     private static final int SPEECH_REQUEST_CODE = 100;
     private GeoPoint searchedPoint;
     private org.osmdroid.views.overlay.Marker selectedMarker;
     private Polyline currentRoutePolyline;
+    private boolean centerOnLocationAfterPermission = false;
 
     // Bottom Sheet
     private BottomSheetBehavior<View> bottomSheetBehavior;
@@ -120,9 +124,11 @@ public class MapActivity extends BaseActivity {
         android.util.Log.d("OSM_DEBUG", "Layout Loaded");
 
         // Initialize UI
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
         searchInput = findViewById(R.id.searchInput);
         searchBtn = findViewById(R.id.searchBtn);
         micBtn = findViewById(R.id.micBtn);
+        fabMyLocation = findViewById(R.id.fabMyLocation);
         btnDirections = findViewById(R.id.btnDirections);
         ivProfileIcon = findViewById(R.id.ivProfileIcon);
         offlineCacheBanner = findViewById(R.id.offlineCacheBanner);
@@ -174,6 +180,10 @@ public class MapActivity extends BaseActivity {
 
         micBtn.setOnClickListener(v -> startVoiceSearch());
 
+        if (fabMyLocation != null) {
+            fabMyLocation.setOnClickListener(v -> handleMyLocationClick());
+        }
+
         ivProfileIcon.setOnClickListener(v -> {
             v.animate().scaleX(0.9f).scaleY(0.9f).setDuration(100).withEndAction(() -> {
                 v.animate().scaleX(1f).scaleY(1f).setDuration(100).start();
@@ -202,13 +212,7 @@ public class MapActivity extends BaseActivity {
         placeRepository = new PlaceRepository(this);
         loadAllTouristPlaces();
 
-        // Request permissions and init location
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) 
-                != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this, 
-                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 
-                    REQUEST_PERMISSIONS_REQUEST_CODE);
-        } else {
+        if (hasLocationPermission()) {
             initLocationOverlay();
         }
     }
@@ -693,20 +697,143 @@ public class MapActivity extends BaseActivity {
         }
     }
 
-    private void initLocationOverlay() {
-        locationOverlay = new MyLocationNewOverlay(new GpsMyLocationProvider(this), map);
-        locationOverlay.enableMyLocation();
-        locationOverlay.runOnFirstFix(() -> {
-            final GeoPoint myLocation = locationOverlay.getMyLocation();
-            if (myLocation != null) {
-                runOnUiThread(() -> {
-                    if (isFinishing() || isDestroyed()) return;
-                    map.getController().animateTo(myLocation);
-                    map.getController().setZoom(15.0);
-                });
+    private void handleMyLocationClick() {
+        if (!hasLocationPermission()) {
+            centerOnLocationAfterPermission = true;
+            ActivityCompat.requestPermissions(this,
+                    new String[]{
+                            Manifest.permission.ACCESS_FINE_LOCATION,
+                            Manifest.permission.ACCESS_COARSE_LOCATION
+                    },
+                    REQUEST_PERMISSIONS_REQUEST_CODE);
+            return;
+        }
+
+        if (!isGpsEnabled()) {
+            promptEnableLocationServices();
+            return;
+        }
+
+        recenterOnCurrentLocation();
+    }
+
+    private boolean hasLocationPermission() {
+        return ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
+                == PackageManager.PERMISSION_GRANTED
+                || ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION)
+                == PackageManager.PERMISSION_GRANTED;
+    }
+
+    private boolean isGpsEnabled() {
+        LocationManager locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
+        if (locationManager == null) return false;
+
+        try {
+            return locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    private void promptEnableLocationServices() {
+        new AlertDialog.Builder(this)
+                .setTitle(R.string.map_enable_location_title)
+                .setMessage(R.string.map_enable_location_message)
+                .setPositiveButton(R.string.map_enable_location_settings, (dialog, which) ->
+                        startActivity(new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS)))
+                .setNegativeButton(R.string.cancel, null)
+                .show();
+    }
+
+    @SuppressWarnings("MissingPermission")
+    private void recenterOnCurrentLocation() {
+        if (map == null || fusedLocationClient == null) return;
+
+        initLocationOverlay(false);
+
+        CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
+        boolean[] completed = {false};
+
+        new Handler(Looper.getMainLooper()).postDelayed(() -> {
+            if (!completed[0]) {
+                completed[0] = true;
+                cancellationTokenSource.cancel();
+                showUnableToGetCurrentLocation();
             }
-        });
-        map.getOverlays().add(locationOverlay);
+        }, 10000);
+
+        fusedLocationClient
+                .getCurrentLocation(Priority.PRIORITY_HIGH_ACCURACY, cancellationTokenSource.getToken())
+                .addOnSuccessListener(location -> {
+                    if (completed[0]) return;
+                    completed[0] = true;
+
+                    if (location != null) {
+                        animateCameraToLocation(location);
+                        return;
+                    }
+
+                    GeoPoint overlayLocation = locationOverlay != null ? locationOverlay.getMyLocation() : null;
+                    if (overlayLocation != null) {
+                        animateCameraToPoint(overlayLocation);
+                    } else {
+                        showUnableToGetCurrentLocation();
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    if (completed[0]) return;
+                    completed[0] = true;
+
+                    GeoPoint overlayLocation = locationOverlay != null ? locationOverlay.getMyLocation() : null;
+                    if (overlayLocation != null) {
+                        animateCameraToPoint(overlayLocation);
+                    } else {
+                        showUnableToGetCurrentLocation();
+                    }
+                });
+    }
+
+    private void animateCameraToLocation(Location location) {
+        animateCameraToPoint(new GeoPoint(location.getLatitude(), location.getLongitude()));
+    }
+
+    private void animateCameraToPoint(GeoPoint point) {
+        map.getController().animateTo(point, 16.0, 750L);
+        map.invalidate();
+    }
+
+    private void showUnableToGetCurrentLocation() {
+        Toast.makeText(this, "Unable to get current location", Toast.LENGTH_SHORT).show();
+    }
+
+    private void initLocationOverlay() {
+        initLocationOverlay(true);
+    }
+
+    private void initLocationOverlay(boolean centerOnFirstFix) {
+        if (map == null) return;
+
+        if (locationOverlay == null) {
+            locationOverlay = new MyLocationNewOverlay(new GpsMyLocationProvider(this), map);
+            map.getOverlays().add(locationOverlay);
+        } else if (!map.getOverlays().contains(locationOverlay)) {
+            map.getOverlays().add(locationOverlay);
+        }
+
+        locationOverlay.enableMyLocation();
+
+        if (centerOnFirstFix) {
+            locationOverlay.runOnFirstFix(() -> {
+                final GeoPoint myLocation = locationOverlay.getMyLocation();
+                if (myLocation != null) {
+                    runOnUiThread(() -> {
+                        if (isFinishing() || isDestroyed()) return;
+                        map.getController().animateTo(myLocation);
+                        map.getController().setZoom(15.0);
+                    });
+                }
+            });
+        }
     }
 
     @Override
@@ -731,8 +858,17 @@ public class MapActivity extends BaseActivity {
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        if (requestCode == REQUEST_PERMISSIONS_REQUEST_CODE && grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-            initLocationOverlay();
+        if (requestCode == REQUEST_PERMISSIONS_REQUEST_CODE) {
+            if (hasLocationPermission()) {
+                initLocationOverlay(!centerOnLocationAfterPermission);
+                if (centerOnLocationAfterPermission) {
+                    centerOnLocationAfterPermission = false;
+                    handleMyLocationClick();
+                }
+            } else {
+                centerOnLocationAfterPermission = false;
+                Toast.makeText(this, "Unable to get current location", Toast.LENGTH_SHORT).show();
+            }
         }
     }
 }

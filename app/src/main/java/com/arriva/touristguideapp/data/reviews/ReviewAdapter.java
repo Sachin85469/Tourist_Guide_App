@@ -30,10 +30,15 @@ public class ReviewAdapter extends RecyclerView.Adapter<ReviewAdapter.ViewHolder
         void onReportClick(Review review);
     }
 
+    public interface OnReviewEditListener {
+        void onEditClick(Review review);
+    }
+
     private List<Review> reviews = new ArrayList<>();
     private final SimpleDateFormat dateFormat = new SimpleDateFormat("MMM dd, yyyy", Locale.getDefault());
     private OnReviewDeleteListener deleteListener;
     private OnReviewReportListener reportListener;
+    private OnReviewEditListener editListener;
     private final String currentUserId;
 
     public ReviewAdapter() {
@@ -82,6 +87,10 @@ public class ReviewAdapter extends RecyclerView.Adapter<ReviewAdapter.ViewHolder
         this.reportListener = listener;
     }
 
+    public void setOnReviewEditListener(OnReviewEditListener listener) {
+        this.editListener = listener;
+    }
+
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -100,31 +109,41 @@ public class ReviewAdapter extends RecyclerView.Adapter<ReviewAdapter.ViewHolder
     }
 
     class ViewHolder extends RecyclerView.ViewHolder {
-        ImageView ivUserPhoto, btnDelete, btnReport;
-        TextView tvUserName, tvDate, tvComment;
+        ImageView ivUserPhoto, btnDelete, btnReport, btnEdit;
+        TextView tvUserName, tvDate, tvComment, tvInitial;
         RatingBar rbRating;
 
         ViewHolder(View itemView) {
             super(itemView);
             ivUserPhoto = itemView.findViewById(R.id.ivReviewUserPhoto);
+            tvInitial = itemView.findViewById(R.id.tvReviewInitial);
             tvUserName = itemView.findViewById(R.id.tvReviewUserName);
             tvDate = itemView.findViewById(R.id.tvReviewDate);
             tvComment = itemView.findViewById(R.id.tvReviewComment);
             rbRating = itemView.findViewById(R.id.rbReviewStars);
+            btnEdit = itemView.findViewById(R.id.btnEditReview);
             btnDelete = itemView.findViewById(R.id.btnDeleteReview);
             btnReport = itemView.findViewById(R.id.btnReportReview);
         }
 
         void bind(Review review) {
-            tvUserName.setText(review.getUserName());
+            String userName = review.getUserName();
+            if (userName == null || userName.trim().isEmpty()) {
+                userName = "Traveler";
+            }
+
+            tvUserName.setText(userName);
             tvComment.setText(review.getComment());
             rbRating.setRating(review.getRating());
+            tvInitial.setText(userName.substring(0, 1).toUpperCase(Locale.getDefault()));
             
             if (review.getCreatedAt() != null) {
                 tvDate.setText(dateFormat.format(review.getCreatedAt()));
             }
 
             if (review.getUserPhotoUrl() != null && !review.getUserPhotoUrl().isEmpty()) {
+                tvInitial.setVisibility(View.GONE);
+                ivUserPhoto.setVisibility(View.VISIBLE);
                 Glide.with(itemView.getContext())
                         .load(review.getUserPhotoUrl())
                         .apply(new RequestOptions()
@@ -133,12 +152,20 @@ public class ReviewAdapter extends RecyclerView.Adapter<ReviewAdapter.ViewHolder
                             .diskCacheStrategy(com.bumptech.glide.load.engine.DiskCacheStrategy.ALL))
                         .into(ivUserPhoto);
             } else {
-                ivUserPhoto.setImageResource(android.R.drawable.ic_menu_gallery);
+                Glide.with(itemView.getContext()).clear(ivUserPhoto);
+                ivUserPhoto.setVisibility(View.GONE);
+                tvInitial.setVisibility(View.VISIBLE);
             }
 
             // Only show delete button if this is the current user's review
             if (currentUserId != null && currentUserId.equals(review.getUserId())) {
+                btnEdit.setVisibility(View.VISIBLE);
                 btnDelete.setVisibility(View.VISIBLE);
+                btnEdit.setOnClickListener(v -> {
+                    if (editListener != null) {
+                        editListener.onEditClick(review);
+                    }
+                });
                 btnDelete.setOnClickListener(v -> {
                     if (deleteListener != null) {
                         deleteListener.onDeleteClick(review);
@@ -146,6 +173,7 @@ public class ReviewAdapter extends RecyclerView.Adapter<ReviewAdapter.ViewHolder
                 });
                 btnReport.setVisibility(View.GONE);
             } else {
+                btnEdit.setVisibility(View.GONE);
                 btnDelete.setVisibility(View.GONE);
                 btnReport.setVisibility(View.VISIBLE);
                 btnReport.setOnClickListener(v -> {
@@ -154,6 +182,10 @@ public class ReviewAdapter extends RecyclerView.Adapter<ReviewAdapter.ViewHolder
                     }
                 });
             }
+
+            itemView.setAlpha(0f);
+            itemView.setTranslationY(16f);
+            itemView.animate().alpha(1f).translationY(0f).setDuration(220).start();
         }
     }
 }
