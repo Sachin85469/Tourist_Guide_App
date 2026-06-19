@@ -98,29 +98,34 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:paddingTop="48dp">
+        android:paddingTop="44dp">
 
         <com.google.android.material.card.MaterialCardView
+            android:id="@+id/searchCard"
             android:layout_width="match_parent"
-            android:layout_height="56dp"
+            android:layout_height="60dp"
             android:layout_marginHorizontal="20dp"
-            app:cardBackgroundColor="#E6FFFFFF"
-            app:cardCornerRadius="28dp"
-            app:cardElevation="8dp"
+            app:cardBackgroundColor="#00FFFFFF"
+            app:cardCornerRadius="30dp"
+            app:cardElevation="14dp"
             app:strokeWidth="0dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
+                android:background="@drawable/bg_map_search_glass"
                 android:gravity="center_vertical"
                 android:orientation="horizontal"
-                android:paddingHorizontal="16dp">
+                android:paddingStart="18dp"
+                android:paddingEnd="10dp">
 
                 <ImageView
                     android:id="@+id/searchBtn"
-                    android:layout_width="20dp"
-                    android:layout_height="20dp"
-                    android:src="@android:drawable/ic_menu_search"
+                    android:layout_width="36dp"
+                    android:layout_height="36dp"
+                    android:background="@drawable/bg_map_icon_button"
+                    android:padding="8dp"
+                    android:src="@drawable/ic_search"
                     app:tint="@color/m3_primary" />
 
                 <EditText
@@ -130,25 +135,37 @@
                     android:layout_weight="1"
                     android:background="@android:color/transparent"
                     android:hint="@string/map_search_hint"
-                    android:paddingHorizontal="12dp"
+                    android:paddingStart="14dp"
+                    android:paddingEnd="8dp"
                     android:textAppearance="@style/TextAppearance.App.BodyMedium"
                     android:textColor="@color/m3_on_surface"
                     android:textColorHint="@color/m3_outline" />
 
                 <ImageView
-                    android:id="@+id/micBtn"
-                    android:layout_width="32dp"
-                    android:layout_height="32dp"
-                    android:background="@drawable/bg_favorite_circle"
-                    android:backgroundTint="@color/m3_primary_container"
+                    android:id="@+id/clearSearchBtn"
+                    android:layout_width="34dp"
+                    android:layout_height="34dp"
+                    android:background="@drawable/bg_map_icon_button"
+                    android:contentDescription="@string/clear"
                     android:padding="8dp"
-                    android:src="@android:drawable/ic_btn_speak_now"
+                    android:src="@drawable/ic_map_close"
+                    android:visibility="gone"
+                    app:tint="@color/m3_on_surface_variant" />
+
+                <ImageView
+                    android:id="@+id/micBtn"
+                    android:layout_width="34dp"
+                    android:layout_height="34dp"
+                    android:layout_marginStart="6dp"
+                    android:background="@drawable/bg_map_icon_button"
+                    android:padding="8dp"
+                    android:src="@drawable/ic_map_mic"
                     app:tint="@color/m3_primary" />
 
                 <com.google.android.material.imageview.ShapeableImageView
                     android:id="@+id/ivProfileIcon"
-                    android:layout_width="32dp"
-                    android:layout_height="32dp"
+                    android:layout_width="36dp"
+                    android:layout_height="36dp"
                     android:layout_marginStart="8dp"
                     android:src="@android:drawable/ic_menu_gallery"
                     app:shapeAppearanceOverlay="@style/CircleImage"
@@ -165,65 +182,496 @@
             android:paddingHorizontal="20dp"
             android:scrollbars="none">
 
-            <com.google.android.material.chip.ChipGroup
+            <LinearLayout
                 android:id="@+id/categoryChips"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                app:singleLine="true"
-                app:singleSelection="true"
-                app:chipSpacingHorizontal="8dp">
+                android:clipToPadding="false"
+                android:orientation="horizontal">
 
-                <com.google.android.material.chip.Chip
+                <com.google.android.material.card.MaterialCardView
                     android:id="@+id/chipAll"
-                    style="@style/Widget.Material3.Chip.Filter"
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:checked="true"
-                    android:text="@string/all" />
+                    android:layout_height="44dp"
+                    android:layout_marginEnd="8dp"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:foreground="?attr/selectableItemBackgroundBorderless"
+                    android:stateListAnimator="@animator/chip_press"
+                    app:cardBackgroundColor="#00FFFFFF"
+                    app:cardCornerRadius="22dp"
+                    app:cardElevation="10dp"
+                    app:strokeWidth="0dp">
 
-                <com.google.android.material.chip.Chip
+                    <LinearLayout
+                        android:id="@+id/chipAllContent"
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:background="@drawable/bg_map_chip_selected"
+                        android:gravity="center"
+                        android:orientation="horizontal"
+                        android:paddingStart="14dp"
+                        android:paddingEnd="16dp">
+
+                        <ImageView
+                            android:id="@+id/chipAllIcon"
+                            android:layout_width="20dp"
+                            android:layout_height="20dp"
+                            android:src="@drawable/ic_map_chip_all"
+                            app:tint="@color/white" />
+
+                        <TextView
+                            android:id="@+id/chipAllLabel"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="8dp"
+                            android:text="@string/all"
+                            android:textAppearance="@style/TextAppearance.App.LabelLarge"
+                            android:textColor="@color/white"
+                            android:textStyle="bold" />
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <com.google.android.material.card.MaterialCardView
                     android:id="@+id/chipHistorical"
-                    style="@style/Widget.Material3.Chip.Filter"
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/explore_historical" />
+                    android:layout_height="44dp"
+                    android:layout_marginEnd="8dp"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:foreground="?attr/selectableItemBackgroundBorderless"
+                    android:stateListAnimator="@animator/chip_press"
+                    app:cardBackgroundColor="#00FFFFFF"
+                    app:cardCornerRadius="22dp"
+                    app:cardElevation="4dp"
+                    app:strokeColor="@color/m3_outline_variant"
+                    app:strokeWidth="1dp">
 
-                <com.google.android.material.chip.Chip
+                    <LinearLayout
+                        android:id="@+id/chipHistoricalContent"
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:background="@drawable/bg_map_chip_unselected"
+                        android:gravity="center"
+                        android:orientation="horizontal"
+                        android:paddingStart="14dp"
+                        android:paddingEnd="16dp">
+
+                        <ImageView
+                            android:id="@+id/chipHistoricalIcon"
+                            android:layout_width="20dp"
+                            android:layout_height="20dp"
+                            android:src="@drawable/ic_map_chip_historical"
+                            app:tint="@color/marker_historical" />
+
+                        <TextView
+                            android:id="@+id/chipHistoricalLabel"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="8dp"
+                            android:text="@string/cat_historical"
+                            android:textAppearance="@style/TextAppearance.App.LabelLarge"
+                            android:textColor="@color/m3_on_surface"
+                            android:textStyle="bold" />
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <com.google.android.material.card.MaterialCardView
                     android:id="@+id/chipNature"
-                    style="@style/Widget.Material3.Chip.Filter"
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/explore_nature" />
+                    android:layout_height="44dp"
+                    android:layout_marginEnd="8dp"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:foreground="?attr/selectableItemBackgroundBorderless"
+                    android:stateListAnimator="@animator/chip_press"
+                    app:cardBackgroundColor="#00FFFFFF"
+                    app:cardCornerRadius="22dp"
+                    app:cardElevation="4dp"
+                    app:strokeColor="@color/m3_outline_variant"
+                    app:strokeWidth="1dp">
 
-                <com.google.android.material.chip.Chip
+                    <LinearLayout
+                        android:id="@+id/chipNatureContent"
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:background="@drawable/bg_map_chip_unselected"
+                        android:gravity="center"
+                        android:orientation="horizontal"
+                        android:paddingStart="14dp"
+                        android:paddingEnd="16dp">
+
+                        <ImageView
+                            android:id="@+id/chipNatureIcon"
+                            android:layout_width="20dp"
+                            android:layout_height="20dp"
+                            android:src="@drawable/ic_map_chip_nature"
+                            app:tint="@color/marker_nature" />
+
+                        <TextView
+                            android:id="@+id/chipNatureLabel"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="8dp"
+                            android:text="@string/cat_nature"
+                            android:textAppearance="@style/TextAppearance.App.LabelLarge"
+                            android:textColor="@color/m3_on_surface"
+                            android:textStyle="bold" />
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <com.google.android.material.card.MaterialCardView
                     android:id="@+id/chipReligious"
-                    style="@style/Widget.Material3.Chip.Filter"
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/explore_religious" />
+                    android:layout_height="44dp"
+                    android:layout_marginEnd="8dp"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:foreground="?attr/selectableItemBackgroundBorderless"
+                    android:stateListAnimator="@animator/chip_press"
+                    app:cardBackgroundColor="#00FFFFFF"
+                    app:cardCornerRadius="22dp"
+                    app:cardElevation="4dp"
+                    app:strokeColor="@color/m3_outline_variant"
+                    app:strokeWidth="1dp">
 
-                <com.google.android.material.chip.Chip
+                    <LinearLayout
+                        android:id="@+id/chipReligiousContent"
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:background="@drawable/bg_map_chip_unselected"
+                        android:gravity="center"
+                        android:orientation="horizontal"
+                        android:paddingStart="14dp"
+                        android:paddingEnd="16dp">
+
+                        <ImageView
+                            android:id="@+id/chipReligiousIcon"
+                            android:layout_width="20dp"
+                            android:layout_height="20dp"
+                            android:src="@drawable/ic_map_chip_religious"
+                            app:tint="@color/marker_religious" />
+
+                        <TextView
+                            android:id="@+id/chipReligiousLabel"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="8dp"
+                            android:text="@string/cat_religious"
+                            android:textAppearance="@style/TextAppearance.App.LabelLarge"
+                            android:textColor="@color/m3_on_surface"
+                            android:textStyle="bold" />
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <com.google.android.material.card.MaterialCardView
                     android:id="@+id/chipFood"
-                    style="@style/Widget.Material3.Chip.Filter"
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/explore_food" />
+                    android:layout_height="44dp"
+                    android:layout_marginEnd="8dp"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:foreground="?attr/selectableItemBackgroundBorderless"
+                    android:stateListAnimator="@animator/chip_press"
+                    app:cardBackgroundColor="#00FFFFFF"
+                    app:cardCornerRadius="22dp"
+                    app:cardElevation="4dp"
+                    app:strokeColor="@color/m3_outline_variant"
+                    app:strokeWidth="1dp">
 
-                <com.google.android.material.chip.Chip
+                    <LinearLayout
+                        android:id="@+id/chipFoodContent"
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:background="@drawable/bg_map_chip_unselected"
+                        android:gravity="center"
+                        android:orientation="horizontal"
+                        android:paddingStart="14dp"
+                        android:paddingEnd="16dp">
+
+                        <ImageView
+                            android:id="@+id/chipFoodIcon"
+                            android:layout_width="20dp"
+                            android:layout_height="20dp"
+                            android:src="@drawable/ic_map_chip_food"
+                            app:tint="@color/marker_food" />
+
+                        <TextView
+                            android:id="@+id/chipFoodLabel"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="8dp"
+                            android:text="@string/cat_food"
+                            android:textAppearance="@style/TextAppearance.App.LabelLarge"
+                            android:textColor="@color/m3_on_surface"
+                            android:textStyle="bold" />
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <com.google.android.material.card.MaterialCardView
                     android:id="@+id/chipCulture"
-                    style="@style/Widget.Material3.Chip.Filter"
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/explore_culture" />
+                    android:layout_height="44dp"
+                    android:layout_marginEnd="8dp"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:foreground="?attr/selectableItemBackgroundBorderless"
+                    android:stateListAnimator="@animator/chip_press"
+                    app:cardBackgroundColor="#00FFFFFF"
+                    app:cardCornerRadius="22dp"
+                    app:cardElevation="4dp"
+                    app:strokeColor="@color/m3_outline_variant"
+                    app:strokeWidth="1dp">
 
-                <com.google.android.material.chip.Chip
+                    <LinearLayout
+                        android:id="@+id/chipCultureContent"
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:background="@drawable/bg_map_chip_unselected"
+                        android:gravity="center"
+                        android:orientation="horizontal"
+                        android:paddingStart="14dp"
+                        android:paddingEnd="16dp">
+
+                        <ImageView
+                            android:id="@+id/chipCultureIcon"
+                            android:layout_width="20dp"
+                            android:layout_height="20dp"
+                            android:src="@drawable/ic_map_chip_culture"
+                            app:tint="@color/marker_culture" />
+
+                        <TextView
+                            android:id="@+id/chipCultureLabel"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="8dp"
+                            android:text="@string/cat_culture"
+                            android:textAppearance="@style/TextAppearance.App.LabelLarge"
+                            android:textColor="@color/m3_on_surface"
+                            android:textStyle="bold" />
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <com.google.android.material.card.MaterialCardView
                     android:id="@+id/chipAdventure"
-                    style="@style/Widget.Material3.Chip.Filter"
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/explore_adventure" />
+                    android:layout_height="44dp"
+                    android:layout_marginEnd="8dp"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:foreground="?attr/selectableItemBackgroundBorderless"
+                    android:stateListAnimator="@animator/chip_press"
+                    app:cardBackgroundColor="#00FFFFFF"
+                    app:cardCornerRadius="22dp"
+                    app:cardElevation="4dp"
+                    app:strokeColor="@color/m3_outline_variant"
+                    app:strokeWidth="1dp">
 
-            </com.google.android.material.chip.ChipGroup>
+                    <LinearLayout
+                        android:id="@+id/chipAdventureContent"
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:background="@drawable/bg_map_chip_unselected"
+                        android:gravity="center"
+                        android:orientation="horizontal"
+                        android:paddingStart="14dp"
+                        android:paddingEnd="16dp">
+
+                        <ImageView
+                            android:id="@+id/chipAdventureIcon"
+                            android:layout_width="20dp"
+                            android:layout_height="20dp"
+                            android:src="@drawable/ic_map_chip_adventure"
+                            app:tint="@color/marker_adventure" />
+
+                        <TextView
+                            android:id="@+id/chipAdventureLabel"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="8dp"
+                            android:text="@string/cat_adventure"
+                            android:textAppearance="@style/TextAppearance.App.LabelLarge"
+                            android:textColor="@color/m3_on_surface"
+                            android:textStyle="bold" />
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/chipScenic"
+                    android:layout_width="wrap_content"
+                    android:layout_height="44dp"
+                    android:layout_marginEnd="8dp"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:foreground="?attr/selectableItemBackgroundBorderless"
+                    android:stateListAnimator="@animator/chip_press"
+                    app:cardBackgroundColor="#00FFFFFF"
+                    app:cardCornerRadius="22dp"
+                    app:cardElevation="4dp"
+                    app:strokeColor="@color/m3_outline_variant"
+                    app:strokeWidth="1dp">
+
+                    <LinearLayout
+                        android:id="@+id/chipScenicContent"
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:background="@drawable/bg_map_chip_unselected"
+                        android:gravity="center"
+                        android:orientation="horizontal"
+                        android:paddingStart="14dp"
+                        android:paddingEnd="16dp">
+
+                        <ImageView
+                            android:id="@+id/chipScenicIcon"
+                            android:layout_width="20dp"
+                            android:layout_height="20dp"
+                            android:src="@drawable/ic_map_chip_scenic"
+                            app:tint="@color/marker_scenic" />
+
+                        <TextView
+                            android:id="@+id/chipScenicLabel"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="8dp"
+                            android:text="@string/cat_scenic"
+                            android:textAppearance="@style/TextAppearance.App.LabelLarge"
+                            android:textColor="@color/m3_on_surface"
+                            android:textStyle="bold" />
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/chipShopping"
+                    android:layout_width="wrap_content"
+                    android:layout_height="44dp"
+                    android:layout_marginEnd="8dp"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:foreground="?attr/selectableItemBackgroundBorderless"
+                    android:stateListAnimator="@animator/chip_press"
+                    app:cardBackgroundColor="#00FFFFFF"
+                    app:cardCornerRadius="22dp"
+                    app:cardElevation="4dp"
+                    app:strokeColor="@color/m3_outline_variant"
+                    app:strokeWidth="1dp">
+
+                    <LinearLayout
+                        android:id="@+id/chipShoppingContent"
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:background="@drawable/bg_map_chip_unselected"
+                        android:gravity="center"
+                        android:orientation="horizontal"
+                        android:paddingStart="14dp"
+                        android:paddingEnd="16dp">
+
+                        <ImageView
+                            android:id="@+id/chipShoppingIcon"
+                            android:layout_width="20dp"
+                            android:layout_height="20dp"
+                            android:src="@drawable/ic_map_chip_shopping"
+                            app:tint="@color/marker_shopping" />
+
+                        <TextView
+                            android:id="@+id/chipShoppingLabel"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="8dp"
+                            android:text="@string/cat_shopping"
+                            android:textAppearance="@style/TextAppearance.App.LabelLarge"
+                            android:textColor="@color/m3_on_surface"
+                            android:textStyle="bold" />
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/chipEducational"
+                    android:layout_width="wrap_content"
+                    android:layout_height="44dp"
+                    android:layout_marginEnd="8dp"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:foreground="?attr/selectableItemBackgroundBorderless"
+                    android:stateListAnimator="@animator/chip_press"
+                    app:cardBackgroundColor="#00FFFFFF"
+                    app:cardCornerRadius="22dp"
+                    app:cardElevation="4dp"
+                    app:strokeColor="@color/m3_outline_variant"
+                    app:strokeWidth="1dp">
+
+                    <LinearLayout
+                        android:id="@+id/chipEducationalContent"
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:background="@drawable/bg_map_chip_unselected"
+                        android:gravity="center"
+                        android:orientation="horizontal"
+                        android:paddingStart="14dp"
+                        android:paddingEnd="16dp">
+
+                        <ImageView
+                            android:id="@+id/chipEducationalIcon"
+                            android:layout_width="20dp"
+                            android:layout_height="20dp"
+                            android:src="@drawable/ic_map_chip_educational"
+                            app:tint="@color/marker_educational" />
+
+                        <TextView
+                            android:id="@+id/chipEducationalLabel"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="8dp"
+                            android:text="@string/cat_educational"
+                            android:textAppearance="@style/TextAppearance.App.LabelLarge"
+                            android:textColor="@color/m3_on_surface"
+                            android:textStyle="bold" />
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/chipPark"
+                    android:layout_width="wrap_content"
+                    android:layout_height="44dp"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:foreground="?attr/selectableItemBackgroundBorderless"
+                    android:stateListAnimator="@animator/chip_press"
+                    app:cardBackgroundColor="#00FFFFFF"
+                    app:cardCornerRadius="22dp"
+                    app:cardElevation="4dp"
+                    app:strokeColor="@color/m3_outline_variant"
+                    app:strokeWidth="1dp">
+
+                    <LinearLayout
+                        android:id="@+id/chipParkContent"
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:background="@drawable/bg_map_chip_unselected"
+                        android:gravity="center"
+                        android:orientation="horizontal"
+                        android:paddingStart="14dp"
+                        android:paddingEnd="16dp">
+
+                        <ImageView
+                            android:id="@+id/chipParkIcon"
+                            android:layout_width="20dp"
+                            android:layout_height="20dp"
+                            android:src="@drawable/ic_map_chip_park"
+                            app:tint="@color/marker_park" />
+
+                        <TextView
+                            android:id="@+id/chipParkLabel"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="8dp"
+                            android:text="@string/cat_park"
+                            android:textAppearance="@style/TextAppearance.App.LabelLarge"
+                            android:textColor="@color/m3_on_surface"
+                            android:textStyle="bold" />
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+            </LinearLayout>
         </HorizontalScrollView>
 
         <include layout="@layout/view_offline_cache_banner" />
@@ -240,11 +688,12 @@
         android:layout_marginEnd="20dp"
         android:layout_marginBottom="112dp"
         android:contentDescription="@string/map_my_location"
-        app:backgroundTint="@color/m3_primary"
+        app:backgroundTint="#F8FFFFFF"
+        app:elevation="12dp"
         app:fabSize="normal"
         app:rippleColor="@color/m3_primary_container"
-        app:srcCompat="@android:drawable/ic_menu_mylocation"
-        app:tint="@color/white" />
+        app:srcCompat="@drawable/ic_map_my_location"
+        app:tint="@color/m3_primary" />
 
     <!-- Bottom Sheet -->
     <com.google.android.material.card.MaterialCardView
@@ -268,7 +717,7 @@
                 android:layout_width="40dp"
                 android:layout_height="4dp"
                 android:layout_gravity="center_horizontal"
-                android:background="@color/m3_outline_variant"
+                android:background="@drawable/bg_map_sheet_handle"
                 android:layout_marginTop="12dp"
                 android:layout_marginBottom="8dp"/>
 
@@ -379,7 +828,7 @@
                     android:layout_weight="1.2"
                     android:layout_marginStart="8dp"
                     android:text="@string/map_get_directions"
-                    app:icon="@android:drawable/ic_menu_directions" />
+                    app:icon="@drawable/ic_map_directions" />
 
             </LinearLayout>
 
@@ -431,8 +880,8 @@
         android:layout_marginBottom="24dp"
         android:layout_gravity="bottom"
         app:cardCornerRadius="36dp"
-        app:cardElevation="12dp"
-        app:cardBackgroundColor="#F2FFFFFF"
+        app:cardElevation="18dp"
+        app:cardBackgroundColor="#F8FFFFFF"
         app:strokeWidth="1dp"
         app:strokeColor="@color/m3_outline_variant">
 
@@ -442,7 +891,8 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             app:elevation="0dp"
-            app:labelVisibilityMode="unlabeled"
+            app:itemIconSize="26dp"
+            app:labelVisibilityMode="selected"
             app:menu="@menu/bottom_nav_menu" />
     </com.google.android.material.card.MaterialCardView>
 

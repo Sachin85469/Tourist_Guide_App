@@ -26,7 +26,7 @@
             android:layout_height="match_parent"
             android:contentDescription="@null"
             android:scaleType="centerCrop"
-            tools:src="@drawable/historical_category" />
+            tools:src="@drawable/all_category" />
 
         <View
             android:layout_width="match_parent"

@@ -371,6 +371,7 @@ public class MainActivity extends BaseActivity {
         userTravelInterests = new ArrayList<>();
 
         categories = new ArrayList<>();
+        categories.add(new Category(getString(R.string.all), R.drawable.all_category));
         categories.add(new Category(getString(R.string.cat_historical), R.drawable.historical_category));
         categories.add(new Category(getString(R.string.cat_nature), R.drawable.nature_category));
         categories.add(new Category(getString(R.string.cat_religious), R.drawable.religious_category));

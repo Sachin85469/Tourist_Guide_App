@@ -1,19 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
-    android:width="44dp"
-    android:height="56dp"
-    android:viewportWidth="44"
-    android:viewportHeight="56">
-    <!-- Shadow -->
+    android:width="52dp"
+    android:height="64dp"
+    android:viewportWidth="52"
+    android:viewportHeight="64">
     <path
-        android:fillColor="#33000000"
-        android:pathData="M22,56c0,0 -22,-18.7 -22,-34c0,-12.1 9.9,-22 22,-22s22,9.9 22,22C44,37.3 22,56 22,56z" />
-    <!-- Pin -->
+        android:fillColor="#3D000000"
+        android:pathData="M26,63C26,63 3,43 3,25C3,11.8 13,2 26,2s23,9.8 23,23C49,43 26,63 26,63z" />
     <path
-        android:fillColor="@color/m3_tertiary"
-        android:pathData="M22,2C10.9,2 2,10.9 2,22c0,15.1 20,32 20,32s20,-16.9 20,-32C42,10.9 33.1,2 22,2z" />
-    <!-- Inner Circle -->
+        android:fillColor="@color/color_primary"
+        android:pathData="M26,4C14.4,4 5,13.4 5,25c0,16.2 21,34 21,34s21,-17.8 21,-34C47,13.4 37.6,4 26,4z" />
     <path
-        android:fillColor="#FFFFFF"
-        android:pathData="M22,22m-8,0a8,8 0,1 1,16 0a8,8 0,1 1,-16 0" />
+        android:fillColor="#33FFFFFF"
+        android:pathData="M26,25m-16,0a16,16 0,1 1,32 0a16,16 0,1 1,-32 0" />
+    <group
+        android:translateX="14"
+        android:translateY="12">
+        <path
+            android:fillColor="#FFFFFF"
+            android:pathData="M12,2L4,5v17l8,-3l8,3V5L12,2zM6,6.4l5,-1.9v12.1l-5,1.9V6.4zM13,4.5l5,1.9v12.1l-5,-1.9V4.5z" />
+    </group>
 </vector>

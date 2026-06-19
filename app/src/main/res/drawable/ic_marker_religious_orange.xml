@@ -1,13 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
-    android:width="36dp"
-    android:height="48dp"
-    android:viewportWidth="36"
-    android:viewportHeight="48">
+    android:width="46dp"
+    android:height="58dp"
+    android:viewportWidth="46"
+    android:viewportHeight="58">
+    <path
+        android:fillColor="#26000000"
+        android:pathData="M23,57C23,57 2,39 2,23C2,10.8 11,2 23,2s21,8.8 21,21C44,39 23,57 23,57z" />
     <path
         android:fillColor="@color/marker_religious"
-        android:pathData="M18,0C8.06,0 0,8.06 0,18c0,13.5 18,30 18,30s18,-16.5 18,-30C36,8.06 27.94,0 18,0z" />
+        android:pathData="M23,4C12.5,4 4,12.5 4,23c0,14.2 19,30 19,30s19,-15.8 19,-30C42,12.5 33.5,4 23,4z" />
     <path
-        android:fillColor="#FFFFFF"
-        android:pathData="M18,18m-8,0a8,8 0,1 1,16 0a8,8 0,1 1,-16 0" />
+        android:fillColor="#26FFFFFF"
+        android:pathData="M23,23m-15,0a15,15 0,1 1,30 0a15,15 0,1 1,-30 0" />
+    <group
+        android:translateX="11"
+        android:translateY="10">
+        <path
+            android:fillColor="#FFFFFF"
+            android:pathData="M13,2v3l4,-1.5L13,2zM12,3L5,8v2h14V8L12,3zM7,11h2v7H7v-7zM11,11h2v7h-2v-7zM15,11h2v7h-2v-7zM4,20h16v2H4v-2z" />
+    </group>
 </vector>

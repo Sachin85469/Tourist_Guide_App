@@ -13,6 +13,9 @@ import android.os.Handler;
 import android.os.Looper;
 import android.provider.Settings;
 import android.speech.RecognizerIntent;
+import android.graphics.Color;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
@@ -30,6 +33,7 @@ import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.location.Priority;
 import com.google.android.gms.tasks.CancellationTokenSource;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
+import com.google.android.material.card.MaterialCardView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import org.json.JSONArray;
@@ -66,7 +70,7 @@ public class MapActivity extends BaseActivity {
 
     private MapView map;
     private EditText searchInput;
-    private ImageView searchBtn;
+    private ImageView searchBtn, clearSearchBtn;
     private ImageView micBtn, ivProfileIcon;
     private Button btnDirections;
     private FloatingActionButton fabMyLocation;
@@ -76,11 +80,13 @@ public class MapActivity extends BaseActivity {
     private static final int SPEECH_REQUEST_CODE = 100;
     private GeoPoint searchedPoint;
     private org.osmdroid.views.overlay.Marker selectedMarker;
+    private org.osmdroid.views.overlay.Marker searchMarker;
     private Polyline currentRoutePolyline;
     private boolean centerOnLocationAfterPermission = false;
 
     // Bottom Sheet
     private BottomSheetBehavior<View> bottomSheetBehavior;
+    private View bottomSheetView;
     private TextView placeNameTv, placeDetailsTv, tvPlaceCategory, tvPlaceRating, tvPlaceDistance;
     private ImageView ivPlaceImage;
     private Button btnSheetGo, btnViewDetails;
@@ -94,6 +100,7 @@ public class MapActivity extends BaseActivity {
     private PlaceRepository placeRepository;
     private List<Place> allTouristPlaces = new ArrayList<>();
     private final Map<org.osmdroid.views.overlay.Marker, String> touristMarkers = new LinkedHashMap<>();
+    private final List<MapCategoryChip> categoryChipViews = new ArrayList<>();
     private String selectedCategory = "All";
     private boolean offlineCacheBannerDismissed = false;
 
@@ -126,6 +133,7 @@ public class MapActivity extends BaseActivity {
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
         searchInput = findViewById(R.id.searchInput);
         searchBtn = findViewById(R.id.searchBtn);
+        clearSearchBtn = findViewById(R.id.clearSearchBtn);
         micBtn = findViewById(R.id.micBtn);
         fabMyLocation = findViewById(R.id.fabMyLocation);
         btnDirections = findViewById(R.id.btnDirections);
@@ -163,10 +171,36 @@ public class MapActivity extends BaseActivity {
         }
 
         // Search bar animation
+        View searchCard = findViewById(R.id.searchCard);
         searchInput.setOnFocusChangeListener((v, hasFocus) -> {
             float scale = hasFocus ? 1.03f : 1f;
-            v.animate().scaleX(scale).scaleY(scale).setDuration(180).start();
+            View target = searchCard != null ? searchCard : v;
+            target.animate().scaleX(scale).scaleY(scale).setDuration(180).start();
         });
+
+        searchInput.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                if (clearSearchBtn != null) {
+                    clearSearchBtn.setVisibility(s != null && s.length() > 0 ? View.VISIBLE : View.GONE);
+                }
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+            }
+        });
+
+        if (clearSearchBtn != null) {
+            clearSearchBtn.setOnClickListener(v -> {
+                searchInput.setText("");
+                clearSearchResult();
+            });
+        }
 
         searchBtn.setOnClickListener(v -> {
             String query = searchInput.getText().toString().trim();
@@ -242,6 +276,7 @@ public class MapActivity extends BaseActivity {
 
     private void setupBottomSheet() {
         View bottomSheet = findViewById(R.id.bottomSheet);
+        bottomSheetView = bottomSheet;
         bottomSheetBehavior = BottomSheetBehavior.from(bottomSheet);
         bottomSheetBehavior.setState(BottomSheetBehavior.STATE_HIDDEN);
         
@@ -277,26 +312,56 @@ public class MapActivity extends BaseActivity {
     }
 
     private void setupCategoryButtons() {
-        View chipAll = findViewById(R.id.chipAll);
-        if (chipAll != null) chipAll.setOnClickListener(v -> filterMarkers("All"));
+        categoryChipViews.clear();
+        registerCategoryChip("All", R.id.chipAll, R.id.chipAllContent, R.id.chipAllIcon, R.id.chipAllLabel, R.color.color_primary);
+        registerCategoryChip("Historical", R.id.chipHistorical, R.id.chipHistoricalContent, R.id.chipHistoricalIcon, R.id.chipHistoricalLabel, R.color.marker_historical);
+        registerCategoryChip("Nature", R.id.chipNature, R.id.chipNatureContent, R.id.chipNatureIcon, R.id.chipNatureLabel, R.color.marker_nature);
+        registerCategoryChip("Religious", R.id.chipReligious, R.id.chipReligiousContent, R.id.chipReligiousIcon, R.id.chipReligiousLabel, R.color.marker_religious);
+        registerCategoryChip("Food", R.id.chipFood, R.id.chipFoodContent, R.id.chipFoodIcon, R.id.chipFoodLabel, R.color.marker_food);
+        registerCategoryChip("Culture", R.id.chipCulture, R.id.chipCultureContent, R.id.chipCultureIcon, R.id.chipCultureLabel, R.color.marker_culture);
+        registerCategoryChip("Adventure", R.id.chipAdventure, R.id.chipAdventureContent, R.id.chipAdventureIcon, R.id.chipAdventureLabel, R.color.marker_adventure);
+        registerCategoryChip("Scenic", R.id.chipScenic, R.id.chipScenicContent, R.id.chipScenicIcon, R.id.chipScenicLabel, R.color.marker_scenic);
+        registerCategoryChip("Shopping", R.id.chipShopping, R.id.chipShoppingContent, R.id.chipShoppingIcon, R.id.chipShoppingLabel, R.color.marker_shopping);
+        registerCategoryChip("Educational", R.id.chipEducational, R.id.chipEducationalContent, R.id.chipEducationalIcon, R.id.chipEducationalLabel, R.color.marker_educational);
+        registerCategoryChip("Park", R.id.chipPark, R.id.chipParkContent, R.id.chipParkIcon, R.id.chipParkLabel, R.color.marker_park);
+        updateCategoryChipStates(selectedCategory);
+    }
 
-        View chipHistorical = findViewById(R.id.chipHistorical);
-        if (chipHistorical != null) chipHistorical.setOnClickListener(v -> filterMarkers("Historical"));
+    private void registerCategoryChip(String category, int cardId, int contentId, int iconId, int labelId, int colorRes) {
+        View root = findViewById(cardId);
+        View content = findViewById(contentId);
+        ImageView icon = findViewById(iconId);
+        TextView label = findViewById(labelId);
+        if (!(root instanceof MaterialCardView) || content == null || icon == null || label == null) {
+            return;
+        }
 
-        View chipNature = findViewById(R.id.chipNature);
-        if (chipNature != null) chipNature.setOnClickListener(v -> filterMarkers("Nature"));
+        MapCategoryChip chip = new MapCategoryChip(category, (MaterialCardView) root, content, icon, label, colorRes);
+        categoryChipViews.add(chip);
+        root.setOnClickListener(v -> {
+            v.animate().scaleX(0.96f).scaleY(0.96f).setDuration(80)
+                    .withEndAction(() -> v.animate().scaleX(1f).scaleY(1f).setDuration(120).start())
+                    .start();
+            filterMarkers(category);
+        });
+    }
 
-        View chipReligious = findViewById(R.id.chipReligious);
-        if (chipReligious != null) chipReligious.setOnClickListener(v -> filterMarkers("Religious"));
+    private void updateCategoryChipStates(String selected) {
+        int white = ContextCompat.getColor(this, R.color.white);
+        int textColor = ContextCompat.getColor(this, R.color.m3_on_surface);
+        int strokeColor = ContextCompat.getColor(this, R.color.m3_outline_variant);
 
-        View chipFood = findViewById(R.id.chipFood);
-        if (chipFood != null) chipFood.setOnClickListener(v -> filterMarkers("Food"));
-
-        View chipCulture = findViewById(R.id.chipCulture);
-        if (chipCulture != null) chipCulture.setOnClickListener(v -> filterMarkers("Culture"));
-
-        View chipAdventure = findViewById(R.id.chipAdventure);
-        if (chipAdventure != null) chipAdventure.setOnClickListener(v -> filterMarkers("Adventure"));
+        for (MapCategoryChip chip : categoryChipViews) {
+            boolean isSelected = chip.category.equalsIgnoreCase(selected);
+            chip.content.setBackgroundResource(isSelected ? R.drawable.bg_map_chip_selected : R.drawable.bg_map_chip_unselected);
+            chip.card.setCardBackgroundColor(Color.TRANSPARENT);
+            chip.card.setStrokeWidth(isSelected ? 0 : dp(1));
+            chip.card.setStrokeColor(strokeColor);
+            chip.card.setCardElevation(dp(isSelected ? 10 : 4));
+            chip.icon.setColorFilter(isSelected ? white : ContextCompat.getColor(this, chip.colorRes));
+            chip.label.setTextColor(isSelected ? white : textColor);
+            chip.card.animate().scaleX(isSelected ? 1.04f : 1f).scaleY(isSelected ? 1.04f : 1f).setDuration(180).start();
+        }
     }
 
     private void startVoiceSearch() {
@@ -349,7 +414,7 @@ public class MapActivity extends BaseActivity {
                 map.getController().setZoom(17.0);
                 map.getController().animateTo(searchedPoint);
 
-                addMarker(searchedPoint, locationName, "Searched Result", android.R.drawable.ic_menu_mylocation);
+                addMarker(searchedPoint, locationName, "Searched Result", R.drawable.ic_marker_default_purple);
                 showPlaceInfo(locationName, "Latitude: " + address.getLatitude() + "\nLongitude: " + address.getLongitude());
 
             } else {
@@ -374,6 +439,10 @@ public class MapActivity extends BaseActivity {
                     case "food": osmType = "node[\"amenity\"~\"restaurant|cafe\"]"; break;
                     case "culture": osmType = "node[\"tourism\"=\"museum\"]"; break;
                     case "adventure": osmType = "node[\"tourism\"=\"viewpoint\"]"; break;
+                    case "scenic": osmType = "node[\"tourism\"=\"viewpoint\"]"; break;
+                    case "shopping": osmType = "node[\"shop\"]"; break;
+                    case "educational": osmType = "node[\"amenity\"~\"school|college|university\"]"; break;
+                    case "park": osmType = "node[\"leisure\"=\"park\"]"; break;
                     default: osmType = "node[\"amenity\"=\"" + type + "\"]"; break;
                 }
                 String query = "[out:json];" + osmType + "(around:5000," + center.getLatitude() + "," + center.getLongitude() + ");out;";
@@ -413,7 +482,7 @@ public class MapActivity extends BaseActivity {
                     }
 
                     for (int i = 0; i < points.size(); i++) {
-                        addMarker(points.get(i), names.get(i), "Category: " + type, R.drawable.ic_map_marker_fort);
+                        addMarker(points.get(i), names.get(i), "Category: " + type, getMarkerIconForCategory(type));
                     }
                     map.invalidate();
                 });
@@ -429,14 +498,24 @@ public class MapActivity extends BaseActivity {
     }
 
     private void addMarker(GeoPoint point, String title, String snippet, int iconRes) {
+        if ("Searched Result".equals(snippet) && searchMarker != null) {
+            map.getOverlays().remove(searchMarker);
+            searchMarker = null;
+        }
+
         org.osmdroid.views.overlay.Marker marker = new org.osmdroid.views.overlay.Marker(map);
         marker.setPosition(point);
         marker.setTitle(title);
         marker.setSnippet(snippet);
         marker.setAnchor(org.osmdroid.views.overlay.Marker.ANCHOR_CENTER, org.osmdroid.views.overlay.Marker.ANCHOR_BOTTOM);
         marker.setIcon(androidx.core.content.ContextCompat.getDrawable(this, iconRes));
+
+        if ("Searched Result".equals(snippet)) {
+            searchMarker = marker;
+        }
         
         marker.setOnMarkerClickListener((m, mapView) -> {
+            selectedMarker = m;
             searchedPoint = (GeoPoint) m.getPosition();
             showPlaceInfo(m.getTitle(), m.getSnippet());
             map.getController().animateTo(m.getPosition());
@@ -445,6 +524,22 @@ public class MapActivity extends BaseActivity {
         
         map.getOverlays().add(marker);
         map.invalidate();
+    }
+
+    private void clearSearchResult() {
+        if (searchMarker != null && map != null) {
+            map.getOverlays().remove(searchMarker);
+            if (selectedMarker == searchMarker) {
+                selectedMarker = null;
+            }
+            searchMarker = null;
+            searchedPoint = null;
+            map.invalidate();
+        }
+
+        if (selectedMarker == null && bottomSheetBehavior != null) {
+            bottomSheetBehavior.setState(BottomSheetBehavior.STATE_HIDDEN);
+        }
     }
 
     private void loadAllTouristPlaces() {
@@ -464,11 +559,21 @@ public class MapActivity extends BaseActivity {
     }
 
     private void renderPlaceMarkers() {
-        // Remove existing tourist markers, keep location overlay and search markers
-        map.getOverlays().removeIf(o -> o instanceof org.osmdroid.views.overlay.Marker && 
-                !((org.osmdroid.views.overlay.Marker)o).getTitle().equals(searchInput.getText().toString()));
+        boolean selectedTouristMarkerWasRemoved = selectedMarker != null && touristMarkers.containsKey(selectedMarker);
+        for (org.osmdroid.views.overlay.Marker marker : new ArrayList<>(touristMarkers.keySet())) {
+            map.getOverlays().remove(marker);
+        }
         touristMarkers.clear();
+        if (selectedTouristMarkerWasRemoved) {
+            selectedMarker = null;
+            searchedPoint = null;
+            if (bottomSheetBehavior != null) {
+                bottomSheetBehavior.setState(BottomSheetBehavior.STATE_HIDDEN);
+            }
+        }
 
+        Handler markerAnimator = new Handler(Looper.getMainLooper());
+        int index = 0;
         for (Place p : allTouristPlaces) {
             GeoPoint point = new GeoPoint(p.getLat(), p.getLng());
             org.osmdroid.views.overlay.Marker marker = new org.osmdroid.views.overlay.Marker(map);
@@ -480,6 +585,7 @@ public class MapActivity extends BaseActivity {
             int iconRes = getMarkerIconForCategory(p.getCategory());
             marker.setIcon(androidx.core.content.ContextCompat.getDrawable(this, iconRes));
             marker.setRelatedObject(p);
+            marker.setAlpha(0f);
             
             marker.setOnMarkerClickListener((m, mapView) -> {
                 selectMarker(m, p);
@@ -488,6 +594,13 @@ public class MapActivity extends BaseActivity {
             
             map.getOverlays().add(marker);
             touristMarkers.put(marker, normalizeFilterCategory(p.getCategory()));
+
+            long delay = Math.min(index * 32L, 480L);
+            markerAnimator.postDelayed(() -> {
+                marker.setAlpha(1f);
+                map.invalidate();
+            }, delay);
+            index++;
         }
         filterMarkers(selectedCategory);
         map.invalidate();
@@ -497,10 +610,25 @@ public class MapActivity extends BaseActivity {
     private int getMarkerIconForCategory(String category) {
         if (category == null) return R.drawable.ic_marker_default_purple;
         String cat = category.toLowerCase();
-        if (cat.contains("historical") || cat.contains("history") || cat.contains("fort") || cat.contains("museum")) {
+        if (cat.contains("park") || cat.contains("garden") || cat.contains("zoo") || cat.contains("baug")) {
+            return R.drawable.ic_marker_park_green;
+        }
+        if (cat.contains("education") || cat.contains("college") || cat.contains("university") || cat.contains("school")) {
+            return R.drawable.ic_marker_educational_slate;
+        }
+        if (cat.contains("shopping") || cat.contains("mall") || cat.contains("market")) {
+            return R.drawable.ic_marker_shopping_pink;
+        }
+        if (cat.contains("scenic") || cat.contains("view") || cat.contains("lake") || cat.contains("dam")) {
+            return R.drawable.ic_marker_scenic_blue;
+        }
+        if (cat.contains("culture") || cat.contains("art") || cat.contains("museum")) {
+            return R.drawable.ic_marker_culture_purple;
+        }
+        if (cat.contains("historical") || cat.contains("history") || cat.contains("fort") || cat.contains("palace") || cat.contains("wada")) {
             return R.drawable.ic_marker_historical_amber;
         }
-        if (cat.contains("nature") || cat.contains("park") || cat.contains("hill")) {
+        if (cat.contains("nature") || cat.contains("hill") || cat.contains("forest")) {
             return R.drawable.ic_marker_nature_green;
         }
         if (cat.contains("religious") || cat.contains("temple") || cat.contains("spiritual")) {
@@ -518,10 +646,25 @@ public class MapActivity extends BaseActivity {
     private String normalizeFilterCategory(String category) {
         if (category == null) return "";
         String cat = category.trim().toLowerCase(Locale.ROOT);
-        if (cat.contains("historical") || cat.contains("history") || cat.contains("fort") || cat.contains("museum")) {
+        if (cat.contains("park") || cat.contains("garden") || cat.contains("zoo") || cat.contains("baug")) {
+            return "Park";
+        }
+        if (cat.contains("education") || cat.contains("college") || cat.contains("university") || cat.contains("school")) {
+            return "Educational";
+        }
+        if (cat.contains("shopping") || cat.contains("mall") || cat.contains("market")) {
+            return "Shopping";
+        }
+        if (cat.contains("scenic") || cat.contains("view") || cat.contains("lake") || cat.contains("dam")) {
+            return "Scenic";
+        }
+        if (cat.contains("culture") || cat.contains("art") || cat.contains("museum")) {
+            return "Culture";
+        }
+        if (cat.contains("historical") || cat.contains("history") || cat.contains("fort") || cat.contains("palace") || cat.contains("wada")) {
             return "Historical";
         }
-        if (cat.contains("nature") || cat.contains("park") || cat.contains("hill")) {
+        if (cat.contains("nature") || cat.contains("hill") || cat.contains("forest")) {
             return "Nature";
         }
         if (cat.contains("religious") || cat.contains("temple") || cat.contains("spiritual")) {
@@ -533,15 +676,14 @@ public class MapActivity extends BaseActivity {
         if (cat.contains("adventure") || cat.contains("trek") || cat.contains("sport")) {
             return "Adventure";
         }
-        if (cat.contains("culture") || cat.contains("art")) {
-            return "Culture";
-        }
         return category.trim();
     }
 
     private void filterMarkers(String category) {
         selectedCategory = category;
+        updateCategoryChipStates(category);
         boolean showAll = "All".equalsIgnoreCase(category);
+        int visibleCount = 0;
 
         for (Map.Entry<org.osmdroid.views.overlay.Marker, String> entry : touristMarkers.entrySet()) {
             String markerCategory = entry.getValue();
@@ -549,12 +691,25 @@ public class MapActivity extends BaseActivity {
                     || (markerCategory != null && markerCategory.equalsIgnoreCase(category));
             // osmdroid's equivalent of Google Maps Marker#setVisible.
             entry.getKey().setEnabled(visible);
+            if (visible) {
+                visibleCount++;
+            }
         }
 
         if (selectedMarker != null && !selectedMarker.isEnabled()) {
             selectedMarker = null;
             searchedPoint = null;
             bottomSheetBehavior.setState(BottomSheetBehavior.STATE_HIDDEN);
+        }
+
+        View emptyView = findViewById(R.id.emptyStateExplore);
+        if (emptyView != null) {
+            boolean showEmpty = !allTouristPlaces.isEmpty() && visibleCount == 0;
+            emptyView.setVisibility(showEmpty ? View.VISIBLE : View.GONE);
+            if (showEmpty) {
+                emptyView.setAlpha(0f);
+                emptyView.animate().alpha(1f).setDuration(180).start();
+            }
         }
         map.invalidate();
     }
@@ -578,13 +733,20 @@ public class MapActivity extends BaseActivity {
         selectedMarker.setIcon(ContextCompat.getDrawable(this, R.drawable.ic_map_marker_selected));
         selectedMarker.setAnchor(org.osmdroid.views.overlay.Marker.ANCHOR_CENTER, org.osmdroid.views.overlay.Marker.ANCHOR_BOTTOM);
         
-        // Animate
-        marker.setAlpha(0.5f);
-        new Handler().postDelayed(() -> marker.setAlpha(1.0f), 150);
+        animateSelectedMarker(marker);
 
         searchedPoint = marker.getPosition();
         showPlaceInfo(marker.getTitle(), p);
         map.getController().animateTo(marker.getPosition());
+    }
+
+    private void animateSelectedMarker(org.osmdroid.views.overlay.Marker marker) {
+        marker.setAlpha(0.58f);
+        map.invalidate();
+        new Handler(Looper.getMainLooper()).postDelayed(() -> {
+            marker.setAlpha(1.0f);
+            map.invalidate();
+        }, 130);
     }
 
     private void showPlaceInfo(String name, Place place) {
@@ -623,7 +785,7 @@ public class MapActivity extends BaseActivity {
             });
         }
 
-        bottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
+        showBottomSheetWithAnimation();
     }
 
     private void showPlaceInfo(String name, String details) {
@@ -631,7 +793,22 @@ public class MapActivity extends BaseActivity {
         placeDetailsTv.setText(details);
         btnSheetGo.setText("Get Directions");
         btnSheetGo.setOnClickListener(v -> getDirectionsToSearched());
+        showBottomSheetWithAnimation();
+    }
+
+    private void showBottomSheetWithAnimation() {
+        if (bottomSheetView != null) {
+            bottomSheetView.setAlpha(0f);
+            bottomSheetView.setTranslationY(dp(36));
+        }
         bottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
+        if (bottomSheetView != null) {
+            bottomSheetView.animate()
+                    .alpha(1f)
+                    .translationY(0f)
+                    .setDuration(220)
+                    .start();
+        }
     }
 
     private void fetchRoute(GeoPoint start, GeoPoint end) {
@@ -832,6 +1009,28 @@ public class MapActivity extends BaseActivity {
                     });
                 }
             });
+        }
+    }
+
+    private int dp(float value) {
+        return Math.round(value * getResources().getDisplayMetrics().density);
+    }
+
+    private static final class MapCategoryChip {
+        final String category;
+        final MaterialCardView card;
+        final View content;
+        final ImageView icon;
+        final TextView label;
+        final int colorRes;
+
+        MapCategoryChip(String category, MaterialCardView card, View content, ImageView icon, TextView label, int colorRes) {
+            this.category = category;
+            this.card = card;
+            this.content = content;
+            this.icon = icon;
+            this.label = label;
+            this.colorRes = colorRes;
         }
     }
 

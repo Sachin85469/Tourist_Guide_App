@@ -58,6 +58,11 @@
     <color name="marker_religious">#F57C00</color>
     <color name="marker_food">#D32F2F</color>
     <color name="marker_adventure">#1976D2</color>
+    <color name="marker_culture">#8E24AA</color>
+    <color name="marker_scenic">#0288D1</color>
+    <color name="marker_shopping">#EC4899</color>
+    <color name="marker_educational">#455A64</color>
+    <color name="marker_park">#388E3C</color>
     <color name="marker_default">#7C4DFF</color>
 
     <!-- Shadows / Overlays -->

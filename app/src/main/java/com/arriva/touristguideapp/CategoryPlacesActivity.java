@@ -18,6 +18,8 @@ import java.util.List;
 
 public class CategoryPlacesActivity extends BaseActivity implements PlaceAdapter.OnItemClickListener {
 
+    private static final String CATEGORY_ALL = "All";
+
     private RecyclerView recyclerView;
     private PlaceAdapter adapter;
     private List<Place> filteredList = new ArrayList<>();
@@ -78,14 +80,19 @@ public class CategoryPlacesActivity extends BaseActivity implements PlaceAdapter
         final List<String> categoryList;
         if (multiCategories != null && !multiCategories.isEmpty()) {
             categoryList = multiCategories;
-        } else if (singleCategory != null && !singleCategory.equalsIgnoreCase("All")) {
+        } else if (singleCategory != null && !isAllCategory(singleCategory)) {
             categoryList = Collections.singletonList(singleCategory);
         } else {
+            // Null category list keeps the repository unfiltered, so Firestore/local fallback returns every place.
             categoryList = null;
         }
 
         // Simulate loading with distance calculation
         new android.os.Handler().postDelayed(() -> loadData(categoryList), 500);
+    }
+
+    private static boolean isAllCategory(String category) {
+        return category != null && category.trim().equalsIgnoreCase(CATEGORY_ALL);
     }
 
     private void loadData(List<String> categories) {
