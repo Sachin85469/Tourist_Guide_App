@@ -10,7 +10,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Share Trip"
-        android:textAppearance="@style/TextAppearance.MaterialComponents.HeadlineSmall"
+        android:textAppearance="@style/TextAppearance.Material3.HeadlineSmall"
         android:textColor="@color/adaptive_text_primary" />
 
     <TextView
@@ -37,7 +37,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
         android:text="Invite collaborator"
-        android:textAppearance="@style/TextAppearance.MaterialComponents.TitleMedium"
+        android:textAppearance="@style/TextAppearance.Material3.TitleMedium"
         android:textColor="@color/adaptive_text_primary" />
 
     <com.google.android.material.textfield.TextInputLayout
@@ -63,4 +63,13 @@
         app:icon="@android:drawable/ic_dialog_email"
         app:iconGravity="textStart"
         app:iconPadding="8dp" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnCancelShare"
+        style="@style/Widget.Material3.Button.TextButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:layout_marginBottom="16dp"
+        android:text="Cancel" />
 </LinearLayout>

@@ -102,9 +102,7 @@ dependencies {
     androidTestImplementation libs.espresso.core
 
 
-    //MADE BY JAJU
-    // Image Loading Library
-    implementation("github.com/bumptech.glide:glide:4.16.0")
+
 
 // Network Call Libraries (Assuming your backend sends JSON)
     implementation("com.squareup.retrofit2:retrofit:2.9.0")
