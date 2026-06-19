@@ -47,9 +47,6 @@ public final class PlaceDto {
     private final double rating;
     private final long totalRatings;
     private final long totalComments;
-    @Nullable
-    private final String imageUrl;
-    private final List<String> galleryImageUrls;
     private final String tips;
     private final String funFact;
     private final String nearestStation;
@@ -57,19 +54,12 @@ public final class PlaceDto {
     private final boolean topPick;
     @NonNull
     private final String status;
-    @Nullable
-    private final String legacyId;
-    @Nullable
-    private final String drawableAssetKey;
-    @NonNull
-    private final List<String> galleryDrawableKeys;
 
     public PlaceDto(
             String documentId,
             String name,
             String city,
             String category,
-            @Nullable String categoryId,
             String description,
             String budget,
             String crowdLevel,
@@ -79,23 +69,17 @@ public final class PlaceDto {
             double rating,
             long totalRatings,
             long totalComments,
-            @Nullable String imageUrl,
-            List<String> galleryImageUrls,
             String tips,
             String funFact,
             String nearestStation,
             String tag,
             boolean topPick,
-            @NonNull String status,
-            @Nullable String legacyId,
-            @Nullable String drawableAssetKey,
-            @NonNull List<String> galleryDrawableKeys
+            @NonNull String status
     ) {
         this.documentId = documentId;
         this.name = name;
         this.city = city;
         this.category = category;
-        this.categoryId = categoryId;
         this.description = description;
         this.budget = budget;
         this.crowdLevel = crowdLevel;
@@ -105,17 +89,12 @@ public final class PlaceDto {
         this.rating = rating;
         this.totalRatings = totalRatings;
         this.totalComments = totalComments;
-        this.imageUrl = imageUrl;
-        this.galleryImageUrls = Collections.unmodifiableList(new ArrayList<>(galleryImageUrls));
         this.tips = tips;
         this.funFact = funFact;
         this.nearestStation = nearestStation;
         this.tag = tag;
         this.topPick = topPick;
         this.status = status;
-        this.legacyId = legacyId;
-        this.drawableAssetKey = drawableAssetKey;
-        this.galleryDrawableKeys = Collections.unmodifiableList(new ArrayList<>(galleryDrawableKeys));
     }
 
     @Nullable
@@ -147,36 +126,6 @@ public final class PlaceDto {
         return status == null || name == null;
     }
 
-    /**
-     * Merges {@link PlacesFirestoreContract#FIELD_GALLERY_IMAGE_URLS} and {@link PlacesFirestoreContract#FIELD_GALLERY_URLS}
-     * in order, de-duplicated. Never throws: missing or malformed fields yield an empty list.
-     */
-    @NonNull
-    private static List<String> mergeGalleryUrlLists(@NonNull DocumentSnapshot snap,
-                                                     @NonNull String documentId) {
-        try {
-            List<String> fromLegacyField = readOptionalStringList(
-                    snap, documentId, PlacesFirestoreContract.FIELD_GALLERY_IMAGE_URLS);
-            List<String> fromGalleryUrls = readOptionalStringList(
-                    snap, documentId, PlacesFirestoreContract.FIELD_GALLERY_URLS);
-            LinkedHashSet<String> merged = new LinkedHashSet<>();
-            for (String s : fromLegacyField) {
-                if (s != null && !s.trim().isEmpty()) {
-                    merged.add(s.trim());
-                }
-            }
-            for (String s : fromGalleryUrls) {
-                if (s != null && !s.trim().isEmpty()) {
-                    merged.add(s.trim());
-                }
-            }
-            return new ArrayList<>(merged);
-        } catch (Throwable t) {
-            Log.w(TAG, "docId=" + documentId + " mergeGalleryUrlLists failed safely action=empty_list", t);
-            return new ArrayList<>();
-        }
-    }
-
     @Nullable
     private static PlaceDto parseSnapshotFields(@NonNull DocumentSnapshot snap,
                                                 @NonNull String documentId) {
@@ -192,8 +141,6 @@ public final class PlaceDto {
                 snap, documentId, PlacesFirestoreContract.FIELD_CITY, DEFAULT_CITY);
         String category = readOptionalStringWithDefault(
                 snap, documentId, PlacesFirestoreContract.FIELD_CATEGORY, DEFAULT_CATEGORY);
-        String categoryId = readOptionalStringOrNull(
-                snap, documentId, PlacesFirestoreContract.FIELD_CATEGORY_ID);
 
         String description = readOptionalStringWithDefault(
                 snap, documentId, PlacesFirestoreContract.FIELD_DESCRIPTION, DEFAULT_DESCRIPTION);
@@ -244,13 +191,6 @@ public final class PlaceDto {
         long totalRatings = (long) readOptionalDouble(snap, documentId, "totalRatings", 0);
         long totalComments = (long) readOptionalDouble(snap, documentId, "totalComments", 0);
 
-        String imageUrl = readOptionalStringOrNull(snap, documentId, PlacesFirestoreContract.FIELD_IMAGE_URL);
-        if (imageUrl == null) {
-            imageUrl = readOptionalStringOrNull(snap, documentId, PlacesFirestoreContract.FIELD_HERO_IMAGE_URL);
-        }
-
-        List<String> gallery = mergeGalleryUrlLists(snap, documentId);
-
         String tips = readOptionalStringWithDefault(
                 snap, documentId, PlacesFirestoreContract.FIELD_TIPS, DEFAULT_DESCRIPTION);
         String funFact = readOptionalStringWithDefault(
@@ -263,36 +203,13 @@ public final class PlaceDto {
         boolean topPick = readOptionalBoolean(
                 snap, documentId, PlacesFirestoreContract.FIELD_IS_TOP_PICK, false);
 
-        String legacyId = readOptionalStringOrNull(snap, documentId, PlacesFirestoreContract.FIELD_LEGACY_ID);
-
-        String drawableAssetKey = readOptionalStringOrNull(
-                snap, documentId, PlacesFirestoreContract.FIELD_DRAWABLE_ASSET_KEY);
-        List<String> galleryDrawableKeys;
-        try {
-            galleryDrawableKeys = readOptionalStringList(
-                    snap, documentId, PlacesFirestoreContract.FIELD_GALLERY_DRAWABLE_KEYS);
-        } catch (Throwable t) {
-            Log.w(TAG, "docId=" + documentId + " galleryDrawableKeys read failed safely action=empty_list", t);
-            galleryDrawableKeys = new ArrayList<>();
-        }
-
-        final String trimmedHero = imageUrl != null && !imageUrl.trim().isEmpty() ? imageUrl.trim() : null;
-        final String heroLoadSource = trimmedHero != null ? "REMOTE_URL" : "MISSING";
-        final String galleryUrlsLoadSource = !gallery.isEmpty() ? "REMOTE_URL" : "MISSING";
-
-        Log.d(TAG, "docId=" + documentId + " PARSE_OK name=" + name
-                + " heroLoadSource=" + heroLoadSource
-                + " galleryUrlsLoadSource=" + galleryUrlsLoadSource
-                + " mergedGalleryUrlCount=" + gallery.size()
-                + " hasDrawableAssetKey=" + (drawableAssetKey != null)
-                + " galleryDrawableKeyCount=" + galleryDrawableKeys.size());
+        Log.d(TAG, "docId=" + documentId + " PARSE_OK name=" + name);
 
         return new PlaceDto(
                 documentId,
                 name.trim(),
                 city,
                 category,
-                categoryId,
                 description,
                 budget,
                 crowdLevel,
@@ -302,17 +219,12 @@ public final class PlaceDto {
                 rating,
                 totalRatings,
                 totalComments,
-                trimmedHero,
-                gallery,
                 tips,
                 funFact,
                 nearestStation,
                 tag,
                 topPick,
-                status,
-                legacyId,
-                drawableAssetKey,
-                galleryDrawableKeys
+                status
         );
     }
 
@@ -332,7 +244,6 @@ public final class PlaceDto {
                 name.trim(),
                 DEFAULT_CITY,
                 DEFAULT_CATEGORY,
-                null,
                 DEFAULT_DESCRIPTION,
                 DEFAULT_BUDGET,
                 DEFAULT_CROWD,
@@ -342,17 +253,12 @@ public final class PlaceDto {
                 DEFAULT_RATING,
                 0,
                 0,
-                null,
-                new ArrayList<>(),
                 DEFAULT_DESCRIPTION,
                 DEFAULT_DESCRIPTION,
                 DEFAULT_DESCRIPTION,
                 DEFAULT_TAG,
                 false,
-                status,
-                null,
-                null,
-                Collections.emptyList()
+                status
         );
     }
 
@@ -605,11 +511,6 @@ public final class PlaceDto {
         return category;
     }
 
-    @Nullable
-    public String getCategoryId() {
-        return categoryId;
-    }
-
     public String getDescription() {
         return description;
     }
@@ -646,23 +547,6 @@ public final class PlaceDto {
         return totalComments;
     }
 
-    @Nullable
-    public String getImageUrl() {
-        return imageUrl;
-    }
-
-    public List<String> getGalleryImageUrls() {
-        return galleryImageUrls;
-    }
-
-    /**
-     * Same ordered list as {@link #getGalleryImageUrls()} — supports Firestore field name {@code galleryUrls}.
-     */
-    @NonNull
-    public List<String> getGalleryUrls() {
-        return galleryImageUrls;
-    }
-
     public String getTips() {
         return tips;
     }
@@ -686,20 +570,5 @@ public final class PlaceDto {
     @NonNull
     public String getStatus() {
         return status;
-    }
-
-    @Nullable
-    public String getLegacyId() {
-        return legacyId;
-    }
-
-    @Nullable
-    public String getDrawableAssetKey() {
-        return drawableAssetKey;
-    }
-
-    @NonNull
-    public List<String> getGalleryDrawableKeys() {
-        return galleryDrawableKeys;
     }
 }

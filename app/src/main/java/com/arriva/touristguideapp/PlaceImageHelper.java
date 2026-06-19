@@ -30,54 +30,52 @@ public final class PlaceImageHelper {
     }
 
     /**
-     * Loads the hero image for a place. Only uses remote URL.
+     * Loads the hero image for a place using a local hardcoded drawable.
      */
     public static void loadThumbnail(@NonNull ImageView imageView, @NonNull Place place) {
-        String id = place.getId() != null ? place.getId() : "?";
-
-        String url = trimToNull(place.getImageUrl());
-
-        if (url == null) {
-            Glide.with(imageView)
-                    .load(R.drawable.placeholder)
-                    .into(imageView);
-            return;
-        }
+        String name = place.getName() != null ? place.getName() : "";
+        int drawableResId = getLocalImageResource(name);
 
         RequestOptions opts = new RequestOptions()
                 .centerCrop()
-                .diskCacheStrategy(com.bumptech.glide.load.engine.DiskCacheStrategy.ALL)
                 .placeholder(R.drawable.placeholder)
                 .error(R.drawable.placeholder);
 
         Glide.with(imageView)
-                .load(url)
+                .load(drawableResId)
                 .apply(opts)
-                .listener(new RequestListener<Drawable>() {
-                    @Override
-                    public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable> target, boolean isFirstResource) {
-                        Log.e(TAG, "REMOTE_IMAGE_FAILED placeId=" + id + " url=" + url);
-                        Log.d(TAG, "CACHE_MISS placeId=" + id);
-                        return false;
-                    }
-
-                    @Override
-                    public boolean onResourceReady(Drawable resource, Object model, Target<Drawable> target, DataSource dataSource, boolean isFirstResource) {
-                        if (dataSource == DataSource.LOCAL || dataSource == DataSource.DATA_DISK_CACHE || dataSource == DataSource.RESOURCE_DISK_CACHE) {
-                            Log.d(TAG, "CACHE_HIT placeId=" + id + " source=" + dataSource);
-                        }
-                        return false;
-                    }
-                })
                 .into(imageView);
     }
 
-    @Nullable
-    private static String trimToNull(@Nullable String s) {
-        if (s == null) {
-            return null;
+    /**
+     * Maps a place name to a local drawable resource.
+     * To add a new image, put the image file in app/src/main/res/drawable/
+     * and add a new case in this switch statement!
+     */
+    public static int getLocalImageResource(@NonNull String placeName) {
+        // We use a normalized string to avoid case/space matching issues
+        String normalized = placeName.trim().toLowerCase();
+
+        // Hardcode your drawables here:
+        if (normalized.contains("vit pune")) {
+            // return R.drawable.vit_pune; // example
+        } else if (normalized.contains("aga khan")) {
+            // return R.drawable.aga_khan_palace;
+        } else if (normalized.contains("dagdusheth")) {
+            // return R.drawable.dagdusheth;
+        } else if (normalized.contains("iskcon")) {
+            // return R.drawable.iskcon;
+        } else if (normalized.contains("saras baug")) {
+            // return R.drawable.saras_baug;
+        } else if (normalized.contains("shaniwar")) {
+            // return R.drawable.shaniwar_wada;
+        } else if (normalized.contains("sinhagad")) {
+            // return R.drawable.sinhagad;
+        } else if (normalized.contains("zoo") || normalized.contains("rajiv gandhi")) {
+            // return R.drawable.pune_zoo;
         }
-        String t = s.trim();
-        return t.isEmpty() ? null : t;
+
+        // Default placeholder if no hardcoded image is found
+        return R.drawable.placeholder;
     }
 }

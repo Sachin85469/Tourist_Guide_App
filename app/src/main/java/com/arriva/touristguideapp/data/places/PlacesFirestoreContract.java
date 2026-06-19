@@ -28,13 +28,6 @@ public final class PlacesFirestoreContract {
     public static final String FIELD_LONGITUDE = "longitude";
     public static final String FIELD_LOCATION = "location";
 
-    public static final String FIELD_IMAGE_URL = "imageUrl";
-    public static final String FIELD_HERO_IMAGE_URL = "heroImageUrl";
-    public static final String FIELD_GALLERY_IMAGE_URLS = "galleryImageUrls";
-
-    /** Alternate / preferred field name for ordered remote gallery URLs (same semantics as {@link #FIELD_GALLERY_IMAGE_URLS}). */
-    public static final String FIELD_GALLERY_URLS = "galleryUrls";
-
     public static final String FIELD_RATING = "rating";
     public static final String FIELD_RATING_AVG = "ratingAvg";
 
@@ -42,14 +35,6 @@ public final class PlacesFirestoreContract {
     public static final String FIELD_FUN_FACT = "funFact";
     public static final String FIELD_NEAREST_STATION = "nearestStation";
     public static final String FIELD_TAG = "tag";
-
-    public static final String FIELD_LEGACY_ID = "legacyId";
-
-    /** Local drawable resource name for migration / asset pipelines (not read by {@code PlaceDto}). */
-    public static final String FIELD_DRAWABLE_ASSET_KEY = "drawableAssetKey";
-
-    /** Drawable resource names for gallery slots (not read by {@code PlaceDto}). */
-    public static final String FIELD_GALLERY_DRAWABLE_KEYS = "galleryDrawableKeys";
 
     private PlacesFirestoreContract() {
     }

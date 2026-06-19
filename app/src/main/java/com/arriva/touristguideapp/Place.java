@@ -37,26 +37,6 @@ public class Place implements Serializable {
     private double searchScore = 0.0; // Runtime score for search/ranking
     private long viewedAt; // Timestamp for recently viewed (Requirement)
 
-    /** HTTPS image URL from Firestore. */
-    @Nullable
-    private String imageUrl;
-
-    /** Ordered remote gallery URLs from Firestore. */
-    @NonNull
-    private List<String> galleryImageUrls = new ArrayList<>();
-
-    /** Optional stable category key from Firestore (e.g. {@code history}). */
-    @Nullable
-    private String categoryId;
-
-    /** Firestore catalog lifecycle (e.g. published); optional for local static rows. */
-    @Nullable
-    private String catalogStatus;
-
-    /** Optional id from a prior static catalog for migration tooling. */
-    @Nullable
-    private String legacyCatalogId;
-
     public Place() {
         // Required for Firestore serialization
     }
@@ -178,71 +158,6 @@ public class Place implements Serializable {
         this.totalComments = totalComments;
     }
 
-    @Nullable
-    public String getImageUrl() {
-        return imageUrl;
-    }
-
-    public void setImageUrl(@Nullable String imageUrl) {
-        this.imageUrl = imageUrl;
-    }
-
-    @NonNull
-    public List<String> getGalleryImageUrls() {
-        return galleryImageUrls;
-    }
-
-    public void setGalleryImageUrls(@NonNull List<String> galleryImageUrls) {
-        this.galleryImageUrls = new ArrayList<>(galleryImageUrls);
-    }
-
-    /** Same backing list as {@link #getGalleryImageUrls()} / Firestore {@code galleryUrls}. */
-    @NonNull
-    public List<String> getGalleryUrls() {
-        return galleryImageUrls;
-    }
-
-    public void setGalleryUrls(@NonNull List<String> galleryUrls) {
-        setGalleryImageUrls(galleryUrls);
-    }
-
-    @Nullable
-    public String getCategoryId() {
-        return categoryId;
-    }
-
-    public void setCategoryId(@Nullable String categoryId) {
-        this.categoryId = categoryId;
-    }
-
-    @Nullable
-    public String getCatalogStatus() {
-        return catalogStatus;
-    }
-
-    public void setCatalogStatus(@Nullable String catalogStatus) {
-        this.catalogStatus = catalogStatus;
-    }
-
-    @Nullable
-    public String getLegacyCatalogId() {
-        return legacyCatalogId;
-    }
-
-    public void setLegacyCatalogId(@Nullable String legacyCatalogId) {
-        this.legacyCatalogId = legacyCatalogId;
-    }
-
-    /** True when a remote hero URL is present. */
-    public boolean hasRemoteHeroImage() {
-        return imageUrl != null && !imageUrl.trim().isEmpty();
-    }
-
-    /** True when any remote gallery URL entries exist. */
-    public boolean hasRemoteGalleryImages() {
-        return galleryImageUrls != null && !galleryImageUrls.isEmpty();
-    }
-
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -260,12 +175,11 @@ public class Place implements Serializable {
                 java.util.Objects.equals(description, place.description) &&
                 java.util.Objects.equals(budget, place.budget) &&
                 java.util.Objects.equals(crowdLevel, place.crowdLevel) &&
-                java.util.Objects.equals(bestTime, place.bestTime) &&
-                java.util.Objects.equals(imageUrl, place.imageUrl);
+                java.util.Objects.equals(bestTime, place.bestTime);
     }
 
     @Override
     public int hashCode() {
-        return java.util.Objects.hash(id, name, city, category, description, budget, crowdLevel, bestTime, latitude, longitude, rating, totalRatings, totalComments, imageUrl);
+        return java.util.Objects.hash(id, name, city, category, description, budget, crowdLevel, bestTime, latitude, longitude, rating, totalRatings, totalComments);
     }
 }

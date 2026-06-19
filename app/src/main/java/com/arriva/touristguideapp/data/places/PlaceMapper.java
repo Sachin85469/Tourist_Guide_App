@@ -47,14 +47,6 @@ public final class PlaceMapper {
             place.setTotalRatings(dto.getTotalRatings());
             place.setTotalComments(dto.getTotalComments());
             place.setTopPick(dto.isTopPick());
-            place.setImageUrl(dto.getImageUrl());
-
-            List<String> galleryUrls = new ArrayList<>(dto.getGalleryUrls());
-            place.setGalleryImageUrls(galleryUrls);
-            place.setCategoryId(dto.getCategoryId());
-            place.setCatalogStatus(dto.getStatus());
-            place.setLegacyCatalogId(dto.getLegacyId());
-
             return place;
         } catch (Exception e) {
             Log.e(TAG, "toPlace FAILED for docId=" + dto.getDocumentId(), e);
