@@ -17,6 +17,7 @@ public class Place implements Serializable {
     private String name;
     private String city;
     private String category;
+    private String imageUrl;
     private String description;
     private String budget;      // Low, Medium, High
     private String crowdLevel;  // Low, Moderate, High
@@ -36,6 +37,10 @@ public class Place implements Serializable {
     private boolean isTopPick = false;
     private double searchScore = 0.0; // Runtime score for search/ranking
     private long viewedAt; // Timestamp for recently viewed (Requirement)
+    private String catalogStatus = "published"; // Status: draft, published, archived
+    private String categoryId;
+    private String legacyCatalogId;
+    private List<String> galleryUrls = new ArrayList<>();
 
     public Place() {
         // Required for Firestore serialization
@@ -78,6 +83,7 @@ public class Place implements Serializable {
     public String getName() { return name; }
     public String getCity() { return city; }
     public String getCategory() { return category; }
+    public String getImageUrl() { return imageUrl; }
     public String getDescription() { return description; }
     public String getBudget() { return budget; }
     public String getCrowdLevel() { return crowdLevel; }
@@ -94,6 +100,7 @@ public class Place implements Serializable {
     public void setName(String name) { this.name = name; }
     public void setCity(String city) { this.city = city; }
     public void setCategory(String category) { this.category = category; }
+    public void setImageUrl(String imageUrl) { this.imageUrl = imageUrl; }
     public void setDescription(String description) { this.description = description; }
     public void setBudget(String budget) { this.budget = budget; }
     public void setCrowdLevel(String crowdLevel) { this.crowdLevel = crowdLevel; }
@@ -113,6 +120,38 @@ public class Place implements Serializable {
     public String getTips() { return tips; }
     public String getFunFact() { return funFact; }
     public String getNearestStation() { return nearestStation; }
+
+    public String getCatalogStatus() {
+        return catalogStatus;
+    }
+
+    public void setCatalogStatus(String catalogStatus) {
+        this.catalogStatus = catalogStatus;
+    }
+
+    public String getCategoryId() {
+        return categoryId;
+    }
+
+    public void setCategoryId(String categoryId) {
+        this.categoryId = categoryId;
+    }
+
+    public String getLegacyCatalogId() {
+        return legacyCatalogId;
+    }
+
+    public void setLegacyCatalogId(String legacyCatalogId) {
+        this.legacyCatalogId = legacyCatalogId;
+    }
+
+    public List<String> getGalleryUrls() {
+        return galleryUrls;
+    }
+
+    public void setGalleryUrls(List<String> galleryUrls) {
+        this.galleryUrls = galleryUrls;
+    }
 
     public double getDistance() {
         return distance;
@@ -172,6 +211,7 @@ public class Place implements Serializable {
                 java.util.Objects.equals(name, place.name) &&
                 java.util.Objects.equals(city, place.city) &&
                 java.util.Objects.equals(category, place.category) &&
+                java.util.Objects.equals(imageUrl, place.imageUrl) &&
                 java.util.Objects.equals(description, place.description) &&
                 java.util.Objects.equals(budget, place.budget) &&
                 java.util.Objects.equals(crowdLevel, place.crowdLevel) &&
@@ -180,6 +220,6 @@ public class Place implements Serializable {
 
     @Override
     public int hashCode() {
-        return java.util.Objects.hash(id, name, city, category, description, budget, crowdLevel, bestTime, latitude, longitude, rating, totalRatings, totalComments);
+        return java.util.Objects.hash(id, name, city, category, imageUrl, description, budget, crowdLevel, bestTime, latitude, longitude, rating, totalRatings, totalComments);
     }
 }

@@ -36,7 +36,6 @@ public final class PlaceDto {
     private final String name;
     private final String city;
     private final String category;
-    @Nullable
     private final String categoryId;
     private final String description;
     private final String budget;
@@ -51,6 +50,8 @@ public final class PlaceDto {
     private final String funFact;
     private final String nearestStation;
     private final String tag;
+    private final String legacyId;
+    private final List<String> galleryUrls;
     private final boolean topPick;
     @NonNull
     private final String status;
@@ -60,6 +61,7 @@ public final class PlaceDto {
             String name,
             String city,
             String category,
+            String categoryId,
             String description,
             String budget,
             String crowdLevel,
@@ -73,6 +75,8 @@ public final class PlaceDto {
             String funFact,
             String nearestStation,
             String tag,
+            String legacyId,
+            List<String> galleryUrls,
             boolean topPick,
             @NonNull String status
     ) {
@@ -80,6 +84,7 @@ public final class PlaceDto {
         this.name = name;
         this.city = city;
         this.category = category;
+        this.categoryId = categoryId;
         this.description = description;
         this.budget = budget;
         this.crowdLevel = crowdLevel;
@@ -93,6 +98,8 @@ public final class PlaceDto {
         this.funFact = funFact;
         this.nearestStation = nearestStation;
         this.tag = tag;
+        this.legacyId = legacyId;
+        this.galleryUrls = Collections.unmodifiableList(new ArrayList<>(galleryUrls));
         this.topPick = topPick;
         this.status = status;
     }
@@ -141,6 +148,8 @@ public final class PlaceDto {
                 snap, documentId, PlacesFirestoreContract.FIELD_CITY, DEFAULT_CITY);
         String category = readOptionalStringWithDefault(
                 snap, documentId, PlacesFirestoreContract.FIELD_CATEGORY, DEFAULT_CATEGORY);
+        String categoryId = readOptionalStringOrNull(
+                snap, documentId, PlacesFirestoreContract.FIELD_CATEGORY_ID);
 
         String description = readOptionalStringWithDefault(
                 snap, documentId, PlacesFirestoreContract.FIELD_DESCRIPTION, DEFAULT_DESCRIPTION);
@@ -199,6 +208,10 @@ public final class PlaceDto {
                 snap, documentId, PlacesFirestoreContract.FIELD_NEAREST_STATION, DEFAULT_DESCRIPTION);
         String tag = readOptionalStringWithDefault(
                 snap, documentId, PlacesFirestoreContract.FIELD_TAG, DEFAULT_TAG);
+        String legacyId = readOptionalStringOrNull(
+                snap, documentId, PlacesFirestoreContract.FIELD_LEGACY_ID);
+        List<String> galleryUrls = readOptionalStringList(
+                snap, documentId, PlacesFirestoreContract.FIELD_GALLERY_URLS);
 
         boolean topPick = readOptionalBoolean(
                 snap, documentId, PlacesFirestoreContract.FIELD_IS_TOP_PICK, false);
@@ -210,6 +223,7 @@ public final class PlaceDto {
                 name.trim(),
                 city,
                 category,
+                categoryId,
                 description,
                 budget,
                 crowdLevel,
@@ -223,6 +237,8 @@ public final class PlaceDto {
                 funFact,
                 nearestStation,
                 tag,
+                legacyId,
+                galleryUrls,
                 topPick,
                 status
         );
@@ -244,6 +260,7 @@ public final class PlaceDto {
                 name.trim(),
                 DEFAULT_CITY,
                 DEFAULT_CATEGORY,
+                null,
                 DEFAULT_DESCRIPTION,
                 DEFAULT_BUDGET,
                 DEFAULT_CROWD,
@@ -257,6 +274,8 @@ public final class PlaceDto {
                 DEFAULT_DESCRIPTION,
                 DEFAULT_DESCRIPTION,
                 DEFAULT_TAG,
+                null,
+                new ArrayList<>(),
                 false,
                 status
         );
@@ -511,6 +530,10 @@ public final class PlaceDto {
         return category;
     }
 
+    public String getCategoryId() {
+        return categoryId;
+    }
+
     public String getDescription() {
         return description;
     }
@@ -561,6 +584,15 @@ public final class PlaceDto {
 
     public String getTag() {
         return tag;
+    }
+
+    public String getLegacyId() {
+        return legacyId;
+    }
+
+    @NonNull
+    public List<String> getGalleryUrls() {
+        return galleryUrls;
     }
 
     public boolean isTopPick() {
