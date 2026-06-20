@@ -109,7 +109,7 @@
                                 android:layout_height="24dp"
                                 android:layout_gravity="center"
                                 android:src="@drawable/ic_location"
-                                android:tint="@color/white" />
+                                app:tint="@color/white" />
                         </FrameLayout>
 
                         <View
@@ -129,7 +129,7 @@
                                 android:layout_height="24dp"
                                 android:layout_gravity="center"
                                 android:src="@drawable/ic_calendar"
-                                android:tint="@color/white" />
+                                app:tint="@color/white" />
                         </FrameLayout>
 
                         <View
@@ -149,7 +149,7 @@
                                 android:layout_height="24dp"
                                 android:layout_gravity="center"
                                 android:src="@drawable/ic_ms_route"
-                                android:tint="@color/white" />
+                                app:tint="@color/white" />
                         </FrameLayout>
                     </LinearLayout>
                 </LinearLayout>
@@ -176,7 +176,7 @@
                     android:focusable="true"
                     android:padding="10dp"
                     android:src="@drawable/ic_back"
-                    android:tint="@color/white" />
+                    app:tint="@color/white" />
             </androidx.appcompat.widget.Toolbar>
         </com.google.android.material.appbar.CollapsingToolbarLayout>
     </com.google.android.material.appbar.AppBarLayout>
@@ -229,7 +229,7 @@
                             android:layout_height="26dp"
                             android:layout_gravity="center"
                             android:src="@drawable/ic_ms_schedule"
-                            android:tint="@color/plan_primary" />
+                            app:tint="@color/plan_primary" />
                     </FrameLayout>
 
                     <LinearLayout
@@ -361,7 +361,7 @@
                                 android:layout_height="26dp"
                                 android:layout_gravity="center"
                                 android:src="@drawable/ic_ms_star"
-                                android:tint="@color/plan_primary" />
+                                app:tint="@color/plan_primary" />
                         </FrameLayout>
 
                         <LinearLayout
@@ -427,7 +427,7 @@
                                         android:layout_height="30dp"
                                         android:layout_gravity="center"
                                         android:src="@drawable/ic_cat_historical"
-                                        android:tint="@color/plan_primary" />
+                                        app:tint="@color/plan_primary" />
                                 </FrameLayout>
 
                                 <TextView
@@ -489,7 +489,7 @@
                                         android:layout_height="30dp"
                                         android:layout_gravity="center"
                                         android:src="@drawable/ic_cat_nature"
-                                        android:tint="@color/plan_primary" />
+                                        app:tint="@color/plan_primary" />
                                 </FrameLayout>
 
                                 <TextView
@@ -559,7 +559,7 @@
                                         android:layout_height="30dp"
                                         android:layout_gravity="center"
                                         android:src="@drawable/ic_cat_religious"
-                                        android:tint="@color/plan_primary" />
+                                        app:tint="@color/plan_primary" />
                                 </FrameLayout>
 
                                 <TextView
@@ -621,7 +621,7 @@
                                         android:layout_height="30dp"
                                         android:layout_gravity="center"
                                         android:src="@drawable/ic_cat_food"
-                                        android:tint="@color/plan_primary" />
+                                        app:tint="@color/plan_primary" />
                                 </FrameLayout>
 
                                 <TextView
@@ -691,7 +691,7 @@
                                         android:layout_height="30dp"
                                         android:layout_gravity="center"
                                         android:src="@drawable/ic_cat_culture"
-                                        android:tint="@color/plan_primary" />
+                                        app:tint="@color/plan_primary" />
                                 </FrameLayout>
 
                                 <TextView
@@ -753,7 +753,7 @@
                                         android:layout_height="30dp"
                                         android:layout_gravity="center"
                                         android:src="@drawable/ic_cat_adventure"
-                                        android:tint="@color/plan_primary" />
+                                        app:tint="@color/plan_primary" />
                                 </FrameLayout>
 
                                 <TextView
@@ -823,7 +823,7 @@
                                         android:layout_height="30dp"
                                         android:layout_gravity="center"
                                         android:src="@drawable/ic_cat_scenic"
-                                        android:tint="@color/plan_primary" />
+                                        app:tint="@color/plan_primary" />
                                 </FrameLayout>
 
                                 <TextView
@@ -885,7 +885,7 @@
                                         android:layout_height="30dp"
                                         android:layout_gravity="center"
                                         android:src="@drawable/ic_cat_shopping"
-                                        android:tint="@color/plan_primary" />
+                                        app:tint="@color/plan_primary" />
                                 </FrameLayout>
 
                                 <TextView
@@ -948,7 +948,7 @@
                                 android:layout_height="26dp"
                                 android:layout_gravity="center"
                                 android:src="@drawable/ic_ms_payments"
-                                android:tint="@color/plan_primary" />
+                                app:tint="@color/plan_primary" />
                         </FrameLayout>
 
                         <LinearLayout
@@ -1015,7 +1015,7 @@
                                         android:layout_height="28dp"
                                         android:layout_gravity="center"
                                         android:src="@drawable/ic_ms_payments"
-                                        android:tint="@color/plan_primary" />
+                                        app:tint="@color/plan_primary" />
                                 </FrameLayout>
 
                                 <TextView
@@ -1078,7 +1078,7 @@
                                         android:layout_height="28dp"
                                         android:layout_gravity="center"
                                         android:src="@drawable/ic_trip"
-                                        android:tint="@color/plan_primary" />
+                                        app:tint="@color/plan_primary" />
                                 </FrameLayout>
 
                                 <TextView
@@ -1140,7 +1140,7 @@
                                         android:layout_height="28dp"
                                         android:layout_gravity="center"
                                         android:src="@drawable/ic_ms_star"
-                                        android:tint="@color/plan_primary" />
+                                        app:tint="@color/plan_primary" />
                                 </FrameLayout>
 
                                 <TextView

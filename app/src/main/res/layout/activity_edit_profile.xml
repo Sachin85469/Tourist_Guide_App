@@ -294,77 +294,7 @@
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
-            <!-- Location Details Card -->
-            <com.google.android.material.card.MaterialCardView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="16dp"
-                app:cardCornerRadius="16dp"
-                app:cardElevation="2dp">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:padding="20dp">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginBottom="16dp"
-                        android:text="LOCATION"
-                        android:textColor="@color/primary"
-                        android:textSize="12sp"
-                        android:textStyle="bold" />
-
-                    <!-- Country -->
-                    <com.google.android.material.textfield.TextInputLayout
-                        android:id="@+id/tilCountry"
-                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginBottom="12dp"
-                        android:hint="Country">
-
-                        <com.google.android.material.textfield.TextInputEditText
-                            android:id="@+id/etCountry"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:inputType="text" />
-                    </com.google.android.material.textfield.TextInputLayout>
-
-                    <!-- State -->
-                    <com.google.android.material.textfield.TextInputLayout
-                        android:id="@+id/tilState"
-                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginBottom="12dp"
-                        android:hint="State">
-
-                        <com.google.android.material.textfield.TextInputEditText
-                            android:id="@+id/etState"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:inputType="text" />
-                    </com.google.android.material.textfield.TextInputLayout>
-
-                    <!-- City -->
-                    <com.google.android.material.textfield.TextInputLayout
-                        android:id="@+id/tilCity"
-                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:hint="City">
-
-                        <com.google.android.material.textfield.TextInputEditText
-                            android:id="@+id/etCity"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:inputType="text" />
-                    </com.google.android.material.textfield.TextInputLayout>
-                </LinearLayout>
-            </com.google.android.material.card.MaterialCardView>
+            <!-- Remove location fields per redesign (Country/State/City) -->
 
             <!-- Travel Preferences & About Card -->
             <com.google.android.material.card.MaterialCardView
@@ -437,17 +367,28 @@
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
-            <!-- Save Changes Button -->
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnSaveProfile"
+            <!-- Sticky Save Button (use gradient drawable) -->
+            <View
                 android:layout_width="match_parent"
-                android:layout_height="56dp"
-                android:layout_marginBottom="16dp"
-                android:text="Save Profile Changes"
-                android:textSize="16sp"
-                app:cornerRadius="12dp" />
+                android:layout_height="16dp" />
 
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
+
+    <!-- Sticky bottom save button -->
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnSaveProfile"
+        android:layout_width="match_parent"
+        android:layout_height="64dp"
+        android:layout_alignParentBottom="true"
+        android:layout_margin="16dp"
+        android:layout_marginBottom="24dp"
+        android:text="Save Changes"
+        android:textColor="@color/white"
+        android:textSize="16sp"
+        app:cornerRadius="16dp"
+        android:backgroundTintMode="src_over"
+        android:background="@drawable/bg_save_gradient"
+        app:layout_anchorGravity="bottom" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

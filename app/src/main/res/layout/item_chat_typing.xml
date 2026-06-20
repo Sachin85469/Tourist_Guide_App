@@ -9,7 +9,7 @@
         android:id="@+id/ivAssistant"
         android:layout_width="32dp"
         android:layout_height="32dp"
-        android:src="@drawable/ic_robot_assistant"
+        android:src="@drawable/ic_arriva_ai"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@+id/cardTyping"
         app:shapeAppearanceOverlay="@style/CircleImage" />

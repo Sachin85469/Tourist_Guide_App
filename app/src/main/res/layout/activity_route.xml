@@ -58,8 +58,9 @@
         </com.google.android.material.card.MaterialCardView>
     </com.google.android.material.appbar.AppBarLayout>
 
-    <!-- Info Card -->
+    <!-- Bottom sheet info card -->
     <com.google.android.material.card.MaterialCardView
+        android:id="@+id/bottomSheet"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom"
@@ -67,7 +68,8 @@
         app:cardCornerRadius="24dp"
         app:cardElevation="12dp"
         app:cardBackgroundColor="@color/white"
-        app:strokeWidth="0dp">
+        app:strokeWidth="0dp"
+        app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior">
 
         <FrameLayout
             android:layout_width="match_parent"
@@ -78,8 +80,110 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:padding="20dp"
+                android:padding="16dp"
                 android:visibility="visible">
+
+                <!-- Travel mode selector -->
+                <LinearLayout
+                    android:id="@+id/modeSelector"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center"
+                    android:layout_marginBottom="8dp">
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnModeBike"
+                        style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                        android:layout_width="wrap_content"
+                        android:layout_height="40dp"
+                        android:layout_marginEnd="8dp"
+                        android:text="Bike"
+                        app:icon="@drawable/ic_motorcycle"
+                        app:iconGravity="textStart" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnModeCar"
+                        style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                        android:layout_width="wrap_content"
+                        android:layout_height="40dp"
+                        android:layout_marginEnd="8dp"
+                        android:text="Car"
+                        app:icon="@drawable/ic_directions_car"
+                        app:iconGravity="textStart" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnModeWalk"
+                        style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                        android:layout_width="wrap_content"
+                        android:layout_height="40dp"
+                        android:text="Walk"
+                        app:icon="@drawable/ic_directions_walk"
+                        app:iconGravity="textStart" />
+                </LinearLayout>
+                <!-- Per-mode ETA summary -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:layout_marginTop="8dp"
+                    android:layout_marginBottom="8dp">
+
+                    <TextView
+                        android:id="@+id/tvEtaBike"
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:layout_height="wrap_content"
+                        android:text="Bike: --"
+                        android:textSize="12sp"
+                        android:textColor="@color/text_secondary" />
+
+                    <TextView
+                        android:id="@+id/tvEtaCar"
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:layout_height="wrap_content"
+                        android:text="Car: --"
+                        android:textSize="12sp"
+                        android:textColor="@color/text_secondary" />
+
+                    <TextView
+                        android:id="@+id/tvEtaWalk"
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:layout_height="wrap_content"
+                        android:text="Walk: --"
+                        android:textSize="12sp"
+                        android:textColor="@color/text_secondary" />
+                </LinearLayout>
+
+                <!-- ETA row (shows ETA for selected mode prominently) -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:paddingTop="8dp"
+                    android:paddingBottom="8dp">
+
+                    <TextView
+                        android:id="@+id/tvRouteDistSelected"
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:layout_height="wrap_content"
+                        android:text="-- km"
+                        android:textAppearance="@style/TextAppearance.App.TitleLarge"
+                        android:textColor="@color/color_primary" />
+
+                    <TextView
+                        android:id="@+id/tvEtaSelected"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="-- min"
+                        android:textAppearance="@style/TextAppearance.App.TitleLarge"
+                        android:textColor="@color/color_primary" />
+                </LinearLayout>
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -168,13 +272,26 @@
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="20dp"
-                    android:orientation="horizontal">
+                    android:layout_marginTop="12dp"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical">
+
+                    <com.google.android.material.switchmaterial.SwitchMaterial
+                        android:id="@+id/switchTts"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Voice Guidance"
+                        android:layout_marginEnd="8dp" />
+
+                    <View
+                        android:layout_width="0dp"
+                        android:layout_height="1dp"
+                        android:layout_weight="1" />
 
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/btnRecenter"
                         style="@style/Widget.Material3.Button.TonalButton"
-                        android:layout_width="wrap_content"
+                        android:layout_width="56dp"
                         android:layout_height="56dp"
                         android:layout_marginEnd="12dp"
                         android:contentDescription="Recenter"
@@ -190,7 +307,7 @@
                         android:textAllCaps="false"
                         android:textStyle="bold"
                         app:cornerRadius="16dp"
-                        app:backgroundTint="@color/color_primary"
+                        android:background="@drawable/bg_save_gradient"
                         app:icon="@android:drawable/ic_menu_directions" />
                 </LinearLayout>
 

@@ -24,7 +24,7 @@
             android:focusable="true"
             android:padding="10dp"
             android:src="@drawable/ic_back"
-            android:tint="@color/white" />
+            app:tint="@color/white" />
 
         <LinearLayout
             android:layout_width="match_parent"

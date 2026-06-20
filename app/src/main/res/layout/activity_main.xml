@@ -383,13 +383,13 @@
             app:strokeColor="@color/color_primary"
             app:strokeWidth="1dp">
 
-            <ImageView
+            <com.google.android.material.imageview.ShapeableImageView
                 android:id="@+id/ivAiAssistantIcon"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
+                android:layout_width="56dp"
+                android:layout_height="56dp"
                 android:layout_gravity="center"
-                android:src="@drawable/ic_robot_assistant"
-                android:tint="@color/color_primary" />
+                android:src="@drawable/ic_arriva_ai"
+                app:shapeAppearanceOverlay="@style/CircleImage" />
 
         </com.google.android.material.card.MaterialCardView>
     </FrameLayout>

@@ -90,16 +90,15 @@ public class HomeActivity extends BaseActivity {
                 return false;
             });
 
-            fabAiChat.setOnClickListener(v -> {
-                try {
-                    android.util.Log.d("HomeActivity", "Navigating to AiChatActivity");
-                    startActivity(new Intent(this, AiChatActivity.class));
-                    overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
-                } catch (Exception e) {
-                    android.util.Log.e("HomeActivity", "Error opening AiChatActivity", e);
-                    Toast.makeText(this, "Unable to open assistant", Toast.LENGTH_SHORT).show();
-                }
-            });
+            View aiCard = findViewById(R.id.cardAiAssistant);
+            View aiIcon = findViewById(R.id.ivAiAssistantIcon);
+            View.OnClickListener aiClickListener = v -> {
+                Log.d("HomeActivity", "Chatbot icon clicked");
+                launchAiChatActivity("home_floating_button");
+            };
+            fabAiChat.setOnClickListener(aiClickListener);
+            if (aiCard != null) aiCard.setOnClickListener(aiClickListener);
+            if (aiIcon != null) aiIcon.setOnClickListener(aiClickListener);
         }
 
         // Profile Avatar and User Info Setup
@@ -175,37 +174,61 @@ public class HomeActivity extends BaseActivity {
         });
     }
 
-    private void fetchNearbyPlaces() {
-        fusedLocationClient.getLastLocation()
-            .addOnSuccessListener(this, location -> {
-                if (location == null) {
-                    Toast.makeText(this, "Unable to get current location", Toast.LENGTH_SHORT).show();
-                    return;
-                }
-                double userLat = location.getLatitude();
-                double userLng = location.getLongitude();
-                Log.d("HomeActivity", "NEARBY_NOW: lat=" + userLat + " lng=" + userLng);
+    private void launchAiChatActivity(String source) {
+        try {
+            Log.d("HomeActivity", "Launching AIChatActivity from " + source);
+            startActivity(new Intent(this, AiChatActivity.class));
+            overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
+        } catch (Exception e) {
+            Log.e("HomeActivity", "Failed to launch AIChatActivity from " + source, e);
+            Toast.makeText(this, "Unable to open assistant", Toast.LENGTH_SHORT).show();
+        }
+    }
 
-                // Query Room cache on background thread, merge Firestore if online
-                BG_EXECUTOR.execute(() -> {
-                    List<Place> cachedPlaces = loadAllFromRoom();
-                    runOnUiThread(() -> {
-                        if (isOnline() && placeRepository != null) {
-                            // Merge Firestore results into cached list
-                            placeRepository.fetchPublishedPlaces((remotePlaces, origin, msg) -> {
-                                List<Place> merged = mergePlaces(cachedPlaces, remotePlaces);
-                                showNearbySheet(merged, userLat, userLng);
-                            });
-                        } else {
-                            showNearbySheet(cachedPlaces, userLat, userLng);
-                        }
+    private void fetchNearbyPlaces() {
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this,
+                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                    REQUEST_NEARBY_LOCATION);
+            return;
+        }
+
+        try {
+            fusedLocationClient.getLastLocation()
+                .addOnSuccessListener(this, location -> {
+                    if (location == null) {
+                        Toast.makeText(this, "Unable to get current location", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+                    double userLat = location.getLatitude();
+                    double userLng = location.getLongitude();
+                    Log.d("HomeActivity", "NEARBY_NOW: lat=" + userLat + " lng=" + userLng);
+
+                    // Query Room cache on background thread, merge Firestore if online
+                    BG_EXECUTOR.execute(() -> {
+                        List<Place> cachedPlaces = loadAllFromRoom();
+                        runOnUiThread(() -> {
+                            if (isOnline() && placeRepository != null) {
+                                // Merge Firestore results into cached list
+                                placeRepository.fetchPublishedPlaces((remotePlaces, origin, msg) -> {
+                                    List<Place> merged = mergePlaces(cachedPlaces, remotePlaces);
+                                    showNearbySheet(merged, userLat, userLng);
+                                });
+                            } else {
+                                showNearbySheet(cachedPlaces, userLat, userLng);
+                            }
+                        });
                     });
+                })
+                .addOnFailureListener(e -> {
+                    Log.w("HomeActivity", "NEARBY_NOW location error: " + e.getMessage());
+                    Toast.makeText(this, "Could not get location", Toast.LENGTH_SHORT).show();
                 });
-            })
-            .addOnFailureListener(e -> {
-                Log.w("HomeActivity", "NEARBY_NOW location error: " + e.getMessage());
-                Toast.makeText(this, "Could not get location", Toast.LENGTH_SHORT).show();
-            });
+        } catch (SecurityException e) {
+            Log.w("HomeActivity", "NEARBY_NOW permission revoked before location request", e);
+            Toast.makeText(this, "Location permission needed for Nearby Now", Toast.LENGTH_SHORT).show();
+        }
     }
 
     /** Loads all Place rows from Room on the calling (background) thread. */

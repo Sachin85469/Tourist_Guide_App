@@ -119,25 +119,36 @@ public class MoodActivity extends BaseActivity {
     }
 
     private void fetchLocationThenWeather() {
-        fusedLocationClient.getLastLocation()
-                .addOnSuccessListener(this, location -> {
-                    if (location != null) {
-                        Log.d(TAG, "Got location: " + location.getLatitude() + "," + location.getLongitude());
-                        String apiKey = BuildConfig.OWM_API_KEY;
-                        WeatherFetcher.fetch(this, location.getLatitude(), location.getLongitude(),
-                                apiKey, weatherMain -> {
-                                    Log.d(TAG, "Weather result: " + weatherMain);
-                                    applySuggestions(currentHour, weatherMain);
-                                });
-                    } else {
-                        Log.d(TAG, "Last location null, using time-only suggestions");
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED) {
+            applyTimeOnlySuggestions();
+            return;
+        }
+
+        try {
+            fusedLocationClient.getLastLocation()
+                    .addOnSuccessListener(this, location -> {
+                        if (location != null) {
+                            Log.d(TAG, "Got location: " + location.getLatitude() + "," + location.getLongitude());
+                            String apiKey = BuildConfig.OWM_API_KEY;
+                            WeatherFetcher.fetch(this, location.getLatitude(), location.getLongitude(),
+                                    apiKey, weatherMain -> {
+                                        Log.d(TAG, "Weather result: " + weatherMain);
+                                        applySuggestions(currentHour, weatherMain);
+                                    });
+                        } else {
+                            Log.d(TAG, "Last location null, using time-only suggestions");
+                            applyTimeOnlySuggestions();
+                        }
+                    })
+                    .addOnFailureListener(e -> {
+                        Log.w(TAG, "Location fetch failed: " + e.getMessage());
                         applyTimeOnlySuggestions();
-                    }
-                })
-                .addOnFailureListener(e -> {
-                    Log.w(TAG, "Location fetch failed: " + e.getMessage());
-                    applyTimeOnlySuggestions();
-                });
+                    });
+        } catch (SecurityException e) {
+            Log.w(TAG, "Location permission revoked before weather lookup", e);
+            applyTimeOnlySuggestions();
+        }
     }
 
     private void applyTimeOnlySuggestions() {

@@ -125,7 +125,7 @@ public class MainActivity extends BaseActivity {
         tvMainUserName = findViewById(R.id.tvMainUserName);
         tvMainUserEmail = findViewById(R.id.tvMainUserEmail);
         tvQuickStats = findViewById(R.id.tvQuickStats);
-        fabAiChat = findViewById(R.id.fabAiChat);
+        fabAiChat = findViewById(R.id.aiAssistantLauncher);
         btnNotifications = findViewById(R.id.btnNotifications);
 
         if (btnNotifications != null) {
@@ -134,6 +134,13 @@ public class MainActivity extends BaseActivity {
             });
         }
         View aiTooltip = findViewById(R.id.ai_tooltip);
+
+        View aiCard = findViewById(R.id.cardAiAssistant);
+        View aiIcon = findViewById(R.id.ivAiAssistantIcon);
+        View.OnClickListener aiClickListener = v -> {
+            Log.d(TAG, "Chatbot icon clicked");
+            launchAiChatActivity("main_floating_button");
+        };
 
         if (fabAiChat != null) {
             fabAiChat.setOnTouchListener((v, event) -> {
@@ -146,10 +153,9 @@ public class MainActivity extends BaseActivity {
                 return false;
             });
 
-            fabAiChat.setOnClickListener(v -> {
-                startActivity(new Intent(this, AiChatActivity.class));
-                overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
-            });
+            fabAiChat.setOnClickListener(aiClickListener);
+            if (aiCard != null) aiCard.setOnClickListener(aiClickListener);
+            if (aiIcon != null) aiIcon.setOnClickListener(aiClickListener);
 
             // Delay tooltip entrance
             if (aiTooltip != null) {
@@ -165,6 +171,8 @@ public class MainActivity extends BaseActivity {
                         .start();
                 }, 3000);
             }
+        } else {
+            Log.e(TAG, "AI Assistant launcher view missing: aiAssistantLauncher");
         }
 
         progressBar = findViewById(R.id.mainProgressBar);
@@ -241,6 +249,18 @@ public class MainActivity extends BaseActivity {
                 && !apiKey.isEmpty()
                 && !apiKey.equalsIgnoreCase("YOUR_API_KEY")
                 && !apiKey.startsWith("YOUR_");
+    }
+
+    private void launchAiChatActivity(@NonNull String source) {
+        try {
+            Log.d(TAG, "Launching AIChatActivity from " + source);
+            Intent intent = new Intent(MainActivity.this, AiChatActivity.class);
+            startActivity(intent);
+            overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
+        } catch (Exception e) {
+            Log.e(TAG, "Failed to launch AIChatActivity from " + source, e);
+            Toast.makeText(this, "Unable to open assistant", Toast.LENGTH_SHORT).show();
+        }
     }
 
     @Override

@@ -14,6 +14,10 @@
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_LOCATION" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" />
 
+    <uses-feature
+        android:name="android.hardware.telephony"
+        android:required="false" />
+
     <queries>
         <package android:name="com.google.android.apps.maps" />
     </queries>
@@ -132,6 +136,10 @@
             android:theme="@style/Theme.TouristGuideApp" />
         <activity
             android:name=".ReplyTranslatorActivity"
+            android:exported="false"
+            android:theme="@style/Theme.TouristGuideApp" />
+        <activity
+            android:name=".NearbyPlacesActivity"
             android:exported="false"
             android:theme="@style/Theme.TouristGuideApp" />
         <activity

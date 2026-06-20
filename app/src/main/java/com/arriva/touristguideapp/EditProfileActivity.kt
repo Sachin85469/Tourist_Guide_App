@@ -8,7 +8,6 @@ import android.net.Uri
 import android.os.Bundle
 import android.provider.MediaStore
 import android.util.Patterns
-import android.view.View
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
@@ -49,13 +48,6 @@ class EditProfileActivity : BaseActivity() {
     private lateinit var tilDob: TextInputLayout
     private lateinit var etDob: TextInputEditText
 
-    private lateinit var tilCountry: TextInputLayout
-    private lateinit var etCountry: TextInputEditText
-    private lateinit var tilState: TextInputLayout
-    private lateinit var etState: TextInputEditText
-    private lateinit var tilCity: TextInputLayout
-    private lateinit var etCity: TextInputEditText
-
     private lateinit var spnTravelCategory: Spinner
     private lateinit var tilBio: TextInputLayout
     private lateinit var etBio: TextInputEditText
@@ -65,6 +57,9 @@ class EditProfileActivity : BaseActivity() {
     private var selectedImageUri: Uri? = null
     private var isImageRemoved = false
     private var currentProfileImageUrl: String? = null
+    private var currentCountry: String? = null
+    private var currentState: String? = null
+    private var currentCity: String? = null
 
     private val PICK_IMAGE_REQUEST = 200
     private val travelCategories = arrayOf("Temples", "Museums", "Adventure", "Nature", "Historical", "Food", "Shopping")
@@ -103,13 +98,6 @@ class EditProfileActivity : BaseActivity() {
         tilDob = findViewById(R.id.tilDob)
         etDob = findViewById(R.id.etDob)
 
-        tilCountry = findViewById(R.id.tilCountry)
-        etCountry = findViewById(R.id.etCountry)
-        tilState = findViewById(R.id.tilState)
-        etState = findViewById(R.id.etState)
-        tilCity = findViewById(R.id.tilCity)
-        etCity = findViewById(R.id.etCity)
-
         spnTravelCategory = findViewById(R.id.spnTravelCategory)
         tilBio = findViewById(R.id.tilBio)
         etBio = findViewById(R.id.etBio)
@@ -135,7 +123,7 @@ class EditProfileActivity : BaseActivity() {
     }
 
     private fun loadUserProfile() {
-        val user = auth.currentUser ?: return
+        if (auth.currentUser == null) return
         
         // 1. First load cached profile for immediate values
         val cached = repository.getCachedUserProfile()
@@ -166,9 +154,9 @@ class EditProfileActivity : BaseActivity() {
         }
 
         etDob.setText(user.dateOfBirth ?: "")
-        etCountry.setText(user.country ?: "")
-        etState.setText(user.state ?: "")
-        etCity.setText(user.city ?: "")
+        currentCountry = user.country
+        currentState = user.state
+        currentCity = user.city
 
         val categoryIndex = travelCategories.indexOf(user.favoriteTravelCategory)
         if (categoryIndex >= 0) {
@@ -342,9 +330,9 @@ class EditProfileActivity : BaseActivity() {
                     }
                     gender = selectedGender
                     dateOfBirth = etDob.text.toString().trim()
-                    country = etCountry.text.toString().trim()
-                    state = etState.text.toString().trim()
-                    city = etCity.text.toString().trim()
+                    country = currentCountry
+                    state = currentState
+                    city = currentCity
                     favoriteTravelCategory = spnTravelCategory.selectedItem.toString()
                     bio = etBio.text.toString().trim()
                 }

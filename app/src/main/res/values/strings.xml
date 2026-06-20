@@ -5,8 +5,6 @@
     <string name="update_review">Update Review</string>
     <string name="submit_review">Submit Review</string>
     <string name="retry">Retry</string>
-    <string name="nearby_tourist_spots">Nearby Tourist Spots</string>
-
     <string name="back">Back</string>
     <string name="phrasebook">Phrasebook</string>
     <string name="phrasebook_title">Travel Phrasebook</string>
@@ -72,7 +70,7 @@
     <string name="tts_voice_missing">Voice data not installed for %1$s.</string>
 
     <!-- Gemini AI -->
-    <string name="gemini_api_key">AIzaSyBPu56iwPN1vBCBki8_hmNfnEuqfpD5h5s</string>
+    <string name="gemini_api_key">AQ.Ab8RN6Ky0_Xta9YzkZo6W6-_cyOeqs0Pd3x9R9DphQUCtjtp_w</string>
     <string name="ai_assistant_title">AI Travel Assistant</string>
     <string name="ai_input_hint">Ask me anything about your trip…</string>
     <string name="ai_initial_message">Hello! I am your AI travel assistant powered by Gemini. Ask me about local attractions, travel tips, or anything else!</string>
@@ -158,6 +156,15 @@
     <string name="favorites_share">Share</string>
     <string name="favorites_title">My Favorites</string>
     <string name="home_action_nearby">Explore Nearby</string>
+    <string name="nearby_tourist_spots">Nearby Tourist Spots</string>
+    <string name="nearby_intro_text">Find the 15 closest destinations from your current location</string>
+    <string name="nearby_loading">Finding locations near you…</string>
+    <string name="nearby_location_unavailable">Unable to get your location.</string>
+    <string name="nearby_permission_rationale">Allow location access to see nearby destinations.</string>
+    <string name="nearby_no_destinations_found">No nearby destinations found.</string>
+    <string name="nearby_places_status">Showing %1$d nearest places</string>
+    <string name="nearby_open_map">Open on Map</string>
+    <string name="nearby_quick_view">Quick View</string>
     <string name="home_action_planner">Plan Trip</string>
     <string name="home_action_translate">Translator</string>
     <string name="home_ai_guide">AI Assistant</string>

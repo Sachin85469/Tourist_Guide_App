@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -27,6 +28,8 @@ import java.util.List;
 import java.util.Locale;
 
 public class HomeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
+
+    private static final String TAG = "HomeAdapter";
 
     private static final int TYPE_SECTION_HEADER = 3;
     private static final int TYPE_PLACE = 4;
@@ -364,7 +367,7 @@ public class HomeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             View btnNearby = itemView.findViewById(R.id.btnNearby);
             if (btnNearby != null) {
                 btnNearby.setOnClickListener(v -> {
-                    Intent intent = new Intent(itemView.getContext(), com.arriva.touristguideapp.MapActivity.class);
+                    Intent intent = new Intent(itemView.getContext(), NearbyPlacesActivity.class);
                     itemView.getContext().startActivity(intent);
                 });
             }
@@ -372,8 +375,19 @@ public class HomeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             View btnAi = itemView.findViewById(R.id.btnAiAssistant);
             if (btnAi != null) {
                 btnAi.setOnClickListener(v -> {
-                    Intent intent = new Intent(itemView.getContext(), com.arriva.touristguideapp.AiChatActivity.class);
-                    itemView.getContext().startActivity(intent);
+                    try {
+                        Log.d(TAG, "Chatbot icon clicked");
+                        Log.d(TAG, "Launching AIChatActivity from welcome_ai_button");
+                        Intent intent = new Intent(itemView.getContext(), com.arriva.touristguideapp.AiChatActivity.class);
+                        itemView.getContext().startActivity(intent);
+                    } catch (Exception e) {
+                        Log.e(TAG, "Failed to launch AIChatActivity from welcome_ai_button", e);
+                        android.widget.Toast.makeText(
+                                itemView.getContext(),
+                                "Unable to open assistant",
+                                android.widget.Toast.LENGTH_SHORT
+                        ).show();
+                    }
                 });
             }
 

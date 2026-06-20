@@ -149,6 +149,7 @@
     <color name="adaptive_bg">@color/color_background</color>
     <color name="adaptive_surface">@color/color_surface</color>
     <color name="adaptive_surface_elevated">@color/color_surface</color>
+    <color name="adaptive_primary_light">@color/color_primary_light</color>
     <color name="adaptive_text_primary">@color/color_text_primary</color>
     <color name="adaptive_text_secondary">@color/color_text_secondary</color>
     <color name="adaptive_text_muted">@color/color_text_muted</color>
@@ -156,6 +157,11 @@
     <color name="adaptive_card_stroke">@color/color_outline_variant</color>
     <color name="adaptive_shadow">@color/color_shadow</color>
     <color name="adaptive_glass_surface">@color/color_glass</color>
+    <color name="adaptive_logout_bg">#FFF2F2</color>
+    <color name="adaptive_logout_text">@color/color_error</color>
+    <color name="premium_bg_start">#FFFFFF</color>
+    <color name="premium_bg_end">@color/color_background</color>
+    <color name="glass_white">#CCFFFFFF</color>
     <color name="unread_bg">#F2EEFC</color>
 
     <!-- Category chip backgrounds (unified purple tone instead of random colors) -->

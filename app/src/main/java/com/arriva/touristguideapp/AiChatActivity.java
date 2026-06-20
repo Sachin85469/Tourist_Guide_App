@@ -78,6 +78,7 @@ public class AiChatActivity extends BaseActivity {
     protected void onCreate(Bundle savedInstanceState) {
         PerformanceTracker.startTimer("AI_CHAT_INIT");
         super.onCreate(savedInstanceState);
+        Log.d(TAG, "AIChatActivity created");
         setContentView(R.layout.activity_ai_chat);
 
         initViews();

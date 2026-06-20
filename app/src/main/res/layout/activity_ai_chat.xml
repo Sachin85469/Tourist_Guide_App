@@ -25,10 +25,11 @@
                 android:orientation="horizontal">
 
                 <com.google.android.material.imageview.ShapeableImageView
+                    android:id="@+id/ivAssistantHeader"
                     android:layout_width="40dp"
                     android:layout_height="40dp"
-                    android:padding="2dp"
-                    android:src="@drawable/ic_robot_assistant"
+                    android:padding="0dp"
+                    android:src="@drawable/ic_arriva_ai"
                     app:shapeAppearanceOverlay="@style/CircleImage"
                     app:strokeColor="@color/m3_primary"
                     app:strokeWidth="1dp" />
@@ -75,11 +76,12 @@
             app:layout_constraintBottom_toTopOf="@+id/inputCard"
             app:layout_constraintTop_toTopOf="parent">
 
-            <ImageView
+            <com.google.android.material.imageview.ShapeableImageView
                 android:layout_width="120dp"
                 android:layout_height="120dp"
-                android:alpha="0.2"
-                android:src="@drawable/ic_robot_assistant" />
+                android:alpha="0.3"
+                android:src="@drawable/ic_arriva_ai"
+                app:shapeAppearanceOverlay="@style/CircleImage" />
 
             <TextView
                 android:layout_width="wrap_content"
