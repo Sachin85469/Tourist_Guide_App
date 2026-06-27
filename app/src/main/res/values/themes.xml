@@ -49,6 +49,13 @@
 
     <style name="Theme.TouristGuideApp" parent="Base.Theme.TouristGuideApp" />
 
+    <style name="Theme.TouristGuideApp.Splash" parent="Base.Theme.TouristGuideApp">
+        <item name="android:statusBarColor">#7C4DFF</item>
+        <item name="android:navigationBarColor">#311B92</item>
+        <item name="android:windowLightStatusBar" tools:targetApi="m">false</item>
+        <item name="android:windowLightNavigationBar" tools:targetApi="o_mr1">false</item>
+    </style>
+
     <!-- =========================================
          Activity Animations
     ========================================= -->

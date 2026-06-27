@@ -1,5 +1,8 @@
 <resources>
     <string name="app_name">Tourist Guide App</string>
+    <string name="splash_app_name">ExploreEase</string>
+    <string name="splash_tagline">Discover local gems with confidence\nPlan every journey with ease</string>
+    <string name="splash_icon_description">Map pin</string>
     <!-- TODO: Replace with your actual Web Client ID from Firebase Console -->
     <string name="default_web_client_id">YOUR_WEB_CLIENT_ID.apps.googleusercontent.com</string>
     <string name="update_review">Update Review</string>
