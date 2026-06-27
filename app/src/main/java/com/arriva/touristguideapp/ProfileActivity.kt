@@ -3,11 +3,14 @@ package com.arriva.touristguideapp
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
+import android.content.res.ColorStateList
+import android.graphics.Color
 import android.os.Bundle
 import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -52,6 +55,12 @@ class ProfileActivity : BaseActivity() {
     private companion object {
         const val DEFAULT_ACTIVITY_LIMIT = 10
         const val EXPANDED_ACTIVITY_LIMIT = 50
+    }
+
+    private enum class RowTone {
+        PURPLE,
+        GREEN,
+        RED
     }
 
     private val editProfileLauncher = registerForActivityResult(
@@ -119,7 +128,6 @@ class ProfileActivity : BaseActivity() {
         }
 
         setupStatNavigation()
-        setupQuickAccessCards()
         setupQuickAccessRows()
         loadMemberInfo()
 
@@ -141,96 +149,49 @@ class ProfileActivity : BaseActivity() {
         findViewById<View>(R.id.statReviews).setOnClickListener {
             startActivity(Intent(this, MyReviewsActivity::class.java))
         }
-        findViewById<View>(R.id.statNotifications).setOnClickListener {
-            startActivity(Intent(this, NotificationHistoryActivity::class.java))
-        }
-    }
-
-    private fun setupQuickAccessCards() {
-        bindQuickAccessCard(
-            R.id.cardQuickTripHistory,
-            R.drawable.ic_trip,
-            getString(R.string.quick_access_trip_history)
-        ) { startActivity(Intent(this, TripHistoryActivity::class.java)) }
-
-        bindQuickAccessCard(
-            R.id.cardQuickFavorites,
-            R.drawable.ic_favorite,
-            getString(R.string.quick_access_favorites)
-        ) { startActivity(Intent(this, FavoritesActivity::class.java)) }
-
-        bindQuickAccessCard(
-            R.id.cardQuickReviews,
-            R.drawable.ic_star,
-            getString(R.string.quick_access_reviews)
-        ) { startActivity(Intent(this, MyReviewsActivity::class.java)) }
-
-        bindQuickAccessCard(
-            R.id.cardQuickNotifications,
-            R.drawable.ic_notification,
-            getString(R.string.quick_access_notifications)
-        ) { startActivity(Intent(this, NotificationHistoryActivity::class.java)) }
-    }
-
-    private fun bindQuickAccessCard(cardId: Int, iconRes: Int, title: String, onClick: () -> Unit) {
-        val card = findViewById<View>(cardId)
-        card.findViewById<ImageView>(R.id.ivQuickAccessIcon).setImageResource(iconRes)
-        card.findViewById<TextView>(R.id.tvQuickAccessTitle).text = title
-        card.setOnClickListener { onClick() }
-    }
-
-    private fun updateQuickAccessCounts(stats: Map<String, Long>) {
-        updateQuickAccessCount(R.id.cardQuickTripHistory, stats["trips"] ?: 0)
-        updateQuickAccessCount(R.id.cardQuickFavorites, stats["favorites"] ?: 0)
-        updateQuickAccessCount(R.id.cardQuickReviews, stats["reviews"] ?: 0)
-        updateQuickAccessCount(R.id.cardQuickNotifications, stats["notifications"] ?: 0)
-    }
-
-    private fun updateQuickAccessCount(cardId: Int, count: Long) {
-        findViewById<View>(cardId).findViewById<TextView>(R.id.tvQuickAccessCount).text = count.toString()
     }
 
     private fun setupQuickAccessRows() {
-        setupRow(findViewById(R.id.btnEditProfile), R.drawable.ic_account, getString(R.string.edit_profile), getString(R.string.edit_profile_desc)) {
+        setupRow(findViewById(R.id.btnEditProfile), R.drawable.ic_account, getString(R.string.edit_profile), getString(R.string.edit_profile_desc), RowTone.PURPLE) {
             openEditProfile()
         }
 
-        setupRow(findViewById(R.id.btnEditTravelInterests), R.drawable.ic_edit, getString(R.string.edit_travel_interests), getString(R.string.edit_travel_interests_desc)) {
+        setupRow(findViewById(R.id.btnEditTravelInterests), R.drawable.ic_edit, getString(R.string.edit_travel_interests), getString(R.string.edit_travel_interests_desc), RowTone.PURPLE) {
             startActivity(
                 Intent(this, InterestSelectionActivity::class.java)
                     .putExtra(InterestSelectionActivity.EXTRA_PROFILE_EDIT_MODE, true)
             )
         }
 
-        setupRow(findViewById(R.id.btnMyReviews), R.drawable.ic_star, getString(R.string.my_reviews), getString(R.string.my_reviews_desc)) {
+        setupRow(findViewById(R.id.btnMyReviews), R.drawable.ic_star, getString(R.string.my_reviews), getString(R.string.my_reviews_desc), RowTone.PURPLE) {
             startActivity(Intent(this, MyReviewsActivity::class.java))
         }
 
-        setupRow(findViewById(R.id.btnTripHistory), R.drawable.ic_trip, getString(R.string.trip_history), getString(R.string.trip_history_desc)) {
+        setupRow(findViewById(R.id.btnTripHistory), R.drawable.ic_trip, getString(R.string.trip_history), getString(R.string.trip_history_desc), RowTone.PURPLE) {
             startActivity(Intent(this, TripHistoryActivity::class.java))
         }
 
-        setupRow(findViewById(R.id.btnSecurity), R.drawable.ic_security, getString(R.string.security), getString(R.string.security_desc)) {
+        setupRow(findViewById(R.id.btnSecurity), R.drawable.ic_security, getString(R.string.security), getString(R.string.security_desc), RowTone.PURPLE) {
             startActivity(Intent(this, SecurityActivity::class.java))
         }
 
-        setupRow(findViewById(R.id.btnNotificationSettings), R.drawable.ic_notification, getString(R.string.notifications), getString(R.string.notifications_desc)) {
+        setupRow(findViewById(R.id.btnNotificationSettings), R.drawable.ic_notification, getString(R.string.notifications), getString(R.string.notifications_desc), RowTone.PURPLE) {
             startActivity(Intent(this, NotificationHistoryActivity::class.java))
         }
 
-        setupRow(findViewById(R.id.btnLanguage), R.drawable.ic_language, getString(R.string.language), getString(R.string.language_desc)) {
+        setupRow(findViewById(R.id.btnLanguage), R.drawable.ic_language, getString(R.string.language), getString(R.string.language_desc), RowTone.GREEN) {
             startActivity(Intent(this, LanguageActivity::class.java))
         }
 
-        setupRow(findViewById(R.id.btnSOSSettings), R.drawable.ic_sos, getString(R.string.profile_sos_settings), getString(R.string.sos_settings_desc)) {
+        setupRow(findViewById(R.id.btnSOSSettings), R.drawable.ic_sos, getString(R.string.profile_sos_settings), getString(R.string.sos_settings_desc), RowTone.PURPLE) {
             startActivity(Intent(this, SOSSettingsActivity::class.java))
         }
 
-        setupRow(findViewById(R.id.btnSOSHistory), R.drawable.ic_history, getString(R.string.profile_sos_history), getString(R.string.sos_history_desc)) {
+        setupRow(findViewById(R.id.btnSOSHistory), R.drawable.ic_history, getString(R.string.profile_sos_history), getString(R.string.sos_history_desc), RowTone.PURPLE) {
             startActivity(Intent(this, com.arriva.touristguideapp.sos.ui.SOSHistoryActivity::class.java))
         }
 
-        setupRow(findViewById(R.id.btnLogoutRow), R.drawable.ic_logout, getString(R.string.sign_out), getString(R.string.sign_out_desc)) {
+        setupRow(findViewById(R.id.btnLogoutRow), R.drawable.ic_logout, getString(R.string.sign_out), getString(R.string.sign_out_desc), RowTone.RED) {
             val uid = auth.currentUser?.uid
             val deviceId = BaseActivity.getDeviceId(this)
 
@@ -262,11 +223,33 @@ class ProfileActivity : BaseActivity() {
         }
     }
 
-    private fun setupRow(row: View, icon: Int, title: String, subtitle: String, onClick: () -> Unit) {
+    private fun setupRow(row: View, icon: Int, title: String, subtitle: String, tone: RowTone, onClick: () -> Unit) {
         row.findViewById<ImageView>(R.id.settingIcon).setImageResource(icon)
         row.findViewById<TextView>(R.id.settingTitle).text = title
         row.findViewById<TextView>(R.id.settingSubtitle).text = subtitle
+        applyRowTone(row, tone)
         row.setOnClickListener { onClick() }
+    }
+
+    private fun applyRowTone(row: View, tone: RowTone) {
+        val iconColor = when (tone) {
+            RowTone.PURPLE -> ContextCompat.getColor(this, R.color.primary)
+            RowTone.GREEN -> Color.parseColor("#2E7D32")
+            RowTone.RED -> Color.parseColor("#B3261E")
+        }
+        val tileColor = when (tone) {
+            RowTone.PURPLE -> Color.parseColor("#F0EAFF")
+            RowTone.GREEN -> Color.parseColor("#EAF7EE")
+            RowTone.RED -> Color.parseColor("#FCEEEE")
+        }
+        val titleColor = when (tone) {
+            RowTone.RED -> Color.parseColor("#B3261E")
+            else -> ContextCompat.getColor(this, R.color.text_primary)
+        }
+
+        row.findViewById<ImageView>(R.id.settingIcon).imageTintList = ColorStateList.valueOf(iconColor)
+        row.findViewById<View>(R.id.settingIconTile).backgroundTintList = ColorStateList.valueOf(tileColor)
+        row.findViewById<TextView>(R.id.settingTitle).setTextColor(titleColor)
     }
 
     private fun loadMemberInfo() {
@@ -331,7 +314,7 @@ class ProfileActivity : BaseActivity() {
 
         tvProfileName.text = displayName
         tvProfileUsername.text = if (username != null) "@$username" else ""
-        tvProfileUsername.visibility = if (username != null) View.VISIBLE else View.GONE
+        tvProfileUsername.visibility = View.GONE
         tvProfileEmail.text = email.ifBlank { getString(R.string.complete_your_profile) }
 
         if (profile != null && ProfileCompletionHelper.hasPhoto(profile)) {
@@ -372,7 +355,7 @@ class ProfileActivity : BaseActivity() {
                 updateStat(
                     R.id.statFavs,
                     stats["favorites"] ?: 0,
-                    getString(R.string.saved_places),
+                    getString(R.string.saved),
                     getString(R.string.no_saved_places)
                 )
                 updateStat(
@@ -381,20 +364,10 @@ class ProfileActivity : BaseActivity() {
                     getString(R.string.reviews),
                     getString(R.string.no_reviews_yet)
                 )
-                updateStat(
-                    R.id.statNotifications,
-                    stats["notifications"] ?: 0,
-                    getString(R.string.notifications),
-                    getString(R.string.no_notifications_yet)
-                )
-                updateQuickAccessCounts(stats)
-
                 recentActivityItems = repository.getRecentActivity(EXPANDED_ACTIVITY_LIMIT)
                 updateRecentActivityList()
             } catch (e: Exception) {
-                if (lastStats.isNotEmpty()) {
-                    updateQuickAccessCounts(lastStats)
-                }
+                updateRecentActivityList()
             }
         }
     }
@@ -426,12 +399,8 @@ class ProfileActivity : BaseActivity() {
         row.findViewById<TextView>(R.id.tvStatValue).text = value.toString()
         row.findViewById<TextView>(R.id.tvStatLabel).text = label
         val emptyView = row.findViewById<TextView>(R.id.tvStatEmpty)
-        if (value == 0L) {
-            emptyView.text = emptyMessage
-            emptyView.visibility = View.VISIBLE
-        } else {
-            emptyView.visibility = View.GONE
-        }
+        emptyView.text = emptyMessage
+        emptyView.visibility = View.GONE
     }
 
     private fun applyAnimations() {

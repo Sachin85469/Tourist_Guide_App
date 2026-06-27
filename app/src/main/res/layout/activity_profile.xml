@@ -4,73 +4,80 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/bg_light">
-
-    <com.google.android.material.appbar.MaterialToolbar
-        android:id="@+id/toolbar"
-        android:layout_width="match_parent"
-        android:layout_height="?attr/actionBarSize"
-        app:navigationIcon="@drawable/ic_back"
-        app:titleTextAppearance="@style/TextAppearance.MaterialComponents.Headline6"
-        app:title="@string/profile"
-        android:background="?attr/colorSurface" />
+    android:background="@color/bg_light"
+    android:clipChildren="false">
 
     <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+        android:clipChildren="false"
+        android:clipToPadding="false"
+        android:fillViewport="true">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:clipChildren="false"
             android:orientation="vertical"
             android:paddingBottom="88dp">
 
-            <!-- Header Card -->
-            <com.google.android.material.card.MaterialCardView
+            <com.google.android.material.appbar.AppBarLayout
+                android:id="@+id/profileHeader"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_margin="16dp"
-                app:cardCornerRadius="16dp"
-                app:cardElevation="6dp"
-                app:strokeWidth="0dp"
-                app:cardBackgroundColor="?attr/colorSurface">
+                android:layout_height="180dp"
+                android:background="@drawable/bg_profile_gradient_header"
+                app:elevation="0dp">
 
-                <LinearLayout
+                <FrameLayout
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:padding="16dp"
-                    android:gravity="center_vertical">
+                    android:layout_height="match_parent">
 
-                    <com.google.android.material.card.MaterialCardView
-                        android:id="@+id/cardProfileImage"
-                        android:layout_width="96dp"
-                        android:layout_height="96dp"
-                        app:cardCornerRadius="48dp"
-                        app:cardElevation="2dp"
-                        app:strokeWidth="0dp">
-                        <ImageView
-                            android:id="@+id/ivProfileImage"
-                            android:layout_width="match_parent"
-                            android:layout_height="match_parent"
-                            android:scaleType="centerCrop"
-                            android:src="@drawable/ic_account" />
-                    </com.google.android.material.card.MaterialCardView>
+                    <com.google.android.material.appbar.MaterialToolbar
+                        android:id="@+id/toolbar"
+                        android:layout_width="match_parent"
+                        android:layout_height="48dp"
+                        android:background="@android:color/transparent"
+                        app:navigationIcon="@drawable/ic_back"
+                        app:navigationIconTint="@color/white"
+                        app:title="" />
 
                     <LinearLayout
-                        android:layout_width="0dp"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginStart="16dp"
-                        android:layout_weight="1"
-                        android:orientation="vertical">
+                        android:layout_gravity="center"
+                        android:gravity="center"
+                        android:orientation="vertical"
+                        android:paddingHorizontal="24dp"
+                        android:paddingTop="16dp">
+
+                        <com.google.android.material.card.MaterialCardView
+                            android:id="@+id/cardProfileImage"
+                            android:layout_width="64dp"
+                            android:layout_height="64dp"
+                            app:cardBackgroundColor="@color/white"
+                            app:cardCornerRadius="32dp"
+                            app:cardElevation="0dp"
+                            app:strokeWidth="0dp">
+
+                            <ImageView
+                                android:id="@+id/ivProfileImage"
+                                android:layout_width="52dp"
+                                android:layout_height="52dp"
+                                android:layout_gravity="center"
+                                android:contentDescription="@string/profile"
+                                android:scaleType="centerCrop"
+                                android:src="@drawable/ic_account" />
+                        </com.google.android.material.card.MaterialCardView>
 
                         <TextView
                             android:id="@+id/tvProfileName"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:textColor="@color/text_primary"
-                            android:textSize="20sp"
+                            android:layout_marginTop="8dp"
+                            android:ellipsize="end"
+                            android:maxLines="1"
+                            android:textColor="@color/white"
+                            android:textSize="16sp"
                             android:textStyle="bold"
                             tools:text="Sachin Bableshwar" />
 
@@ -78,20 +85,18 @@
                             android:id="@+id/tvProfileUsername"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginTop="2dp"
-                            android:textColor="@color/primary"
-                            android:textSize="14sp"
                             android:visibility="gone"
-                            tools:text="\@username"
-                            tools:visibility="visible" />
+                            tools:text="\@username" />
 
                         <TextView
                             android:id="@+id/tvProfileEmail"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="2dp"
-                            android:textColor="@color/text_secondary"
-                            android:textSize="14sp"
+                            android:ellipsize="end"
+                            android:maxLines="1"
+                            android:textColor="#BFFFFFFF"
+                            android:textSize="12sp"
                             tools:text="user@example.com" />
 
                         <TextView
@@ -99,66 +104,93 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="8dp"
-                            android:textColor="@color/primary"
-                            android:textSize="13sp"
-                            tools:text="Traveler • Member" />
+                            android:background="@drawable/bg_profile_member_badge"
+                            android:paddingHorizontal="12dp"
+                            android:paddingVertical="4dp"
+                            android:text="Member"
+                            android:textColor="@color/white"
+                            android:textSize="10sp"
+                            android:textStyle="bold" />
 
-                        <LinearLayout
+                        <TextView
+                            android:id="@+id/tvMemberSince"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:orientation="horizontal"
-                            android:layout_marginTop="4dp">
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="@string/member_since"
-                                android:textColor="@color/adaptive_text_secondary"
-                                android:textSize="11sp" />
-                            <TextView
-                                android:id="@+id/tvMemberSince"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:layout_marginStart="4dp"
-                                android:textColor="@color/adaptive_text_secondary"
-                                android:textSize="11sp"
-                                tools:text="01 Jan 2024" />
-                        </LinearLayout>
+                            android:visibility="gone"
+                            tools:text="01 Jan 2024" />
 
-                        <LinearLayout
+                        <TextView
+                            android:id="@+id/tvLastLogin"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:orientation="horizontal"
-                            android:layout_marginTop="2dp">
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="@string/last_login"
-                                android:textColor="@color/adaptive_text_secondary"
-                                android:textSize="11sp" />
-                            <TextView
-                                android:id="@+id/tvLastLogin"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:layout_marginStart="4dp"
-                                android:textColor="@color/adaptive_text_secondary"
-                                android:textSize="11sp"
-                                tools:text="Today, 10:00 AM" />
-                        </LinearLayout>
+                            android:visibility="gone"
+                            tools:text="Today, 10:00 AM" />
                     </LinearLayout>
+                </FrameLayout>
+            </com.google.android.material.appbar.AppBarLayout>
+
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/cardProfileStats"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="16dp"
+                android:layout_marginTop="-20dp"
+                app:cardBackgroundColor="@color/white"
+                app:cardCornerRadius="12dp"
+                app:cardElevation="4dp"
+                app:strokeWidth="0dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:orientation="horizontal"
+                    android:paddingVertical="12dp">
+
+                    <include
+                        android:id="@+id/statTrips"
+                        layout="@layout/item_stat_compact"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1" />
+
+                    <View
+                        android:layout_width="0.5dp"
+                        android:layout_height="40dp"
+                        android:background="#E5E7F1" />
+
+                    <include
+                        android:id="@+id/statReviews"
+                        layout="@layout/item_stat_compact"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1" />
+
+                    <View
+                        android:layout_width="0.5dp"
+                        android:layout_height="40dp"
+                        android:background="#E5E7F1" />
+
+                    <include
+                        android:id="@+id/statFavs"
+                        layout="@layout/item_stat_compact"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1" />
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
-            <!-- Profile Completion Card -->
             <com.google.android.material.card.MaterialCardView
                 android:id="@+id/cardProfileCompletion"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginHorizontal="16dp"
-                android:layout_marginBottom="8dp"
-                app:cardCornerRadius="16dp"
-                app:cardElevation="2dp"
-                app:strokeWidth="0dp"
-                app:cardBackgroundColor="?attr/colorSurface">
+                android:layout_marginTop="16dp"
+                app:cardBackgroundColor="@color/white"
+                app:cardCornerRadius="12dp"
+                app:cardElevation="0dp"
+                app:strokeColor="#E5E7F1"
+                app:strokeWidth="1dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -175,6 +207,7 @@
                             android:layout_height="wrap_content"
                             android:text="Profile Completion"
                             android:textColor="@color/text_primary"
+                            android:textSize="13sp"
                             android:textStyle="bold" />
 
                         <TextView
@@ -183,6 +216,7 @@
                             android:layout_height="wrap_content"
                             android:layout_alignParentEnd="true"
                             android:textColor="@color/primary"
+                            android:textSize="13sp"
                             android:textStyle="bold"
                             tools:text="75%" />
                     </RelativeLayout>
@@ -192,59 +226,13 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="12dp"
+                        app:indicatorColor="@color/primary"
+                        app:trackColor="@color/primary_light"
                         app:trackCornerRadius="4dp"
                         app:trackThickness="8dp" />
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
-            <!-- Compact Stats Row -->
-            <com.google.android.material.card.MaterialCardView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginHorizontal="16dp"
-                android:layout_marginTop="8dp"
-                app:cardCornerRadius="16dp"
-                app:cardElevation="2dp"
-                app:strokeWidth="0dp">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:padding="12dp"
-                    android:gravity="center">
-
-                    <include
-                        android:id="@+id/statTrips"
-                        layout="@layout/item_stat_compact"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1" />
-
-                    <include
-                        android:id="@+id/statFavs"
-                        layout="@layout/item_stat_compact"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1" />
-
-                    <include
-                        android:id="@+id/statReviews"
-                        layout="@layout/item_stat_compact"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1" />
-
-                    <include
-                        android:id="@+id/statNotifications"
-                        layout="@layout/item_stat_compact"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1" />
-                </LinearLayout>
-            </com.google.android.material.card.MaterialCardView>
-
-            <!-- Complete Profile Banner -->
             <include
                 android:id="@+id/cardCompleteProfileBanner"
                 layout="@layout/card_complete_profile_banner"
@@ -252,12 +240,168 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp" />
 
-            <!-- Recent Activity -->
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="24dp"
-                android:layout_marginTop="20dp"
+                android:layout_marginTop="24dp"
+                android:text="Account"
+                android:textColor="@color/primary"
+                android:textSize="12sp"
+                android:textStyle="bold" />
+
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="16dp"
+                android:layout_marginTop="8dp"
+                app:cardBackgroundColor="@color/white"
+                app:cardCornerRadius="12dp"
+                app:cardElevation="0dp"
+                app:strokeWidth="0dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <include
+                        android:id="@+id/btnEditProfile"
+                        layout="@layout/item_profile_menu_row" />
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="0.5dp"
+                        android:layout_marginStart="60dp"
+                        android:background="#E5E7F1" />
+
+                    <include
+                        android:id="@+id/btnEditTravelInterests"
+                        layout="@layout/item_profile_menu_row" />
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="0.5dp"
+                        android:layout_marginStart="60dp"
+                        android:background="#E5E7F1" />
+
+                    <include
+                        android:id="@+id/btnMyReviews"
+                        layout="@layout/item_profile_menu_row" />
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="0.5dp"
+                        android:layout_marginStart="60dp"
+                        android:background="#E5E7F1" />
+
+                    <include
+                        android:id="@+id/btnTripHistory"
+                        layout="@layout/item_profile_menu_row" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="24dp"
+                android:layout_marginTop="24dp"
+                android:text="Settings"
+                android:textColor="@color/primary"
+                android:textSize="12sp"
+                android:textStyle="bold" />
+
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="16dp"
+                android:layout_marginTop="8dp"
+                app:cardBackgroundColor="@color/white"
+                app:cardCornerRadius="12dp"
+                app:cardElevation="0dp"
+                app:strokeWidth="0dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <include
+                        android:id="@+id/btnSecurity"
+                        layout="@layout/item_profile_menu_row" />
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="0.5dp"
+                        android:layout_marginStart="60dp"
+                        android:background="#E5E7F1" />
+
+                    <include
+                        android:id="@+id/btnNotificationSettings"
+                        layout="@layout/item_profile_menu_row" />
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="0.5dp"
+                        android:layout_marginStart="60dp"
+                        android:background="#E5E7F1" />
+
+                    <include
+                        android:id="@+id/btnLanguage"
+                        layout="@layout/item_profile_menu_row" />
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="0.5dp"
+                        android:layout_marginStart="60dp"
+                        android:background="#E5E7F1" />
+
+                    <include
+                        android:id="@+id/btnSOSSettings"
+                        layout="@layout/item_profile_menu_row" />
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="0.5dp"
+                        android:layout_marginStart="60dp"
+                        android:background="#E5E7F1" />
+
+                    <include
+                        android:id="@+id/btnSOSHistory"
+                        layout="@layout/item_profile_menu_row" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="24dp"
+                android:layout_marginTop="24dp"
+                android:text="Session"
+                android:textColor="@color/primary"
+                android:textSize="12sp"
+                android:textStyle="bold" />
+
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="16dp"
+                android:layout_marginTop="8dp"
+                app:cardBackgroundColor="@color/white"
+                app:cardCornerRadius="12dp"
+                app:cardElevation="0dp"
+                app:strokeWidth="0dp">
+
+                <include
+                    android:id="@+id/btnLogoutRow"
+                    layout="@layout/item_profile_menu_row" />
+            </com.google.android.material.card.MaterialCardView>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="24dp"
+                android:layout_marginTop="24dp"
                 android:text="@string/recent_activity"
                 android:textColor="@color/primary"
                 android:textSize="12sp"
@@ -294,109 +438,6 @@
                 android:textSize="14sp"
                 android:textStyle="bold"
                 android:visibility="gone" />
-
-            <!-- Quick Actions Grid -->
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="24dp"
-                android:layout_marginTop="24dp"
-                android:text="@string/quick_actions"
-                android:textColor="@color/primary"
-                android:textSize="12sp"
-                android:textStyle="bold" />
-
-            <GridLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:columnCount="4"
-                android:layout_marginHorizontal="10dp"
-                android:layout_marginTop="8dp">
-
-                <include
-                    android:id="@+id/cardQuickTripHistory"
-                    layout="@layout/item_quick_access_card"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_columnWeight="1" />
-
-                <include
-                    android:id="@+id/cardQuickFavorites"
-                    layout="@layout/item_quick_access_card"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_columnWeight="1" />
-
-                <include
-                    android:id="@+id/cardQuickReviews"
-                    layout="@layout/item_quick_access_card"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_columnWeight="1" />
-
-                <include
-                    android:id="@+id/cardQuickNotifications"
-                    layout="@layout/item_quick_access_card"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_columnWeight="1" />
-            </GridLayout>
-
-            <!-- Settings & Safety -->
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="24dp"
-                android:layout_marginTop="24dp"
-                android:text="Settings &amp; Safety"
-                android:textColor="@color/primary"
-                android:textSize="12sp"
-                android:textStyle="bold" />
-
-            <include
-                android:id="@+id/btnEditProfile"
-                layout="@layout/item_setting_row" />
-
-            <include
-                android:id="@+id/btnEditTravelInterests"
-                layout="@layout/item_setting_row" />
-
-            <include
-                android:id="@+id/btnMyReviews"
-                layout="@layout/item_setting_row" />
-
-            <include
-                android:id="@+id/btnTripHistory"
-                layout="@layout/item_setting_row" />
-
-            <include
-                android:id="@+id/btnSecurity"
-                layout="@layout/item_setting_row" />
-
-            <include
-                android:id="@+id/btnNotificationSettings"
-                layout="@layout/item_setting_row" />
-
-            <include
-                android:id="@+id/btnLanguage"
-                layout="@layout/item_setting_row" />
-
-            <include
-                android:id="@+id/btnSOSSettings"
-                layout="@layout/item_setting_row" />
-
-            <include
-                android:id="@+id/btnSOSHistory"
-                layout="@layout/item_setting_row" />
-
-            <include
-                android:id="@+id/btnLogoutRow"
-                layout="@layout/item_setting_row"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="12dp" />
-
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
-
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
