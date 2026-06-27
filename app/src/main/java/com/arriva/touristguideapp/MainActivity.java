@@ -3,13 +3,14 @@ package com.arriva.touristguideapp;
 import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
+import android.graphics.Typeface;
 import android.location.Location;
 import android.os.Bundle;
 import android.speech.RecognizerIntent;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
-import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
@@ -22,15 +23,14 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-import com.google.android.gms.location.FusedLocationProviderClient;
-import com.google.android.gms.location.LocationServices;
-import com.google.android.material.bottomnavigation.BottomNavigationView;
-import com.google.android.material.navigation.NavigationBarView;
-import com.google.android.libraries.places.api.Places;
 import com.arriva.touristguideapp.data.places.PlaceMigrationHelper;
 import com.arriva.touristguideapp.data.places.PlaceRepository;
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationServices;
+import com.google.android.libraries.places.api.Places;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import java.util.ArrayList;
@@ -62,7 +62,7 @@ public class MainActivity extends BaseActivity {
 
     private View btnProfile, btnNotifications;
     private ImageView ivProfileIcon;
-    private BottomNavigationView bottomNavigationView;
+    private View bottomNavigationView;
     private View fabAiChat;
     private View offlineCacheBanner;
     private ProgressBar progressBar;
@@ -216,25 +216,7 @@ public class MainActivity extends BaseActivity {
 
         PerformanceTracker.endTimer("MAIN_ACTIVITY_INIT");
 
-        bottomNavigationView.setSelectedItemId(R.id.nav_home);
-        bottomNavigationView.setOnItemSelectedListener(new NavigationBarView.OnItemSelectedListener() {
-            @Override
-            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-                int id = item.getItemId();
-                if (id == R.id.nav_home) {
-                    return true;
-                } else if (id == R.id.nav_favorites) {
-                    startActivity(new Intent(MainActivity.this, FavoritesActivity.class));
-                    overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
-                    return true;
-                } else if (id == R.id.nav_map) {
-                    startActivity(new Intent(MainActivity.this, MapActivity.class));
-                    overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
-                    return true;
-                }
-                return false;
-            }
-        });
+        setupFloatingNavigation();
 
         if (btnProfile != null) {
             btnProfile.setOnClickListener(v -> {
@@ -249,6 +231,102 @@ public class MainActivity extends BaseActivity {
                 && !apiKey.isEmpty()
                 && !apiKey.equalsIgnoreCase("YOUR_API_KEY")
                 && !apiKey.startsWith("YOUR_");
+    }
+
+    private void setupFloatingNavigation() {
+        setActiveFloatingNavTab(R.id.navTabHome);
+
+        View homeTab = findViewById(R.id.navTabHome);
+        View mapTab = findViewById(R.id.navTabMap);
+        View savedTab = findViewById(R.id.navTabSaved);
+        View profileTab = findViewById(R.id.navTabProfile);
+
+        if (homeTab != null) {
+            homeTab.setOnClickListener(v -> setActiveFloatingNavTab(R.id.navTabHome));
+        }
+
+        if (mapTab != null) {
+            mapTab.setOnClickListener(v -> {
+                setActiveFloatingNavTab(R.id.navTabMap);
+                startActivity(new Intent(MainActivity.this, MapActivity.class));
+                overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
+            });
+        }
+
+        if (savedTab != null) {
+            savedTab.setOnClickListener(v -> {
+                setActiveFloatingNavTab(R.id.navTabSaved);
+                startActivity(new Intent(MainActivity.this, FavoritesActivity.class));
+                overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
+            });
+        }
+
+        if (profileTab != null) {
+            profileTab.setOnClickListener(v -> {
+                setActiveFloatingNavTab(R.id.navTabProfile);
+                startActivity(new Intent(MainActivity.this, ProfileActivity.class));
+                overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
+            });
+        }
+    }
+
+    private void setActiveFloatingNavTab(int activeTabId) {
+        updateFloatingNavTab(
+                activeTabId,
+                R.id.navTabHome,
+                R.id.navIndicatorHome,
+                R.id.ivNavHome,
+                R.id.tvNavHome
+        );
+        updateFloatingNavTab(
+                activeTabId,
+                R.id.navTabMap,
+                R.id.navIndicatorMap,
+                R.id.ivNavMap,
+                R.id.tvNavMap
+        );
+        updateFloatingNavTab(
+                activeTabId,
+                R.id.navTabSaved,
+                R.id.navIndicatorSaved,
+                R.id.ivNavSaved,
+                R.id.tvNavSaved
+        );
+        updateFloatingNavTab(
+                activeTabId,
+                R.id.navTabProfile,
+                R.id.navIndicatorProfile,
+                R.id.ivNavProfile,
+                R.id.tvNavProfile
+        );
+    }
+
+    private void updateFloatingNavTab(
+            int activeTabId,
+            int tabId,
+            int indicatorId,
+            int iconId,
+            int labelId
+    ) {
+        boolean isActive = activeTabId == tabId;
+        int color = isActive
+                ? ContextCompat.getColor(this, R.color.primary)
+                : Color.parseColor("#9E9E9E");
+
+        View indicator = findViewById(indicatorId);
+        ImageView icon = findViewById(iconId);
+        TextView label = findViewById(labelId);
+
+        if (indicator != null) {
+            indicator.setVisibility(isActive ? View.VISIBLE : View.INVISIBLE);
+        }
+        if (icon != null) {
+            icon.setColorFilter(color);
+        }
+        if (label != null) {
+            label.setTextColor(color);
+            label.setTypeface(null, isActive ? Typeface.BOLD : Typeface.NORMAL);
+        }
     }
 
     private void launchAiChatActivity(@NonNull String source) {

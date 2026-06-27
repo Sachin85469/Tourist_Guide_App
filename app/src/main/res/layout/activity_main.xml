@@ -395,31 +395,194 @@
     </FrameLayout>
 
     <!-- ===========================
-         Bottom Navigation Bar
-         Material 3 — full width, elevated surface
+         Floating Bottom Navigation
     =========================== -->
-    <LinearLayout
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/bottom_navigation"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom"
-        android:orientation="vertical"
-        android:elevation="8dp">
+        android:layout_marginHorizontal="16dp"
+        android:layout_marginBottom="12dp"
+        app:cardBackgroundColor="@color/white"
+        app:cardCornerRadius="24dp"
+        app:cardElevation="4dp"
+        app:strokeWidth="0dp">
 
-        <!-- Thin top divider for subtle separation -->
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:background="@color/color_outline_variant"
-            android:alpha="0.5" />
-
-        <com.google.android.material.bottomnavigation.BottomNavigationView
-            android:id="@+id/bottom_navigation"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@color/color_nav_surface"
-            android:paddingBottom="8dp"
-            style="@style/AppBottomNavigation"
-            app:menu="@menu/bottom_nav_menu" />
-    </LinearLayout>
+            android:orientation="vertical">
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="0.5dp"
+                android:background="#E8E5F0" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="68dp"
+                android:gravity="center"
+                android:orientation="horizontal"
+                android:paddingHorizontal="8dp">
+
+                <LinearLayout
+                    android:id="@+id/navTabHome"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:foreground="?attr/selectableItemBackgroundBorderless"
+                    android:gravity="center"
+                    android:orientation="vertical"
+                    android:paddingTop="8dp"
+                    android:paddingBottom="6dp">
+
+                    <View
+                        android:id="@+id/navIndicatorHome"
+                        android:layout_width="18dp"
+                        android:layout_height="3dp"
+                        android:background="@drawable/bg_main_nav_indicator" />
+
+                    <ImageView
+                        android:id="@+id/ivNavHome"
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:layout_marginTop="8dp"
+                        android:contentDescription="Home"
+                        android:src="@drawable/ic_ti_home"
+                        app:tint="#7C4DFF" />
+
+                    <TextView
+                        android:id="@+id/tvNavHome"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="3dp"
+                        android:text="Home"
+                        android:textColor="#7C4DFF"
+                        android:textSize="9sp"
+                        android:textStyle="bold" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/navTabMap"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:foreground="?attr/selectableItemBackgroundBorderless"
+                    android:gravity="center"
+                    android:orientation="vertical"
+                    android:paddingTop="8dp"
+                    android:paddingBottom="6dp">
+
+                    <View
+                        android:id="@+id/navIndicatorMap"
+                        android:layout_width="18dp"
+                        android:layout_height="3dp"
+                        android:background="@drawable/bg_main_nav_indicator"
+                        android:visibility="invisible" />
+
+                    <ImageView
+                        android:id="@+id/ivNavMap"
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:layout_marginTop="8dp"
+                        android:contentDescription="Map"
+                        android:src="@drawable/ic_ti_map_2"
+                        app:tint="#9E9E9E" />
+
+                    <TextView
+                        android:id="@+id/tvNavMap"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="3dp"
+                        android:text="Map"
+                        android:textColor="#9E9E9E"
+                        android:textSize="9sp" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/navTabSaved"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:foreground="?attr/selectableItemBackgroundBorderless"
+                    android:gravity="center"
+                    android:orientation="vertical"
+                    android:paddingTop="8dp"
+                    android:paddingBottom="6dp">
+
+                    <View
+                        android:id="@+id/navIndicatorSaved"
+                        android:layout_width="18dp"
+                        android:layout_height="3dp"
+                        android:background="@drawable/bg_main_nav_indicator"
+                        android:visibility="invisible" />
+
+                    <ImageView
+                        android:id="@+id/ivNavSaved"
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:layout_marginTop="8dp"
+                        android:contentDescription="Saved"
+                        android:src="@drawable/ic_ti_heart"
+                        app:tint="#9E9E9E" />
+
+                    <TextView
+                        android:id="@+id/tvNavSaved"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="3dp"
+                        android:text="Saved"
+                        android:textColor="#9E9E9E"
+                        android:textSize="9sp" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/navTabProfile"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:foreground="?attr/selectableItemBackgroundBorderless"
+                    android:gravity="center"
+                    android:orientation="vertical"
+                    android:paddingTop="8dp"
+                    android:paddingBottom="6dp">
+
+                    <View
+                        android:id="@+id/navIndicatorProfile"
+                        android:layout_width="18dp"
+                        android:layout_height="3dp"
+                        android:background="@drawable/bg_main_nav_indicator"
+                        android:visibility="invisible" />
+
+                    <ImageView
+                        android:id="@+id/ivNavProfile"
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:layout_marginTop="8dp"
+                        android:contentDescription="Profile"
+                        android:src="@drawable/ic_ti_user"
+                        app:tint="#9E9E9E" />
+
+                    <TextView
+                        android:id="@+id/tvNavProfile"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="3dp"
+                        android:text="Profile"
+                        android:textColor="#9E9E9E"
+                        android:textSize="9sp" />
+                </LinearLayout>
+            </LinearLayout>
+        </LinearLayout>
+    </com.google.android.material.card.MaterialCardView>
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
