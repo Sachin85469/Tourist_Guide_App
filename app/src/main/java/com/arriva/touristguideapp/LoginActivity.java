@@ -38,7 +38,7 @@ public class LoginActivity extends BaseActivity {
     private EditText etEmail, etPassword;
     private Button btnLogin;
     private View btnGoogleSignIn;
-    private TextView tvCreateAccount;
+    private TextView tvCreateAccount, tvForgotPassword;
     private ProgressBar progressBar;
 
     private FirebaseAuth mAuth;
@@ -58,6 +58,7 @@ public class LoginActivity extends BaseActivity {
         btnLogin = findViewById(R.id.btnLogin);
         btnGoogleSignIn = findViewById(R.id.btnGoogleSignIn);
         tvCreateAccount = findViewById(R.id.tvCreateAccount);
+        tvForgotPassword = findViewById(R.id.tvForgotPassword);
         progressBar = findViewById(R.id.loginProgressBar);
 
         // Configure Google Sign In
@@ -74,10 +75,38 @@ public class LoginActivity extends BaseActivity {
         // Google Sign In
         btnGoogleSignIn.setOnClickListener(v -> signIn());
 
+        tvForgotPassword.setOnClickListener(v -> sendPasswordReset());
+
         // Redirect to Signup
         tvCreateAccount.setOnClickListener(v -> {
             startActivity(new Intent(LoginActivity.this, SignupActivity.class));
         });
+    }
+
+    private void sendPasswordReset() {
+        String email = etEmail.getText().toString().trim();
+        if (TextUtils.isEmpty(email)) {
+            etEmail.setError("Enter your email to reset password");
+            return;
+        }
+
+        progressBar.setVisibility(View.VISIBLE);
+        mAuth.sendPasswordResetEmail(email)
+                .addOnCompleteListener(task -> {
+                    progressBar.setVisibility(View.GONE);
+                    if (task.isSuccessful()) {
+                        Toast.makeText(
+                                LoginActivity.this,
+                                "Password reset email sent.",
+                                Toast.LENGTH_SHORT
+                        ).show();
+                    } else {
+                        String message = task.getException() != null
+                                ? task.getException().getMessage()
+                                : "Could not send reset email.";
+                        Toast.makeText(LoginActivity.this, message, Toast.LENGTH_SHORT).show();
+                    }
+                });
     }
 
     private void signIn() {
