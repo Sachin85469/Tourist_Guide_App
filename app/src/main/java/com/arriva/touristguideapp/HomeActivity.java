@@ -16,7 +16,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -27,6 +26,7 @@ import com.arriva.touristguideapp.data.places.PlaceRepository;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -39,7 +39,8 @@ public class HomeActivity extends BaseActivity {
     private RecyclerView recyclerViewPlaces;
     private PlaceAdapter placeAdapter;
     private EditText editTextSearch;
-    private ImageView btnVoiceSearch, ivProfileIcon;
+    private ImageView btnVoiceSearch;
+    private TextView ivProfileIcon;
     private TextView tvHomeUserName, tvHomeUserEmail;
     private View fabAiChat;
     private View fabNearbyNow;
@@ -130,7 +131,7 @@ public class HomeActivity extends BaseActivity {
         setupCategoryButtons();
 
         // 6. Update Category Counts
-        updateCategoryCounts();
+        updateHomeCategoryCounts();
         loadPlaces();
 
         // 8. Add Search Functionality
@@ -335,6 +336,25 @@ public class HomeActivity extends BaseActivity {
         if (txtEntertainment != null) txtEntertainment.setText("🎮 Entertainment (" + categoryCount.getOrDefault("Entertainment", 0) + ")");
     }
 
+    private void updateHomeCategoryCounts() {
+        Map<String, Integer> categoryCount = DataProvider.getCategoryCount(allPlaces);
+        setCategoryChipText(R.id.btnAll, "All", allPlaces.size());
+        setCategoryChipText(R.id.btnHistorical, "History", categoryCount.getOrDefault("History", 0));
+        setCategoryChipText(R.id.spiritualCard, "Spiritual", categoryCount.getOrDefault("Spiritual", 0));
+        setCategoryChipText(R.id.btnFood, "Food", categoryCount.getOrDefault("Food", 0));
+        setCategoryChipText(R.id.shoppingCard, "Shopping", categoryCount.getOrDefault("Shopping", 0));
+        setCategoryChipText(R.id.btnNature, "Nature", categoryCount.getOrDefault("Nature", 0));
+        setCategoryChipText(R.id.btnAdventure, "Adventure", categoryCount.getOrDefault("Adventure", 0));
+        setCategoryChipText(R.id.entertainmentCard, "Entertainment", categoryCount.getOrDefault("Entertainment", 0));
+    }
+
+    private void setCategoryChipText(int viewId, String label, int count) {
+        TextView chip = findViewById(viewId);
+        if (chip != null) {
+            chip.setText(label + " (" + count + ")");
+        }
+    }
+
     private void startVoiceSearch() {
         Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
         intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
@@ -363,6 +383,18 @@ public class HomeActivity extends BaseActivity {
     }
 
     private void setupCategoryButtons() {
+        View btnAll = findViewById(R.id.btnAll);
+        if (btnAll != null) {
+            btnAll.setOnClickListener(v -> {
+                if (editTextSearch != null) {
+                    editTextSearch.setText("");
+                }
+                if (placeAdapter != null) {
+                    placeAdapter.updateList(new ArrayList<>(allPlaces));
+                }
+            });
+        }
+
         View btnHistory = findViewById(R.id.btnHistorical);
         if (btnHistory != null) {
             btnHistory.setOnClickListener(v -> openCategory("History"));
@@ -433,7 +465,7 @@ public class HomeActivity extends BaseActivity {
             showOfflineCacheBanner(origin == PlaceRepository.DataOrigin.ROOM_CACHE && !cacheEmpty);
             allPlaces.clear();
             allPlaces.addAll(places);
-            updateCategoryCounts();
+            updateHomeCategoryCounts();
 
             String query = editTextSearch != null && editTextSearch.getText() != null
                     ? editTextSearch.getText().toString()
@@ -476,27 +508,68 @@ public class HomeActivity extends BaseActivity {
     }
 
     private void loadUserInfo() {
-        // Load local avatar immediately from SharedPreferences for better UX (Requirement 4)
-        ProfileUtils.loadAvatar(this, ivProfileIcon);
-
+        if (tvHomeUserEmail != null) {
+            tvHomeUserEmail.setText(getGreeting());
+        }
         com.google.firebase.auth.FirebaseUser user = com.google.firebase.auth.FirebaseAuth.getInstance().getCurrentUser();
         if (user != null) {
+            String fallbackName = user.getDisplayName() != null ? user.getDisplayName() : "ExploreEase";
+            applyHomeIdentity(fallbackName);
             ProfileUtils.fetchUserData(user.getUid(), new ProfileUtils.UserCallback() {
                 @Override
                 public void onUserLoaded(User userModel) {
-                    if (tvHomeUserName != null) tvHomeUserName.setText("Hello, " + userModel.getName());
-                    if (tvHomeUserEmail != null) tvHomeUserEmail.setText(userModel.getEmail());
-                    ProfileUtils.loadAvatar(HomeActivity.this, ivProfileIcon, userModel);
+                    applyHomeIdentity(userModel.getName());
                 }
 
                 @Override
                 public void onError(Exception e) {
-                    if (tvHomeUserName != null) tvHomeUserName.setText(user.getDisplayName() != null ? user.getDisplayName() : "ExploreEase");
-                    if (tvHomeUserEmail != null) tvHomeUserEmail.setText(user.getEmail());
-                    ProfileUtils.loadAvatar(HomeActivity.this, ivProfileIcon);
+                    applyHomeIdentity(fallbackName);
                 }
             });
+        } else {
+            applyHomeIdentity("ExploreEase");
         }
+    }
+
+    private void applyHomeIdentity(String name) {
+        String displayName = name == null || name.trim().isEmpty() ? "ExploreEase" : name.trim();
+        if (tvHomeUserName != null) {
+            tvHomeUserName.setText(displayName);
+        }
+        if (tvHomeUserEmail != null) {
+            tvHomeUserEmail.setText(getGreeting());
+        }
+        if (ivProfileIcon != null) {
+            ivProfileIcon.setText(getInitials(displayName));
+        }
+    }
+
+    private String getInitials(String name) {
+        if (name == null || name.trim().isEmpty()) {
+            return "EE";
+        }
+        String[] parts = name.trim().split("\\s+");
+        StringBuilder initials = new StringBuilder();
+        for (String part : parts) {
+            if (!part.isEmpty()) {
+                initials.append(Character.toUpperCase(part.charAt(0)));
+                if (initials.length() == 2) {
+                    break;
+                }
+            }
+        }
+        return initials.length() > 0 ? initials.toString() : "EE";
+    }
+
+    private String getGreeting() {
+        int hour = Calendar.getInstance().get(Calendar.HOUR_OF_DAY);
+        if (hour < 12) {
+            return "Good morning";
+        }
+        if (hour < 17) {
+            return "Good afternoon";
+        }
+        return "Good evening";
     }
 
     @Override
