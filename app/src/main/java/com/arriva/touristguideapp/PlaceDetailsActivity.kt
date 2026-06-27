@@ -1,7 +1,6 @@
 package com.arriva.touristguideapp
 
 import android.content.Intent
-import android.content.res.ColorStateList
 import android.net.Uri
 import android.os.Bundle
 import android.view.View
@@ -247,18 +246,6 @@ class PlaceDetailsActivity : BaseActivity() {
     private fun updateFavoriteIcon(isFav: Boolean) {
         btnFavorite?.setImageResource(if (isFav) R.drawable.ic_favorite else R.drawable.ic_favorite_border)
         // btnSave is now a MaterialCardView with an ImageView inside — update the icon
-        val saveIcon = findViewById<ImageView?>(R.id.ivSaveIcon)
-        saveIcon?.setImageResource(if (isFav) R.drawable.ic_favorite else R.drawable.ic_favorite_border)
-        saveIcon?.imageTintList = ColorStateList.valueOf(
-            if (isFav) android.graphics.Color.WHITE else getColor(R.color.color_primary)
-        )
-
-        findViewById<View?>(R.id.btnSave)?.apply {
-            backgroundTintList = ColorStateList.valueOf(
-                if (isFav) getColor(R.color.color_primary) else getColor(R.color.place_detail_soft_purple)
-            )
-            elevation = if (isFav) resources.displayMetrics.density * 4f else 0f
-        }
     }
 
     private fun setupActionButtons() {
@@ -272,11 +259,11 @@ class PlaceDetailsActivity : BaseActivity() {
         }
         findViewById<View>(R.id.btnCall).setOnClickListener {
             animateTap(it)
-            makeCall()
+            openTripPlanner()
         }
         findViewById<View>(R.id.btnSave).setOnClickListener {
             animateTap(it)
-            toggleFavorite()
+            openDirections()
         }
         findViewById<View>(R.id.btnExploreMap).setOnClickListener {
             animateTap(it)
@@ -539,6 +526,10 @@ class PlaceDetailsActivity : BaseActivity() {
 
     private fun makeCall() {
         Toast.makeText(this, "Call feature coming soon!", Toast.LENGTH_SHORT).show()
+    }
+
+    private fun openTripPlanner() {
+        startActivity(Intent(this, PlanTripActivity::class.java))
     }
 
     private fun setupExpandableDescription(description: String?) {

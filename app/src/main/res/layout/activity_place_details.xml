@@ -9,7 +9,7 @@
     <com.google.android.material.appbar.AppBarLayout
         android:id="@+id/appBar"
         android:layout_width="match_parent"
-        android:layout_height="@dimen/place_hero_height"
+        android:layout_height="220dp"
         android:background="@android:color/transparent"
         android:fitsSystemWindows="true"
         app:elevation="0dp">
@@ -35,8 +35,9 @@
 
             <View
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:background="@drawable/bg_details_hero_gradient"
+                android:layout_height="110dp"
+                android:layout_gravity="bottom"
+                android:background="@drawable/bg_place_details_hero_overlay"
                 app:layout_collapseMode="parallax" />
 
             <LinearLayout
@@ -114,12 +115,12 @@
 
                     <ImageButton
                         android:id="@+id/btnBack"
-                        android:layout_width="@dimen/place_toolbar_icon_container"
-                        android:layout_height="@dimen/place_toolbar_icon_container"
+                        android:layout_width="36dp"
+                        android:layout_height="36dp"
                         android:layout_gravity="start|center_vertical"
-                        android:background="@drawable/bg_hero_icon_button"
+                        android:background="@drawable/bg_place_details_toolbar_circle"
                         android:contentDescription="@string/back"
-                        android:padding="10dp"
+                        android:padding="9dp"
                         android:src="@drawable/ic_back"
                         app:tint="@color/white" />
 
@@ -131,22 +132,22 @@
 
                         <ImageButton
                             android:id="@+id/btnShare"
-                            android:layout_width="@dimen/place_toolbar_icon_container"
-                            android:layout_height="@dimen/place_toolbar_icon_container"
+                            android:layout_width="36dp"
+                            android:layout_height="36dp"
                             android:layout_marginEnd="10dp"
-                            android:background="@drawable/bg_hero_icon_button"
+                            android:background="@drawable/bg_place_details_toolbar_circle"
                             android:contentDescription="@string/favorites_share"
-                            android:padding="10dp"
+                            android:padding="9dp"
                             android:src="@drawable/ic_ms_share"
                             app:tint="@color/white" />
 
                         <ImageButton
                             android:id="@+id/btnFavoriteDetails"
-                            android:layout_width="@dimen/place_toolbar_icon_container"
-                            android:layout_height="@dimen/place_toolbar_icon_container"
-                            android:background="@drawable/bg_hero_icon_button"
+                            android:layout_width="36dp"
+                            android:layout_height="36dp"
+                            android:background="@drawable/bg_place_details_toolbar_circle"
                             android:contentDescription="@string/phrasebook_favorite"
-                            android:padding="10dp"
+                            android:padding="9dp"
                             android:src="@drawable/ic_favorite_border"
                             app:tint="@color/white" />
                     </LinearLayout>
@@ -179,10 +180,10 @@
                 android:layout_marginTop="24dp"
                 android:layout_marginEnd="@dimen/place_screen_margin"
                 app:cardBackgroundColor="@color/color_surface"
-                app:cardCornerRadius="22dp"
-                app:cardElevation="4dp"
+                app:cardCornerRadius="12dp"
+                app:cardElevation="0dp"
                 app:strokeColor="@color/place_detail_outline"
-                app:strokeWidth="0.5dp">
+                app:strokeWidth="1dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -190,7 +191,7 @@
                     android:baselineAligned="false"
                     android:orientation="horizontal"
                     android:paddingStart="8dp"
-                    android:paddingTop="14dp"
+                    android:paddingTop="12dp"
                     android:paddingEnd="8dp"
                     android:paddingBottom="12dp"
                     android:weightSum="4">
@@ -204,32 +205,30 @@
 
                         <FrameLayout
                             android:id="@+id/btnDirections"
-                            android:layout_width="50dp"
-                            android:layout_height="50dp"
-                            android:background="@drawable/bg_place_action_circle"
-                            android:backgroundTint="@color/color_primary"
+                            android:layout_width="40dp"
+                            android:layout_height="40dp"
+                            android:background="@drawable/bg_place_details_action_circle"
                             android:clickable="true"
-                            android:elevation="3dp"
+                            android:elevation="0dp"
                             android:focusable="true"
                             android:foreground="?attr/selectableItemBackgroundBorderless">
 
                             <ImageView
-                                android:layout_width="24dp"
-                                android:layout_height="24dp"
+                                android:layout_width="18dp"
+                                android:layout_height="18dp"
                                 android:layout_gravity="center"
                                 android:contentDescription="@string/place_action_navigate"
                                 android:src="@drawable/ic_ms_navigation"
-                                app:tint="@color/white" />
+                                app:tint="@color/color_primary" />
                         </FrameLayout>
 
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="7dp"
-                            android:text="@string/place_action_navigate"
+                            android:text="Directions"
                             android:textColor="@color/place_detail_text_primary"
-                            android:textSize="12sp"
-                            android:textStyle="bold" />
+                            android:textSize="9sp" />
                     </LinearLayout>
 
                     <LinearLayout
@@ -241,16 +240,16 @@
 
                         <FrameLayout
                             android:id="@+id/btnQuickShare"
-                            android:layout_width="50dp"
-                            android:layout_height="50dp"
-                            android:background="@drawable/bg_place_action_circle"
+                            android:layout_width="40dp"
+                            android:layout_height="40dp"
+                            android:background="@drawable/bg_place_details_action_circle"
                             android:clickable="true"
                             android:focusable="true"
                             android:foreground="?attr/selectableItemBackgroundBorderless">
 
                             <ImageView
-                                android:layout_width="24dp"
-                                android:layout_height="24dp"
+                                android:layout_width="18dp"
+                                android:layout_height="18dp"
                                 android:layout_gravity="center"
                                 android:contentDescription="@string/favorites_share"
                                 android:src="@drawable/ic_ms_share"
@@ -261,10 +260,9 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="7dp"
-                            android:text="@string/favorites_share"
+                            android:text="Share"
                             android:textColor="@color/place_detail_text_primary"
-                            android:textSize="12sp"
-                            android:textStyle="bold" />
+                            android:textSize="9sp" />
                     </LinearLayout>
 
                     <LinearLayout
@@ -276,20 +274,20 @@
 
                         <FrameLayout
                             android:id="@+id/btnSave"
-                            android:layout_width="50dp"
-                            android:layout_height="50dp"
-                            android:background="@drawable/bg_place_action_circle"
+                            android:layout_width="40dp"
+                            android:layout_height="40dp"
+                            android:background="@drawable/bg_place_details_action_circle"
                             android:clickable="true"
                             android:focusable="true"
                             android:foreground="?attr/selectableItemBackgroundBorderless">
 
                             <ImageView
                                 android:id="@+id/ivSaveIcon"
-                                android:layout_width="24dp"
-                                android:layout_height="24dp"
+                                android:layout_width="18dp"
+                                android:layout_height="18dp"
                                 android:layout_gravity="center"
-                                android:contentDescription="@string/place_action_save"
-                                android:src="@drawable/ic_favorite_border"
+                                android:contentDescription="Route"
+                                android:src="@drawable/ic_ms_route"
                                 app:tint="@color/color_primary" />
                         </FrameLayout>
 
@@ -297,10 +295,9 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="7dp"
-                            android:text="@string/place_action_save"
+                            android:text="Route"
                             android:textColor="@color/place_detail_text_primary"
-                            android:textSize="12sp"
-                            android:textStyle="bold" />
+                            android:textSize="9sp" />
                     </LinearLayout>
 
                     <LinearLayout
@@ -312,19 +309,19 @@
 
                         <FrameLayout
                             android:id="@+id/btnCall"
-                            android:layout_width="50dp"
-                            android:layout_height="50dp"
-                            android:background="@drawable/bg_place_action_circle"
+                            android:layout_width="40dp"
+                            android:layout_height="40dp"
+                            android:background="@drawable/bg_place_details_action_circle"
                             android:clickable="true"
                             android:focusable="true"
                             android:foreground="?attr/selectableItemBackgroundBorderless">
 
                             <ImageView
-                                android:layout_width="24dp"
-                                android:layout_height="24dp"
+                                android:layout_width="18dp"
+                                android:layout_height="18dp"
                                 android:layout_gravity="center"
-                                android:contentDescription="@string/place_action_info"
-                                android:src="@drawable/ic_ms_info"
+                                android:contentDescription="Plan Trip"
+                                android:src="@drawable/ic_trip"
                                 app:tint="@color/color_primary" />
                         </FrameLayout>
 
@@ -332,10 +329,9 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="7dp"
-                            android:text="@string/place_action_info"
+                            android:text="Plan Trip"
                             android:textColor="@color/place_detail_text_primary"
-                            android:textSize="12sp"
-                            android:textStyle="bold" />
+                            android:textSize="9sp" />
                     </LinearLayout>
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
@@ -406,48 +402,81 @@
                 </com.google.android.material.chip.ChipGroup>
             </HorizontalScrollView>
 
-            <LinearLayout
+            <com.google.android.material.card.MaterialCardView
                 android:id="@+id/sectionAbout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/place_screen_margin"
                 android:layout_marginTop="20dp"
                 android:layout_marginEnd="@dimen/place_screen_margin"
-                android:orientation="vertical">
+                app:cardBackgroundColor="@color/white"
+                app:cardCornerRadius="12dp"
+                app:cardElevation="0dp"
+                app:strokeColor="#E5E7F1"
+                app:strokeWidth="1dp">
 
-                <TextView
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:letterSpacing="0"
-                    android:text="@string/place_about_title"
-                    android:textColor="@color/place_detail_text_primary"
-                    android:textSize="22sp"
-                    android:textStyle="bold" />
+                    android:orientation="vertical"
+                    android:padding="16dp">
 
-                <TextView
-                    android:id="@+id/detailDescription"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="10dp"
-                    android:lineSpacingExtra="5dp"
-                    android:textColor="@color/place_detail_text_secondary"
-                    android:textSize="15sp"
-                    tools:text="A majestic hill fort with sweeping views, local food stalls, monsoon trails, and deep Maratha history." />
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal">
 
-                <TextView
-                    android:id="@+id/btnReadMore"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:background="?attr/selectableItemBackground"
-                    android:paddingTop="6dp"
-                    android:paddingBottom="6dp"
-                    android:text="@string/see_more"
-                    android:textColor="@color/color_primary"
-                    android:textSize="14sp"
-                    android:textStyle="bold"
-                    android:visibility="gone" />
-            </LinearLayout>
+                        <FrameLayout
+                            android:layout_width="20dp"
+                            android:layout_height="20dp"
+                            android:background="@drawable/bg_place_details_info_icon">
+
+                            <ImageView
+                                android:layout_width="11dp"
+                                android:layout_height="11dp"
+                                android:layout_gravity="center"
+                                android:src="@drawable/ic_ms_info"
+                                app:tint="@color/color_primary" />
+                        </FrameLayout>
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="10dp"
+                            android:layout_weight="1"
+                            android:letterSpacing="0"
+                            android:text="@string/place_about_title"
+                            android:textColor="@color/color_text_secondary"
+                            android:textSize="12sp"
+                            android:textStyle="bold" />
+                    </LinearLayout>
+
+                    <TextView
+                        android:id="@+id/detailDescription"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="12dp"
+                        android:lineSpacingExtra="4dp"
+                        android:textColor="@color/color_text_secondary"
+                        android:textSize="12sp"
+                        tools:text="A majestic hill fort with sweeping views, local food stalls, monsoon trails, and deep Maratha history." />
+
+                    <TextView
+                        android:id="@+id/btnReadMore"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:background="?attr/selectableItemBackground"
+                        android:paddingTop="6dp"
+                        android:paddingBottom="6dp"
+                        android:text="@string/see_more"
+                        android:textColor="@color/color_primary"
+                        android:textSize="12sp"
+                        android:textStyle="bold"
+                        android:visibility="gone" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
 
             <LinearLayout
                 android:id="@+id/sectionGallery"
@@ -634,17 +663,17 @@
                 android:layout_marginStart="@dimen/place_screen_margin"
                 android:layout_marginTop="24dp"
                 android:layout_marginEnd="@dimen/place_screen_margin"
-                app:cardBackgroundColor="@android:color/transparent"
-                app:cardCornerRadius="22dp"
+                app:cardBackgroundColor="@color/white"
+                app:cardCornerRadius="12dp"
                 app:cardElevation="0dp"
-                app:strokeWidth="0dp">
+                app:strokeColor="#E5E7F1"
+                app:strokeWidth="1dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:background="@drawable/bg_place_tip_card"
                     android:orientation="vertical"
-                    android:padding="18dp">
+                    android:padding="16dp">
 
                     <LinearLayout
                         android:layout_width="match_parent"
@@ -653,14 +682,13 @@
                         android:orientation="horizontal">
 
                         <FrameLayout
-                            android:layout_width="42dp"
-                            android:layout_height="42dp"
-                            android:background="@drawable/bg_place_action_circle"
-                            android:backgroundTint="#FFFFFFFF">
+                            android:layout_width="20dp"
+                            android:layout_height="20dp"
+                            android:background="@drawable/bg_place_details_info_icon">
 
                             <ImageView
-                                android:layout_width="22dp"
-                                android:layout_height="22dp"
+                                android:layout_width="11dp"
+                                android:layout_height="11dp"
                                 android:layout_gravity="center"
                                 android:src="@drawable/ic_ms_info"
                                 app:tint="@color/color_primary" />
@@ -672,8 +700,8 @@
                             android:layout_marginStart="12dp"
                             android:layout_weight="1"
                             android:text="@string/place_insider_notes"
-                            android:textColor="@color/place_detail_text_primary"
-                            android:textSize="20sp"
+                            android:textColor="@color/color_text_secondary"
+                            android:textSize="12sp"
                             android:textStyle="bold" />
                     </LinearLayout>
 
@@ -683,8 +711,8 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="14dp"
                         android:lineSpacingExtra="4dp"
-                        android:textColor="@color/place_detail_text_primary"
-                        android:textSize="14sp"
+                        android:textColor="@color/color_text_secondary"
+                        android:textSize="12sp"
                         tools:text="- Carry water&#10;- Visit early morning&#10;- Wear comfortable shoes" />
 
                     <TextView
@@ -693,8 +721,8 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="14dp"
                         android:lineSpacingExtra="3dp"
-                        android:textColor="@color/place_detail_text_secondary"
-                        android:textSize="14sp"
+                        android:textColor="@color/color_text_secondary"
+                        android:textSize="12sp"
                         tools:text="Local legend says this trail is most beautiful after the first monsoon rain." />
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
@@ -721,9 +749,10 @@
                     android:layout_width="match_parent"
                     android:layout_height="148dp"
                     android:layout_marginTop="14dp"
-                    app:cardCornerRadius="22dp"
+                    app:cardCornerRadius="12dp"
                     app:cardElevation="0dp"
-                    app:strokeWidth="0dp">
+                    app:strokeColor="#E5E7F1"
+                    app:strokeWidth="1dp">
 
                     <FrameLayout
                         android:layout_width="match_parent"
@@ -921,9 +950,9 @@
                 android:layout_marginTop="16dp"
                 android:layout_marginEnd="@dimen/place_screen_margin"
                 app:cardBackgroundColor="@color/color_surface"
-                app:cardCornerRadius="24dp"
+                app:cardCornerRadius="12dp"
                 app:cardElevation="0dp"
-                app:strokeColor="@color/place_detail_outline"
+                app:strokeColor="#E5E7F1"
                 app:strokeWidth="1dp">
 
                 <LinearLayout
@@ -1130,23 +1159,23 @@
 
         <View
             android:layout_width="match_parent"
-            android:layout_height="36dp"
-            android:background="@drawable/bg_place_bottom_fade" />
+            android:layout_height="1dp"
+            android:background="#E5E7F1" />
 
         <FrameLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@color/place_detail_surface"
+            android:background="@color/white"
             android:paddingStart="@dimen/place_screen_margin"
-            android:paddingTop="4dp"
+            android:paddingTop="12dp"
             android:paddingEnd="@dimen/place_screen_margin"
-            android:paddingBottom="24dp">
+            android:paddingBottom="20dp">
 
             <FrameLayout
                 android:id="@+id/btnNavigateNow"
                 android:layout_width="match_parent"
-                android:layout_height="58dp"
-                android:background="@drawable/bg_premium_button_gradient"
+                android:layout_height="56dp"
+                android:background="@drawable/bg_place_details_sticky_button"
                 android:clickable="true"
                 android:elevation="10dp"
                 android:focusable="true"
@@ -1170,7 +1199,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="12dp"
-                        android:text="@string/place_navigate_now"
+                        android:text="Start Exploring"
                         android:textColor="@color/white"
                         android:textSize="17sp"
                         android:textStyle="bold" />
