@@ -20,7 +20,7 @@ import java.util.List;
 /**
  * Bottom sheet that displays a distance-sorted list of nearby places.
  *
- * <p>Created by {@link HomeActivity} after GPS + Room/Firestore query completes.
+ * <p>Created by {@link MainActivity} after GPS + Room/Firestore query completes.
  * The caller passes:
  * <ul>
  *   <li>{@link #ARG_TITLE}  — header title string (e.g. "📍 Within 5km of you")</li>

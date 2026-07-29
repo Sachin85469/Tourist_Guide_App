@@ -10,9 +10,9 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="@dimen/screen_margin"
-        android:layout_marginTop="@dimen/spacing_medium"
+        android:layout_marginTop="@dimen/spacing_large"
         android:text="@string/home_featured_destinations"
-        android:textAppearance="@style/TextAppearance.App.TitleMedium"
+        android:textAppearance="@style/TextAppearance.App.SectionTitle"
         android:textColor="@color/m3_on_surface"
         app:layout_constraintEnd_toStartOf="@+id/btnSeeAll"
         app:layout_constraintStart_toStartOf="parent"
@@ -35,9 +35,17 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:clipToPadding="false"
-        android:paddingHorizontal="@dimen/spacing_small"
+        android:paddingHorizontal="@dimen/screen_margin"
         android:paddingTop="@dimen/spacing_small"
         android:scrollbars="none"
+        app:layout_constraintTop_toBottomOf="@+id/tvSectionTitle" />
+
+    <include
+        android:id="@+id/layoutHorizontalSectionSkeleton"
+        layout="@layout/item_place_skeleton"
+        android:visibility="gone"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/tvSectionTitle" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

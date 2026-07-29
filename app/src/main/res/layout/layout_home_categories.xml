@@ -3,27 +3,39 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
-    android:paddingBottom="12dp">
+    android:paddingBottom="@dimen/spacing_medium">
 
-    <TextView
-        android:id="@+id/tvCategoriesHeader"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="@dimen/screen_margin"
-        android:layout_marginTop="12dp"
-        android:layout_marginBottom="8dp"
-        android:text="@string/explore_categories_header"
-        android:textAppearance="@style/TextAppearance.App.TitleMedium"
-        android:textColor="@color/m3_on_surface"
-        android:textStyle="bold" />
+    <include layout="@layout/layout_home_section_header" />
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/rvCategories"
+    <FrameLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:clipToPadding="false"
-        android:paddingStart="12dp"
-        android:paddingEnd="96dp"
-        android:scrollbars="none" />
+        android:layout_height="wrap_content">
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rvCategories"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:clipToPadding="false"
+            android:paddingHorizontal="@dimen/screen_margin"
+            android:scrollbars="none" />
+
+        <include
+            android:id="@+id/layoutSectionSkeleton"
+            layout="@layout/item_place_skeleton"
+            android:visibility="gone" />
+
+        <TextView
+            android:id="@+id/tvSectionEmpty"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:paddingHorizontal="@dimen/screen_margin"
+            android:paddingTop="@dimen/spacing_medium"
+            android:paddingBottom="@dimen/spacing_large"
+            android:text="@string/no_destinations_available"
+            android:textAppearance="@style/TextAppearance.App.BodyMedium"
+            android:textColor="@color/m3_on_surface_variant"
+            android:visibility="gone" />
+    </FrameLayout>
 
 </LinearLayout>

@@ -1,6 +1,7 @@
 package com.arriva.touristguideapp;
 
 import android.Manifest;
+import android.animation.ObjectAnimator;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
@@ -12,7 +13,6 @@ import android.util.Log;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
@@ -22,6 +22,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
+import androidx.core.app.ActivityOptionsCompat;
+import androidx.core.view.ViewCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.gms.location.FusedLocationProviderClient;
@@ -31,6 +33,8 @@ import com.google.android.material.navigation.NavigationBarView;
 import com.google.android.libraries.places.api.Places;
 import com.arriva.touristguideapp.data.places.PlaceMigrationHelper;
 import com.arriva.touristguideapp.data.places.PlaceRepository;
+import com.arriva.touristguideapp.data.trips.Trip;
+import com.arriva.touristguideapp.data.trips.TripRepository;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import java.util.ArrayList;
@@ -51,6 +55,7 @@ public class MainActivity extends BaseActivity {
     private List<HomeSection> sections;
     private List<Place> allPlaces;
     private List<Place> topPicks;
+    private List<Trip> upcomingTrips;
     private List<String> userTravelInterests;
     private List<Category> categories;
     
@@ -65,11 +70,13 @@ public class MainActivity extends BaseActivity {
     private BottomNavigationView bottomNavigationView;
     private View fabAiChat;
     private View offlineCacheBanner;
+    private View homeLoadingContainer;
     private ProgressBar progressBar;
     private View emptyStateContainer;
     private EditText searchBox;
     private ImageView btnVoiceSearch, searchBtn;
     private TextView tvMainUserName, tvMainUserEmail, tvQuickStats, tvProfileBadge;
+    private TextView tvEmptyStateTitle, tvEmptyStateMessage;
     private String resolvedCity = "Your Current Location";
 
     private PlaceRepository placeRepository;
@@ -78,11 +85,13 @@ public class MainActivity extends BaseActivity {
     private com.arriva.touristguideapp.data.places.SearchHistoryManager searchHistoryManager;
     private com.arriva.touristguideapp.data.places.RecentlyViewedManager recentlyViewedManager;
     private com.arriva.touristguideapp.data.notifications.NotificationRepository notificationRepository;
+    private TripRepository tripRepository;
 
     /** Last fix used to sort "Top Picks Near You" after the Firestore catalog arrives. */
     @Nullable
     private Location cachedUserLocation;
     private boolean offlineCacheBannerDismissed = false;
+    private boolean upcomingTripsLoading = true;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -157,6 +166,8 @@ public class MainActivity extends BaseActivity {
             if (aiCard != null) aiCard.setOnClickListener(aiClickListener);
             if (aiIcon != null) aiIcon.setOnClickListener(aiClickListener);
 
+            startAiFabFloatingAnimation(fabAiChat);
+
             // Delay tooltip entrance
             if (aiTooltip != null) {
                 handler.postDelayed(() -> {
@@ -176,7 +187,10 @@ public class MainActivity extends BaseActivity {
         }
 
         progressBar = findViewById(R.id.mainProgressBar);
+        homeLoadingContainer = findViewById(R.id.homeLoadingContainer);
         emptyStateContainer = findViewById(R.id.tvEmptyState);
+        tvEmptyStateTitle = findViewById(R.id.tvEmptyStateTitle);
+        tvEmptyStateMessage = findViewById(R.id.tvEmptyStateMessage);
         searchBox = findViewById(R.id.searchBox);
         btnVoiceSearch = findViewById(R.id.btnVoiceSearch);
         offlineCacheBanner = findViewById(R.id.offlineCacheBanner);
@@ -207,12 +221,13 @@ public class MainActivity extends BaseActivity {
             handler.postDelayed(reminderRunnable, 5000);
         }
         
-        // Start with ProgressBar visible
-        if (progressBar != null) progressBar.setVisibility(View.VISIBLE);
+        // Keep the feed structure stable while the catalog is fetched.
+        showHomeLoadingState();
         
         // Fetch location and data
         checkLocationPermission();
         loadPublishedPlacesCatalog();
+        loadUpcomingTrips();
 
         PerformanceTracker.endTimer("MAIN_ACTIVITY_INIT");
 
@@ -251,12 +266,31 @@ public class MainActivity extends BaseActivity {
                 && !apiKey.startsWith("YOUR_");
     }
 
+    private void startAiFabFloatingAnimation(@NonNull View fab) {
+        ObjectAnimator floatAnimator = ObjectAnimator.ofFloat(fab, View.TRANSLATION_Y, 0f, -10f, 0f);
+        floatAnimator.setDuration(2400L);
+        floatAnimator.setRepeatCount(ObjectAnimator.INFINITE);
+        floatAnimator.setInterpolator(new android.view.animation.AccelerateDecelerateInterpolator());
+        floatAnimator.start();
+    }
+
     private void launchAiChatActivity(@NonNull String source) {
         try {
             Log.d(TAG, "Launching AIChatActivity from " + source);
             Intent intent = new Intent(MainActivity.this, AiChatActivity.class);
-            startActivity(intent);
-            overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
+            View sharedAvatar = findViewById(R.id.ivAiAssistantIcon);
+            if (sharedAvatar != null) {
+                ViewCompat.setTransitionName(sharedAvatar, "ai_robot_avatar");
+                ActivityOptionsCompat options = ActivityOptionsCompat.makeSceneTransitionAnimation(
+                        this,
+                        sharedAvatar,
+                        "ai_robot_avatar"
+                );
+                startActivity(intent, options.toBundle());
+            } else {
+                startActivity(intent);
+                overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
+            }
         } catch (Exception e) {
             Log.e(TAG, "Failed to launch AIChatActivity from " + source, e);
             Toast.makeText(this, "Unable to open assistant", Toast.LENGTH_SHORT).show();
@@ -345,6 +379,10 @@ public class MainActivity extends BaseActivity {
         text = text.trim();
 
         if (text.isEmpty()) {
+            if (emptyStateContainer != null) emptyStateContainer.setVisibility(View.GONE);
+            if (homeLoadingContainer == null || homeLoadingContainer.getVisibility() != View.VISIBLE) {
+                if (rvHome != null) rvHome.setVisibility(View.VISIBLE);
+            }
             sections.clear();
             addDefaultSections();
             if (homeAdapter != null) {
@@ -359,7 +397,7 @@ public class MainActivity extends BaseActivity {
 
         if (filteredList.isEmpty()) {
             rvHome.setVisibility(View.GONE);
-            emptyStateContainer.setVisibility(View.VISIBLE);
+            showHomeEmptyState(false);
         } else {
             rvHome.setVisibility(View.VISIBLE);
             emptyStateContainer.setVisibility(View.GONE);
@@ -382,26 +420,29 @@ public class MainActivity extends BaseActivity {
         searchHistoryManager = new com.arriva.touristguideapp.data.places.SearchHistoryManager(this);
         recentlyViewedManager = new com.arriva.touristguideapp.data.places.RecentlyViewedManager(this);
         notificationRepository = new com.arriva.touristguideapp.data.notifications.NotificationRepository(this);
+        tripRepository = new TripRepository();
 
         // Browse-all list is filled asynchronously via PlaceRepository (Firestore with local fallback).
         allPlaces = new ArrayList<>();
 
         // Initial Top Picks row until location + catalog are ready (unchanged UX).
         topPicks = new ArrayList<>(DataProvider.getDefaultTopPicks());
+        upcomingTrips = new ArrayList<>();
         userTravelInterests = new ArrayList<>();
 
         categories = new ArrayList<>();
-        categories.add(new Category(getString(R.string.all), R.drawable.all_category));
-        categories.add(new Category(getString(R.string.cat_historical), R.drawable.historical_category));
-        categories.add(new Category(getString(R.string.cat_nature), R.drawable.nature_category));
-        categories.add(new Category(getString(R.string.cat_religious), R.drawable.religious_category));
-        categories.add(new Category(getString(R.string.cat_food), R.drawable.food_category));
-        categories.add(new Category(getString(R.string.cat_culture), R.drawable.culture_category));
-        categories.add(new Category(getString(R.string.cat_adventure), R.drawable.adventure_category));
-        categories.add(new Category(getString(R.string.cat_scenic), R.drawable.scenic_category));
-        categories.add(new Category(getString(R.string.cat_shopping), R.drawable.shopping_category));
-        categories.add(new Category(getString(R.string.cat_educational), R.drawable.educational_category));
-        categories.add(new Category(getString(R.string.cat_park), R.drawable.park_category));
+        categories.add(new Category(getString(R.string.all), R.drawable.ic_cat_all));
+        categories.add(new Category(getString(R.string.cat_historical), R.drawable.ic_cat_historical));
+        categories.add(new Category(getString(R.string.cat_nature), R.drawable.ic_cat_nature));
+        categories.add(new Category(getString(R.string.cat_food), R.drawable.ic_cat_food));
+        categories.add(new Category(getString(R.string.cat_shopping), R.drawable.ic_cat_shopping));
+        categories.add(new Category(getString(R.string.cat_culture), R.drawable.ic_cat_culture));
+        categories.add(new Category(getString(R.string.cat_beaches), R.drawable.ic_cat_beaches));
+        categories.add(new Category(getString(R.string.cat_adventure), R.drawable.ic_cat_adventure));
+        categories.add(new Category(getString(R.string.cat_religious), R.drawable.ic_cat_religious));
+        categories.add(new Category(getString(R.string.cat_photography), R.drawable.ic_cat_photography));
+        categories.add(new Category(getString(R.string.cat_entertainment), R.drawable.ic_cat_entertainment));
+        categories.add(new Category(getString(R.string.cat_popular), R.drawable.ic_cat_popular));
     }
 
     private void checkLocationPermission() {
@@ -438,7 +479,36 @@ public class MainActivity extends BaseActivity {
 
     private void hideLoading() {
         if (progressBar != null) progressBar.setVisibility(View.GONE);
+        if (homeLoadingContainer == null || homeLoadingContainer.getVisibility() != View.VISIBLE) {
+            if (rvHome != null) rvHome.setVisibility(View.VISIBLE);
+        }
+    }
+
+    private void showHomeLoadingState() {
+        if (progressBar != null) progressBar.setVisibility(View.GONE);
+        if (emptyStateContainer != null) emptyStateContainer.setVisibility(View.GONE);
+        if (rvHome != null) rvHome.setVisibility(View.GONE);
+        if (homeLoadingContainer != null) homeLoadingContainer.setVisibility(View.VISIBLE);
+    }
+
+    private void showHomeContent() {
+        if (progressBar != null) progressBar.setVisibility(View.GONE);
+        if (homeLoadingContainer != null) homeLoadingContainer.setVisibility(View.GONE);
         if (rvHome != null) rvHome.setVisibility(View.VISIBLE);
+    }
+
+    private void showHomeEmptyState(boolean loadFailed) {
+        if (tvEmptyStateTitle != null) {
+            tvEmptyStateTitle.setText(loadFailed
+                    ? R.string.home_load_error_title
+                    : R.string.empty_state_places_title);
+        }
+        if (tvEmptyStateMessage != null) {
+            tvEmptyStateMessage.setText(loadFailed
+                    ? R.string.home_load_error_msg
+                    : R.string.empty_state_places_msg);
+        }
+        if (emptyStateContainer != null) emptyStateContainer.setVisibility(View.VISIBLE);
     }
 
     private void updateTopPicksWithLocation(double userLat, double userLng) {
@@ -638,7 +708,9 @@ public class MainActivity extends BaseActivity {
             v -> {
                 startActivity(new Intent(MainActivity.this, com.arriva.touristguideapp.communication.CommunicationHubActivity.class));
                 overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
-            }
+            },
+            v -> openAllPlaces(),
+            this::openTripDetails
         );
 
         rvHome.setLayoutManager(new LinearLayoutManager(this));
@@ -666,6 +738,104 @@ public class MainActivity extends BaseActivity {
         }
 
         sections.add(new HomeSection(HomeSection.TYPE_CATEGORIES, getString(R.string.explore_categories_header)));
+
+        List<Place> topPickPlaces = buildTopPickPlaces();
+        if (!topPickPlaces.isEmpty()) {
+            sections.add(new HomeSection(HomeSection.TYPE_TOP_PICKS, getString(R.string.home_section_top_picks), topPickPlaces));
+        }
+
+        if (upcomingTripsLoading || (upcomingTrips != null && !upcomingTrips.isEmpty())) {
+            HomeSection upcomingSection = new HomeSection(HomeSection.TYPE_UPCOMING_TRIPS, getString(R.string.upcoming_trips));
+            upcomingSection.setTrips(upcomingTripsLoading ? null : new ArrayList<>(upcomingTrips));
+            sections.add(upcomingSection);
+        }
+
+        List<Place> recommendedPlaces = buildRecommendedPlaces();
+        if (!recommendedPlaces.isEmpty()) {
+            sections.add(new HomeSection(HomeSection.TYPE_RECOMMENDED, getString(R.string.home_section_recommended), recommendedPlaces));
+        }
+
+        List<Place> trendingPlaces = buildTrendingPlaces();
+        if (!trendingPlaces.isEmpty()) {
+            sections.add(new HomeSection(HomeSection.TYPE_TRENDING, getString(R.string.home_section_trending), trendingPlaces));
+        }
+
+        List<Place> nearbyPlaces = buildNearbyPlaces();
+        if (!nearbyPlaces.isEmpty()) {
+            sections.add(new HomeSection(HomeSection.TYPE_MAP_PREVIEW, getString(R.string.home_map_title), nearbyPlaces));
+        }
+
+        List<Place> recentlyViewedPlaces = buildRecentlyViewedPlaces();
+        if (!recentlyViewedPlaces.isEmpty()) {
+            sections.add(new HomeSection(HomeSection.TYPE_RECENTLY_VIEWED, getString(R.string.home_section_recently_viewed), recentlyViewedPlaces));
+        }
+    }
+
+    private List<Place> buildTopPickPlaces() {
+        List<Place> topPickPlaces = new ArrayList<>();
+        if (allPlaces == null) return topPickPlaces;
+        for (Place place : allPlaces) {
+            if (place != null && place.isTopPick()) {
+                topPickPlaces.add(place);
+            }
+        }
+        return limitedPlaces(topPickPlaces);
+    }
+
+    private List<Place> buildTrendingPlaces() {
+        if (allPlaces == null || allPlaces.isEmpty()) return new ArrayList<>();
+        return limitedPlaces(discoveryRepository.getTrendingPlaces(allPlaces));
+    }
+
+    private List<Place> buildRecommendedPlaces() {
+        if (allPlaces == null || allPlaces.isEmpty()) return new ArrayList<>();
+        return limitedPlaces(discoveryRepository.getRecommendedPlaces(allPlaces));
+    }
+
+    private List<Place> buildNearbyPlaces() {
+        List<Place> nearbyPlaces = new ArrayList<>();
+        if (allPlaces == null) return nearbyPlaces;
+        for (Place place : allPlaces) {
+            if (place != null && place.getDistance() >= 0) {
+                nearbyPlaces.add(place);
+            }
+        }
+        nearbyPlaces.sort(Comparator.comparingDouble(Place::getDistance));
+        return limitedPlaces(nearbyPlaces);
+    }
+
+    private List<Place> buildRecentlyViewedPlaces() {
+        if (recentlyViewedManager == null) return new ArrayList<>();
+        return limitedPlaces(new ArrayList<>(recentlyViewedManager.getRecentlyViewed()));
+    }
+
+    private void loadUpcomingTrips() {
+        if (tripRepository == null) return;
+        upcomingTripsLoading = true;
+        if (homeAdapter != null) {
+            refreshHomeSections();
+        }
+        tripRepository.getTripsAsync(trips -> {
+            upcomingTrips.clear();
+            for (Trip trip : trips) {
+                String status = TripDisplayUtilsKt.displayStatus(trip, new java.util.Date());
+                if ("Ongoing".equals(status) || "Upcoming".equals(status)) {
+                    upcomingTrips.add(trip);
+                }
+            }
+            upcomingTrips.sort((first, second) -> {
+                boolean firstOngoing = "Ongoing".equals(TripDisplayUtilsKt.displayStatus(first, new java.util.Date()));
+                boolean secondOngoing = "Ongoing".equals(TripDisplayUtilsKt.displayStatus(second, new java.util.Date()));
+                if (firstOngoing != secondOngoing) return firstOngoing ? -1 : 1;
+                java.util.Date firstDate = first.getStartDate();
+                java.util.Date secondDate = second.getStartDate();
+                if (firstDate == null) return secondDate == null ? 0 : 1;
+                if (secondDate == null) return -1;
+                return firstDate.compareTo(secondDate);
+            });
+            upcomingTripsLoading = false;
+            refreshHomeSections();
+        });
     }
 
     private List<Place> buildForYouPlaces() {
@@ -750,6 +920,16 @@ public class MainActivity extends BaseActivity {
             allPlaces.addAll(places);
             Log.d("APP_DEBUG", "Data loaded, count=" + places.size());
 
+            showHomeContent();
+
+            if (places.isEmpty()) {
+                if (rvHome != null) rvHome.setVisibility(View.GONE);
+                boolean catalogLoadFailed = cacheEmpty && message != null
+                        && !"empty_remote".equals(message);
+                showHomeEmptyState(catalogLoadFailed);
+                return;
+            }
+
             if (cachedUserLocation != null) {
                 updateTopPicksWithLocation(cachedUserLocation.getLatitude(), cachedUserLocation.getLongitude());
             } else {
@@ -784,11 +964,29 @@ public class MainActivity extends BaseActivity {
     private void openDetails(Place place) {
         if (place == null) return;
         recentlyViewedManager.addRecentlyViewed(place);
+        refreshRecentlyViewed();
         Intent intent = new Intent(MainActivity.this, PlaceDetailsActivity.class);
         PlaceIntentExtras.putPlaceDetails(intent, place);
         
         androidx.core.app.ActivityOptionsCompat options = androidx.core.app.ActivityOptionsCompat.makeCustomAnimation(this, R.anim.slide_in_right, android.R.anim.fade_out);
         startActivity(intent, options.toBundle());
+    }
+
+    private void openAllPlaces() {
+        Intent intent = new Intent(this, CategoryPlacesActivity.class);
+        intent.putExtra("category", "All");
+        startActivity(intent);
+        overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
+    }
+
+    private void openTripDetails(Trip trip) {
+        if (trip == null || trip.getId() == null || trip.getId().trim().isEmpty()) {
+            Toast.makeText(this, "Trip details are unavailable for this item", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        Intent intent = new Intent(this, TripDetailsActivity.class);
+        intent.putExtra(TripDetailsActivity.EXTRA_TRIP_ID, trip.getId());
+        startActivity(intent);
     }
 
     private void loadUserInfo() {
@@ -848,7 +1046,7 @@ public class MainActivity extends BaseActivity {
     }
 
     private void refreshRecentlyViewed() {
-        // No-op as recently viewed card is removed from Home screen
+        refreshHomeSections();
     }
 
     @Override
@@ -857,6 +1055,10 @@ public class MainActivity extends BaseActivity {
         loadUserInfo();
         refreshQuickStatsOnly();
         FavoritesManager.syncFavoritesFromFirestore(this);
+        refreshRecentlyViewed();
+        if (!upcomingTripsLoading) {
+            loadUpcomingTrips();
+        }
         if (tvProfileBadge != null && notificationRepository != null) {
             int unreadCount = notificationRepository.getUnreadCount();
             if (unreadCount > 0) {

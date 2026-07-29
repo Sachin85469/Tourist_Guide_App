@@ -10,14 +10,14 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="12dp">
+        android:layout_marginBottom="@dimen/spacing_small">
 
         <TextView
             android:id="@+id/tvMapTitle"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:text="@string/home_map_title"
-            android:textAppearance="@style/TextAppearance.App.TitleMedium"
+            android:textAppearance="@style/TextAppearance.App.SectionTitle"
             android:textColor="@color/m3_on_surface"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@+id/btnMapFullscreen"
@@ -87,6 +87,7 @@
                 </com.google.android.material.card.MaterialCardView>
 
                 <TextView
+                    android:id="@+id/tvMapDiscovery"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
@@ -96,6 +97,7 @@
             </LinearLayout>
 
             <TextView
+                android:id="@+id/tvMapLive"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="bottom|end"
@@ -110,4 +112,9 @@
 
         </FrameLayout>
     </com.google.android.material.card.MaterialCardView>
+
+    <include
+        android:id="@+id/layoutMapPreviewSkeleton"
+        layout="@layout/item_place_skeleton"
+        android:visibility="gone" />
 </LinearLayout>

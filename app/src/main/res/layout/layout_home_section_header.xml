@@ -12,7 +12,7 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:text="Section Title"
-        android:textAppearance="@style/TextAppearance.App.TitleMedium"
+        android:textAppearance="@style/TextAppearance.App.SectionTitle"
         android:textColor="@color/m3_on_surface"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/btnSeeAll"

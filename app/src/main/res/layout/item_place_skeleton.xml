@@ -4,7 +4,11 @@
     style="@style/AppCard.Primary"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_margin="8dp">
+    android:layout_marginHorizontal="@dimen/screen_margin"
+    android:layout_marginVertical="@dimen/spacing_small"
+    app:cardCornerRadius="@dimen/corner_radius_large"
+    app:cardElevation="@dimen/card_elevation_soft"
+    app:contentPadding="0dp">
 
     <LinearLayout
         android:layout_width="match_parent"

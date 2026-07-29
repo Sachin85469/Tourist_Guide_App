@@ -17,6 +17,7 @@ import android.view.ViewGroup;
 import android.view.animation.AccelerateDecelerateInterpolator;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -54,6 +55,7 @@ public class AiChatActivity extends BaseActivity {
     private LinearProgressIndicator progressIndicator;
     private View emptyStateView;
     private View suggestedPromptsScroll;
+    private View typingIndicatorBar;
     private TextView offlineBanner;
     private boolean isOffline;
 
@@ -79,9 +81,13 @@ public class AiChatActivity extends BaseActivity {
         PerformanceTracker.startTimer("AI_CHAT_INIT");
         super.onCreate(savedInstanceState);
         Log.d(TAG, "AIChatActivity created");
+        getWindow().requestFeature(android.view.Window.FEATURE_ACTIVITY_TRANSITIONS);
+        supportPostponeEnterTransition();
         setContentView(R.layout.activity_ai_chat);
 
         initViews();
+        setupWelcomeFeatures();
+        supportStartPostponedEnterTransition();
         setupRecyclerView();
         setupListeners();
         chatRepository = new ChatRepository();
@@ -106,6 +112,7 @@ public class AiChatActivity extends BaseActivity {
         progressIndicator = findViewById(R.id.progressIndicator);
         emptyStateView = findViewById(R.id.emptyStateView);
         suggestedPromptsScroll = findViewById(R.id.suggestedPromptsScroll);
+        typingIndicatorBar = findViewById(R.id.typingIndicatorBar);
         
         // Create offline banner programmatically
         offlineBanner = new TextView(this);
@@ -136,6 +143,32 @@ public class AiChatActivity extends BaseActivity {
         recyclerViewChat.setLayoutParams(recyclerViewParams);
         
         updateEmptyState();
+    }
+
+    private void setupWelcomeFeatures() {
+        LinearLayout featuresList = findViewById(R.id.welcomeFeaturesList);
+        if (featuresList == null) {
+            return;
+        }
+
+        int[] featureStrings = {
+                R.string.ai_capability_trip_planning,
+                R.string.ai_capability_nearby,
+                R.string.ai_capability_hotels,
+                R.string.ai_capability_restaurants,
+                R.string.ai_capability_hidden_gems,
+                R.string.ai_capability_routes,
+                R.string.ai_capability_budget,
+                R.string.ai_capability_local_tips
+        };
+
+        LayoutInflater inflater = LayoutInflater.from(this);
+        for (int featureRes : featureStrings) {
+            View row = inflater.inflate(R.layout.item_ai_welcome_feature, featuresList, false);
+            TextView tvFeature = row.findViewById(R.id.tvFeature);
+            tvFeature.setText(featureRes);
+            featuresList.addView(row);
+        }
     }
 
     private void setupRecyclerView() {
@@ -495,6 +528,9 @@ public class AiChatActivity extends BaseActivity {
         progressIndicator.setVisibility(
                 isThinking || isLoadingHistory ? View.VISIBLE : View.GONE
         );
+        if (typingIndicatorBar != null) {
+            typingIndicatorBar.setVisibility(isThinking ? View.VISIBLE : View.GONE);
+        }
         suggestedPromptsScroll.setVisibility(
                 isThinking || isLoadingHistory ? View.GONE : View.VISIBLE
         );
@@ -503,7 +539,14 @@ public class AiChatActivity extends BaseActivity {
 
     private void updateComposerState() {
         boolean hasText = !etMessage.getText().toString().trim().isEmpty();
-        btnSend.setEnabled(hasText && !isThinking && !isLoadingHistory);
+        boolean canSend = hasText && !isThinking && !isLoadingHistory;
+        btnSend.setEnabled(canSend);
+        btnSend.animate()
+                .scaleX(canSend ? 1f : 0.88f)
+                .scaleY(canSend ? 1f : 0.88f)
+                .alpha(canSend ? 1f : 0.45f)
+                .setDuration(150)
+                .start();
         etMessage.setEnabled(!isLoadingHistory);
     }
 

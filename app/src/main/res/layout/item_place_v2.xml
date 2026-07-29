@@ -5,6 +5,8 @@
     android:layout_height="wrap_content"
     android:layout_marginHorizontal="@dimen/screen_margin"
     android:layout_marginVertical="@dimen/spacing_small"
+    android:clickable="true"
+    android:focusable="true"
     android:stateListAnimator="@animator/card_lift"
     app:cardCornerRadius="@dimen/corner_radius_large"
     app:cardElevation="@dimen/card_elevation_soft"
@@ -105,7 +107,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="Grand Palace Hotel"
-                android:textAppearance="@style/TextAppearance.App.TitleLarge"
+                android:textAppearance="@style/TextAppearance.App.TitleMedium"
                 android:textColor="@color/m3_on_surface"
                 android:ellipsize="end"
                 android:maxLines="1" />

@@ -3,61 +3,59 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:paddingVertical="8dp">
+    android:paddingVertical="6dp">
 
-    <com.google.android.material.imageview.ShapeableImageView
-        android:id="@+id/ivAssistant"
-        android:layout_width="32dp"
-        android:layout_height="32dp"
-        android:src="@drawable/ic_arriva_ai"
+    <FrameLayout
+        android:id="@+id/avatarContainer"
+        android:layout_width="@dimen/ai_avatar_message"
+        android:layout_height="@dimen/ai_avatar_message"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/cardTyping"
-        app:shapeAppearanceOverlay="@style/CircleImage" />
+        app:layout_constraintTop_toTopOf="@+id/cardTyping">
 
-    <com.google.android.material.card.MaterialCardView
+        <include
+            android:id="@+id/ivAssistant"
+            layout="@layout/view_ai_robot_avatar_compact"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+    </FrameLayout>
+
+    <LinearLayout
         android:id="@+id/cardTyping"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        app:cardBackgroundColor="@color/white"
-        app:cardCornerRadius="20dp"
-        app:cardElevation="1dp"
-        app:strokeWidth="0dp"
+        android:layout_marginStart="10dp"
+        android:background="@drawable/bg_ai_bot_bubble"
+        android:elevation="1dp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingHorizontal="18dp"
+        android:paddingVertical="14dp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/ivAssistant"
+        app:layout_constraintStart_toEndOf="@+id/avatarContainer"
         app:layout_constraintTop_toTopOf="parent">
 
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:gravity="center_vertical"
-            android:orientation="horizontal"
-            android:paddingHorizontal="16dp"
-            android:paddingVertical="12dp">
+        <View
+            android:id="@+id/dotOne"
+            android:layout_width="8dp"
+            android:layout_height="8dp"
+            android:alpha="0.25"
+            android:background="@drawable/bg_typing_dot" />
 
-            <View
-                android:id="@+id/dotOne"
-                android:layout_width="8dp"
-                android:layout_height="8dp"
-                android:alpha="0.25"
-                android:background="@drawable/bg_typing_dot" />
+        <View
+            android:id="@+id/dotTwo"
+            android:layout_width="8dp"
+            android:layout_height="8dp"
+            android:layout_marginStart="6dp"
+            android:alpha="0.25"
+            android:background="@drawable/bg_typing_dot" />
 
-            <View
-                android:id="@+id/dotTwo"
-                android:layout_width="8dp"
-                android:layout_height="8dp"
-                android:layout_marginStart="6dp"
-                android:alpha="0.25"
-                android:background="@drawable/bg_typing_dot" />
-
-            <View
-                android:id="@+id/dotThree"
-                android:layout_width="8dp"
-                android:layout_height="8dp"
-                android:layout_marginStart="6dp"
-                android:alpha="0.25"
-                android:background="@drawable/bg_typing_dot" />
-        </LinearLayout>
-    </com.google.android.material.card.MaterialCardView>
+        <View
+            android:id="@+id/dotThree"
+            android:layout_width="8dp"
+            android:layout_height="8dp"
+            android:layout_marginStart="6dp"
+            android:alpha="0.25"
+            android:background="@drawable/bg_typing_dot" />
+    </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

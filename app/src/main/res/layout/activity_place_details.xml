@@ -507,7 +507,7 @@
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"
                             android:scaleType="centerCrop"
-                            android:src="@drawable/shaniwar_wada"
+                            android:src="@drawable/placeholder"
                             app:shapeAppearanceOverlay="@style/RoundedImage" />
                     </com.google.android.material.card.MaterialCardView>
 
@@ -529,7 +529,7 @@
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"
                             android:scaleType="centerCrop"
-                            android:src="@drawable/sinhagad_fort_main"
+                            android:src="@drawable/placeholder"
                             app:shapeAppearanceOverlay="@style/RoundedImage" />
                     </com.google.android.material.card.MaterialCardView>
                 </LinearLayout>
@@ -558,7 +558,7 @@
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"
                             android:scaleType="centerCrop"
-                            android:src="@drawable/aga_khan_palace_main"
+                            android:src="@drawable/placeholder"
                             app:shapeAppearanceOverlay="@style/RoundedImage" />
                     </com.google.android.material.card.MaterialCardView>
 

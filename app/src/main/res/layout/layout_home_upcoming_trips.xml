@@ -6,16 +6,7 @@
     android:orientation="vertical"
     android:paddingBottom="16dp">
 
-    <!-- Section Header -->
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="@dimen/screen_margin"
-        android:layout_marginTop="20dp"
-        android:layout_marginBottom="8dp"
-        android:text="@string/upcoming_trips"
-        android:textAppearance="@style/TextAppearance.App.TitleMedium"
-        android:textColor="@color/m3_on_surface" />
+    <include layout="@layout/layout_home_section_header" />
 
     <!-- Main Card -->
     <com.google.android.material.card.MaterialCardView
@@ -177,5 +168,10 @@
 
         </FrameLayout>
     </com.google.android.material.card.MaterialCardView>
+
+    <include
+        android:id="@+id/layoutUpcomingTripSkeleton"
+        layout="@layout/item_place_skeleton"
+        android:visibility="gone" />
 
 </LinearLayout>

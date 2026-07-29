@@ -18,6 +18,7 @@ import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.LinearSnapHelper;
 import androidx.recyclerview.widget.RecyclerView;
+import com.arriva.touristguideapp.data.trips.Trip;
 import androidx.recyclerview.widget.SnapHelper;
 
 import com.google.firebase.auth.FirebaseAuth;
@@ -39,6 +40,9 @@ public class HomeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private static final int TYPE_CATEGORIES = 12;
     private static final int TYPE_POPULAR_THIS_WEEK = 13;
     private static final int TYPE_FOR_YOU = 14;
+    private static final int TYPE_HORIZONTAL_SECTION = 15;
+    private static final int TYPE_UPCOMING_TRIPS = 16;
+    private static final int TYPE_MAP_PREVIEW = 17;
 
     private List<HomeSection> sections;
     private List<Category> categories;
@@ -47,6 +51,8 @@ public class HomeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private CategoryAdapter.OnCategoryClickListener categoryClickListener;
     private View.OnClickListener planTripClickListener;
     private View.OnClickListener phrasebookClickListener;
+    private View.OnClickListener seeAllClickListener;
+    private OnTripClickListener tripClickListener;
     private int lastPosition = -1;
 
     public HomeAdapter(List<HomeSection> sections, 
@@ -55,7 +61,9 @@ public class HomeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                        OnItemClickListener placeClickListener,
                        CategoryAdapter.OnCategoryClickListener categoryClickListener,
                        View.OnClickListener planTripClickListener,
-                       View.OnClickListener phrasebookClickListener) {
+                       View.OnClickListener phrasebookClickListener,
+                       View.OnClickListener seeAllClickListener,
+                       OnTripClickListener tripClickListener) {
         this.sections = new ArrayList<>(sections);
         this.categories = categories;
         this.topPicks = topPicks;
@@ -63,6 +71,8 @@ public class HomeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         this.categoryClickListener = categoryClickListener;
         this.planTripClickListener = planTripClickListener;
         this.phrasebookClickListener = phrasebookClickListener;
+        this.seeAllClickListener = seeAllClickListener;
+        this.tripClickListener = tripClickListener;
         setHasStableIds(true);
     }
 
@@ -125,6 +135,13 @@ public class HomeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             case HomeSection.TYPE_FOR_YOU: return TYPE_FOR_YOU;
             case HomeSection.TYPE_CATEGORIES: return TYPE_CATEGORIES;
             case HomeSection.TYPE_POPULAR_THIS_WEEK: return TYPE_POPULAR_THIS_WEEK;
+            case HomeSection.TYPE_TOP_PICKS:
+            case HomeSection.TYPE_TRENDING:
+            case HomeSection.TYPE_RECOMMENDED:
+            case HomeSection.TYPE_RECENTLY_VIEWED:
+                return TYPE_HORIZONTAL_SECTION;
+            case HomeSection.TYPE_UPCOMING_TRIPS: return TYPE_UPCOMING_TRIPS;
+            case HomeSection.TYPE_MAP_PREVIEW: return TYPE_MAP_PREVIEW;
             default: return -1;
         }
     }
@@ -150,6 +167,12 @@ public class HomeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 return new CategoriesViewHolder(inflater.inflate(R.layout.layout_home_categories, parent, false), categoryClickListener);
             case TYPE_POPULAR_THIS_WEEK:
                 return new FeaturedDestinationsViewHolder(inflater.inflate(R.layout.layout_featured_destinations_carousel, parent, false), placeClickListener);
+            case TYPE_HORIZONTAL_SECTION:
+                return new HorizontalSectionViewHolder(inflater.inflate(R.layout.layout_home_horizontal_section, parent, false), placeClickListener, seeAllClickListener);
+            case TYPE_UPCOMING_TRIPS:
+                return new UpcomingTripsViewHolder(inflater.inflate(R.layout.layout_home_upcoming_trips, parent, false), tripClickListener);
+            case TYPE_MAP_PREVIEW:
+                return new MapPreviewViewHolder(inflater.inflate(R.layout.layout_home_map_preview, parent, false));
             default:
                 throw new IllegalArgumentException("Invalid view type");
         }
@@ -166,12 +189,18 @@ public class HomeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         } else if (holder instanceof PlaceViewHolder) {
             ((PlaceViewHolder) holder).bind(section.getSinglePlace(), position, placeClickListener);
         } else if (holder instanceof FeaturedViewHolder) {
-            ((FeaturedViewHolder) holder).bind(section.getSinglePlace(), placeClickListener);
+            ((FeaturedViewHolder) holder).bind(section.getSinglePlace(), placeClickListener, section.getTitle());
         } else if (holder instanceof FeaturedDestinationsViewHolder) {
             boolean isPopular = HomeSection.TYPE_POPULAR_THIS_WEEK.equals(section.getType());
             ((FeaturedDestinationsViewHolder) holder).bind(section.getData(), isPopular, section.getTitle());
         } else if (holder instanceof CategoriesViewHolder) {
             ((CategoriesViewHolder) holder).bind(categories, section.getTitle());
+        } else if (holder instanceof HorizontalSectionViewHolder) {
+            ((HorizontalSectionViewHolder) holder).bind(section.getData(), section.getTitle());
+        } else if (holder instanceof UpcomingTripsViewHolder) {
+            ((UpcomingTripsViewHolder) holder).bind(section.getTrips(), section.getTitle());
+        } else if (holder instanceof MapPreviewViewHolder) {
+            ((MapPreviewViewHolder) holder).bind(section.getData());
         }
     }
 
@@ -188,14 +217,153 @@ public class HomeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         super.onViewRecycled(holder);
     }
 
+    interface OnTripClickListener {
+        void onTripClick(Trip trip);
+    }
+
+    static class HorizontalSectionViewHolder extends RecyclerView.ViewHolder {
+        private final TextView tvTitle;
+        private final View btnSeeAll;
+        private final RecyclerView rvHorizontal;
+        private final View sectionSkeleton;
+        private final OnItemClickListener placeListener;
+        private final View.OnClickListener seeAllClickListener;
+
+        HorizontalSectionViewHolder(View itemView, OnItemClickListener placeListener,
+                                    View.OnClickListener seeAllClickListener) {
+            super(itemView);
+            this.tvTitle = itemView.findViewById(R.id.tvSectionTitle);
+            this.btnSeeAll = itemView.findViewById(R.id.btnSeeAll);
+            this.rvHorizontal = itemView.findViewById(R.id.rvHorizontal);
+            this.sectionSkeleton = itemView.findViewById(R.id.layoutHorizontalSectionSkeleton);
+            this.placeListener = placeListener;
+            this.seeAllClickListener = seeAllClickListener;
+            rvHorizontal.setLayoutManager(new LinearLayoutManager(itemView.getContext(), LinearLayoutManager.HORIZONTAL, false));
+        }
+
+        void bind(List<Place> places, String title) {
+            if (tvTitle != null) tvTitle.setText(title);
+            if (places == null) {
+                rvHorizontal.setVisibility(View.GONE);
+                if (btnSeeAll != null) btnSeeAll.setVisibility(View.GONE);
+                if (sectionSkeleton != null) sectionSkeleton.setVisibility(View.VISIBLE);
+                return;
+            }
+
+            rvHorizontal.setVisibility(View.VISIBLE);
+            if (sectionSkeleton != null) sectionSkeleton.setVisibility(View.GONE);
+            rvHorizontal.setAdapter(new TopPickAdapter(places, placeListener));
+            if (btnSeeAll != null) {
+                btnSeeAll.setVisibility(View.VISIBLE);
+                btnSeeAll.setOnClickListener(seeAllClickListener);
+            }
+        }
+    }
+
+    static class UpcomingTripsViewHolder extends RecyclerView.ViewHolder {
+        private final TextView tvHeader;
+        private final View tripCard;
+        private final View emptyTripState;
+        private final View tripContent;
+        private final View sectionSkeleton;
+        private final TextView tvTripName;
+        private final TextView tvTripDestination;
+        private final TextView tvTripDate;
+        private final TextView tvTripProgress;
+        private final android.widget.ProgressBar progressBar;
+        private final OnTripClickListener tripClickListener;
+
+        UpcomingTripsViewHolder(View itemView, OnTripClickListener tripClickListener) {
+            super(itemView);
+            this.tvHeader = itemView.findViewById(R.id.tvTitle);
+            this.tripCard = itemView.findViewById(R.id.cardUpcomingTrip);
+            this.emptyTripState = itemView.findViewById(R.id.layoutEmptyTripState);
+            this.tripContent = itemView.findViewById(R.id.layoutTripContent);
+            this.sectionSkeleton = itemView.findViewById(R.id.layoutUpcomingTripSkeleton);
+            this.tvTripName = itemView.findViewById(R.id.tvTripName);
+            this.tvTripDestination = itemView.findViewById(R.id.tvTripDestination);
+            this.tvTripDate = itemView.findViewById(R.id.tvTripDate);
+            this.tvTripProgress = itemView.findViewById(R.id.tvTripProgress);
+            this.progressBar = itemView.findViewById(R.id.progressBarTrip);
+            this.tripClickListener = tripClickListener;
+        }
+
+        void bind(List<Trip> trips, String title) {
+            if (tvHeader != null) tvHeader.setText(title);
+            if (trips == null) {
+                if (tripCard != null) tripCard.setVisibility(View.GONE);
+                if (sectionSkeleton != null) sectionSkeleton.setVisibility(View.VISIBLE);
+                return;
+            }
+
+            Trip trip = trips.get(0);
+            if (sectionSkeleton != null) sectionSkeleton.setVisibility(View.GONE);
+            if (tripCard != null) tripCard.setVisibility(View.VISIBLE);
+            if (emptyTripState != null) emptyTripState.setVisibility(View.GONE);
+            if (tripContent != null) tripContent.setVisibility(View.VISIBLE);
+            tvTripName.setText(TripDisplayUtilsKt.destinationLabel(trip));
+            tvTripDestination.setText(TripDisplayUtilsKt.locationLabel(trip));
+            tvTripDate.setText(TripDisplayUtilsKt.dateRangeLabel(trip));
+            String status = TripDisplayUtilsKt.displayStatus(trip, new java.util.Date());
+            if (tvTripProgress != null) tvTripProgress.setText(status);
+            if (progressBar != null) progressBar.setProgress("Ongoing".equals(status) ? 60 : 0);
+            if (tripCard != null) {
+                tripCard.setOnClickListener(v -> {
+                    if (tripClickListener != null) tripClickListener.onTripClick(trip);
+                });
+            }
+        }
+    }
+
+    static class MapPreviewViewHolder extends RecyclerView.ViewHolder {
+        private final View mapCard;
+        private final View fullscreenButton;
+        private final View sectionSkeleton;
+        private final TextView tvDiscovery;
+
+        MapPreviewViewHolder(View itemView) {
+            super(itemView);
+            this.mapCard = itemView.findViewById(R.id.cardMapPreview);
+            this.fullscreenButton = itemView.findViewById(R.id.btnMapFullscreen);
+            this.sectionSkeleton = itemView.findViewById(R.id.layoutMapPreviewSkeleton);
+            this.tvDiscovery = itemView.findViewById(R.id.tvMapDiscovery);
+        }
+
+        void bind(List<Place> nearbyPlaces) {
+            if (nearbyPlaces == null) {
+                if (mapCard != null) mapCard.setVisibility(View.GONE);
+                if (sectionSkeleton != null) sectionSkeleton.setVisibility(View.VISIBLE);
+                return;
+            }
+            if (mapCard != null) mapCard.setVisibility(View.VISIBLE);
+            if (sectionSkeleton != null) sectionSkeleton.setVisibility(View.GONE);
+            if (tvDiscovery != null) {
+                tvDiscovery.setText(itemView.getContext().getString(
+                        R.string.home_map_nearby_places, nearbyPlaces.size()));
+            }
+            View.OnClickListener openMap = v -> itemView.getContext().startActivity(
+                    new Intent(itemView.getContext(), MapActivity.class));
+            if (mapCard != null) mapCard.setOnClickListener(openMap);
+            if (fullscreenButton != null) fullscreenButton.setOnClickListener(openMap);
+        }
+    }
+
     static class FeaturedDestinationsViewHolder extends RecyclerView.ViewHolder {
         private final RecyclerView rvFeatured;
         private final OnItemClickListener listener;
+        private final TextView tvHeader;
+        private final View btnSeeAll;
+        private final View sectionSkeleton;
+        private final TextView tvEmpty;
 
         FeaturedDestinationsViewHolder(View itemView, OnItemClickListener listener) {
             super(itemView);
             this.rvFeatured = itemView.findViewById(R.id.rvFeaturedHorizontal);
             this.listener = listener;
+            this.tvHeader = itemView.findViewById(R.id.tvTitle);
+            this.btnSeeAll = itemView.findViewById(R.id.btnSeeAll);
+            this.sectionSkeleton = itemView.findViewById(R.id.layoutSectionSkeleton);
+            this.tvEmpty = itemView.findViewById(R.id.tvSectionEmpty);
             if (rvFeatured != null) {
                 rvFeatured.setLayoutManager(new LinearLayoutManager(itemView.getContext(), LinearLayoutManager.HORIZONTAL, false));
             }
@@ -206,9 +374,6 @@ public class HomeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         }
 
         void bind(List<Place> places, boolean isPopular, String sectionTitle) {
-            TextView tvHeader = itemView.findViewById(R.id.tvFeaturedHeader);
-            View btnViewAll = itemView.findViewById(R.id.btnViewAll);
-            
             if (tvHeader != null) {
                 if (!TextUtils.isEmpty(sectionTitle)) {
                     tvHeader.setText(sectionTitle);
@@ -217,28 +382,34 @@ public class HomeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 }
             }
 
-            if (places == null || places.isEmpty()) {
-                rvFeatured.setVisibility(View.GONE);
-                if (btnViewAll != null) btnViewAll.setVisibility(View.GONE);
-                
-                // Show empty message
-                TextView tvEmpty = new TextView(itemView.getContext());
-                tvEmpty.setText(R.string.no_destinations_available);
-                tvEmpty.setPadding(50, 20, 50, 20);
-                // In a real app we'd add this to the layout, for now we just hide RV
+            if (places == null) {
+                if (rvFeatured != null) rvFeatured.setVisibility(View.GONE);
+                if (btnSeeAll != null) btnSeeAll.setVisibility(View.GONE);
+                if (tvEmpty != null) tvEmpty.setVisibility(View.GONE);
+                if (sectionSkeleton != null) sectionSkeleton.setVisibility(View.VISIBLE);
                 return;
             }
 
-            rvFeatured.setVisibility(View.VISIBLE);
-            if (btnViewAll != null) {
-                btnViewAll.setVisibility(View.VISIBLE);
-                btnViewAll.setOnClickListener(v -> {
+            if (places.isEmpty()) {
+                if (rvFeatured != null) rvFeatured.setVisibility(View.GONE);
+                if (btnSeeAll != null) btnSeeAll.setVisibility(View.GONE);
+                if (sectionSkeleton != null) sectionSkeleton.setVisibility(View.GONE);
+                if (tvEmpty != null) tvEmpty.setVisibility(View.VISIBLE);
+                return;
+            }
+
+            if (rvFeatured != null) rvFeatured.setVisibility(View.VISIBLE);
+            if (sectionSkeleton != null) sectionSkeleton.setVisibility(View.GONE);
+            if (tvEmpty != null) tvEmpty.setVisibility(View.GONE);
+            if (btnSeeAll != null) {
+                btnSeeAll.setVisibility(View.VISIBLE);
+                btnSeeAll.setOnClickListener(v -> {
                     // Navigate to See All activity or similar
                 });
             }
 
             FeaturedDestinationsAdapter adapter = new FeaturedDestinationsAdapter(places, listener, isPopular);
-            rvFeatured.setAdapter(adapter);
+            if (rvFeatured != null) rvFeatured.setAdapter(adapter);
         }
     }
 
@@ -246,11 +417,17 @@ public class HomeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         private final RecyclerView rvCategories;
         private final CategoryAdapter.OnCategoryClickListener listener;
         private final TextView tvHeader;
+        private final View btnSeeAll;
+        private final View sectionSkeleton;
+        private final TextView tvEmpty;
 
         CategoriesViewHolder(View itemView, CategoryAdapter.OnCategoryClickListener listener) {
             super(itemView);
             this.rvCategories = itemView.findViewById(R.id.rvCategories);
-            this.tvHeader = itemView.findViewById(R.id.tvCategoriesHeader);
+            this.tvHeader = itemView.findViewById(R.id.tvTitle);
+            this.btnSeeAll = itemView.findViewById(R.id.btnSeeAll);
+            this.sectionSkeleton = itemView.findViewById(R.id.layoutSectionSkeleton);
+            this.tvEmpty = itemView.findViewById(R.id.tvSectionEmpty);
             this.listener = listener;
             if (rvCategories != null) {
                 rvCategories.setLayoutManager(new LinearLayoutManager(itemView.getContext(), LinearLayoutManager.HORIZONTAL, false));
@@ -261,18 +438,35 @@ public class HomeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             if (tvHeader != null && title != null) {
                 tvHeader.setText(title);
             }
-            if (categories == null || categories.isEmpty()) return;
+            if (tvEmpty != null) tvEmpty.setText(R.string.no_categories_available);
+            if (btnSeeAll != null) btnSeeAll.setVisibility(View.GONE);
+            if (categories == null) {
+                if (rvCategories != null) rvCategories.setVisibility(View.GONE);
+                if (tvEmpty != null) tvEmpty.setVisibility(View.GONE);
+                if (sectionSkeleton != null) sectionSkeleton.setVisibility(View.VISIBLE);
+                return;
+            }
+            if (categories.isEmpty()) {
+                if (rvCategories != null) rvCategories.setVisibility(View.GONE);
+                if (sectionSkeleton != null) sectionSkeleton.setVisibility(View.GONE);
+                if (tvEmpty != null) tvEmpty.setVisibility(View.VISIBLE);
+                return;
+            }
+            if (rvCategories != null) rvCategories.setVisibility(View.VISIBLE);
+            if (sectionSkeleton != null) sectionSkeleton.setVisibility(View.GONE);
+            if (tvEmpty != null) tvEmpty.setVisibility(View.GONE);
             CategoryAdapter adapter = new CategoryAdapter(categories, listener);
-            rvCategories.setAdapter(adapter);
+            if (rvCategories != null) rvCategories.setAdapter(adapter);
         }
     }
 
 
     static class FeaturedViewHolder extends RecyclerView.ViewHolder {
         ImageView ivFeatured, btnFavorite;
-        TextView tvTitle, tvSubtitle, tvTag, tvRating, tvDistance;
+        TextView tvHeader, tvTitle, tvSubtitle, tvTag, tvRating, tvDistance;
         FeaturedViewHolder(View itemView) {
             super(itemView);
+            tvHeader = itemView.findViewById(R.id.tvTitle);
             ivFeatured = itemView.findViewById(R.id.ivFeatured);
             tvTitle = itemView.findViewById(R.id.tvFeaturedTitle);
             tvSubtitle = itemView.findViewById(R.id.tvFeaturedCategory);
@@ -281,8 +475,17 @@ public class HomeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             tvDistance = itemView.findViewById(R.id.tvFeaturedDistance);
             btnFavorite = itemView.findViewById(R.id.btnFavorite);
         }
-        void bind(Place place, OnItemClickListener listener) {
-            if (place == null) return;
+        void bind(Place place, OnItemClickListener listener, String sectionTitle) {
+            if (tvHeader != null) {
+                tvHeader.setText(!TextUtils.isEmpty(sectionTitle)
+                        ? sectionTitle
+                        : itemView.getContext().getString(R.string.featured_today));
+            }
+            if (place == null) {
+                itemView.setVisibility(View.GONE);
+                return;
+            }
+            itemView.setVisibility(View.VISIBLE);
             Context context = itemView.getContext();
             tvTitle.setText(place.getName());
             tvSubtitle.setText(place.getCategory());

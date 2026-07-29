@@ -89,11 +89,12 @@ public class HomeSection {
         return java.util.Objects.equals(type, that.type) &&
                 java.util.Objects.equals(title, that.title) &&
                 java.util.Objects.equals(data, that.data) &&
-                java.util.Objects.equals(singlePlace, that.singlePlace);
+                java.util.Objects.equals(singlePlace, that.singlePlace) &&
+                java.util.Objects.equals(trips, that.trips);
     }
 
     @Override
     public int hashCode() {
-        return java.util.Objects.hash(type, title, data, singlePlace);
+        return java.util.Objects.hash(type, title, data, singlePlace, trips);
     }
 }

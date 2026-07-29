@@ -71,13 +71,31 @@
 
     <!-- Gemini AI -->
     <string name="gemini_api_key">AQ.Ab8RN6Ky0_Xta9YzkZo6W6-_cyOeqs0Pd3x9R9DphQUCtjtp_w</string>
-    <string name="ai_assistant_title">AI Travel Assistant</string>
+    <string name="ai_assistant_title">ExploreEase AI</string>
+    <string name="ai_brand_name">ExploreEase AI</string>
+    <string name="ai_brand_tagline">Your Smart Travel Companion</string>
     <string name="ai_input_hint">Ask me anything about your trip…</string>
-    <string name="ai_initial_message">Hello! I am your AI travel assistant powered by Gemini. Ask me about local attractions, travel tips, or anything else!</string>
+    <string name="ai_initial_message">Hello! I am ExploreEase AI, your smart travel companion powered by Gemini. Ask me about local attractions, travel tips, or anything else!</string>
     <string name="ai_tooltip_text">Ask me anything!</string>
-    <string name="ai_subtitle">Your AI Travel Companion</string>
-    <string name="ai_welcome_title">Welcome to ExploreEase AI</string>
-    <string name="ai_welcome_message">I can help you plan trips, find attractions, and discover hidden gems.</string>
+    <string name="ai_subtitle">Your Smart Travel Companion</string>
+    <string name="ai_welcome_title">ExploreEase AI</string>
+    <string name="ai_welcome_message">Your Smart Travel Companion</string>
+    <string name="ai_welcome_capabilities_title">I can help you with</string>
+    <string name="ai_status_online">Online</string>
+    <string name="ai_status_online_dot">●</string>
+    <string name="ai_powered_by">Powered by Gemini</string>
+    <string name="ai_typing_indicator">ExploreEase is typing…</string>
+    <string name="ai_attach">Attach file</string>
+    <string name="ai_mic">Voice input</string>
+    <string name="ai_send">Send message</string>
+    <string name="ai_capability_trip_planning">Trip Planning</string>
+    <string name="ai_capability_nearby">Nearby Attractions</string>
+    <string name="ai_capability_hotels">Hotels</string>
+    <string name="ai_capability_restaurants">Restaurants</string>
+    <string name="ai_capability_hidden_gems">Hidden Gems</string>
+    <string name="ai_capability_routes">Route Optimization</string>
+    <string name="ai_capability_budget">Budget Travel</string>
+    <string name="ai_capability_local_tips">Local Tips</string>
     <string name="ai_chip_plan">Plan a trip</string>
     <string name="ai_chip_food">Best food places</string>
     <string name="ai_chip_attractions">Nearby attractions</string>
@@ -149,6 +167,8 @@
     <!-- Layout referenced strings missing from strings.xml -->
     <string name="empty_state_places_title">No Places Found</string>
     <string name="empty_state_places_msg">Explore other categories or try a different search query.</string>
+    <string name="home_load_error_title">Couldn’t load destinations</string>
+    <string name="home_load_error_msg">Check your connection and try again.</string>
     <string name="favorites_directions">Directions</string>
     <string name="favorites_empty_title">❤️ No Favorites Yet</string>
     <string name="favorites_empty_msg">Save destinations to access them quickly.</string>
@@ -176,8 +196,13 @@
     <string name="home_map_fullscreen">Fullscreen Map</string>
     <string name="home_map_live">LIVE MAP</string>
     <string name="home_map_title">Explore Attractions Nearby</string>
+    <string name="home_map_nearby_places">%1$d places nearby — tap to explore the map</string>
     <string name="home_search_hint">Search destinations, landmarks...</string>
     <string name="home_see_all">See All</string>
+    <string name="home_section_recently_viewed">Recently Viewed</string>
+    <string name="home_section_recommended">Recommended For You</string>
+    <string name="home_section_top_picks">Top Picks</string>
+    <string name="home_section_trending">Trending Now</string>
     <string name="home_sos_desc">Emergency contact triggers, offline SOS help and active monitoring features.</string>
     <string name="home_title">Where to next?</string>
     <string name="onboarding_already_have_account">Already have an account? Sign In</string>
@@ -335,6 +360,7 @@
     <string name="popular_this_week_header">🔥 Popular This Week</string>
     <string name="view_all">View All</string>
     <string name="no_destinations_available">📍 No destinations available</string>
+    <string name="no_categories_available">No categories available</string>
 
     <string name="cat_historical">Historical</string>
     <string name="cat_nature">Nature</string>
@@ -347,6 +373,9 @@
     <string name="cat_educational">Educational</string>
     <string name="cat_park">Park</string>
     <string name="cat_entertainment">Entertainment</string>
+    <string name="cat_photography">Photography</string>
+    <string name="cat_beaches">Beaches</string>
+    <string name="cat_popular">Popular</string>
     <string name="cat_spiritual">Spiritual</string>
     <string name="cat_history">History</string>
 

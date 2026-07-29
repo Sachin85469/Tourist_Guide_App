@@ -8,10 +8,12 @@
     android:clickable="true"
     android:focusable="true"
     android:stateListAnimator="@animator/card_lift"
-    app:cardCornerRadius="16dp"
-    app:cardElevation="3dp"
+    app:cardBackgroundColor="@color/color_surface"
+    app:cardCornerRadius="@dimen/corner_radius_large"
+    app:cardElevation="@dimen/card_elevation_soft"
     app:rippleColor="@color/color_primary_container"
-    app:strokeWidth="0dp">
+    app:strokeColor="@color/color_outline_variant"
+    app:strokeWidth="1dp">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
@@ -64,7 +66,6 @@
                 android:maxLines="1"
                 android:textAppearance="@style/TextAppearance.App.CardTitle"
                 android:textColor="@color/white"
-                android:textSize="13sp"
                 android:textStyle="bold"
                 tools:text="Sinhagad Fort" />
 

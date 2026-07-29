@@ -1,6 +1,7 @@
 package com.arriva.touristguideapp;
 
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -54,18 +55,28 @@ public class CategoryAdapter extends RecyclerView.Adapter<CategoryAdapter.ViewHo
         
         // Highlight logic (purple border + scale)
         boolean isSelected = position == selectedPosition;
+        float targetScale = isSelected ? 1.04f : 1f;
 
         MaterialCardView card = (MaterialCardView) holder.itemView;
         float density = holder.itemView.getResources().getDisplayMetrics().density;
         if (isSelected) {
             card.setStrokeWidth((int) (2 * density));
             card.setStrokeColor(ContextCompat.getColor(holder.itemView.getContext(), R.color.premium_purple));
-            holder.itemView.animate().scaleX(1.04f).scaleY(1.04f).setDuration(180).start();
         } else {
             card.setStrokeWidth(0);
-            holder.itemView.animate().scaleX(1f).scaleY(1f).setDuration(180).start();
         }
-        holder.categoryName.setTextColor(ContextCompat.getColor(holder.itemView.getContext(), R.color.white));
+        holder.itemView.animate().scaleX(targetScale).scaleY(targetScale).setDuration(180).start();
+        holder.categoryName.setTextColor(ContextCompat.getColor(holder.itemView.getContext(), R.color.color_on_surface));
+
+        holder.itemView.setOnTouchListener((v, event) -> {
+            int action = event.getActionMasked();
+            if (action == MotionEvent.ACTION_DOWN) {
+                v.animate().scaleX(isSelected ? 1.02f : 0.97f).scaleY(isSelected ? 1.02f : 0.97f).setDuration(120).start();
+            } else if (action == MotionEvent.ACTION_UP || action == MotionEvent.ACTION_CANCEL) {
+                v.animate().scaleX(targetScale).scaleY(targetScale).setDuration(140).start();
+            }
+            return false;
+        });
 
         holder.itemView.setOnClickListener(v -> {
             int previousSelected = selectedPosition;

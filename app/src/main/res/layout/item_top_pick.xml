@@ -9,9 +9,11 @@
     android:layout_marginBottom="8dp"
     android:stateListAnimator="@animator/card_lift"
     app:cardBackgroundColor="@color/color_surface"
-    app:cardCornerRadius="18dp"
-    app:cardElevation="3dp"
-    app:rippleColor="@color/color_primary_container">
+    app:cardCornerRadius="@dimen/corner_radius_large"
+    app:cardElevation="@dimen/card_elevation_soft"
+    app:rippleColor="@color/color_primary_container"
+    app:strokeColor="@color/color_outline_variant"
+    app:strokeWidth="1dp">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -40,7 +42,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_margin="12dp"
-                app:cardCornerRadius="14dp"
+                app:cardCornerRadius="@dimen/corner_radius_small"
                 app:cardElevation="2dp"
                 app:cardBackgroundColor="#CCFFFFFF"
                 app:strokeWidth="0dp">
@@ -126,10 +128,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:paddingStart="14dp"
-            android:paddingTop="14dp"
-            android:paddingEnd="14dp"
-            android:paddingBottom="16dp">
+            android:padding="@dimen/spacing_medium">
 
             <TextView
                 android:id="@+id/topPickName"
@@ -138,14 +137,13 @@
                 android:ellipsize="end"
                 android:maxLines="1"
                 android:text="Grand Palace Hotel"
-                android:textColor="@color/place_detail_text_primary"
-                android:textSize="16sp"
-                android:textStyle="bold" />
+                android:textAppearance="@style/TextAppearance.App.TitleMedium"
+                android:textColor="@color/color_on_surface" />
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
+                android:layout_marginTop="@dimen/spacing_tiny"
                 android:gravity="center_vertical"
                 android:orientation="horizontal">
 
@@ -154,8 +152,8 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                    android:text="2.5 km"
+                    android:textAppearance="@style/TextAppearance.App.BodyMedium"
                     android:textColor="@color/color_primary"
-                    android:textSize="13sp"
                     android:textStyle="bold" />
 
                 <View
@@ -169,8 +167,8 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Premium"
-                    android:textColor="@color/place_detail_text_secondary"
-                    android:textSize="13sp" />
+                    android:textAppearance="@style/TextAppearance.App.BodyMedium"
+                    android:textColor="@color/color_on_surface_variant" />
             </LinearLayout>
         </LinearLayout>
     </LinearLayout>

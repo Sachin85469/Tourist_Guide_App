@@ -4,44 +4,39 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
-    android:paddingBottom="16dp">
+    android:paddingBottom="@dimen/spacing_medium">
 
-    <RelativeLayout
+    <include layout="@layout/layout_home_section_header" />
+
+    <FrameLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:layout_marginBottom="8dp"
-        android:paddingHorizontal="@dimen/screen_margin">
+        android:layout_height="wrap_content">
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rvFeaturedHorizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:clipToPadding="false"
+            android:orientation="horizontal"
+            android:paddingHorizontal="@dimen/screen_margin"
+            android:scrollbars="none" />
+
+        <include
+            android:id="@+id/layoutSectionSkeleton"
+            layout="@layout/item_place_skeleton"
+            android:visibility="gone" />
 
         <TextView
-            android:id="@+id/tvFeaturedHeader"
-            android:layout_width="wrap_content"
+            android:id="@+id/tvSectionEmpty"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_alignParentStart="true"
-            android:layout_centerVertical="true"
-            android:text="@string/featured_destinations_header"
-            android:textAppearance="@style/TextAppearance.App.TitleMedium"
-            android:textColor="@color/m3_on_surface"
-            android:textStyle="bold" />
-
-        <TextView
-            android:id="@+id/btnViewAll"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentEnd="true"
-            android:layout_centerVertical="true"
-            android:text="@string/view_all"
-            android:textAppearance="@style/TextAppearance.App.LabelLarge"
-            android:textColor="@color/m3_primary"
-            android:clickable="true"
-            android:focusable="true" />
-    </RelativeLayout>
-
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/rvFeaturedHorizontal"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:clipToPadding="false"
-        android:paddingHorizontal="12dp"
-        android:orientation="horizontal" />
+            android:gravity="center"
+            android:paddingHorizontal="@dimen/screen_margin"
+            android:paddingTop="@dimen/spacing_medium"
+            android:paddingBottom="@dimen/spacing_large"
+            android:text="@string/no_destinations_available"
+            android:textAppearance="@style/TextAppearance.App.BodyMedium"
+            android:textColor="@color/m3_on_surface_variant"
+            android:visibility="gone" />
+    </FrameLayout>
 </LinearLayout>

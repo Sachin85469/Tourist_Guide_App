@@ -4,73 +4,72 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:paddingVertical="8dp">
+    android:paddingVertical="6dp">
 
-    <com.google.android.material.imageview.ShapeableImageView
-        android:id="@+id/ivAssistant"
-        android:layout_width="32dp"
-        android:layout_height="32dp"
-        android:src="@drawable/ic_arriva_ai"
+    <FrameLayout
+        android:id="@+id/avatarContainer"
+        android:layout_width="@dimen/ai_avatar_message"
+        android:layout_height="@dimen/ai_avatar_message"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/cardMessage"
-        app:shapeAppearanceOverlay="@style/CircleImage" />
+        app:layout_constraintTop_toTopOf="@+id/cardMessage">
 
-    <com.google.android.material.card.MaterialCardView
+        <include
+            android:id="@+id/ivAssistant"
+            layout="@layout/view_ai_robot_avatar_compact"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+    </FrameLayout>
+
+    <LinearLayout
         android:id="@+id/cardMessage"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        app:cardBackgroundColor="@color/white"
-        app:cardCornerRadius="20dp"
-        app:cardElevation="1dp"
-        app:strokeWidth="0dp"
+        android:layout_marginStart="10dp"
+        android:background="@drawable/bg_ai_bot_bubble"
+        android:elevation="1dp"
+        android:orientation="vertical"
+        android:paddingHorizontal="16dp"
+        android:paddingTop="12dp"
+        android:paddingBottom="10dp"
         app:layout_constrainedWidth="true"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toEndOf="@+id/ivAssistant"
+        app:layout_constraintStart_toEndOf="@+id/avatarContainer"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintWidth_max="300dp">
 
-        <LinearLayout
-            android:layout_width="match_parent"
+        <TextView
+            android:id="@+id/tvMessage"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:paddingHorizontal="16dp"
-            android:paddingVertical="12dp">
+            android:lineSpacingExtra="4dp"
+            android:textColor="@color/color_on_surface"
+            android:textSize="15sp"
+            tools:text="Certainly! Shaniwar Wada is a historic fortification in Pune." />
 
-            <TextView
-                android:id="@+id/tvMessage"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:lineSpacingExtra="4dp"
-                android:textColor="@color/black"
-                android:textSize="15sp"
-                tools:text="Certainly! Shaniwar Wada is a historic fortification in Pune. I recommend visiting in the evening to see the light and sound show." />
+        <TextView
+            android:id="@+id/tvTime"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="end"
+            android:layout_marginTop="6dp"
+            android:alpha="0.55"
+            android:textColor="@color/color_on_surface_variant"
+            android:textSize="10sp"
+            tools:text="14:31" />
 
-            <TextView
-                android:id="@+id/tvTime"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="end"
-                android:layout_marginTop="4dp"
-                android:alpha="0.6"
-                android:textColor="@color/black"
-                android:textSize="10sp"
-                tools:text="14:31" />
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnRetryChat"
-                style="@style/Widget.Material3.Button.TextButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="end"
-                android:minHeight="36dp"
-                android:text="@string/retry"
-                android:textAllCaps="false"
-                android:visibility="gone"
-                tools:visibility="visible" />
-        </LinearLayout>
-    </com.google.android.material.card.MaterialCardView>
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnRetryChat"
+            style="@style/Widget.Material3.Button.TextButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="end"
+            android:minHeight="36dp"
+            android:text="@string/retry"
+            android:textAllCaps="false"
+            android:visibility="gone"
+            tools:visibility="visible" />
+    </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

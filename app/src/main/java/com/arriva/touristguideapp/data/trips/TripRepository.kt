@@ -3,6 +3,9 @@ package com.arriva.touristguideapp.data.trips
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import java.util.Date
+import java.util.function.Consumer
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 
@@ -25,6 +28,13 @@ class TripRepository {
                 }
         } catch (e: Exception) {
             emptyList()
+        }
+    }
+
+    /** Java-friendly main-thread callback for Home's lightweight trip preview. */
+    fun getTripsAsync(callback: Consumer<List<Trip>>) {
+        CoroutineScope(Dispatchers.Main).launch {
+            callback.accept(getTrips())
         }
     }
 
