@@ -120,7 +120,7 @@ class TripDetailsActivity : BaseActivity() {
         tvDetailBudget.text = trip.budget.ifBlank { "Budget not set" }
         tvDetailSavedPlaces.text = trip.savedPlacesLabel()
 
-        ImageUtils.loadDrawable(ivDetailImage, trip.heroImageRes())
+        ImageUtils.loadImageReference(ivDetailImage, trip.heroImageReference())
     }
 
     private fun showEditDialog(trip: Trip) {

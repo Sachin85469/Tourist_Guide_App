@@ -10,7 +10,7 @@ import java.util.List;
 /**
  * Data model for a tourist place.
  * Scalable to include many cities and categories.
- * Updated to exclusively use local drawable resources via ImageRepository.
+ * Images are stored as Firebase Storage references, never as manually entered URLs.
  */
 public class Place implements Serializable {
     private String id;
@@ -39,6 +39,10 @@ public class Place implements Serializable {
     private String categoryId;
     private String legacyCatalogId;
     private long viewedAt; // Timestamp for recently viewed (Requirement)
+    /** Firebase Storage path created by the place-image uploader, e.g. places/{placeId}/cover.jpg. */
+    private String imageRef;
+    /** Additional Firebase Storage paths created by the uploader. */
+    private List<String> galleryImageRefs = new ArrayList<>();
 
     public Place() {
         // Required for Firestore serialization
@@ -173,6 +177,61 @@ public class Place implements Serializable {
         this.viewedAt = viewedAt;
     }
 
+    /**
+     * The stored Firebase Storage reference for the cover image. This is a path/reference, not a
+     * download URL, so access tokens and generated URLs never become catalog data.
+     */
+    public String getImageRef() {
+        return imageRef;
+    }
+
+    public void setImageRef(String imageRef) {
+        this.imageRef = normalizeImageRef(imageRef);
+    }
+
+    @NonNull
+    public List<String> getGalleryImageRefs() {
+        return new ArrayList<>(galleryImageRefs == null ? java.util.Collections.emptyList() : galleryImageRefs);
+    }
+
+    public void setGalleryImageRefs(List<String> galleryImageRefs) {
+        this.galleryImageRefs = sanitizeImageRefs(galleryImageRefs);
+    }
+
+    /** Returns the cover first followed by unique gallery references. */
+    @NonNull
+    public List<String> getAllImageRefs() {
+        java.util.LinkedHashSet<String> refs = new java.util.LinkedHashSet<>();
+        String cover = normalizeImageRef(imageRef);
+        if (cover != null) {
+            refs.add(cover);
+        }
+        refs.addAll(sanitizeImageRefs(galleryImageRefs));
+        return new ArrayList<>(refs);
+    }
+
+    private static String normalizeImageRef(String value) {
+        if (value == null) {
+            return null;
+        }
+        String trimmed = value.trim();
+        return trimmed.isEmpty() ? null : trimmed;
+    }
+
+    @NonNull
+    private static List<String> sanitizeImageRefs(List<String> refs) {
+        java.util.LinkedHashSet<String> cleaned = new java.util.LinkedHashSet<>();
+        if (refs != null) {
+            for (String ref : refs) {
+                String normalized = normalizeImageRef(ref);
+                if (normalized != null) {
+                    cleaned.add(normalized);
+                }
+            }
+        }
+        return new ArrayList<>(cleaned);
+    }
+
     public void setRating(double rating) {
         this.rating = rating;
     }
@@ -202,11 +261,13 @@ public class Place implements Serializable {
                 java.util.Objects.equals(description, place.description) &&
                 java.util.Objects.equals(budget, place.budget) &&
                 java.util.Objects.equals(crowdLevel, place.crowdLevel) &&
-                java.util.Objects.equals(bestTime, place.bestTime);
+                java.util.Objects.equals(bestTime, place.bestTime) &&
+                java.util.Objects.equals(imageRef, place.imageRef) &&
+                java.util.Objects.equals(galleryImageRefs, place.galleryImageRefs);
     }
 
     @Override
     public int hashCode() {
-        return java.util.Objects.hash(id, name, city, category, description, budget, crowdLevel, bestTime, latitude, longitude, rating, totalRatings, totalComments);
+        return java.util.Objects.hash(id, name, city, category, description, budget, crowdLevel, bestTime, latitude, longitude, rating, totalRatings, totalComments, imageRef, galleryImageRefs);
     }
 }

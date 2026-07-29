@@ -11,9 +11,6 @@ import com.arriva.touristguideapp.DataProvider;
 import com.arriva.touristguideapp.Place;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.GeoPoint;
-
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -139,33 +136,8 @@ public final class PlaceMigrationHelper {
 
     @NonNull
     private static Map<String, Object> buildDocument(@NonNull Place place) {
-        Map<String, Object> map = new HashMap<>();
-
-        map.put(PlacesFirestoreContract.FIELD_NAME, place.getName());
+        Map<String, Object> map = PlaceDocumentMapper.toFirestoreDocument(place);
         map.put(PlacesFirestoreContract.FIELD_STATUS, PlacesFirestoreContract.STATUS_PUBLISHED);
-        map.put(PlacesFirestoreContract.FIELD_CATEGORY, place.getCategory());
-        map.put(PlacesFirestoreContract.FIELD_CITY, place.getCity());
-        map.put(PlacesFirestoreContract.FIELD_DESCRIPTION, place.getDescription());
-        map.put(PlacesFirestoreContract.FIELD_LATITUDE, place.getLatitude());
-        map.put(PlacesFirestoreContract.FIELD_LONGITUDE, place.getLongitude());
-        map.put(PlacesFirestoreContract.FIELD_IS_TOP_PICK, place.isTopPick());
-        map.put(PlacesFirestoreContract.FIELD_RATING_AVG, place.getRating());
-
-        map.put(PlacesFirestoreContract.FIELD_LOCATION,
-                new GeoPoint(place.getLatitude(), place.getLongitude()));
-
-        map.put(PlacesFirestoreContract.FIELD_BUDGET, place.getBudget());
-        map.put(PlacesFirestoreContract.FIELD_CROWD_LEVEL, place.getCrowdLevel());
-        map.put(PlacesFirestoreContract.FIELD_BEST_TIME, place.getBestTime());
-        map.put(PlacesFirestoreContract.FIELD_TIPS, place.getTips());
-        map.put(PlacesFirestoreContract.FIELD_FUN_FACT, place.getFunFact());
-        map.put(PlacesFirestoreContract.FIELD_NEAREST_STATION, place.getNearestStation());
-        map.put(PlacesFirestoreContract.FIELD_TAG, place.getTag());
-        map.put(PlacesFirestoreContract.FIELD_LEGACY_ID, place.getId());
-
-        // Note: imageUrl and galleryUrls are NOT mapped here as they are manually added to Firestore
-        // or provided by the data source if already remote-first.
-        
         return map;
     }
 }

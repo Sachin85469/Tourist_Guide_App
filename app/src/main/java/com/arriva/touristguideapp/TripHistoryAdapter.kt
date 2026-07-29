@@ -55,7 +55,7 @@ class TripHistoryAdapter(
             val placesPreview = trip.places.take(3).joinToString("\n") { "- ${it.name}" }
             tvTripPlaces.text = placesPreview.ifBlank { "No saved places" }
 
-            ImageUtils.loadDrawable(ivTripImage, trip.heroImageRes())
+            ImageUtils.loadImageReference(ivTripImage, trip.heroImageReference())
 
             itemView.setOnClickListener { onTripClick(trip) }
             btnEditTrip.setOnClickListener { onEditClick(trip) }

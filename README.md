@@ -67,7 +67,7 @@ auto-create places
 auto-generate IDs
 
 
-upload image URLs
+upload place images; the app stores Firebase Storage references automatically
 
 
 validate required fields
@@ -78,7 +78,9 @@ bulk insert Firestore documents
 
 
 Example CSV
-name,category,city,imageUrl,description,ratingShaniwar Wada,History,Pune,https://...,Fort in Pune,4.5Sinhagad Fort,Adventure,Pune,https://...,Hill fort,4.7
+name,category,city,imageRef,description,rating
+Shaniwar Wada,History,Pune,places/shaniwar-wada/cover.jpg,Fort in Pune,4.5
+Sinhagad Fort,Adventure,Pune,places/sinhagad-fort/cover.jpg,Hill fort,4.7
 Then one click:
 → all places inserted.
 

@@ -14,15 +14,15 @@ import java.util.List;
 
 public class GalleryPreviewAdapter extends RecyclerView.Adapter<GalleryPreviewAdapter.ViewHolder> {
 
-    private final List<Integer> imageResources;
+    private final List<String> imageRefs;
     private final OnImageClickListener listener;
 
     public interface OnImageClickListener {
         void onImageClick(int position);
     }
 
-    public GalleryPreviewAdapter(List<Integer> imageResources, OnImageClickListener listener) {
-        this.imageResources = imageResources;
+    public GalleryPreviewAdapter(List<String> imageRefs, OnImageClickListener listener) {
+        this.imageRefs = imageRefs;
         this.listener = listener;
     }
 
@@ -35,7 +35,7 @@ public class GalleryPreviewAdapter extends RecyclerView.Adapter<GalleryPreviewAd
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        ImageUtils.loadDrawable(holder.imageView, imageResources.get(position));
+        ImageUtils.loadImageReference(holder.imageView, imageRefs.get(position));
         holder.itemView.setOnClickListener(v -> {
             if (listener != null) {
                 listener.onImageClick(position);
@@ -45,7 +45,7 @@ public class GalleryPreviewAdapter extends RecyclerView.Adapter<GalleryPreviewAd
 
     @Override
     public int getItemCount() {
-        return imageResources.size();
+        return imageRefs.size();
     }
 
     static class ViewHolder extends RecyclerView.ViewHolder {

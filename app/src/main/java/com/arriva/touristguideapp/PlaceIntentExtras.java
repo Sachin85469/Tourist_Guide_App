@@ -6,7 +6,7 @@ import androidx.annotation.NonNull;
 
 /**
  * Writes {@link PlaceDetailsActivity} intent extras consistently.
- * Place images are resolved locally by ImageRepository.
+ * Place images are resolved from Firebase Storage references.
  */
 public final class PlaceIntentExtras {
 
@@ -31,5 +31,7 @@ public final class PlaceIntentExtras {
         intent.putExtra("avgRating", place.getRating());
         intent.putExtra("totalRatings", place.getTotalRatings());
         intent.putExtra("totalComments", place.getTotalComments());
+        intent.putExtra("imageRef", place.getImageRef());
+        intent.putStringArrayListExtra("galleryImageRefs", new java.util.ArrayList<>(place.getGalleryImageRefs()));
     }
 }

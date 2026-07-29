@@ -11,11 +11,11 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.widget.ViewPager2
-import com.arriva.touristguideapp.data.repository.ImageRepository
 import com.arriva.touristguideapp.data.analytics.AnalyticsRepository
 import com.arriva.touristguideapp.data.places.PlaceRepository
 import com.arriva.touristguideapp.data.reviews.ReviewAdapter
 import com.arriva.touristguideapp.data.reviews.ReviewRepository
+import com.arriva.touristguideapp.utils.ImageUtils
 import com.google.android.material.chip.Chip
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.ListenerRegistration
@@ -139,6 +139,8 @@ class PlaceDetailsActivity : BaseActivity() {
         val avgRating = intent.getDoubleExtra("avgRating", 0.0)
         val totalRatings = intent.getLongExtra("totalRatings", 0)
         val totalComments = intent.getLongExtra("totalComments", 0)
+        val imageRef = intent.getStringExtra("imageRef")
+        val galleryImageRefs = intent.getStringArrayListExtra("galleryImageRefs") ?: arrayListOf()
 
         // Show content hide loading
         findViewById<View>(R.id.loadingState).visibility = View.GONE
@@ -182,19 +184,15 @@ class PlaceDetailsActivity : BaseActivity() {
         setupQuickFacts(budget, avgRating, totalRatings)
         setupInfoCards(bestTime, crowdLevel, budget, stationText)
         
-        // Resolve images from ImageRepository
-        val tempPlace = Place().apply {
-            id = placeId
-            name = placeName
-        }
-        val mainImage = ImageRepository.getMainImageForPlace(tempPlace)
-        val galleryRes = ImageRepository.getGalleryImagesForPlace(tempPlace).toList()
-        
-        // Hero area (ViewPager2) always shows at least the main image
-        val heroList = if (galleryRes.isEmpty()) listOf(mainImage) else galleryRes
+        // The hero always contains one item: a Storage reference or the default travel image.
+        val imageRefs = LinkedHashSet<String>()
+        imageRef?.trim()?.takeIf { it.isNotEmpty() }?.let(imageRefs::add)
+        galleryImageRefs.map { it.trim() }.filter { it.isNotEmpty() }.forEach(imageRefs::add)
+        val galleryRefs = imageRefs.toList()
+        val heroList = if (galleryRefs.isEmpty()) listOf("") else galleryRefs
         viewPagerGallery?.adapter = GalleryAdapter(heroList)
 
-        setupGallery(galleryRes)
+        setupGallery(galleryRefs)
         
         setupActionButtons()
 
@@ -574,8 +572,8 @@ class PlaceDetailsActivity : BaseActivity() {
         }
     }
 
-    private fun setupGallery(resList: List<Int>) {
-        if (resList.isNotEmpty()) {
+    private fun setupGallery(imageRefs: List<String>) {
+        if (imageRefs.isNotEmpty()) {
             findViewById<View>(R.id.llGalleryContent)?.visibility = View.VISIBLE
             findViewById<View>(R.id.tvNoGallery)?.visibility = View.GONE
         } else {
@@ -600,11 +598,11 @@ class PlaceDetailsActivity : BaseActivity() {
         )
 
         for (i in imageIds.indices) {
-            bindGalleryTile(cardIds[i], imageIds[i], resList.getOrNull(i), i, resList.size)
+            bindGalleryTile(cardIds[i], imageIds[i], imageRefs.getOrNull(i), i, imageRefs.size)
         }
 
         findViewById<View>(R.id.btnViewAllPhotos)?.setOnClickListener {
-            if (resList.isNotEmpty()) {
+            if (imageRefs.isNotEmpty()) {
                 viewPagerGallery?.setCurrentItem(0, true)
                 nsvPlaceDetails?.smoothScrollTo(0, 0)
             }
@@ -625,6 +623,8 @@ class PlaceDetailsActivity : BaseActivity() {
             city = intent.getStringExtra("city")
             tag = intent.getStringExtra("tag")
             description = intent.getStringExtra("description")
+            imageRef = intent.getStringExtra("imageRef")
+            galleryImageRefs = intent.getStringArrayListExtra("galleryImageRefs") ?: arrayListOf()
         }
         currentPlace?.let { com.arriva.touristguideapp.data.places.RecentlyViewedManager(this).addRecentlyViewed(it) }
     }
@@ -688,23 +688,23 @@ class PlaceDetailsActivity : BaseActivity() {
     private fun bindGalleryTile(
         cardId: Int,
         imageId: Int,
-        resId: Int?,
+        imageRef: String?,
         position: Int,
-        resCount: Int
+        imageCount: Int
     ) {
         val image = findViewById<ImageView?>(imageId) ?: return
-        if (resId == null || resId == 0) {
+        if (imageRef.isNullOrBlank()) {
             findViewById<View?>(cardId)?.visibility = View.GONE
         } else {
             findViewById<View?>(cardId)?.visibility = View.VISIBLE
-            image.setImageResource(resId)
+            ImageUtils.loadImageReference(image, imageRef)
             image.scaleType = ImageView.ScaleType.CENTER_CROP
         }
 
         findViewById<View?>(cardId)?.setOnClickListener { card ->
             animateTap(card)
-            if (resCount > 0) {
-                viewPagerGallery?.setCurrentItem(position.coerceAtMost(resCount - 1), true)
+            if (imageCount > 0) {
+                viewPagerGallery?.setCurrentItem(position.coerceAtMost(imageCount - 1), true)
                 nsvPlaceDetails?.smoothScrollTo(0, 0)
             }
         }

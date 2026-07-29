@@ -62,8 +62,10 @@ public class CategoryAdapter extends RecyclerView.Adapter<CategoryAdapter.ViewHo
         if (isSelected) {
             card.setStrokeWidth((int) (2 * density));
             card.setStrokeColor(ContextCompat.getColor(holder.itemView.getContext(), R.color.premium_purple));
+            card.setCardElevation(8 * density);
         } else {
             card.setStrokeWidth(0);
+            card.setCardElevation(4 * density);
         }
         holder.itemView.animate().scaleX(targetScale).scaleY(targetScale).setDuration(180).start();
         holder.categoryName.setTextColor(ContextCompat.getColor(holder.itemView.getContext(), R.color.color_on_surface));
@@ -72,8 +74,10 @@ public class CategoryAdapter extends RecyclerView.Adapter<CategoryAdapter.ViewHo
             int action = event.getActionMasked();
             if (action == MotionEvent.ACTION_DOWN) {
                 v.animate().scaleX(isSelected ? 1.02f : 0.97f).scaleY(isSelected ? 1.02f : 0.97f).setDuration(120).start();
+                holder.categoryIcon.animate().scaleX(0.94f).scaleY(0.94f).setDuration(120).start();
             } else if (action == MotionEvent.ACTION_UP || action == MotionEvent.ACTION_CANCEL) {
                 v.animate().scaleX(targetScale).scaleY(targetScale).setDuration(140).start();
+                holder.categoryIcon.animate().scaleX(1f).scaleY(1f).setDuration(140).start();
             }
             return false;
         });

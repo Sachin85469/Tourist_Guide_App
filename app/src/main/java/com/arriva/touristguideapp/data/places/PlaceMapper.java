@@ -9,7 +9,7 @@ import java.util.List;
 
 /**
  * Maps {@link PlaceDto} to the existing {@link Place} model.
- * Updated to exclusively use remote URLs.
+ * Image references are mapped as Firebase Storage paths, not manual URLs.
  */
 public final class PlaceMapper {
 
@@ -47,8 +47,11 @@ public final class PlaceMapper {
             place.setTotalRatings(dto.getTotalRatings());
             place.setTotalComments(dto.getTotalComments());
             place.setTopPick(dto.isTopPick());
+            place.setCatalogStatus(dto.getStatus());
             place.setCategoryId(dto.getCategoryId());
             place.setLegacyCatalogId(dto.getLegacyId());
+            place.setImageRef(dto.getImageRef());
+            place.setGalleryImageRefs(dto.getGalleryImageRefs());
             return place;
         } catch (Exception e) {
             Log.e(TAG, "toPlace FAILED for docId=" + dto.getDocumentId(), e);

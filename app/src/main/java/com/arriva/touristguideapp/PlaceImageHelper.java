@@ -4,7 +4,6 @@ import android.widget.ImageView;
 
 import androidx.annotation.NonNull;
 
-import com.arriva.touristguideapp.data.repository.ImageRepository;
 import com.arriva.touristguideapp.utils.ImageUtils;
 
 public final class PlaceImageHelper {
@@ -20,9 +19,4 @@ public final class PlaceImageHelper {
         ImageUtils.loadPlaceMainImage(imageView, place);
     }
 
-    public static int getLocalImageResource(@NonNull String placeName) {
-        Place place = new Place();
-        place.setName(placeName);
-        return ImageRepository.getMainImageForPlace(place);
-    }
 }

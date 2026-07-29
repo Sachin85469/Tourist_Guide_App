@@ -7,7 +7,6 @@ import android.widget.ImageView
 import android.widget.RatingBar
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
-import com.arriva.touristguideapp.data.repository.ImageRepository
 import com.arriva.touristguideapp.utils.ImageUtils
 import java.text.SimpleDateFormat
 import java.util.*
@@ -57,12 +56,8 @@ class MyReviewsAdapter(
                 tvDate.text = ""
             }
 
-            // Load Place Image
-            val tempPlace = Place().apply {
-                id = review.placeId
-                name = review.placeName
-            }
-            ImageUtils.loadPlaceMainImage(ivPlaceImage, tempPlace)
+            // Reviews do not persist a place image reference; use the standard travel fallback.
+            ImageUtils.loadImageReference(ivPlaceImage, null)
 
             itemView.setOnClickListener { onReviewClick(review) }
             btnEdit.setOnClickListener { onEditClick(review) }

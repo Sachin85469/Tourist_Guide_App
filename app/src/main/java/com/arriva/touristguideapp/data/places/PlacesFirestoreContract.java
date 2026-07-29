@@ -36,6 +36,10 @@ public final class PlacesFirestoreContract {
     public static final String FIELD_NEAREST_STATION = "nearestStation";
     public static final String FIELD_TAG = "tag";
     public static final String FIELD_LEGACY_ID = "legacyId";
+    /** Firebase Storage path/reference, written by the uploader. */
+    public static final String FIELD_IMAGE_REF = "imageRef";
+    /** Firebase Storage paths/references for optional gallery images. */
+    public static final String FIELD_GALLERY_IMAGE_REFS = "galleryImageRefs";
 
     private PlacesFirestoreContract() {
     }
