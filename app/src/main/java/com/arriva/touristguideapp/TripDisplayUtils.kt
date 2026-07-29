@@ -1,6 +1,5 @@
 package com.arriva.touristguideapp
 
-import com.arriva.touristguideapp.data.repository.ImageRepository
 import com.arriva.touristguideapp.data.trips.Trip
 import java.text.SimpleDateFormat
 import java.util.Calendar
@@ -31,8 +30,8 @@ fun Trip.locationLabel(): String {
         ?: "Location not set"
 }
 
-fun Trip.heroImageRes(): Int {
-    return ImageRepository.getMainImageForPlace(places.firstOrNull())
+fun Trip.heroImageReference(): String? {
+    return places.firstOrNull()?.imageRef
 }
 
 fun Trip.dateRangeLabel(): String {

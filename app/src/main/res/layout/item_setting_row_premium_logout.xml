@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="72dp"
+    android:background="@drawable/bg_setting_logout_ripple"
+    android:clickable="true"
+    android:focusable="true"
+    android:gravity="center_vertical"
+    android:orientation="horizontal"
+    android:paddingStart="20dp"
+    android:paddingEnd="16dp">
+
+    <!-- Icon Container -->
+    <FrameLayout
+        android:layout_width="44dp"
+        android:layout_height="44dp"
+        android:background="@drawable/bg_setting_icon_logout">
+
+        <ImageView
+            android:id="@+id/settingIcon"
+            android:layout_width="22dp"
+            android:layout_height="22dp"
+            android:layout_gravity="center"
+            android:src="@drawable/ic_logout"
+            app:tint="@color/color_error" />
+    </FrameLayout>
+
+    <!-- Text Content -->
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_weight="1"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/settingTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/color_error"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            tools:text="Sign Out" />
+
+        <TextView
+            android:id="@+id/settingSubtitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="2dp"
+            android:textColor="@color/color_text_muted"
+            android:textSize="13sp"
+            tools:text="Sign out of your account" />
+    </LinearLayout>
+
+    <!-- Chevron -->
+    <ImageView
+        android:id="@+id/settingActionIcon"
+        android:layout_width="20dp"
+        android:layout_height="20dp"
+        android:src="@drawable/ic_chevron_right"
+        app:tint="@color/color_text_muted" />
+</LinearLayout>

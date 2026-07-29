@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+    <!-- Section Header -->
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="24dp"
+        android:layout_marginTop="24dp"
+        android:text="Settings &amp; Safety"
+        android:textColor="@color/color_primary"
+        android:textSize="14sp"
+        android:textStyle="bold" />
+
+    <!-- Settings Card -->
+    <com.google.android.material.card.MaterialCardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="16dp"
+        android:layout_marginTop="12dp"
+        app:cardBackgroundColor="@color/color_surface"
+        app:cardCornerRadius="20dp"
+        app:cardElevation="2dp"
+        app:strokeWidth="0dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <!-- Account Section -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="20dp"
+                android:layout_marginTop="16dp"
+                android:text="Account"
+                android:textColor="@color/color_text_muted"
+                android:textSize="12sp"
+                android:textStyle="bold" />
+
+            <include
+                android:id="@+id/btnEditProfile"
+                layout="@layout/item_setting_row_premium" />
+
+            <include
+                android:id="@+id/btnEditTravelInterests"
+                layout="@layout/item_setting_row_premium" />
+
+            <!-- Personalization Section -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="20dp"
+                android:layout_marginTop="16dp"
+                android:text="Personalization"
+                android:textColor="@color/color_text_muted"
+                android:textSize="12sp"
+                android:textStyle="bold" />
+
+            <include
+                android:id="@+id/btnLanguage"
+                layout="@layout/item_setting_row_premium" />
+
+            <!-- Safety & Security Section -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="20dp"
+                android:layout_marginTop="16dp"
+                android:text="Safety &amp; Security"
+                android:textColor="@color/color_text_muted"
+                android:textSize="12sp"
+                android:textStyle="bold" />
+
+            <include
+                android:id="@+id/btnSecurity"
+                layout="@layout/item_setting_row_premium" />
+
+            <include
+                android:id="@+id/btnSOSSettings"
+                layout="@layout/item_setting_row_premium" />
+
+            <include
+                android:id="@+id/btnSOSHistory"
+                layout="@layout/item_setting_row_premium" />
+
+            <!-- Notifications Section -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="20dp"
+                android:layout_marginTop="16dp"
+                android:text="Notifications"
+                android:textColor="@color/color_text_muted"
+                android:textSize="12sp"
+                android:textStyle="bold" />
+
+            <include
+                android:id="@+id/btnNotificationSettings"
+                layout="@layout/item_setting_row_premium" />
+
+            <!-- Travel Section -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="20dp"
+                android:layout_marginTop="16dp"
+                android:text="Travel"
+                android:textColor="@color/color_text_muted"
+                android:textSize="12sp"
+                android:textStyle="bold" />
+
+            <include
+                android:id="@+id/btnMyReviews"
+                layout="@layout/item_setting_row_premium" />
+
+            <include
+                android:id="@+id/btnTripHistory"
+                layout="@layout/item_setting_row_premium" />
+
+            <!-- Support Section -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="20dp"
+                android:layout_marginTop="16dp"
+                android:text="Support"
+                android:textColor="@color/color_text_muted"
+                android:textSize="12sp"
+                android:textStyle="bold" />
+
+            <include
+                android:id="@+id/btnLogoutRow"
+                layout="@layout/item_setting_row_premium_logout" />
+        </LinearLayout>
+    </com.google.android.material.card.MaterialCardView>
+</LinearLayout>

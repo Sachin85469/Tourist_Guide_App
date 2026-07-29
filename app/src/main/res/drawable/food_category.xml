@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="64dp" android:height="64dp" android:viewportWidth="64" android:viewportHeight="64">
+    <path android:fillColor="@color/marker_food" android:pathData="M12,4h40a8,8 0,0 1,8 8v40a8,8 0,0 1,-8 8H12a8,8 0,0 1,-8 -8V12a8,8 0,0 1,8 -8z"/>
+    <path android:fillColor="#FFFFFFFF" android:pathData="M22,14h4v13c0,3 -2,5 -5,6v17h-4V33c-3,-1 -5,-3 -5,-6V14h4v12h2V14h4v12h2zM41,14c-5,3 -7,7 -7,13v8h5v15h5V14z"/>
+</vector>

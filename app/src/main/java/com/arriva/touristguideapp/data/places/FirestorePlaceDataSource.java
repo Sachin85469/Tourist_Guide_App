@@ -70,12 +70,19 @@ public class FirestorePlaceDataSource {
      */
     public Task<Void> savePlace(com.arriva.touristguideapp.Place place) {
         if (place.getId() == null || place.getId().isEmpty()) {
-            // New place
             com.google.firebase.firestore.DocumentReference ref = db.collection(PlacesFirestoreContract.COLLECTION_PLACES).document();
             place.setId(ref.getId());
-            return ref.set(place);
+            return ref.set(PlaceDocumentMapper.toFirestoreDocument(place));
         }
-        return db.collection(PlacesFirestoreContract.COLLECTION_PLACES).document(place.getId()).set(place);
+        return db.collection(PlacesFirestoreContract.COLLECTION_PLACES)
+                .document(place.getId())
+                .set(PlaceDocumentMapper.toFirestoreDocument(place));
+    }
+
+    /** Allocates an id before an image upload so its Storage path and Firestore document stay linked. */
+    @NonNull
+    public String createPlaceId() {
+        return db.collection(PlacesFirestoreContract.COLLECTION_PLACES).document().getId();
     }
 
     /**

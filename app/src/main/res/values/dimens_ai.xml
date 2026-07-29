@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- ~32% inset → robot occupies ~68% of the circular bounds (no stretch/crop) -->
+    <dimen name="ai_robot_inset_small">5dp</dimen>
+    <dimen name="ai_robot_inset_medium">8dp</dimen>
+    <dimen name="ai_robot_inset_large">11dp</dimen>
+    <dimen name="ai_fab_size">64dp</dimen>
+    <dimen name="ai_avatar_header">44dp</dimen>
+    <dimen name="ai_avatar_message">36dp</dimen>
+    <dimen name="ai_avatar_welcome">72dp</dimen>
+</resources>

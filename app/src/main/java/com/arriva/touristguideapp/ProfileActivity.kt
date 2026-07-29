@@ -38,8 +38,14 @@ class ProfileActivity : BaseActivity() {
     private lateinit var tvProfileName: TextView
     private lateinit var tvProfileUsername: TextView
     private lateinit var tvProfileEmail: TextView
-    private lateinit var cardCompleteProfileBanner: MaterialCardView
-    private lateinit var tvBannerSubtitle: TextView
+    private lateinit var chipMemberSince: com.google.android.material.chip.Chip
+    private lateinit var chipLastLogin: com.google.android.material.chip.Chip
+    private lateinit var btnEditProfileHeader: com.google.android.material.button.MaterialButton
+    private lateinit var cardProfileCompletion: com.google.android.material.card.MaterialCardView
+    private lateinit var pbProfileCompletion: com.google.android.material.progressindicator.CircularProgressIndicator
+    private lateinit var tvCompletionPercentage: TextView
+    private lateinit var tvCompletionMessage: TextView
+    private lateinit var btnCompleteNow: com.google.android.material.button.MaterialButton
     private lateinit var recentActivityAdapter: ProfileRecentActivityAdapter
     private lateinit var tvSeeMoreActivity: TextView
 
@@ -95,26 +101,38 @@ class ProfileActivity : BaseActivity() {
     }
 
     private fun initViews() {
-        ivProfileImage = findViewById(R.id.ivProfileImage)
-        tvProfileName = findViewById(R.id.tvProfileName)
-        tvProfileUsername = findViewById(R.id.tvProfileUsername)
-        tvProfileEmail = findViewById(R.id.tvProfileEmail)
-        cardCompleteProfileBanner = findViewById(R.id.cardCompleteProfileBanner)
-        tvBannerSubtitle = findViewById(R.id.tvBannerSubtitle)
+        // Profile Header views
+        val profileHeader = findViewById<View>(R.id.profileHeader)
+        ivProfileImage = profileHeader.findViewById(R.id.ivProfileImage)
+        tvProfileName = profileHeader.findViewById(R.id.tvProfileName)
+        tvProfileUsername = profileHeader.findViewById(R.id.tvProfileUsername)
+        tvProfileEmail = profileHeader.findViewById(R.id.tvProfileEmail)
+        chipMemberSince = profileHeader.findViewById(R.id.chipMemberSince)
+        chipLastLogin = profileHeader.findViewById(R.id.chipLastLogin)
+        btnEditProfileHeader = profileHeader.findViewById(R.id.btnEditProfileHeader)
+
+        // Completion Card views
+        val completionCard = findViewById<View>(R.id.completionCard)
+        cardProfileCompletion = completionCard as com.google.android.material.card.MaterialCardView
+        pbProfileCompletion = completionCard.findViewById(R.id.pbProfileCompletion)
+        tvCompletionPercentage = completionCard.findViewById(R.id.tvCompletionPercentage)
+        tvCompletionMessage = completionCard.findViewById(R.id.tvCompletionMessage)
+        btnCompleteNow = completionCard.findViewById(R.id.btnCompleteNow)
 
         findViewById<MaterialToolbar>(R.id.toolbar).setNavigationOnClickListener { finish() }
 
-        val rvRecentActivity = findViewById<RecyclerView>(R.id.rvRecentActivity)
+        val recentActivitySection = findViewById<View>(R.id.recentActivitySection)
+        val rvRecentActivity = recentActivitySection.findViewById<RecyclerView>(R.id.rvRecentActivity)
         recentActivityAdapter = ProfileRecentActivityAdapter()
         rvRecentActivity.layoutManager = LinearLayoutManager(this)
         rvRecentActivity.adapter = recentActivityAdapter
-        tvSeeMoreActivity = findViewById(R.id.tvSeeMoreActivity)
+        tvSeeMoreActivity = recentActivitySection.findViewById(R.id.tvSeeMoreActivity)
         tvSeeMoreActivity.setOnClickListener {
             isRecentActivityExpanded = true
             updateRecentActivityList()
         }
 
-        findViewById<MaterialButton>(R.id.btnCompleteNow).setOnClickListener {
+        btnCompleteNow.setOnClickListener {
             openEditProfile()
         }
 
@@ -124,7 +142,8 @@ class ProfileActivity : BaseActivity() {
         loadMemberInfo()
 
         ivProfileImage.setOnClickListener { openEditProfile() }
-        findViewById<View>(R.id.cardProfileCompletion).setOnClickListener { openEditProfile() }
+        btnEditProfileHeader.setOnClickListener { openEditProfile() }
+        cardProfileCompletion.setOnClickListener { openEditProfile() }
     }
 
     private fun openEditProfile() {
@@ -187,7 +206,14 @@ class ProfileActivity : BaseActivity() {
     }
 
     private fun updateQuickAccessCount(cardId: Int, count: Long) {
-        findViewById<View>(cardId).findViewById<TextView>(R.id.tvQuickAccessCount).text = count.toString()
+        val card = findViewById<View>(cardId)
+        val countBadge = card.findViewById<TextView>(R.id.tvQuickAccessCount)
+        if (count > 0) {
+            countBadge.text = count.toString()
+            countBadge.visibility = View.VISIBLE
+        } else {
+            countBadge.visibility = View.GONE
+        }
     }
 
     private fun setupQuickAccessRows() {
@@ -274,18 +300,18 @@ class ProfileActivity : BaseActivity() {
         val creationTime = firebaseUser.metadata?.creationTimestamp
         val lastSignInTime = firebaseUser.metadata?.lastSignInTimestamp
 
-        findViewById<TextView>(R.id.tvMemberSince).text =
+        chipMemberSince.text =
             if (creationTime != null && creationTime > 0) {
-                dateTimeFormat.format(Date(creationTime))
+                "Member Since: ${dateTimeFormat.format(Date(creationTime))}"
             } else {
-                getString(R.string.date_not_available)
+                "Member Since: ${getString(R.string.date_not_available)}"
             }
 
-        findViewById<TextView>(R.id.tvLastLogin).text =
+        chipLastLogin.text =
             if (lastSignInTime != null && lastSignInTime > 0) {
-                dateTimeFormat.format(Date(lastSignInTime))
+                "Last Login: ${dateTimeFormat.format(Date(lastSignInTime))}"
             } else {
-                getString(R.string.date_not_available)
+                "Last Login: ${getString(R.string.date_not_available)}"
             }
     }
 
@@ -348,13 +374,12 @@ class ProfileActivity : BaseActivity() {
 
     private fun updateProfileCompletionUI(user: User) {
         val completion = ProfileCompletionHelper.calculateCompletion(user)
-        findViewById<com.google.android.material.progressindicator.LinearProgressIndicator>(R.id.pbProfileCompletion).progress = completion
-        findViewById<TextView>(R.id.tvCompletionPercentage).text =
-            getString(R.string.profile_completion_format, completion)
+        pbProfileCompletion.progress = completion
+        tvCompletionPercentage.text = "$completion%"
+        tvCompletionMessage.text = getString(R.string.profile_banner_subtitle, completion)
 
         val isComplete = ProfileCompletionHelper.isProfileComplete(user)
-        cardCompleteProfileBanner.visibility = if (isComplete) View.GONE else View.VISIBLE
-        tvBannerSubtitle.text = getString(R.string.profile_banner_subtitle, completion)
+        cardProfileCompletion.visibility = if (isComplete) View.GONE else View.VISIBLE
     }
 
     private fun refreshDashboard() {
@@ -425,6 +450,16 @@ class ProfileActivity : BaseActivity() {
         val row = findViewById<View>(rowId)
         row.findViewById<TextView>(R.id.tvStatValue).text = value.toString()
         row.findViewById<TextView>(R.id.tvStatLabel).text = label
+        
+        // Set appropriate icon based on stat type
+        val iconView = row.findViewById<ImageView>(R.id.ivStatIcon)
+        when (rowId) {
+            R.id.statTrips -> iconView.setImageResource(R.drawable.ic_trip)
+            R.id.statFavs -> iconView.setImageResource(R.drawable.ic_favorite)
+            R.id.statReviews -> iconView.setImageResource(R.drawable.ic_star)
+            R.id.statNotifications -> iconView.setImageResource(R.drawable.ic_notification)
+        }
+        
         val emptyView = row.findViewById<TextView>(R.id.tvStatEmpty)
         if (value == 0L) {
             emptyView.text = emptyMessage
@@ -435,16 +470,45 @@ class ProfileActivity : BaseActivity() {
     }
 
     private fun applyAnimations() {
-        findViewById<View>(R.id.cardProfileImage).apply {
+        // Profile header fade-in
+        findViewById<View>(R.id.profileHeader).apply {
             alpha = 0f
-            scaleX = 0.5f
-            scaleY = 0.5f
-            animate().alpha(1f).scaleX(1f).scaleY(1f).setDuration(600).start()
+            animate().alpha(1f).setDuration(400).start()
         }
-        tvProfileName.apply {
-            translationY = 50f
+        
+        // Completion card slide-up
+        findViewById<View>(R.id.completionCard).apply {
+            translationY = 100f
             alpha = 0f
-            animate().translationY(0f).alpha(1f).setDuration(600).setStartDelay(200).start()
+            animate().translationY(0f).alpha(1f).setDuration(400).setStartDelay(100).start()
+        }
+        
+        // Stats section scale-in
+        findViewById<View>(R.id.statsSection).apply {
+            scaleX = 0.8f
+            scaleY = 0.8f
+            alpha = 0f
+            animate().scaleX(1f).scaleY(1f).alpha(1f).setDuration(400).setStartDelay(200).start()
+        }
+        
+        // Recent activity fade-in
+        findViewById<View>(R.id.recentActivitySection).apply {
+            alpha = 0f
+            animate().alpha(1f).setDuration(400).setStartDelay(300).start()
+        }
+        
+        // Quick actions scale-in
+        findViewById<View>(R.id.quickActionsSection).apply {
+            scaleX = 0.8f
+            scaleY = 0.8f
+            alpha = 0f
+            animate().scaleX(1f).scaleY(1f).alpha(1f).setDuration(400).setStartDelay(400).start()
+        }
+        
+        // Settings section fade-in
+        findViewById<View>(R.id.settingsSection).apply {
+            alpha = 0f
+            animate().alpha(1f).setDuration(400).setStartDelay(500).start()
         }
     }
 }

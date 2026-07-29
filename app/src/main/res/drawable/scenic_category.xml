@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="64dp" android:height="64dp" android:viewportWidth="64" android:viewportHeight="64">
+    <path android:fillColor="@color/marker_scenic" android:pathData="M12,4h40a8,8 0,0 1,8 8v40a8,8 0,0 1,-8 8H12a8,8 0,0 1,-8 -8V12a8,8 0,0 1,8 -8z"/>
+    <path android:fillColor="#FFFFFFFF" android:pathData="M43,18m-6,0a6,6 0,1 1,12 0a6,6 0,1 1,-12 0M12,48l13,-16l8,9l6,-7l13,14z"/>
+</vector>

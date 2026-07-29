@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+    <!-- Section Header -->
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="24dp"
+        android:layout_marginTop="24dp"
+        android:text="@string/quick_actions"
+        android:textColor="@color/color_primary"
+        android:textSize="14sp"
+        android:textStyle="bold" />
+
+    <!-- Quick Actions Grid -->
+    <GridLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:columnCount="4"
+        android:layout_marginHorizontal="16dp"
+        android:layout_marginTop="12dp">
+
+        <include
+            android:id="@+id/cardQuickTripHistory"
+            layout="@layout/item_quick_action_premium"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_columnWeight="1" />
+
+        <include
+            android:id="@+id/cardQuickFavorites"
+            layout="@layout/item_quick_action_premium"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_columnWeight="1" />
+
+        <include
+            android:id="@+id/cardQuickReviews"
+            layout="@layout/item_quick_action_premium"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_columnWeight="1" />
+
+        <include
+            android:id="@+id/cardQuickNotifications"
+            layout="@layout/item_quick_action_premium"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_columnWeight="1" />
+    </GridLayout>
+</LinearLayout>

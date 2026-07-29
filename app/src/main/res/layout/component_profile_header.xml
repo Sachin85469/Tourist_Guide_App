@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="16dp"
+    app:cardCornerRadius="24dp"
+    app:cardElevation="8dp"
+    app:strokeWidth="0dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <!-- Gradient Header Background -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/bg_profile_header_gradient"
+            android:orientation="vertical"
+            android:paddingStart="24dp"
+            android:paddingTop="24dp"
+            android:paddingEnd="24dp"
+            android:paddingBottom="32dp">
+
+            <!-- Profile Image -->
+            <FrameLayout
+                android:layout_width="100dp"
+                android:layout_height="100dp"
+                android:layout_gravity="center">
+
+                <com.google.android.material.card.MaterialCardView
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    app:cardCornerRadius="50dp"
+                    app:cardElevation="4dp"
+                    app:strokeWidth="3dp"
+                    app:strokeColor="@color/white">
+
+                    <ImageView
+                        android:id="@+id/ivProfileImage"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:scaleType="centerCrop"
+                        android:src="@drawable/ic_account" />
+                </com.google.android.material.card.MaterialCardView>
+
+                <!-- Edit Profile Button Overlay -->
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnEditProfileHeader"
+                    style="@style/Widget.Material3.Button.IconButton"
+                    android:layout_width="36dp"
+                    android:layout_height="36dp"
+                    android:layout_gravity="bottom|end"
+                    android:layout_marginEnd="6dp"
+                    android:layout_marginBottom="6dp"
+                    android:backgroundTint="@color/white"
+                    android:elevation="6dp"
+                    android:contentDescription="@string/edit_profile"
+                    app:icon="@drawable/ic_edit"
+                    app:iconSize="18dp"
+                    app:iconTint="@color/color_primary"
+                    app:strokeWidth="2dp"
+                    app:strokeColor="@color/color_outline" />
+            </FrameLayout>
+
+            <!-- User Name -->
+            <TextView
+                android:id="@+id/tvProfileName"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginTop="16dp"
+                android:textColor="@color/white"
+                android:textSize="24sp"
+                android:textStyle="bold"
+                tools:text="Sachin Bableshwar" />
+
+            <!-- Username -->
+            <TextView
+                android:id="@+id/tvProfileUsername"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginTop="4dp"
+                android:textColor="@color/white"
+                android:textSize="14sp"
+                android:alpha="0.9"
+                android:visibility="gone"
+                tools:text="\@username"
+                tools:visibility="visible" />
+
+            <!-- Email -->
+            <TextView
+                android:id="@+id/tvProfileEmail"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginTop="4dp"
+                android:textColor="@color/white"
+                android:textSize="14sp"
+                android:alpha="0.8"
+                tools:text="user@example.com" />
+
+            <!-- Member Info Chips -->
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginTop="16dp"
+                android:orientation="horizontal"
+                android:gravity="center">
+
+                <!-- Member Since Chip -->
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chipMemberSince"
+                    style="@style/Widget.Material3.Chip.Assist"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="8dp"
+                    android:backgroundTint="@color/white"
+                    android:textColor="@color/color_primary"
+                    android:textSize="11sp"
+                    app:chipIcon="@drawable/ic_calendar"
+                    app:chipIconSize="14dp"
+                    app:iconStartPadding="4dp"
+                    tools:text="Member Since: Jan 2024" />
+
+                <!-- Last Login Chip -->
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chipLastLogin"
+                    style="@style/Widget.Material3.Chip.Assist"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:backgroundTint="@color/white"
+                    android:textColor="@color/color_primary"
+                    android:textSize="11sp"
+                    app:chipIcon="@drawable/ic_calendar"
+                    app:chipIconSize="14dp"
+                    app:iconStartPadding="4dp"
+                    tools:text="Last Login: Today" />
+            </LinearLayout>
+        </LinearLayout>
+    </LinearLayout>
+</com.google.android.material.card.MaterialCardView>

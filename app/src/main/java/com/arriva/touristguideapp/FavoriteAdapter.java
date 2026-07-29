@@ -93,7 +93,7 @@ public class FavoriteAdapter extends RecyclerView.Adapter<FavoriteAdapter.ViewHo
                 }
             }
             
-            // Exclusively remote URLs via PlaceImageHelper
+            // Firebase Storage references are resolved by the shared image loader.
             PlaceImageHelper.loadThumbnail(image, place);
             
             boolean isFav = FavoritesManager.isFavorite(context, place.getId());

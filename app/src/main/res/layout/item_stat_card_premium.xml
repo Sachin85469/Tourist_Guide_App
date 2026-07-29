@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="4dp"
+    android:clickable="true"
+    android:focusable="true"
+    android:stateListAnimator="@animator/card_lift"
+    app:cardBackgroundColor="@color/color_surface"
+    app:cardCornerRadius="20dp"
+    app:cardElevation="4dp"
+    app:rippleColor="@color/color_primary_container">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:minHeight="100dp"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <!-- Icon Container -->
+        <FrameLayout
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:background="@drawable/bg_stat_icon_premium">
+
+            <ImageView
+                android:id="@+id/ivStatIcon"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_gravity="center"
+                android:contentDescription="@null"
+                app:tint="@color/color_primary" />
+        </FrameLayout>
+
+        <!-- Stat Value -->
+        <TextView
+            android:id="@+id/tvStatValue"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:text="0"
+            android:textColor="@color/color_primary"
+            android:textSize="28sp"
+            android:textStyle="bold" />
+
+        <!-- Stat Label -->
+        <TextView
+            android:id="@+id/tvStatLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:text="Trips"
+            android:textColor="@color/color_text_secondary"
+            android:textSize="12sp"
+            android:textStyle="bold" />
+
+        <!-- Empty State Message -->
+        <TextView
+            android:id="@+id/tvStatEmpty"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:gravity="center"
+            android:textColor="@color/color_text_muted"
+            android:textSize="10sp"
+            android:visibility="gone" />
+    </LinearLayout>
+</com.google.android.material.card.MaterialCardView>

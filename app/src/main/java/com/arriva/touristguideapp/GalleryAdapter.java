@@ -10,7 +10,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.arriva.touristguideapp.data.repository.ImageRepository;
 import com.arriva.touristguideapp.utils.ImageUtils;
 
 import java.util.ArrayList;
@@ -19,21 +18,30 @@ import java.util.List;
 public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.ViewHolder> {
 
     @NonNull
-    private final List<Integer> imageResources;
+    private final List<String> imageRefs;
 
-    public GalleryAdapter(@Nullable List<Integer> imageResources) {
-        this.imageResources = copyValidResources(imageResources);
+    @DrawableRes
+    private final int overrideDrawableRes;
+
+    public GalleryAdapter(@Nullable List<String> imageRefs) {
+        this(imageRefs, 0);
+    }
+
+    public GalleryAdapter(@Nullable List<String> imageRefs, @DrawableRes int overrideDrawableRes) {
+        this.imageRefs = copyImageRefs(imageRefs);
+        this.overrideDrawableRes = overrideDrawableRes;
     }
 
     @NonNull
-    private static List<Integer> copyValidResources(@Nullable List<Integer> in) {
-        List<Integer> out = new ArrayList<>();
+    private static List<String> copyImageRefs(@Nullable List<String> in) {
+        List<String> out = new ArrayList<>();
         if (in == null) {
             return out;
         }
-        for (Integer res : in) {
-            if (res != null && res != 0) {
-                out.add(res);
+        for (String ref : in) {
+            if (ref != null) {
+                // Keep an empty first reference so a missing cover still renders the default travel image.
+                out.add(ref.trim());
             }
         }
         return out;
@@ -48,8 +56,11 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.ViewHold
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        @DrawableRes int res = imageResources.get(position);
-        ImageUtils.loadDrawable(holder.imageView, res == 0 ? ImageRepository.PLACEHOLDER_IMAGE : res);
+        if (overrideDrawableRes != 0 && position == 0) {
+            ImageUtils.loadDrawable(holder.imageView, overrideDrawableRes);
+            return;
+        }
+        ImageUtils.loadImageReference(holder.imageView, imageRefs.get(position));
     }
 
     @Override
@@ -60,7 +71,7 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.ViewHold
 
     @Override
     public int getItemCount() {
-        return imageResources.size();
+        return imageRefs.size();
     }
 
     static class ViewHolder extends RecyclerView.ViewHolder {

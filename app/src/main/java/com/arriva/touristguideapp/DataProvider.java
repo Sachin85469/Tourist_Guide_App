@@ -8,7 +8,8 @@ import java.util.Map;
 
 /**
  * DataProvider provides initial static data for the app.
- * Note: Local drawable resource IDs are now removed. The app relies on Firestore image URLs.
+ * Note: Local drawable resource IDs are removed. Place images are resolved from Firebase Storage
+ * references supplied by Firestore.
  */
 public class DataProvider {
 

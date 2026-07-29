@@ -2,6 +2,8 @@ require("dotenv").config();
 
 const express = require("express");
 const rateLimit = require("express-rate-limit");
+const multer = require("multer");
+const cloudinary = require("cloudinary").v2;
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -18,6 +20,24 @@ const MAX_REQUEST_PLACES = 60;
 
 app.set("trust proxy", 1);
 app.use(express.json({ limit: process.env.REQUEST_BODY_LIMIT || "64kb" }));
+
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET
+});
+
+// Keep the file in memory, cap at 8MB, images only
+const upload = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 8 * 1024 * 1024 },
+  fileFilter: (req, file, cb) => {
+    if (!file.mimetype.startsWith("image/")) {
+      return cb(publicError(400, "Only image files are allowed."));
+    }
+    cb(null, true);
+  }
+});
 
 // ─── Shared auth middleware ────────────────────────────────────────────────────
 // Every /api/* route requires the X-App-Token header to match the server env.
@@ -48,6 +68,14 @@ const itineraryLimiter = rateLimit({
   standardHeaders: "draft-7",
   legacyHeaders: false,
   message: { error: "Too many itinerary requests. Please try again later." }
+});
+
+const uploadLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000,
+  limit: 20,
+  standardHeaders: "draft-7",
+  legacyHeaders: false,
+  message: { error: "Too many upload requests. Please try again later." }
 });
 
 // ─── POST /api/chat ────────────────────────────────────────────────────────────
@@ -144,6 +172,48 @@ app.post("/api/generate-itinerary", requireAppToken, itineraryLimiter, async (re
   } catch (error) {
     const status = Number.isInteger(error.status) ? error.status : 500;
     return res.status(status).json({ error: error.publicMessage || "Could not generate itinerary." });
+  }
+});
+
+// ─── POST /api/upload-image ────────────────────────────────────────────────────
+// multipart/form-data, field name: "image"
+// Optional fields: placeId (used to organize into a folder), type ("cover" | "gallery")
+// Returns: { url, publicId, width, height }
+app.post("/api/upload-image", requireAppToken, uploadLimiter, upload.single("image"), async (req, res) => {
+  try {
+    if (!process.env.CLOUDINARY_CLOUD_NAME) {
+      return res.status(500).json({ error: "Image service is not configured." });
+    }
+    if (!req.file) {
+      return res.status(400).json({ error: "No image file provided (field name must be 'image')." });
+    }
+
+    const placeId = valueOrDefault(req.body.placeId, "misc");
+    const folder = `arriva/places/${placeId}`;
+
+    const result = await uploadBufferToCloudinary(req.file.buffer, folder);
+
+    return res.json({
+      url: result.secure_url,
+      publicId: result.public_id,
+      width: result.width,
+      height: result.height
+    });
+  } catch (error) {
+    const status = Number.isInteger(error.status) ? error.status : 500;
+    return res.status(status).json({ error: error.publicMessage || "Image upload failed." });
+  }
+});
+
+// ─── DELETE /api/upload-image/:publicId ───────────────────────────────────────
+// publicId must be URL-encoded, e.g. arriva%2Fplaces%2F123%2Fabc123
+app.delete("/api/upload-image/:publicId(*)", requireAppToken, async (req, res) => {
+  try {
+    const publicId = decodeURIComponent(req.params.publicId);
+    await cloudinary.uploader.destroy(publicId);
+    return res.json({ deleted: true });
+  } catch (error) {
+    return res.status(500).json({ error: "Could not delete image." });
   }
 });
 
@@ -457,6 +527,24 @@ function publicError(status, publicMessage) {
   error.status = status;
   error.publicMessage = publicMessage;
   return error;
+}
+
+function uploadBufferToCloudinary(buffer, folder) {
+  return new Promise((resolve, reject) => {
+    const stream = cloudinary.uploader.upload_stream(
+      {
+        folder,
+        resource_type: "image",
+        // Auto-optimize + cap dimensions so you're not storing/serving giant photos
+        transformation: [{ width: 1600, height: 1600, crop: "limit", quality: "auto", fetch_format: "auto" }]
+      },
+      (error, result) => {
+        if (error) return reject(publicError(502, "Cloudinary upload failed."));
+        resolve(result);
+      }
+    );
+    stream.end(buffer);
+  });
 }
 
 app.listen(PORT, () => {

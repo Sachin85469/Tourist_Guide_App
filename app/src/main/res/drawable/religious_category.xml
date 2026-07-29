@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="64dp" android:height="64dp" android:viewportWidth="64" android:viewportHeight="64">
+    <path android:fillColor="@color/marker_religious" android:pathData="M12,4h40a8,8 0,0 1,8 8v40a8,8 0,0 1,-8 8H12a8,8 0,0 1,-8 -8V12a8,8 0,0 1,8 -8z"/>
+    <path android:fillColor="#FFFFFFFF" android:pathData="M14,47h36v4H14zM18,44V31l6,-8l3,4l5,-11l5,11l3,-4l6,8v13h-5v-9h-6v9h-6v-9h-6v9zM30,12h4v5h-4z"/>
+</vector>

@@ -300,6 +300,23 @@ public class MapActivity extends BaseActivity {
         if (btnCancelRoute != null) {
             btnCancelRoute.setOnClickListener(v -> clearRoute());
         }
+        if (btnStartNavigation != null) {
+            btnStartNavigation.setOnClickListener(v -> startNavigationForCurrentRoute());
+        }
+    }
+
+    /** Starts the in-app navigation session for the route currently shown on this map. */
+    private void startNavigationForCurrentRoute() {
+        if (searchedPoint == null) {
+            Toast.makeText(this, "Choose a destination before starting navigation", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        Intent intent = new Intent(this, RouteActivity.class);
+        intent.putExtra("destLat", searchedPoint.getLatitude());
+        intent.putExtra("destLng", searchedPoint.getLongitude());
+        intent.putExtra("destName", selectedMarker != null ? selectedMarker.getTitle() : "Destination");
+        intent.putExtra("startNavigation", true);
+        startActivity(intent);
     }
 
     private void clearRoute() {

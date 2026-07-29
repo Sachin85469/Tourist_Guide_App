@@ -431,18 +431,18 @@ public class MainActivity extends BaseActivity {
         userTravelInterests = new ArrayList<>();
 
         categories = new ArrayList<>();
-        categories.add(new Category(getString(R.string.all), R.drawable.ic_cat_all));
-        categories.add(new Category(getString(R.string.cat_historical), R.drawable.ic_cat_historical));
-        categories.add(new Category(getString(R.string.cat_nature), R.drawable.ic_cat_nature));
-        categories.add(new Category(getString(R.string.cat_food), R.drawable.ic_cat_food));
-        categories.add(new Category(getString(R.string.cat_shopping), R.drawable.ic_cat_shopping));
-        categories.add(new Category(getString(R.string.cat_culture), R.drawable.ic_cat_culture));
-        categories.add(new Category(getString(R.string.cat_beaches), R.drawable.ic_cat_beaches));
-        categories.add(new Category(getString(R.string.cat_adventure), R.drawable.ic_cat_adventure));
-        categories.add(new Category(getString(R.string.cat_religious), R.drawable.ic_cat_religious));
-        categories.add(new Category(getString(R.string.cat_photography), R.drawable.ic_cat_photography));
-        categories.add(new Category(getString(R.string.cat_entertainment), R.drawable.ic_cat_entertainment));
-        categories.add(new Category(getString(R.string.cat_popular), R.drawable.ic_cat_popular));
+        categories.add(new Category(getString(R.string.all), R.drawable.category_all_premium));
+        categories.add(new Category(getString(R.string.cat_historical), R.drawable.category_historical_premium));
+        categories.add(new Category(getString(R.string.cat_nature), R.drawable.category_nature_premium));
+        categories.add(new Category(getString(R.string.cat_food), R.drawable.category_food_premium));
+        categories.add(new Category(getString(R.string.cat_shopping), R.drawable.category_shopping_premium));
+        categories.add(new Category(getString(R.string.cat_culture), R.drawable.category_culture_premium));
+        categories.add(new Category(getString(R.string.cat_beaches), R.drawable.category_beaches_premium));
+        categories.add(new Category(getString(R.string.cat_adventure), R.drawable.category_adventure_premium));
+        categories.add(new Category(getString(R.string.cat_religious), R.drawable.category_religious_premium));
+        categories.add(new Category(getString(R.string.cat_photography), R.drawable.category_photography_premium));
+        categories.add(new Category(getString(R.string.cat_entertainment), R.drawable.category_entertainment_premium));
+        categories.add(new Category(getString(R.string.cat_popular), R.drawable.category_popular_premium));
     }
 
     private void checkLocationPermission() {

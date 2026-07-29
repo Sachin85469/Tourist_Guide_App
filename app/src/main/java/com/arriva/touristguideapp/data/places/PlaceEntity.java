@@ -29,6 +29,10 @@ public class PlaceEntity {
     public double latitude;
     public double longitude;
     public boolean isFeatured;
+    /** Firebase Storage path/reference for the cover image. */
+    public String imageRef;
+    /** Newline-delimited Firebase Storage paths for gallery images. */
+    public String galleryImageRefs;
     public long lastSynced;
 
     public PlaceEntity(@NonNull String id,
@@ -41,6 +45,8 @@ public class PlaceEntity {
                        double latitude,
                        double longitude,
                        boolean isFeatured,
+                       String imageRef,
+                       String galleryImageRefs,
                        long lastSynced) {
         this.id = id;
         this.name = name;
@@ -52,6 +58,8 @@ public class PlaceEntity {
         this.latitude = latitude;
         this.longitude = longitude;
         this.isFeatured = isFeatured;
+        this.imageRef = imageRef;
+        this.galleryImageRefs = galleryImageRefs;
         this.lastSynced = lastSynced;
     }
 
@@ -72,6 +80,8 @@ public class PlaceEntity {
                 place.getLatitude(),
                 place.getLongitude(),
                 place.isTopPick(),
+                clean(place.getImageRef()),
+                encodeImageRefs(place.getGalleryImageRefs()),
                 lastSynced
         );
     }
@@ -88,6 +98,8 @@ public class PlaceEntity {
         place.setLatitude(latitude);
         place.setLongitude(longitude);
         place.setTopPick(isFeatured);
+        place.setImageRef(imageRef);
+        place.setGalleryImageRefs(decodeImageRefs(galleryImageRefs));
         place.setTag(isFeatured ? "Featured" : "Saved");
         place.setCatalogStatus(PlacesFirestoreContract.STATUS_PUBLISHED);
         return place;
@@ -96,5 +108,25 @@ public class PlaceEntity {
     @NonNull
     private static String clean(String value) {
         return value == null ? "" : value.trim();
+    }
+
+    @NonNull
+    private static String encodeImageRefs(@NonNull java.util.List<String> refs) {
+        return android.text.TextUtils.join("\n", refs);
+    }
+
+    @NonNull
+    private static java.util.List<String> decodeImageRefs(String value) {
+        java.util.List<String> refs = new java.util.ArrayList<>();
+        if (value == null || value.trim().isEmpty()) {
+            return refs;
+        }
+        for (String ref : value.split("\\n")) {
+            String cleanRef = clean(ref);
+            if (!cleanRef.isEmpty()) {
+                refs.add(cleanRef);
+            }
+        }
+        return refs;
     }
 }

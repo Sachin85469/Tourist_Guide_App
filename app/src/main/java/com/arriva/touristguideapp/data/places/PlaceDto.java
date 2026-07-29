@@ -52,6 +52,10 @@ public final class PlaceDto {
     private final String tag;
     private final String legacyId;
     private final boolean topPick;
+    @Nullable
+    private final String imageRef;
+    @NonNull
+    private final List<String> galleryImageRefs;
     @NonNull
     private final String status;
 
@@ -76,6 +80,8 @@ public final class PlaceDto {
             String tag,
             String legacyId,
             boolean topPick,
+            @Nullable String imageRef,
+            @NonNull List<String> galleryImageRefs,
             @NonNull String status
     ) {
         this.documentId = documentId;
@@ -98,6 +104,8 @@ public final class PlaceDto {
         this.tag = tag;
         this.legacyId = legacyId;
         this.topPick = topPick;
+        this.imageRef = imageRef;
+        this.galleryImageRefs = Collections.unmodifiableList(new ArrayList<>(galleryImageRefs));
         this.status = status;
     }
 
@@ -210,6 +218,10 @@ public final class PlaceDto {
 
         boolean topPick = readOptionalBoolean(
                 snap, documentId, PlacesFirestoreContract.FIELD_IS_TOP_PICK, false);
+        String imageRef = readOptionalStringOrNull(
+                snap, documentId, PlacesFirestoreContract.FIELD_IMAGE_REF);
+        List<String> galleryImageRefs = readOptionalStringList(
+                snap, documentId, PlacesFirestoreContract.FIELD_GALLERY_IMAGE_REFS);
 
         Log.d(TAG, "docId=" + documentId + " PARSE_OK name=" + name);
 
@@ -234,6 +246,8 @@ public final class PlaceDto {
                 tag,
                 legacyId,
                 topPick,
+                imageRef,
+                galleryImageRefs,
                 status
         );
     }
@@ -270,6 +284,8 @@ public final class PlaceDto {
                 DEFAULT_TAG,
                 null,
                 false,
+                null,
+                Collections.emptyList(),
                 status
         );
     }
@@ -342,6 +358,28 @@ public final class PlaceDto {
                     "optional_string_unusable action=use_fallback");
         }
         return fallback;
+    }
+
+    @NonNull
+    private static List<String> readOptionalStringList(@NonNull DocumentSnapshot snap,
+                                                        @NonNull String docId,
+                                                        @NonNull String field) {
+        Object raw = snap.get(field);
+        if (raw == null) {
+            return Collections.emptyList();
+        }
+        if (!(raw instanceof List<?>)) {
+            warnFieldParse(docId, field, "List<String>", raw, "action=use_empty_list");
+            return Collections.emptyList();
+        }
+        LinkedHashSet<String> result = new LinkedHashSet<>();
+        for (Object item : (List<?>) raw) {
+            String value = coerceToNonEmptyString(item);
+            if (value != null) {
+                result.add(value);
+            }
+        }
+        return new ArrayList<>(result);
     }
 
     /**
@@ -543,6 +581,16 @@ public final class PlaceDto {
 
     public boolean isTopPick() {
         return topPick;
+    }
+
+    @Nullable
+    public String getImageRef() {
+        return imageRef;
+    }
+
+    @NonNull
+    public List<String> getGalleryImageRefs() {
+        return galleryImageRefs;
     }
 
     @NonNull

@@ -264,6 +264,7 @@
                     android:layout_height="56dp"
                     android:layout_marginTop="16dp"
                     android:background="@drawable/bg_plan_segment_container"
+                    android:elevation="1dp"
                     android:gravity="center"
                     android:orientation="horizontal"
                     android:padding="4dp">
@@ -335,14 +336,14 @@
                 <View
                     android:layout_width="match_parent"
                     android:layout_height="1dp"
-                    android:layout_marginTop="28dp"
+                    android:layout_marginTop="22dp"
                     android:background="@color/plan_outline" />
 
                 <LinearLayout
                     android:id="@+id/cardVibes"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="26dp"
+                    android:layout_marginTop="24dp"
                     android:orientation="vertical">
 
                     <LinearLayout
@@ -400,7 +401,7 @@
                             android:id="@+id/chipVibeHistorical"
                             android:layout_width="0dp"
                             android:layout_height="112dp"
-                            android:layout_marginEnd="8dp"
+                            android:layout_marginEnd="12dp"
                             android:layout_weight="1"
                             android:background="@drawable/bg_plan_choice_unselected"
                             android:clickable="true"
@@ -525,14 +526,14 @@
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="10dp"
+                        android:layout_marginTop="12dp"
                         android:orientation="horizontal">
 
                         <FrameLayout
                             android:id="@+id/chipVibeReligious"
                             android:layout_width="0dp"
                             android:layout_height="112dp"
-                            android:layout_marginEnd="8dp"
+                            android:layout_marginEnd="12dp"
                             android:layout_weight="1"
                             android:background="@drawable/bg_plan_choice_unselected"
                             android:clickable="true"
@@ -657,14 +658,14 @@
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="10dp"
+                        android:layout_marginTop="12dp"
                         android:orientation="horizontal">
 
                         <FrameLayout
                             android:id="@+id/chipVibeCulture"
                             android:layout_width="0dp"
                             android:layout_height="112dp"
-                            android:layout_marginEnd="8dp"
+                            android:layout_marginEnd="12dp"
                             android:layout_weight="1"
                             android:background="@drawable/bg_plan_choice_unselected"
                             android:clickable="true"
@@ -789,14 +790,14 @@
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="10dp"
+                        android:layout_marginTop="12dp"
                         android:orientation="horizontal">
 
                         <FrameLayout
                             android:id="@+id/chipVibeScenic"
                             android:layout_width="0dp"
                             android:layout_height="112dp"
-                            android:layout_marginEnd="8dp"
+                            android:layout_marginEnd="12dp"
                             android:layout_weight="1"
                             android:background="@drawable/bg_plan_choice_unselected"
                             android:clickable="true"
@@ -922,14 +923,14 @@
                 <View
                     android:layout_width="match_parent"
                     android:layout_height="1dp"
-                    android:layout_marginTop="28dp"
+                    android:layout_marginTop="22dp"
                     android:background="@color/plan_outline" />
 
                 <LinearLayout
                     android:id="@+id/cardBudget"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="26dp"
+                    android:layout_marginTop="24dp"
                     android:orientation="vertical">
 
                     <LinearLayout
@@ -988,7 +989,7 @@
                             android:id="@+id/chipBudgetBudget"
                             android:layout_width="0dp"
                             android:layout_height="104dp"
-                            android:layout_marginEnd="8dp"
+                            android:layout_marginEnd="12dp"
                             android:layout_weight="1"
                             android:background="@drawable/bg_plan_budget_unselected"
                             android:clickable="true"
@@ -1051,7 +1052,7 @@
                             android:id="@+id/chipBudgetMid"
                             android:layout_width="0dp"
                             android:layout_height="104dp"
-                            android:layout_marginEnd="8dp"
+                            android:layout_marginEnd="12dp"
                             android:layout_weight="1"
                             android:background="@drawable/bg_plan_budget_unselected"
                             android:clickable="true"
@@ -1177,7 +1178,7 @@
                 <FrameLayout
                     android:layout_width="match_parent"
                     android:layout_height="56dp"
-                    android:layout_marginTop="28dp">
+                    android:layout_marginTop="30dp">
 
                     <TextView
                         android:id="@+id/btnGeneratePlan"
@@ -1192,6 +1193,8 @@
                         android:focusable="true"
                         android:foreground="?attr/selectableItemBackground"
                         android:gravity="center"
+                        android:paddingStart="16dp"
+                        android:paddingEnd="16dp"
                         android:text="Generate My Trip"
                         android:textColor="@color/white"
                         android:textSize="16sp"

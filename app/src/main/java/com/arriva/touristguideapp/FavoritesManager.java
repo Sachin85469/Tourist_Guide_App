@@ -79,6 +79,9 @@ public class FavoritesManager {
                     favData.put("city", place.getCity());
                     favData.put("latitude", place.getLatitude());
                     favData.put("longitude", place.getLongitude());
+                    if (place.getImageRef() != null) {
+                        favData.put("imageRef", place.getImageRef());
+                    }
                 }
                 favData.put("savedAt", System.currentTimeMillis());
 

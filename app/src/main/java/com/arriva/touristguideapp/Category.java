@@ -1,6 +1,6 @@
 package com.arriva.touristguideapp;
 
-public class Category {
+public class  Category {
     private String name;
     private int iconResId;
 

@@ -1,24 +1,53 @@
 package com.arriva.touristguideapp;
 
 import android.os.Bundle;
+import android.net.Uri;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
+import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import com.arriva.touristguideapp.data.analytics.AuditLogger;
 import com.arriva.touristguideapp.data.places.FirestorePlaceDataSource;
+import com.arriva.touristguideapp.data.repository.PlaceImageStorage;
+import com.arriva.touristguideapp.utils.ImageUtils;
+import com.bumptech.glide.Glide;
+import com.google.android.gms.tasks.Task;
+import com.google.android.gms.tasks.Tasks;
 
 public class PlaceEditorActivity extends BaseActivity {
 
     private EditText etName, etCity, etDescription, etLat, etLng;
     private Spinner spinnerStatus;
     private Button btnSave, btnDelete;
+    private Button btnChooseImage;
+    private ImageView ivPlaceImage;
+    private TextView tvImageStatus;
     private Place currentPlace;
     private FirestorePlaceDataSource dataSource;
+    private PlaceImageStorage imageStorage;
+    private Uri selectedImageUri;
+    private final ActivityResultLauncher<String> imagePicker = registerForActivityResult(
+            new ActivityResultContracts.GetContent(), uri -> {
+                if (uri == null) {
+                    return;
+                }
+                selectedImageUri = uri;
+                Glide.with(this)
+                        .load(uri)
+                        .centerCrop()
+                        .placeholder(ImageUtils.LOADING_PLACEHOLDER)
+                        .error(ImageUtils.DEFAULT_TRAVEL_IMAGE)
+                        .into(ivPlaceImage);
+                tvImageStatus.setText("Image selected. It will upload when the place is saved.");
+            });
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -26,6 +55,7 @@ public class PlaceEditorActivity extends BaseActivity {
         setContentView(R.layout.activity_place_editor);
 
         dataSource = new FirestorePlaceDataSource();
+        imageStorage = new PlaceImageStorage(this);
         initViews();
 
         currentPlace = (Place) getIntent().getSerializableExtra("place");
@@ -38,6 +68,7 @@ public class PlaceEditorActivity extends BaseActivity {
 
         btnSave.setOnClickListener(v -> savePlace());
         btnDelete.setOnClickListener(v -> confirmDelete());
+        btnChooseImage.setOnClickListener(v -> imagePicker.launch("image/*"));
     }
 
     private void initViews() {
@@ -49,6 +80,9 @@ public class PlaceEditorActivity extends BaseActivity {
         spinnerStatus = findViewById(R.id.spinnerEditorStatus);
         btnSave = findViewById(R.id.btnSavePlace);
         btnDelete = findViewById(R.id.btnDeletePlace);
+        btnChooseImage = findViewById(R.id.btnChoosePlaceImage);
+        ivPlaceImage = findViewById(R.id.ivEditorPlaceImage);
+        tvImageStatus = findViewById(R.id.tvEditorImageStatus);
 
         String[] statuses = {"published", "draft", "pending", "archived"};
         ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, statuses);
@@ -62,6 +96,10 @@ public class PlaceEditorActivity extends BaseActivity {
         etDescription.setText(currentPlace.getDescription());
         etLat.setText(String.valueOf(currentPlace.getLatitude()));
         etLng.setText(String.valueOf(currentPlace.getLongitude()));
+        ImageUtils.loadPlaceMainImage(ivPlaceImage, currentPlace);
+        if (currentPlace.getImageRef() != null) {
+            tvImageStatus.setText("Current image is linked to Firebase Storage.");
+        }
         
         // Find status index
         ArrayAdapter<String> adapter = (ArrayAdapter<String>) spinnerStatus.getAdapter();
@@ -83,7 +121,21 @@ public class PlaceEditorActivity extends BaseActivity {
             return;
         }
 
-        dataSource.savePlace(currentPlace).addOnCompleteListener(task -> {
+        if (currentPlace.getId() == null || currentPlace.getId().trim().isEmpty()) {
+            currentPlace.setId(dataSource.createPlaceId());
+        }
+
+        setSaving(true, selectedImageUri != null ? "Uploading image..." : "Saving place...");
+        Task<String> imageTask = selectedImageUri == null
+                ? Tasks.forResult(currentPlace.getImageRef())
+                : imageStorage.uploadCoverImage(selectedImageUri, currentPlace.getId());
+
+        imageTask.addOnSuccessListener(imageRef -> {
+            if (imageRef != null) {
+                currentPlace.setImageRef(imageRef);
+            }
+            dataSource.savePlace(currentPlace).addOnCompleteListener(task -> {
+                setSaving(false, null);
             if (task.isSuccessful()) {
                 AuditLogger.logAction("PLACE_SAVED", currentPlace.getId(), currentPlace.getName());
                 Toast.makeText(this, "Place saved successfully", Toast.LENGTH_SHORT).show();
@@ -91,7 +143,19 @@ public class PlaceEditorActivity extends BaseActivity {
             } else {
                 Toast.makeText(this, "Save failed", Toast.LENGTH_SHORT).show();
             }
+            });
+        }).addOnFailureListener(error -> {
+            setSaving(false, "Image upload failed. Please try again.");
+            Toast.makeText(this, "Image upload failed. The place was not saved.", Toast.LENGTH_LONG).show();
         });
+    }
+
+    private void setSaving(boolean saving, String status) {
+        btnSave.setEnabled(!saving);
+        btnChooseImage.setEnabled(!saving);
+        if (status != null) {
+            tvImageStatus.setText(status);
+        }
     }
 
     private void confirmDelete() {

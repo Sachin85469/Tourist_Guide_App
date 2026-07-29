@@ -1,8 +1,6 @@
 package com.arriva.touristguideapp.data.places;
 
 import android.content.Context;
-import android.database.Cursor;
-
 import androidx.annotation.NonNull;
 import androidx.room.Database;
 import androidx.room.Room;
@@ -10,7 +8,7 @@ import androidx.room.RoomDatabase;
 import androidx.room.migration.Migration;
 import androidx.sqlite.db.SupportSQLiteDatabase;
 
-@Database(entities = {PlaceEntity.class}, version = 2, exportSchema = false)
+@Database(entities = {PlaceEntity.class}, version = 3, exportSchema = false)
 public abstract class AppDatabase extends RoomDatabase {
 
     private static final String DATABASE_NAME = "arriva_places.db";
@@ -18,13 +16,9 @@ public abstract class AppDatabase extends RoomDatabase {
 
     public abstract PlaceDao placeDao();
 
-    private static final Migration MIGRATION_1_2 = new Migration(1, 2) {
+    private static final Migration MIGRATION_1_3 = new Migration(1, 3) {
         @Override
         public void migrate(@NonNull SupportSQLiteDatabase database) {
-            if (!hasColumn(database, "places", "imageUrl")) {
-                return;
-            }
-
             database.execSQL("CREATE TABLE IF NOT EXISTS `places_new` ("
                     + "`id` TEXT NOT NULL, "
                     + "`name` TEXT, "
@@ -36,19 +30,29 @@ public abstract class AppDatabase extends RoomDatabase {
                     + "`latitude` REAL NOT NULL, "
                     + "`longitude` REAL NOT NULL, "
                     + "`isFeatured` INTEGER NOT NULL, "
+                    + "`imageRef` TEXT, "
+                    + "`galleryImageRefs` TEXT, "
                     + "`lastSynced` INTEGER NOT NULL, "
                     + "PRIMARY KEY(`id`))");
             database.execSQL("INSERT INTO `places_new` "
                     + "(`id`, `name`, `category`, `city`, `district`, `description`, "
-                    + "`rating`, `latitude`, `longitude`, `isFeatured`, `lastSynced`) "
+                    + "`rating`, `latitude`, `longitude`, `isFeatured`, `imageRef`, `galleryImageRefs`, `lastSynced`) "
                     + "SELECT `id`, `name`, `category`, `city`, `district`, `description`, "
-                    + "`rating`, `latitude`, `longitude`, `isFeatured`, `lastSynced` "
+                    + "`rating`, `latitude`, `longitude`, `isFeatured`, NULL, NULL, `lastSynced` "
                     + "FROM `places`");
             database.execSQL("DROP TABLE `places`");
             database.execSQL("ALTER TABLE `places_new` RENAME TO `places`");
             database.execSQL("CREATE INDEX IF NOT EXISTS `index_places_city` ON `places` (`city`)");
             database.execSQL("CREATE INDEX IF NOT EXISTS `index_places_category` ON `places` (`category`)");
             database.execSQL("CREATE INDEX IF NOT EXISTS `index_places_lastSynced` ON `places` (`lastSynced`)");
+        }
+    };
+
+    private static final Migration MIGRATION_2_3 = new Migration(2, 3) {
+        @Override
+        public void migrate(@NonNull SupportSQLiteDatabase database) {
+            database.execSQL("ALTER TABLE `places` ADD COLUMN `imageRef` TEXT");
+            database.execSQL("ALTER TABLE `places` ADD COLUMN `galleryImageRefs` TEXT");
         }
     };
 
@@ -62,7 +66,7 @@ public abstract class AppDatabase extends RoomDatabase {
                                      AppDatabase.class,
                                      DATABASE_NAME
                              )
-                            .addMigrations(MIGRATION_1_2)
+                            .addMigrations(MIGRATION_1_3, MIGRATION_2_3)
                             .build();
                 }
             }
@@ -70,17 +74,4 @@ public abstract class AppDatabase extends RoomDatabase {
         return instance;
     }
 
-    private static boolean hasColumn(@NonNull SupportSQLiteDatabase database,
-                                     @NonNull String table,
-                                     @NonNull String column) {
-        try (Cursor cursor = database.query("PRAGMA table_info(`" + table + "`)")) {
-            int nameIndex = cursor.getColumnIndex("name");
-            while (cursor.moveToNext()) {
-                if (nameIndex >= 0 && column.equals(cursor.getString(nameIndex))) {
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
 }

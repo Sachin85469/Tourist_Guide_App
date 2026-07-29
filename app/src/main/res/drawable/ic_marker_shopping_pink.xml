@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android" android:width="46dp" android:height="58dp" android:viewportWidth="46" android:viewportHeight="58">
+    <path android:fillColor="#26000000" android:pathData="M23,57C23,57 2,39 2,23C2,10.8 11,2 23,2s21,8.8 21,21C44,39 23,57 23,57z"/>
+    <path android:fillColor="@color/marker_shopping" android:pathData="M23,4C12.5,4 4,12.5 4,23c0,14.2 19,30 19,30s19,-15.8 19,-30C42,12.5 33.5,4 23,4z"/>
+    <path android:fillColor="#26FFFFFF" android:pathData="M23,23m-15,0a15,15 0,1 1,30 0a15,15 0,1 1,-30 0"/>
+    <path android:fillColor="#FFFFFFFF" android:pathData="M14,20h18l-2,14H16zM19,20v-3c0,-4 8,-4 8,0v3h-2v-3c0,-2 -4,-2 -4,0v3z"/>
+</vector>
