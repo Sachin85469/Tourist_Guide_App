@@ -26,6 +26,8 @@ cloudinary.config({
   api_key: process.env.CLOUDINARY_API_KEY,
   api_secret: process.env.CLOUDINARY_API_SECRET
 });
+console.log("DEBUG cloud_name:", JSON.stringify(process.env.CLOUDINARY_CLOUD_NAME));
+console.log("DEBUG api_key:", JSON.stringify(process.env.CLOUDINARY_API_KEY));
 console.log("DEBUG secret length:", (process.env.CLOUDINARY_API_SECRET || "").length, JSON.stringify(process.env.CLOUDINARY_API_SECRET));
 
 // Keep the file in memory, cap at 8MB, images only
