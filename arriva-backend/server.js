@@ -539,7 +539,10 @@ function uploadBufferToCloudinary(buffer, folder) {
         transformation: [{ width: 1600, height: 1600, crop: "limit", quality: "auto", fetch_format: "auto" }]
       },
       (error, result) => {
-        if (error) return reject(publicError(502, "Cloudinary upload failed."));
+        if (error) {
+          console.error("Cloudinary error:", error);
+          return reject(publicError(502, "Cloudinary upload failed."));
+        }
         resolve(result);
       }
     );
