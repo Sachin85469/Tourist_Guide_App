@@ -26,6 +26,7 @@ cloudinary.config({
   api_key: process.env.CLOUDINARY_API_KEY,
   api_secret: process.env.CLOUDINARY_API_SECRET
 });
+console.log("DEBUG secret length:", (process.env.CLOUDINARY_API_SECRET || "").length, JSON.stringify(process.env.CLOUDINARY_API_SECRET));
 
 // Keep the file in memory, cap at 8MB, images only
 const upload = multer({
