@@ -26,9 +26,7 @@ cloudinary.config({
   api_key: process.env.CLOUDINARY_API_KEY,
   api_secret: process.env.CLOUDINARY_API_SECRET
 });
-console.log("DEBUG cloud_name:", JSON.stringify(process.env.CLOUDINARY_CLOUD_NAME));
-console.log("DEBUG api_key:", JSON.stringify(process.env.CLOUDINARY_API_KEY));
-console.log("DEBUG secret length:", (process.env.CLOUDINARY_API_SECRET || "").length, JSON.stringify(process.env.CLOUDINARY_API_SECRET));
+
 
 // Keep the file in memory, cap at 8MB, images only
 const upload = multer({
@@ -537,9 +535,7 @@ function uploadBufferToCloudinary(buffer, folder) {
     const stream = cloudinary.uploader.upload_stream(
       {
         folder,
-        resource_type: "image",
-        // Auto-optimize + cap dimensions so you're not storing/serving giant photos
-        transformation: [{ width: 1600, height: 1600, crop: "limit", quality: "auto", fetch_format: "auto" }]
+        resource_type: "image"
       },
       (error, result) => {
         if (error) {
