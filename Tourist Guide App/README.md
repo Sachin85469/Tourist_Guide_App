@@ -57,6 +57,8 @@ Add your API keys to `local.properties` in the project root (never commit real v
 GOOGLE_PLACES_API_KEY=your_key_here
 GEMINI_API_KEY=your_key_here
 OWM_API_KEY=your_key_here
+ORVIX_API_KEY=your_key_here
+ORVIX_BASE_URL=http://your-orvix-server-ip:8000
 ITINERARY_BACKEND_URL=https://your-backend-url.onrender.com
 ```
 

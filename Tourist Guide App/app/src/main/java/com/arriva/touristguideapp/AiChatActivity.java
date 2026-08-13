@@ -32,6 +32,8 @@ import com.arriva.touristguideapp.data.chat.ChatClient;
 import com.arriva.touristguideapp.data.chat.ChatMessage;
 import com.arriva.touristguideapp.data.chat.ChatRepository;
 import com.arriva.touristguideapp.data.chat.GeminiChatClient;
+import com.arriva.touristguideapp.data.chat.NvidiaChatClient;
+import com.arriva.touristguideapp.data.chat.OrvixChatClient;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.chip.Chip;
 import com.google.android.material.progressindicator.LinearProgressIndicator;
@@ -212,21 +214,52 @@ public class AiChatActivity extends BaseActivity {
     }
 
     private void initChatClient() {
-        // ─── 1. Build the proxy client (always primary if a backend URL is configured) ───
+        // ─── 0. NVIDIA NIM API (primary when AI_PROVIDER is nvidia) ───
+        String aiProvider = BuildConfig.AI_PROVIDER.trim();
+        String nvidiaKey = BuildConfig.NVIDIA_API_KEY.trim();
+        if ("nvidia".equalsIgnoreCase(aiProvider) && isConfiguredKey(nvidiaKey)) {
+            android.util.Log.d(TAG, "Configuring NVIDIA as primary chat client");
+            primaryClient = new NvidiaChatClient(this, nvidiaKey, BuildConfig.NVIDIA_MODEL.trim(), getString(R.string.ai_system_instruction));
+            chatClient = primaryClient;
+        }
+
+        // ─── 1. ORVIX — local FastAPI server (primary when configured) ───
+        String orvixBaseUrl = BuildConfig.ORVIX_BASE_URL.trim();
+        String orvixApiKey  = BuildConfig.ORVIX_API_KEY.trim();
+        if (isConfiguredUrl(orvixBaseUrl)) {
+            android.util.Log.d(TAG, "Configuring ORVIX client -> " + orvixBaseUrl);
+            OrvixChatClient orvixClient = new OrvixChatClient(this, orvixBaseUrl, orvixApiKey);
+            if (chatClient == null) {
+                primaryClient = orvixClient;
+                chatClient    = primaryClient;
+            } else if (fallbackClient == null) {
+                fallbackClient = orvixClient;
+            }
+        } else {
+            android.util.Log.d(TAG, "No ORVIX server configured.");
+        }
+
+        // ─── 2. Anthropic proxy — used as primary if no prior client is configured,
+        //        or as fallback if there is room ───
         String backendUrl = BuildConfig.ARRIVA_BACKEND_URL.trim();
         String appToken   = BuildConfig.ARRIVA_APP_TOKEN.trim();
         if (isConfiguredUrl(backendUrl)) {
             String chatUrl = backendUrl.endsWith("/")
                     ? backendUrl + "api/chat"
                     : backendUrl + "/api/chat";
-            android.util.Log.d(TAG, "Configuring primary proxy client -> " + chatUrl);
-            primaryClient = new AnthropicChatClient(this, chatUrl, appToken);
-            chatClient    = primaryClient;
-        } else {
-            android.util.Log.d(TAG, "No Arriva backend configured.");
+            android.util.Log.d(TAG, "Configuring Anthropic proxy client -> " + chatUrl);
+            AnthropicChatClient anthropicClient = new AnthropicChatClient(this, chatUrl, appToken);
+            if (chatClient == null) {
+                // Promote Anthropic to primary
+                primaryClient = anthropicClient;
+                chatClient    = primaryClient;
+            } else if (fallbackClient == null) {
+                // Promote Anthropic to fallback
+                fallbackClient = anthropicClient;
+            }
         }
 
-        // ─── 2. Build the Gemini fallback ───
+        // ─── 3. Gemini — last-resort fallback ───
         String geminiKey = BuildConfig.GEMINI_API_KEY.trim();
         if (!isConfiguredKey(geminiKey)) {
             geminiKey = getString(R.string.gemini_api_key).trim();
@@ -236,25 +269,28 @@ public class AiChatActivity extends BaseActivity {
         }
         if (isConfiguredKey(geminiKey)) {
             try {
-                fallbackClient = new GeminiChatClient(
+                GeminiChatClient geminiClient = new GeminiChatClient(
                         this,
                         geminiKey,
                         getString(R.string.ai_system_instruction)
                 );
-                android.util.Log.d(TAG, "Gemini fallback initialized.");
-                // If we have no primary, promote Gemini to primary.
+                android.util.Log.d(TAG, "Gemini client initialized.");
+                // Gemini fills the first empty slot (primary or fallback).
                 if (chatClient == null) {
-                    chatClient = fallbackClient;
+                    chatClient = geminiClient;
                     android.util.Log.d(TAG, "Promoted Gemini to primary chat client.");
+                } else if (fallbackClient == null) {
+                    fallbackClient = geminiClient;
+                    android.util.Log.d(TAG, "Gemini set as fallback chat client.");
                 }
             } catch (RuntimeException e) {
-                android.util.Log.e(TAG, "Failed to initialize Gemini fallback", e);
+                android.util.Log.e(TAG, "Failed to initialize Gemini client", e);
             }
         } else {
             android.util.Log.w(TAG, "No Gemini API key configured.");
         }
 
-        // ─── 3. No client at all — show offline state ───
+        // ─── 4. No client at all — show offline state ───
         if (chatClient == null) {
             isOffline = true;
             showOfflineState();

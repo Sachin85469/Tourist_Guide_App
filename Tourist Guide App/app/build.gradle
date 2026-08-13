@@ -32,12 +32,25 @@ android {
         def arrivaBackendUrl = properties.getProperty('ARRIVA_BACKEND_URL', '').trim()
         def arrivaAppToken   = properties.getProperty('ARRIVA_APP_TOKEN', '').trim()
         def owmApiKey        = properties.getProperty('OWM_API_KEY', '').trim()
+        // ORVIX local chat server
+        def orvixBaseUrl     = properties.getProperty('ORVIX_BASE_URL', '').trim()
+        def orvixApiKey      = properties.getProperty('ORVIX_API_KEY', '').trim()
+        // NVIDIA NIM API configuration
+        def nvidiaApiKey     = properties.getProperty('NVIDIA_API_KEY', '').trim()
+        def nvidiaModel      = properties.getProperty('NVIDIA_MODEL', 'meta/llama-3.1-8b-instruct').trim()
+        def aiProvider       = properties.getProperty('AI_PROVIDER', '').trim()
+        
         buildConfigField "String", "GOOGLE_PLACES_API_KEY", "\"${googlePlacesKey}\""
         buildConfigField "String", "GEMINI_API_KEY", "\"${geminiKey}\""
         buildConfigField "String", "ITINERARY_BACKEND_URL", "\"${itineraryBackendUrl}\""
         buildConfigField "String", "ARRIVA_BACKEND_URL", "\"${arrivaBackendUrl}\""
         buildConfigField "String", "ARRIVA_APP_TOKEN",    "\"${arrivaAppToken}\""
         buildConfigField "String", "OWM_API_KEY",         "\"${owmApiKey}\""
+        buildConfigField "String", "ORVIX_BASE_URL",      "\"${orvixBaseUrl}\""
+        buildConfigField "String", "ORVIX_API_KEY",       "\"${orvixApiKey}\""
+        buildConfigField "String", "NVIDIA_API_KEY",      "\"${nvidiaApiKey}\""
+        buildConfigField "String", "NVIDIA_MODEL",        "\"${nvidiaModel}\""
+        buildConfigField "String", "AI_PROVIDER",         "\"${aiProvider}\""
     }
 
     packaging {
